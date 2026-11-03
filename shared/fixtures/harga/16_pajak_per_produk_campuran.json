@@ -1,0 +1,33 @@
+{
+  "nama": "pajak_per_produk aktif - satu produk override tanpa pajak, satu pakai pajak default",
+  "input": {
+    "items": [
+      {"produk_id": "p1", "varian_id": null, "nama_produk": "Rokok (bebas pajak toko)", "qty": 1, "harga_jual": 60000, "harga_outlet": null, "harga_grosir_tiers": [], "modifiers": [], "pajak_produk": []},
+      {"produk_id": "p2", "varian_id": null, "nama_produk": "Makanan", "qty": 1, "harga_jual": 40000, "harga_outlet": null, "harga_grosir_tiers": [], "modifiers": [], "pajak_produk": null}
+    ],
+    "fitur_aktif": ["pajak_per_produk"],
+    "promo": null,
+    "diskon_member_persen": null,
+    "tipe_order": null,
+    "pajak_default": [{"id": "ppn", "nama": "PPN", "persen": 10, "termasuk_harga": false, "urutan": 1}],
+    "service_default": [],
+    "pembulatan": 0
+  },
+  "expected": {
+    "items": [
+      {"produk_id": "p1", "varian_id": null, "qty": 1, "harga_satuan": 60000, "diskon": 0, "subtotal": 60000},
+      {"produk_id": "p2", "varian_id": null, "qty": 1, "harga_satuan": 40000, "diskon": 0, "subtotal": 40000}
+    ],
+    "subtotal": 100000,
+    "diskon_member": 0,
+    "diskon_promo": 0,
+    "total_diskon": 0,
+    "service": 0,
+    "rincian_service": [],
+    "pajak": 4000,
+    "rincian_pajak": [{"nama": "PPN", "persen": 10, "jumlah": 4000, "termasuk_harga": false}],
+    "total_sebelum_pembulatan": 104000,
+    "pembulatan": 0,
+    "total": 104000
+  }
+}

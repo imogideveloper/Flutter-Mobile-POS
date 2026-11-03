@@ -1,0 +1,14 @@
+{
+  "nama": "pembulatan ROUND_HALF_UP tepat di titik ,5",
+  "input": {
+    "items": [
+      {"item_transaksi_id": "i1", "qty": 2, "harga_satuan": 10000, "diskon": 0, "subtotal": 20000}
+    ],
+    "diskon_transaksi_total": 15,
+    "pajak_service_total": 0,
+    "refund_lines": [{"item_transaksi_id": "i1", "qty_refund": 1}]
+  },
+  "expected": {
+    "lines": [{"item_transaksi_id": "i1", "jumlah": 9993}]
+  }
+}

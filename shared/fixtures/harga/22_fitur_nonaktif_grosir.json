@@ -1,0 +1,30 @@
+{
+  "nama": "fitur harga_grosir nonaktif - tier diabaikan meski qty memenuhi, hasil sama seperti tidak ada tier",
+  "input": {
+    "items": [
+      {"produk_id": "p1", "varian_id": null, "nama_produk": "Beras 1kg", "qty": 10, "harga_jual": 10000, "harga_outlet": null,
+       "harga_grosir_tiers": [{"min_qty": 10, "harga": 8000, "outlet_id": null}], "modifiers": [], "pajak_produk": null}
+    ],
+    "fitur_aktif": [],
+    "promo": null,
+    "diskon_member_persen": null,
+    "tipe_order": null,
+    "pajak_default": [],
+    "service_default": [],
+    "pembulatan": 0
+  },
+  "expected": {
+    "items": [{"produk_id": "p1", "varian_id": null, "qty": 10, "harga_satuan": 10000, "diskon": 0, "subtotal": 100000}],
+    "subtotal": 100000,
+    "diskon_member": 0,
+    "diskon_promo": 0,
+    "total_diskon": 0,
+    "service": 0,
+    "rincian_service": [],
+    "pajak": 0,
+    "rincian_pajak": [],
+    "total_sebelum_pembulatan": 100000,
+    "pembulatan": 0,
+    "total": 100000
+  }
+}

@@ -1,0 +1,49 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: pos
+      POSTGRES_PASSWORD: pos
+      POSTGRES_DB: pos
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pos"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  api:
+    build: .
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    ports:
+      - "8000:8000"
+    command: >
+      sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+
+  worker:
+    build: .
+    env_file: .env
+    depends_on:
+      - postgres
+      - redis
+    # app/jobs/arq_worker.py sudah ada (cron langganan kedaluwarsa + stok
+    # menipis) tapi BELUM pernah dicoba jalan sungguhan di sini (tidak ada
+    # Redis di sandbox dev) - lihat README bagian Keterbatasan sebelum
+    # mengandalkannya di produksi.
+    command: ["arq", "app.jobs.arq_worker.WorkerSettings"]
+
+volumes:
+  pgdata:

@@ -1,0 +1,21 @@
+{
+  "nama": "diskon transaksi (member+promo) dialokasikan proporsional ke 2 item, refund penuh keduanya",
+  "input": {
+    "items": [
+      {"item_transaksi_id": "i1", "qty": 2, "harga_satuan": 10000, "diskon": 0, "subtotal": 20000},
+      {"item_transaksi_id": "i2", "qty": 1, "harga_satuan": 10000, "diskon": 0, "subtotal": 10000}
+    ],
+    "diskon_transaksi_total": 3000,
+    "pajak_service_total": 0,
+    "refund_lines": [
+      {"item_transaksi_id": "i1", "qty_refund": 2},
+      {"item_transaksi_id": "i2", "qty_refund": 1}
+    ]
+  },
+  "expected": {
+    "lines": [
+      {"item_transaksi_id": "i1", "jumlah": 18000},
+      {"item_transaksi_id": "i2", "jumlah": 9000}
+    ]
+  }
+}

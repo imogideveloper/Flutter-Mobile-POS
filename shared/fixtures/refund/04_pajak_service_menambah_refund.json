@@ -1,0 +1,21 @@
+{
+  "nama": "pajak+service dialokasikan proporsional, MENAMBAH nominal refund",
+  "input": {
+    "items": [
+      {"item_transaksi_id": "i1", "qty": 2, "harga_satuan": 10000, "diskon": 0, "subtotal": 20000},
+      {"item_transaksi_id": "i2", "qty": 1, "harga_satuan": 10000, "diskon": 0, "subtotal": 10000}
+    ],
+    "diskon_transaksi_total": 0,
+    "pajak_service_total": 3300,
+    "refund_lines": [
+      {"item_transaksi_id": "i1", "qty_refund": 2},
+      {"item_transaksi_id": "i2", "qty_refund": 1}
+    ]
+  },
+  "expected": {
+    "lines": [
+      {"item_transaksi_id": "i1", "jumlah": 22200},
+      {"item_transaksi_id": "i2", "jumlah": 11100}
+    ]
+  }
+}

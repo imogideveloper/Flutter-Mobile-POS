@@ -1,0 +1,29 @@
+{
+  "nama": "pembulatan akhir ke kelipatan 500",
+  "input": {
+    "items": [
+      {"produk_id": "p1", "varian_id": null, "nama_produk": "Barang", "qty": 1, "harga_jual": 10250, "harga_outlet": null, "harga_grosir_tiers": [], "modifiers": [], "pajak_produk": null}
+    ],
+    "fitur_aktif": [],
+    "promo": null,
+    "diskon_member_persen": null,
+    "tipe_order": null,
+    "pajak_default": [],
+    "service_default": [],
+    "pembulatan": 500
+  },
+  "expected": {
+    "items": [{"produk_id": "p1", "varian_id": null, "qty": 1, "harga_satuan": 10250, "diskon": 0, "subtotal": 10250}],
+    "subtotal": 10250,
+    "diskon_member": 0,
+    "diskon_promo": 0,
+    "total_diskon": 0,
+    "service": 0,
+    "rincian_service": [],
+    "pajak": 0,
+    "rincian_pajak": [],
+    "total_sebelum_pembulatan": 10250,
+    "pembulatan": 250,
+    "total": 10500
+  }
+}

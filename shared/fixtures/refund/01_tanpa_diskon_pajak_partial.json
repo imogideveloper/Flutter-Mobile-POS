@@ -1,0 +1,14 @@
+{
+  "nama": "refund sebagian tanpa diskon/pajak - murni qty*harga_satuan",
+  "input": {
+    "items": [
+      {"item_transaksi_id": "i1", "qty": 4, "harga_satuan": 15000, "diskon": 0, "subtotal": 60000}
+    ],
+    "diskon_transaksi_total": 0,
+    "pajak_service_total": 0,
+    "refund_lines": [{"item_transaksi_id": "i1", "qty_refund": 2}]
+  },
+  "expected": {
+    "lines": [{"item_transaksi_id": "i1", "jumlah": 30000}]
+  }
+}

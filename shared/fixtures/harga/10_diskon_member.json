@@ -1,0 +1,29 @@
+{
+  "nama": "diskon member memotong subtotal transaksi",
+  "input": {
+    "items": [
+      {"produk_id": "p1", "varian_id": null, "nama_produk": "Paket Hemat", "qty": 1, "harga_jual": 50000, "harga_outlet": null, "harga_grosir_tiers": [], "modifiers": [], "pajak_produk": null}
+    ],
+    "fitur_aktif": ["diskon_member"],
+    "promo": null,
+    "diskon_member_persen": 20,
+    "tipe_order": null,
+    "pajak_default": [],
+    "service_default": [],
+    "pembulatan": 0
+  },
+  "expected": {
+    "items": [{"produk_id": "p1", "varian_id": null, "qty": 1, "harga_satuan": 50000, "diskon": 0, "subtotal": 50000}],
+    "subtotal": 50000,
+    "diskon_member": 10000,
+    "diskon_promo": 0,
+    "total_diskon": 10000,
+    "service": 0,
+    "rincian_service": [],
+    "pajak": 0,
+    "rincian_pajak": [],
+    "total_sebelum_pembulatan": 40000,
+    "pembulatan": 0,
+    "total": 40000
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "nama": "fitur diskon_member nonaktif - persen member diabaikan meski diisi",
+  "input": {
+    "items": [
+      {"produk_id": "p1", "varian_id": null, "nama_produk": "Paket Hemat", "qty": 1, "harga_jual": 50000, "harga_outlet": null, "harga_grosir_tiers": [], "modifiers": [], "pajak_produk": null}
+    ],
+    "fitur_aktif": [],
+    "promo": null,
+    "diskon_member_persen": 20,
+    "tipe_order": null,
+    "pajak_default": [],
+    "service_default": [],
+    "pembulatan": 0
+  },
+  "expected": {
+    "items": [{"produk_id": "p1", "varian_id": null, "qty": 1, "harga_satuan": 50000, "diskon": 0, "subtotal": 50000}],
+    "subtotal": 50000,
+    "diskon_member": 0,
+    "diskon_promo": 0,
+    "total_diskon": 0,
+    "service": 0,
+    "rincian_service": [],
+    "pajak": 0,
+    "rincian_pajak": [],
+    "total_sebelum_pembulatan": 50000,
+    "pembulatan": 0,
+    "total": 50000
+  }
+}

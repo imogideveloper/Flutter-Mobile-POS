@@ -1,0 +1,30 @@
+{
+  "nama": "modifier menambah harga satuan",
+  "input": {
+    "items": [
+      {"produk_id": "p1", "varian_id": null, "nama_produk": "Kopi Susu", "qty": 2, "harga_jual": 15000, "harga_outlet": null, "harga_grosir_tiers": [],
+       "modifiers": [{"nama": "Extra shot", "harga": 3000}, {"nama": "Susu oat", "harga": 2000}], "pajak_produk": null}
+    ],
+    "fitur_aktif": [],
+    "promo": null,
+    "diskon_member_persen": null,
+    "tipe_order": null,
+    "pajak_default": [],
+    "service_default": [],
+    "pembulatan": 0
+  },
+  "expected": {
+    "items": [{"produk_id": "p1", "varian_id": null, "qty": 2, "harga_satuan": 20000, "diskon": 0, "subtotal": 40000}],
+    "subtotal": 40000,
+    "diskon_member": 0,
+    "diskon_promo": 0,
+    "total_diskon": 0,
+    "service": 0,
+    "rincian_service": [],
+    "pajak": 0,
+    "rincian_pajak": [],
+    "total_sebelum_pembulatan": 40000,
+    "pembulatan": 0,
+    "total": 40000
+  }
+}

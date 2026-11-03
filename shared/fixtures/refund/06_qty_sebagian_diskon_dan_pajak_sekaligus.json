@@ -1,0 +1,14 @@
+{
+  "nama": "qty sebagian (fraksi) dgn diskon DAN pajak sekaligus - satu item",
+  "input": {
+    "items": [
+      {"item_transaksi_id": "i1", "qty": 5, "harga_satuan": 2000, "diskon": 0, "subtotal": 10000}
+    ],
+    "diskon_transaksi_total": 1000,
+    "pajak_service_total": 550,
+    "refund_lines": [{"item_transaksi_id": "i1", "qty_refund": 2}]
+  },
+  "expected": {
+    "lines": [{"item_transaksi_id": "i1", "jumlah": 3820}]
+  }
+}

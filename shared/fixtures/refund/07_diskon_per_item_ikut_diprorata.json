@@ -1,0 +1,14 @@
+{
+  "nama": "diskon per-produk (promo cakupan=produk) pada baris itu ikut diprorata sesuai fraksi qty",
+  "input": {
+    "items": [
+      {"item_transaksi_id": "i1", "qty": 3, "harga_satuan": 10000, "diskon": 3000, "subtotal": 27000}
+    ],
+    "diskon_transaksi_total": 0,
+    "pajak_service_total": 0,
+    "refund_lines": [{"item_transaksi_id": "i1", "qty_refund": 1}]
+  },
+  "expected": {
+    "lines": [{"item_transaksi_id": "i1", "jumlah": 9000}]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "nama": "promo cakupan produk - diskon dihitung dari baris produk itu sendiri",
+  "input": {
+    "items": [
+      {"produk_id": "p1", "varian_id": null, "nama_produk": "Kopi", "qty": 4, "harga_jual": 10000, "harga_outlet": null, "harga_grosir_tiers": [], "modifiers": [], "pajak_produk": null}
+    ],
+    "fitur_aktif": [],
+    "promo": {"id": "promo1", "nama": "Diskon Kopi", "tipe": "persen", "cakupan": "produk", "nilai": 10, "min_belanja": 0, "maks_diskon": null, "produk_ids": ["p1"]},
+    "diskon_member_persen": null,
+    "tipe_order": null,
+    "pajak_default": [],
+    "service_default": [],
+    "pembulatan": 0
+  },
+  "expected": {
+    "items": [{"produk_id": "p1", "varian_id": null, "qty": 4, "harga_satuan": 10000, "diskon": 4000, "subtotal": 36000}],
+    "subtotal": 36000,
+    "diskon_member": 0,
+    "diskon_promo": 0,
+    "total_diskon": 0,
+    "service": 0,
+    "rincian_service": [],
+    "pajak": 0,
+    "rincian_pajak": [],
+    "total_sebelum_pembulatan": 36000,
+    "pembulatan": 0,
+    "total": 36000
+  }
+}

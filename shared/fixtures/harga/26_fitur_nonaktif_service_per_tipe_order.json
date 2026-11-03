@@ -1,0 +1,35 @@
+{
+  "nama": "fitur service_per_tipe_order nonaktif - semua service default dipakai utuh, tidak difilter per tipe_order",
+  "input": {
+    "items": [
+      {"produk_id": "p1", "varian_id": null, "nama_produk": "Paket Makan", "qty": 1, "harga_jual": 100000, "harga_outlet": null, "harga_grosir_tiers": [], "modifiers": [], "pajak_produk": null}
+    ],
+    "fitur_aktif": [],
+    "promo": null,
+    "diskon_member_persen": null,
+    "tipe_order": {"id": "to-takeaway", "markup_persen": 0, "pajak_ids": ["svc1"]},
+    "pajak_default": [],
+    "service_default": [
+      {"id": "svc1", "nama": "Service A", "persen": 5, "termasuk_harga": false, "urutan": 1},
+      {"id": "svc2", "nama": "Service B", "persen": 3, "termasuk_harga": false, "urutan": 1}
+    ],
+    "pembulatan": 0
+  },
+  "expected": {
+    "items": [{"produk_id": "p1", "varian_id": null, "qty": 1, "harga_satuan": 100000, "diskon": 0, "subtotal": 100000}],
+    "subtotal": 100000,
+    "diskon_member": 0,
+    "diskon_promo": 0,
+    "total_diskon": 0,
+    "service": 8150,
+    "rincian_service": [
+      {"nama": "Service A", "persen": 5, "jumlah": 5000, "termasuk_harga": false},
+      {"nama": "Service B", "persen": 3, "jumlah": 3150, "termasuk_harga": false}
+    ],
+    "pajak": 0,
+    "rincian_pajak": [],
+    "total_sebelum_pembulatan": 108150,
+    "pembulatan": 0,
+    "total": 108150
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "nama": "harga grosir - tier outlet-spesifik menang atas tier umum pada min_qty sama",
+  "input": {
+    "items": [
+      {"produk_id": "p1", "varian_id": null, "nama_produk": "Beras 1kg", "qty": 10, "harga_jual": 10000, "harga_outlet": null,
+       "harga_grosir_tiers": [
+         {"min_qty": 10, "harga": 9000, "outlet_id": null},
+         {"min_qty": 10, "harga": 8500, "outlet_id": "outlet-1"}
+       ], "modifiers": [], "pajak_produk": null}
+    ],
+    "fitur_aktif": ["harga_grosir"],
+    "promo": null,
+    "diskon_member_persen": null,
+    "tipe_order": null,
+    "pajak_default": [],
+    "service_default": [],
+    "pembulatan": 0
+  },
+  "expected": {
+    "items": [{"produk_id": "p1", "varian_id": null, "qty": 10, "harga_satuan": 8500, "diskon": 0, "subtotal": 85000}],
+    "subtotal": 85000,
+    "diskon_member": 0,
+    "diskon_promo": 0,
+    "total_diskon": 0,
+    "service": 0,
+    "rincian_service": [],
+    "pajak": 0,
+    "rincian_pajak": [],
+    "total_sebelum_pembulatan": 85000,
+    "pembulatan": 0,
+    "total": 85000
+  }
+}

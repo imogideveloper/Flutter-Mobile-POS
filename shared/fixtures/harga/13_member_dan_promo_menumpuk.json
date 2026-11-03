@@ -1,0 +1,29 @@
+{
+  "nama": "diskon member dan promo transaksi boleh menumpuk, member dihitung lebih dulu",
+  "input": {
+    "items": [
+      {"produk_id": "p1", "varian_id": null, "nama_produk": "Paket Besar", "qty": 1, "harga_jual": 100000, "harga_outlet": null, "harga_grosir_tiers": [], "modifiers": [], "pajak_produk": null}
+    ],
+    "fitur_aktif": ["diskon_member"],
+    "promo": {"id": "promo1", "nama": "Diskon 10%", "tipe": "persen", "cakupan": "transaksi", "nilai": 10, "min_belanja": 0, "maks_diskon": null, "produk_ids": []},
+    "diskon_member_persen": 10,
+    "tipe_order": null,
+    "pajak_default": [],
+    "service_default": [],
+    "pembulatan": 0
+  },
+  "expected": {
+    "items": [{"produk_id": "p1", "varian_id": null, "qty": 1, "harga_satuan": 100000, "diskon": 0, "subtotal": 100000}],
+    "subtotal": 100000,
+    "diskon_member": 10000,
+    "diskon_promo": 10000,
+    "total_diskon": 20000,
+    "service": 0,
+    "rincian_service": [],
+    "pajak": 0,
+    "rincian_pajak": [],
+    "total_sebelum_pembulatan": 80000,
+    "pembulatan": 0,
+    "total": 80000
+  }
+}

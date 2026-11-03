@@ -1,0 +1,77 @@
+name: apps_pos
+description: "Aplikasi kasir POS offline-first untuk UMKM Indonesia."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.12.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  # State management
+  flutter_riverpod: ^3.4.3
+
+  # Database lokal (SQLite via drift)
+  drift: ^2.35.2
+  path_provider: ^2.1.6
+  path: ^1.9.1
+
+  # Identitas record offline-first & keamanan token
+  uuid: ^4.6.0
+  flutter_secure_storage: ^11.2.0
+  crypto: ^3.0.6
+  # Tahap 5b - verifikasi PIN lokal offline terhadap pin_hash dari server
+  # (bcrypt, pure Dart, TANPA native/FFI - lihat core/auth/pin_hash.dart).
+  bcrypt: ^1.1.3
+
+  # Navigasi, HTTP, sync
+  go_router: ^17.5.0
+  dio: ^5.11.1
+
+  # Format uang/tanggal, util koleksi
+  intl: ^0.20.3
+  collection: ^1.19.1
+
+  # Desain: font, ikon, grafik, QR
+  google_fonts: ^8.2.1
+  fl_chart: ^1.2.0
+  qr_flutter: ^4.1.0
+
+  # Hardware kasir: scan barcode, printer thermal, foto produk
+  mobile_scanner: ^7.4.2
+  esc_pos_utils_plus: ^2.0.4
+  print_bluetooth_thermal: ^1.2.5
+  image_picker: ^1.2.4
+  # Dipakai esc_pos_utils_plus utk konversi logo jadi bitmap cetak (tahap 4
+  # bagian C.6) - sebelumnya cuma dependency transitif, dijadikan langsung
+  # krn kode kita sendiri yang mengimpor package:image/image.dart.
+  image: ^4.1.2
+  # Izin runtime Bluetooth Android 12+ (BLUETOOTH_SCAN/BLUETOOTH_CONNECT -
+  # tahap 4 bagian D.1).
+  permission_handler: ^12.0.1
+  # "Kirim WhatsApp" (tahap 4 bagian D.5) - share_plus utk share sheet
+  # (fallback tanpa no HP pelanggan), url_launcher utk tautan wa.me.
+  share_plus: ^13.3.1
+  url_launcher: ^6.3.2
+
+  # Sync & konektivitas
+  workmanager: ^0.10.10
+  connectivity_plus: ^7.3.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  drift_dev: ^2.35.1
+  build_runner: ^2.15.1
+  # Dipakai paket_langganan_flow_test.dart utk mem-fake plugin url_launcher
+  # (buka invoice Xendit di browser eksternal) - sebelumnya cuma dependensi
+  # transitif, dideklarasikan eksplisit biar tidak rapuh kalau url_launcher
+  # ganti dependensinya sendiri.
+  url_launcher_platform_interface: ^2.3.2
+
+flutter:
+  uses-material-design: true

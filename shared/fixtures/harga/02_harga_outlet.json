@@ -1,0 +1,29 @@
+{
+  "nama": "harga_outlet mengalahkan harga_jual",
+  "input": {
+    "items": [
+      {"produk_id": "p1", "varian_id": null, "nama_produk": "Kopi", "qty": 3, "harga_jual": 15000, "harga_outlet": 12000, "harga_grosir_tiers": [], "modifiers": [], "pajak_produk": null}
+    ],
+    "fitur_aktif": [],
+    "promo": null,
+    "diskon_member_persen": null,
+    "tipe_order": null,
+    "pajak_default": [],
+    "service_default": [],
+    "pembulatan": 0
+  },
+  "expected": {
+    "items": [{"produk_id": "p1", "varian_id": null, "qty": 3, "harga_satuan": 12000, "diskon": 0, "subtotal": 36000}],
+    "subtotal": 36000,
+    "diskon_member": 0,
+    "diskon_promo": 0,
+    "total_diskon": 0,
+    "service": 0,
+    "rincian_service": [],
+    "pajak": 0,
+    "rincian_pajak": [],
+    "total_sebelum_pembulatan": 36000,
+    "pembulatan": 0,
+    "total": 36000
+  }
+}

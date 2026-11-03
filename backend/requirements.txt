@@ -1,0 +1,19 @@
+fastapi>=0.118,<0.119
+uvicorn[standard]>=0.38,<0.39
+sqlalchemy>=2.0.44,<2.1
+asyncpg>=0.31,<0.32
+alembic>=1.17,<1.18
+pydantic>=2.12,<2.13
+pydantic-settings>=2.12,<2.13
+python-jose[cryptography]>=3.5,<3.6
+# bcrypt dipakai LANGSUNG (lihat app/core/security.py), bukan lewat passlib -
+# passlib 1.7.4 punya self-test internal (detect_wrap_bug) yang crash di
+# bcrypt>=4 karena API berubah (__about__ dihapus, ValueError dilempar utk
+# secret >72 byte bukan di-truncate). Masalah dikenal luas di ekosistem
+# passlib+bcrypt; cek lagi kalau passlib rilis versi baru yang memperbaikinya.
+bcrypt>=4.0,<6.0
+arq>=0.26,<0.27
+redis>=5.0,<6.0
+httpx>=0.28,<0.29
+python-multipart>=0.0.20,<0.1
+boto3>=1.40,<1.41

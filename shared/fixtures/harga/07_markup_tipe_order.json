@@ -1,0 +1,29 @@
+{
+  "nama": "markup tipe order (mis. aplikasi delivery) menaikkan harga satuan",
+  "input": {
+    "items": [
+      {"produk_id": "p1", "varian_id": null, "nama_produk": "Nasi Goreng", "qty": 1, "harga_jual": 20000, "harga_outlet": null, "harga_grosir_tiers": [], "modifiers": [], "pajak_produk": null}
+    ],
+    "fitur_aktif": ["tipe_order"],
+    "promo": null,
+    "diskon_member_persen": null,
+    "tipe_order": {"id": "to-gofood", "markup_persen": 10, "pajak_ids": []},
+    "pajak_default": [],
+    "service_default": [],
+    "pembulatan": 0
+  },
+  "expected": {
+    "items": [{"produk_id": "p1", "varian_id": null, "qty": 1, "harga_satuan": 22000, "diskon": 0, "subtotal": 22000}],
+    "subtotal": 22000,
+    "diskon_member": 0,
+    "diskon_promo": 0,
+    "total_diskon": 0,
+    "service": 0,
+    "rincian_service": [],
+    "pajak": 0,
+    "rincian_pajak": [],
+    "total_sebelum_pembulatan": 22000,
+    "pembulatan": 0,
+    "total": 22000
+  }
+}

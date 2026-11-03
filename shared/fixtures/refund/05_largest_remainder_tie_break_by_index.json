@@ -1,0 +1,24 @@
+{
+  "nama": "largest remainder - 3 item bobot sama, sisa pembulatan jatuh ke index terkecil",
+  "input": {
+    "items": [
+      {"item_transaksi_id": "i1", "qty": 1, "harga_satuan": 10000, "diskon": 0, "subtotal": 10000},
+      {"item_transaksi_id": "i2", "qty": 1, "harga_satuan": 10000, "diskon": 0, "subtotal": 10000},
+      {"item_transaksi_id": "i3", "qty": 1, "harga_satuan": 10000, "diskon": 0, "subtotal": 10000}
+    ],
+    "diskon_transaksi_total": 100,
+    "pajak_service_total": 0,
+    "refund_lines": [
+      {"item_transaksi_id": "i1", "qty_refund": 1},
+      {"item_transaksi_id": "i2", "qty_refund": 1},
+      {"item_transaksi_id": "i3", "qty_refund": 1}
+    ]
+  },
+  "expected": {
+    "lines": [
+      {"item_transaksi_id": "i1", "jumlah": 9966},
+      {"item_transaksi_id": "i2", "jumlah": 9967},
+      {"item_transaksi_id": "i3", "jumlah": 9967}
+    ]
+  }
+}
