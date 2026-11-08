@@ -1,6 +1,8 @@
 import uuid
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
+from app.core.jenis_usaha import JENIS_USAHA_FNB, normalisasi_jenis_usaha
 
 
 class OtpRequestIn(BaseModel):
@@ -26,6 +28,18 @@ class OtpVerifyIn(BaseModel):
     # = PIN awal akun Owner, toko yang sudah ada = "lupa PIN kasir" (reset
     # PIN device lewat OTP, lihat app/routers/auth.py::verifikasi_otp).
     pin: str | None = Field(default=None, min_length=4, max_length=6)
+
+    @field_validator("jenis_usaha")
+    @classmethod
+    def _jenis_usaha_fnb(cls, nilai: str | None) -> str | None:
+        """Hanya 7 jenis usaha Makanan & Minuman (kode IMOGI). Kosong = default;
+        'fnb' dari klien lama dipetakan ke Kafe & Kedai Kopi."""
+        if nilai is None:
+            return None
+        kode = normalisasi_jenis_usaha(nilai)
+        if kode not in JENIS_USAHA_FNB:
+            raise ValueError(f"jenis_usaha harus salah satu dari: {', '.join(JENIS_USAHA_FNB)}")
+        return kode
 
 
 class TokoOut(BaseModel):

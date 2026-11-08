@@ -11,11 +11,12 @@
     update ke produk/pajak/dkk, hanya pull.
 """
 
+import logging
 import uuid
 from datetime import UTC, datetime
 from decimal import Decimal
 
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from sqlalchemy import or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -25,7 +26,16 @@ from app.models.audit import SyncLog
 from app.models.order import TipeOrder, TipeOrderPajak
 from app.models.outlet import PengaturanOutlet, Perangkat, Toko
 from app.models.pelanggan import Pelanggan
-from app.models.produk import HargaGrosir, HargaOutlet, Kategori, Produk, Satuan
+from app.models.produk import (
+    GrupModifier,
+    HargaGrosir,
+    HargaOutlet,
+    Kategori,
+    Modifier,
+    Produk,
+    ProdukGrupModifier,
+    Satuan,
+)
 from app.models.promo import Pajak, Promo
 from app.models.stok import Stok
 from app.models.transaksi import KasShift, MetodeBayar, Pembayaran, Shift, Transaksi
@@ -36,6 +46,7 @@ from app.schemas.sync import (
     PelangganPushIn,
     PembayaranPushIn,
     ShiftPushIn,
+    StatusPesananPushIn,
     SyncPullOut,
     SyncPushIn,
     SyncPushOut,
@@ -65,6 +76,7 @@ async def _tolak_item(db: AsyncSession, item_id: uuid.UUID | None, pesan: str) -
     atau mewarisi transaction yang sudah rusak ke item setelahnya."""
 
     await db.rollback()
+    logging.getLogger("uvicorn.error").warning("push ditolak id=%s: %s", item_id, pesan)
     return HasilItemPush(id=item_id or uuid.uuid4(), status="ditolak", pesan=pesan)
 
 
@@ -83,6 +95,17 @@ async def push(
     # akses sinkron biasa (`perangkat.id`) di luar context greenlet -
     # akan meledak MissingGreenlet kalau dipakai lagi di akhir fungsi ini.
 
+    hasil_shift: list[HasilItemPush] = []
+    for item in body.shift:
+        try:
+            hasil_shift.append(await _push_satu_shift(db, toko_id, pengguna_id, role_id, item))
+        except HTTPException as exc:
+            hasil_shift.append(await _tolak_item(db, item.id, str(exc.detail)))
+        except IntegrityError:
+            hasil_shift.append(
+                await _tolak_item(db, item.id, "Konflik data (kemungkinan push bersamaan) - coba lagi")
+            )
+
     hasil_transaksi: list[HasilItemPush] = []
     for item in body.transaksi:
         try:
@@ -97,17 +120,6 @@ async def push(
                 await _tolak_item(db, item.id, "Konflik data (kemungkinan push bersamaan) - coba lagi")
             )
 
-    hasil_shift: list[HasilItemPush] = []
-    for item in body.shift:
-        try:
-            hasil_shift.append(await _push_satu_shift(db, toko_id, pengguna_id, role_id, item))
-        except HTTPException as exc:
-            hasil_shift.append(await _tolak_item(db, item.id, str(exc.detail)))
-        except IntegrityError:
-            hasil_shift.append(
-                await _tolak_item(db, item.id, "Konflik data (kemungkinan push bersamaan) - coba lagi")
-            )
-
     hasil_kas_shift: list[HasilItemPush] = []
     for item in body.kas_shift:
         try:
@@ -116,6 +128,21 @@ async def push(
             hasil_kas_shift.append(
                 await _tolak_item(db, item.id, "Konflik data (kemungkinan push bersamaan) - coba lagi")
             )
+
+    # Shift dipush SEBELUM transaksinya (transaksi butuh shiftnya ada), jadi kas yang
+    # seharusnya baru bisa dihitung benar setelah transaksi dan kas masuk/keluar tersimpan.
+    diterima_shift = {h.id for h in hasil_shift if h.status == "diterima"}
+    for item in body.shift:
+        if item.status != "tutup" or item.id not in diterima_shift:
+            continue
+        shift_row = await db.get(Shift, item.id)
+        if shift_row is None or shift_row.status != "tutup":
+            continue
+        shift_row.kas_seharusnya = await hitung_kas_seharusnya(db, shift_row.id, shift_row.modal_awal)
+        shift_row.selisih = (
+            (shift_row.kas_aktual - shift_row.kas_seharusnya) if shift_row.kas_aktual is not None else None
+        )
+        await db.commit()
 
     hasil_pelanggan: list[HasilItemPush] = []
     for item in body.pelanggan:
@@ -152,8 +179,21 @@ async def push(
         except HTTPException as exc:
             hasil_pesanan_batal.append(await _tolak_item(db, item.id, str(exc.detail)))
 
+    hasil_status_pesanan: list[HasilItemPush] = []
+    for item in body.status_pesanan:
+        try:
+            hasil_status_pesanan.append(await _push_satu_status_pesanan(db, toko_id, item))
+        except HTTPException as exc:
+            hasil_status_pesanan.append(await _tolak_item(db, item.id, str(exc.detail)))
+
     semua_hasil = (
-        hasil_transaksi + hasil_shift + hasil_kas_shift + hasil_pelanggan + hasil_pembayaran + hasil_pesanan_batal
+        hasil_transaksi
+        + hasil_shift
+        + hasil_kas_shift
+        + hasil_pelanggan
+        + hasil_pembayaran
+        + hasil_pesanan_batal
+        + hasil_status_pesanan
     )
     ada_ditolak = any(h.status == "ditolak" for h in semua_hasil)
     db.add(
@@ -176,7 +216,23 @@ async def push(
         pelanggan=hasil_pelanggan,
         pembayaran=hasil_pembayaran,
         pesanan_batal=hasil_pesanan_batal,
+        status_pesanan=hasil_status_pesanan,
     )
+
+
+async def _push_satu_status_pesanan(db: AsyncSession, toko_id: uuid.UUID, item: StatusPesananPushIn) -> HasilItemPush:
+    """Perubahan status pesanan dari HP. HP menjadi sumber kebenaran status (pelayan
+    menekan tombol di sana), jadi status terakhir yang dikirim menang. Transaksi harus
+    milik toko ini dan sudah ada di server (urutan push: transaksi dulu, status sesudahnya)."""
+
+    transaksi = (
+        await db.execute(select(Transaksi).where(Transaksi.id == item.id, Transaksi.toko_id == toko_id))
+    ).scalar_one_or_none()
+    if transaksi is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Transaksi tidak ditemukan di server")
+    transaksi.status_pesanan = item.status
+    await db.commit()
+    return HasilItemPush(id=item.id, status="diterima")
 
 
 async def _push_satu_shift(
@@ -470,6 +526,35 @@ async def pull(
     ).all()
     role_izin = [{"role_id": str(role_id), "izin_kode": kode} for role_id, kode in role_izin_rows]
 
+    # Varian/tambahan produk: grup (toko-scoped) + opsinya (lewat grup) + relasi produk-grup.
+    grup_modifier = await _ambil_toko_scoped(
+        "grup_modifier", GrupModifier, ["id", "nama", "min_pilih", "maks_pilih", "updated_at", "deleted_at"]
+    )
+    modifier_rows = (
+        await db.execute(
+            select(Modifier)
+            .join(GrupModifier, GrupModifier.id == Modifier.grup_modifier_id)
+            .where(GrupModifier.toko_id == toko_id, Modifier.updated_at > since)
+            .order_by(Modifier.updated_at.asc())
+            .limit(limit + 1)
+        )
+    ).scalars().all()
+    has_more["modifier"] = len(modifier_rows) > limit
+    modifier = [
+        _ke_dict(r, ["id", "grup_modifier_id", "nama", "harga_tambahan", "urutan", "aktif", "updated_at", "deleted_at"])
+        for r in modifier_rows[:limit]
+    ]
+    produk_grup_modifier = [
+        {"produk_id": str(produk_id), "grup_modifier_id": str(grup_id)}
+        for produk_id, grup_id in (
+            await db.execute(
+                select(ProdukGrupModifier.produk_id, ProdukGrupModifier.grup_modifier_id)
+                .join(Produk, Produk.id == ProdukGrupModifier.produk_id)
+                .where(Produk.toko_id == toko_id)
+            )
+        ).all()
+    ]
+
     stok: list[dict] = []
     has_more["stok"] = False
     if outlet_id is not None:
@@ -570,7 +655,8 @@ async def pull(
         len(x)
         for x in [
             produk, kategori, satuan, pajak, promo, metode_bayar, pelanggan, pengguna, role, role_izin, stok,
-            harga_outlet, harga_grosir, tipe_order_pajak, pengaturan_outlet,
+            harga_outlet, harga_grosir, tipe_order_pajak, pengaturan_outlet, grup_modifier, modifier,
+            produk_grup_modifier,
         ]
     )
     db.add(
@@ -598,6 +684,9 @@ async def pull(
         pengguna=pengguna,
         role=role,
         role_izin=role_izin,
+        grup_modifier=grup_modifier,
+        modifier=modifier,
+        produk_grup_modifier=produk_grup_modifier,
         stok=stok,
         harga_outlet=harga_outlet,
         harga_grosir=harga_grosir,

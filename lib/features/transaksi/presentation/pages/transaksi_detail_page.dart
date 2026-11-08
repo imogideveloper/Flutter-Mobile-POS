@@ -21,6 +21,7 @@ import '../../../../core/widgets/app_toast.dart';
 import '../../domain/detail_transaksi.dart';
 import '../../domain/metode_bayar_label.dart';
 import '../../data/local/tables/transaksi_table.dart' show TransaksiStatus;
+import '../../data/transaksi_repository.dart' show TransaksiSudahDivoidException;
 import '../providers/harga_keranjang_provider.dart';
 import '../providers/transaksi_providers.dart';
 import 'refund_page.dart';
@@ -120,6 +121,7 @@ class _TransaksiDetailPageState extends ConsumerState<TransaksiDetailPage> {
     final data = struk.StrukData(
       namaOutlet: tokoProfile?.namaToko ?? 'Toko',
       nomorStruk: detail.nomorStruk,
+      nomorAntrean: detail.nomorAntrean,
       tanggalEpochMs: detail.tanggal,
       namaPelanggan: detail.namaPelanggan,
       items: [
@@ -127,8 +129,9 @@ class _TransaksiDetailPageState extends ConsumerState<TransaksiDetailPage> {
           struk.ItemStruk(
             namaProduk: item.namaProduk,
             qty: item.qty,
-            hargaSatuan: item.hargaSatuan,
+            hargaSatuan: item.hargaSatuanFinal,
             subtotal: item.subtotal,
+            modifiers: [for (final m in item.modifiers) m.nama],
           ),
       ],
       subtotal: detail.subtotal,
@@ -174,9 +177,17 @@ class _TransaksiDetailPageState extends ConsumerState<TransaksiDetailPage> {
             alasan: alasan.trim(),
             disetujuiOleh: disetujuiOleh,
           );
+      // Muat ulang detail supaya status "dibatalkan" terbaca dan tombol
+      // Void/Refund hilang saat halaman dibuka lagi (BUG-013).
+      ref.invalidate(detailTransaksiProvider(widget.transaksiId));
       if (mounted) {
         showAppToast(context, message: 'Transaksi dibatalkan (void)', variant: ToastVariant.success);
         Navigator.of(context).pop();
+      }
+    } on TransaksiSudahDivoidException {
+      ref.invalidate(detailTransaksiProvider(widget.transaksiId));
+      if (mounted) {
+        showAppToast(context, message: 'Transaksi ini sudah di-void sebelumnya', variant: ToastVariant.warning);
       }
     } finally {
       if (mounted) setState(() => _memvoid = false);

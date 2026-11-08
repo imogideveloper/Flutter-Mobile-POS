@@ -25,6 +25,7 @@ class DetailTransaksi {
     this.namaPelanggan,
     this.alasanVoid,
     this.snapshotStruk,
+    this.nomorAntrean,
   });
 
   final String id;
@@ -49,4 +50,5 @@ class DetailTransaksi {
   // ulang utk kasus itu turun ke rekonstruksi dari data saat ini
   // (keterbatasan lama, lihat docs/aturan_harga.md).
   final String? snapshotStruk;
+  final String? nomorAntrean;
 }

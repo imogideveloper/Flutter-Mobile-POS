@@ -36,6 +36,16 @@ class LanggananSayaOut(BaseModel):
     mulai: datetime
     berakhir: datetime | None
     pemakaian: PemakaianOut
+    # Masa trial berdasarkan usia akun (arahan lead 2026-11-08). Selama
+    # trial_aktif, `paket_efektif_nama` (paket yang BENAR-BENAR berlaku)
+    # lebih tinggi dari `paket_nama` (paket langganan tercatat).
+    paket_efektif_nama: str | None = None
+    trial_aktif: bool = False
+    trial_mulai: datetime | None = None
+    trial_berakhir: datetime | None = None
+    trial_durasi_bulan: int | None = None
+    trial_hari_tersisa: int | None = None
+    trial_notifikasi_hari: int = 7
 
 
 class PermintaanUpgradeIn(BaseModel):

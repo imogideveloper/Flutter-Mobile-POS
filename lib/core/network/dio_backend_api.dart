@@ -249,8 +249,10 @@ class DioBackendApi implements BackendApi {
     required String accessToken,
     required String perangkatId,
     required List<Map<String, dynamic>> transaksi,
+    List<Map<String, dynamic>> shift = const [],
     List<Map<String, dynamic>> pembayaran = const [],
     List<Map<String, dynamic>> pesananBatal = const [],
+    List<Map<String, dynamic>> statusPesanan = const [],
   }) async {
     try {
       final resp = await _dio.post(
@@ -258,8 +260,10 @@ class DioBackendApi implements BackendApi {
         data: {
           'perangkat_id': perangkatId,
           'transaksi': transaksi,
+          'shift': shift,
           'pembayaran': pembayaran,
           'pesanan_batal': pesananBatal,
+          'status_pesanan': statusPesanan,
         },
         options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
       );
@@ -278,6 +282,7 @@ class DioBackendApi implements BackendApi {
         transaksi: hasilUntuk('transaksi'),
         pembayaran: hasilUntuk('pembayaran'),
         pesananBatal: hasilUntuk('pesanan_batal'),
+        statusPesanan: hasilUntuk('status_pesanan'),
       );
     } on DioException catch (e) {
       _lempar(e);
@@ -305,7 +310,7 @@ class DioBackendApi implements BackendApi {
       );
       final body = resp.data as Map<String, dynamic>;
       List<Map<String, dynamic>> listOf(String key) =>
-          (body[key] as List).cast<Map<String, dynamic>>();
+          ((body[key] as List?) ?? const []).cast<Map<String, dynamic>>();
       return SyncPullResult(
         waktuPull: body['waktu_pull'] as String,
         produk: listOf('produk'),
@@ -332,6 +337,9 @@ class DioBackendApi implements BackendApi {
         role: listOf('role'),
         roleIzin: listOf('role_izin'),
         pelanggan: listOf('pelanggan'),
+        grupModifier: listOf('grup_modifier'),
+        modifier: listOf('modifier'),
+        produkGrupModifier: listOf('produk_grup_modifier'),
       );
     } on DioException catch (e) {
       _lempar(e);

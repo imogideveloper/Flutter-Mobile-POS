@@ -68,7 +68,7 @@ class Transaksi(Base, UUIDPkMixin, TimestampMixin):
         UniqueConstraint("outlet_id", "nomor_struk"),
         CheckConstraint(
             "status_pesanan IS NULL OR status_pesanan IN "
-            "('baru','diproses','siap','diambil','dibatalkan')",
+            "('baru','diproses','siap','diantar','selesai','diambil','dibatalkan')",
             name="ck_transaksi_status_pesanan",
         ),
         CheckConstraint(

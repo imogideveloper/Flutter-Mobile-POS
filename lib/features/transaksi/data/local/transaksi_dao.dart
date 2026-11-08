@@ -63,6 +63,12 @@ class TransaksiDao extends DatabaseAccessor<AppDatabase> with _$TransaksiDaoMixi
   /// perlu jejak audit permanen, beda dari void/refund transaksi asli.
   Future<void> hapusPesananTersimpan(String transaksiId) {
     return transaction(() async {
+      final idItem = [
+        for (final r in await (select(itemTransaksi)..where((t) => t.transaksiId.equals(transaksiId))).get()) r.id,
+      ];
+      if (idItem.isNotEmpty) {
+        await (delete(itemTransaksiModifier)..where((t) => t.itemTransaksiId.isIn(idItem))).go();
+      }
       await (delete(itemTransaksi)..where((t) => t.transaksiId.equals(transaksiId))).go();
       await (delete(transaksi)..where((t) => t.id.equals(transaksiId))).go();
     });
@@ -71,8 +77,19 @@ class TransaksiDao extends DatabaseAccessor<AppDatabase> with _$TransaksiDaoMixi
   Stream<TransaksiRow> watchTransaksiById(String id) =>
       (select(transaksi)..where((t) => t.id.equals(id))).watchSingle();
 
-  Future<List<TransaksiRow>> transaksiBelumSync() =>
-      (select(transaksi)..where((t) => t.disinkronPada.isNull())).get();
+  /// Transaksi yang belum terkirim ke server. Pesanan tersimpan (open bill)
+  /// dan draft TIDAK ikut: itu belum jadi penjualan, belum punya baris
+  /// Pembayaran, dan kalau ikut terkirim server menolak seluruh
+  /// `/sync/push` dengan 422 (metode_bayar_id bukan UUID) sehingga
+  /// transaksi selesai lain ikut tertahan.
+  Future<List<TransaksiRow>> transaksiBelumSync() => (select(transaksi)
+        ..where(
+          (t) =>
+              t.disinkronPada.isNull() &
+              t.status.equalsValue(TransaksiStatus.tersimpan).not() &
+              t.status.equalsValue(TransaksiStatus.draft).not(),
+        ))
+      .get();
 
   Future<TransaksiRow> transaksiById(String id) =>
       (select(transaksi)..where((t) => t.id.equals(id))).getSingle();
@@ -93,6 +110,14 @@ class TransaksiDao extends DatabaseAccessor<AppDatabase> with _$TransaksiDaoMixi
       ..where(itemTransaksi.transaksiId.equals(transaksiId));
     final row = await query.getSingle();
     return row.read(exp) ?? 0;
+  }
+
+  /// Tambahan (varian/topping) yang dipilih pada item-item ini.
+  Future<List<ItemTransaksiModifierRow>> modifierUntukItemList(List<String> itemTransaksiIds) {
+    if (itemTransaksiIds.isEmpty) return Future.value(const []);
+    return (select(itemTransaksiModifier)
+          ..where((t) => t.itemTransaksiId.isIn(itemTransaksiIds) & t.deletedAt.isNull()))
+        .get();
   }
 
   Future<List<ItemTransaksiRow>> itemUntukTransaksi(String transaksiId) =>
@@ -173,11 +198,15 @@ class TransaksiDao extends DatabaseAccessor<AppDatabase> with _$TransaksiDaoMixi
     required List<PembayaranCompanion> pembayaranList,
     List<TransaksiPajakCompanion> pajakList = const [],
     List<TransaksiPromoCompanion> promoList = const [],
+    List<ItemTransaksiModifierCompanion> modifierList = const [],
   }) {
     return transaction(() async {
       await into(transaksi).insert(transaksi_);
       for (final item in items) {
         await into(itemTransaksi).insert(item);
+      }
+      for (final m in modifierList) {
+        await into(itemTransaksiModifier).insert(m);
       }
       for (final bayar in pembayaranList) {
         await into(pembayaran).insert(bayar);
@@ -212,8 +241,69 @@ class TransaksiDao extends DatabaseAccessor<AppDatabase> with _$TransaksiDaoMixi
   Future<void> tandaiSudahSync(List<String> transaksiIds, int waktuSyncMs) {
     return transaction(() async {
       for (final id in transaksiIds) {
+        // Status pesanan ikut payload checkout (versi terbaru saat dikirim),
+        // jadi pelacak sinkron statusnya ikut ditandai.
         await (update(transaksi)..where((t) => t.id.equals(id))).write(
-          TransaksiCompanion(disinkronPada: Value(waktuSyncMs)),
+          TransaksiCompanion(
+            disinkronPada: Value(waktuSyncMs),
+            statusPesananDisinkronPada: Value(waktuSyncMs),
+          ),
+        );
+      }
+    });
+  }
+
+  /// Ubah status pesanan (alur IMOGI: Baru, Diproses, Siap, Selesai) dan catat
+  /// waktunya supaya perubahan ini dikirim ke server pada sync berikutnya.
+  Future<void> ubahStatusPesanan(String transaksiId, StatusPesanan status, int now) {
+    return (update(transaksi)..where((t) => t.id.equals(transaksiId))).write(
+      TransaksiCompanion(
+        statusPesanan: Value(status),
+        statusPesananDiubahPada: Value(now),
+        updatedAt: Value(now),
+      ),
+    );
+  }
+
+  /// Pesanan outlet sejak [sejakMs] yang punya status pesanan (diisi saat
+  /// checkout bila fitur status_pesanan terbuka). Transaksi yang di-void atau
+  /// masih berupa pesanan tersimpan tidak ikut. Terbaru di atas.
+  Future<List<TransaksiRow>> pesananBerstatus({required String outletId, required int sejakMs}) {
+    return (select(transaksi)
+          ..where((t) =>
+              t.outletId.equals(outletId) &
+              t.deletedAt.isNull() &
+              t.statusPesanan.isNotNull() &
+              t.status.equalsValue(TransaksiStatus.dibatalkan).not() &
+              t.status.equalsValue(TransaksiStatus.tersimpan).not() &
+              t.status.equalsValue(TransaksiStatus.draft).not() &
+              t.tanggal.isBiggerOrEqualValue(sejakMs))
+          ..orderBy([(t) => OrderingTerm.desc(t.tanggal)]))
+        .get();
+  }
+
+  /// Status yang berubah SETELAH transaksinya tersync (jadi tidak ikut payload
+  /// checkout) dan belum terkirim. Transaksi yang belum tersync tidak dihitung
+  /// di sini: status terbarunya ikut terkirim bersama transaksinya.
+  Future<List<TransaksiRow>> statusPesananBelumSync() async {
+    final rows = await (select(transaksi)
+          ..where((t) =>
+              t.disinkronPada.isNotNull() &
+              t.statusPesananDiubahPada.isNotNull() &
+              t.statusPesanan.isNotNull()))
+        .get();
+    return [
+      for (final r in rows)
+        // <= (bukan <): perubahan pada milidetik yang sama dengan penandaan sync ikut dikirim ulang (aman, idempoten).
+        if (r.statusPesananDisinkronPada == null || r.statusPesananDisinkronPada! <= r.statusPesananDiubahPada!) r,
+    ];
+  }
+
+  Future<void> tandaiStatusPesananSudahSync(List<String> transaksiIds, int waktuSyncMs) {
+    return transaction(() async {
+      for (final id in transaksiIds) {
+        await (update(transaksi)..where((t) => t.id.equals(id))).write(
+          TransaksiCompanion(statusPesananDisinkronPada: Value(waktuSyncMs)),
         );
       }
     });

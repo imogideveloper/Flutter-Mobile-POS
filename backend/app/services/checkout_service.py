@@ -97,7 +97,9 @@ async def _validasi_kepemilikan(
     await require_outlet_access(db, pengguna_id=pengguna_id, role_id=role_id, outlet_id=body.outlet_id)
 
     if body.shift_id is not None:
-        await get_shift_aktif(db, body.shift_id, toko_id, body.outlet_id)
+        # Transaksi push offline (body.id terisi) sah walau shiftnya sudah ditutup
+        # di HP sebelum sempat sync: uang sudah diterima, shift hanya perlu ada.
+        await get_shift_aktif(db, body.shift_id, toko_id, body.outlet_id, harus_buka=body.id is None)
 
     produk_ids = {item.produk_id for item in body.items}
     varian_ids = {item.varian_id for item in body.items if item.varian_id is not None}
@@ -106,7 +108,12 @@ async def _validasi_kepemilikan(
     if body.pelanggan_id is not None:
         pelanggan = await db.get(Pelanggan, body.pelanggan_id)
         if pelanggan is None or pelanggan.toko_id != toko_id:
-            raise HTTPException(status.HTTP_404_NOT_FOUND, "Pelanggan tidak ditemukan")
+            if body.id is None:
+                raise HTTPException(status.HTTP_404_NOT_FOUND, "Pelanggan tidak ditemukan")
+            # Push offline: penjualan sudah terjadi, jangan hilang hanya karena pelanggannya
+            # tidak ada di server (mis. dihapus atau server direset). Simpan tanpa pelanggan.
+            body.pelanggan_id = None
+            body.poin_ditukar = 0
 
     if body.tipe_order_id is not None:
         # Fitur `tipe_order` dicek DI SINI juga (bukan cuma di CRUD
@@ -687,6 +694,8 @@ async def checkout(
         tipe_order_id=body.tipe_order_id,
         meja_id=body.meja_id,
         nomor_struk=body.nomor_struk,
+        nomor_antrean=body.nomor_antrean,
+        status_pesanan=body.status_pesanan,
         tanggal=body.tanggal,
         status="selesai",
         subtotal=subtotal_simpan,

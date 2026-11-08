@@ -16,10 +16,11 @@ import 'dart:convert';
 import '../domain/detail_transaksi.dart';
 import '../domain/hasil_transaksi.dart';
 import '../domain/item_keranjang.dart';
+import '../domain/pesanan_status.dart';
 import '../domain/ringkasan_transaksi.dart';
 import '../domain/split_pembayaran.dart';
 import 'local/tables/pembayaran_table.dart' show PembayaranJenis, PembayaranStatus;
-import 'local/tables/transaksi_table.dart' show StatusBayarTransaksi, TransaksiStatus;
+import 'local/tables/transaksi_table.dart' show StatusBayarTransaksi, StatusPesanan, TransaksiStatus;
 import 'local/transaksi_dao.dart';
 
 /// Temuan#1 (rapikan F3) - cocokkan satu baris rincian pajak/service hasil
@@ -35,8 +36,37 @@ String? _cariPajakId(List<domain_pajak.Pajak> daftar, {required String nama, req
   return null;
 }
 
+/// Dilempar saat void dicoba pada transaksi yang sudah di-void.
+class TransaksiSudahDivoidException implements Exception {
+  const TransaksiSudahDivoidException();
+
+  @override
+  String toString() => 'Transaksi ini sudah di-void sebelumnya';
+}
+
 class TransaksiRepository {
   TransaksiRepository(this._transaksiDao, this._stokDao, this._produkDao);
+
+  /// Baris tambahan (varian/topping) yang dipilih pada tiap item, untuk disimpan
+  /// bersama item-nya. [idItem] sejajar dengan [items].
+  List<ItemTransaksiModifierCompanion> _modifierCompanions(List<ItemKeranjang> items, List<String> idItem, int now) => [
+        for (var i = 0; i < items.length; i++)
+          for (final m in items[i].modifiers)
+            ItemTransaksiModifierCompanion.insert(
+              id: generateId(),
+              itemTransaksiId: idItem[i],
+              modifierId: Value(m.modifierId),
+              nama: m.nama,
+              harga: Value(m.harga),
+              createdAt: now,
+              updatedAt: now,
+            ),
+      ];
+
+  static List<ModifierPilihan> _modifierItem(String itemId, List<ItemTransaksiModifierRow> semua) => [
+        for (final r in semua)
+          if (r.itemTransaksiId == itemId) ModifierPilihan(modifierId: r.modifierId, nama: r.nama, harga: r.harga),
+      ];
 
   final TransaksiDao _transaksiDao;
   final StokDao _stokDao;
@@ -108,9 +138,15 @@ class TransaksiRepository {
     // sukses, pakai poinDitukar yang sama.
     int poinDitukar = 0,
     int diskonPoin = 0,
+    // Pembuat nomor antrian (null = antrian mati). Dipanggil DI DALAM
+    // transaction checkout supaya nomor tidak terlewat kalau checkout gagal.
+    Future<String?> Function()? buatNomorAntrean,
+    // Status awal pesanan (alur IMOGI). null = fitur status pesanan mati.
+    StatusPesanan? statusAwal,
   }) async {
     final now = nowEpochMs();
     final transaksiId = generateId();
+    String? nomorAntrean;
     final totalDiskonFinal = hasil.totalDiskon + diskonPoin;
     final totalFinal = hasil.total - diskonPoin;
     final kembalian = totalBayar >= totalFinal ? totalBayar - totalFinal : 0;
@@ -130,6 +166,8 @@ class TransaksiRepository {
       if (gantikanPesananTersimpanId != null) {
         await _transaksiDao.hapusPesananTersimpan(gantikanPesananTersimpanId);
       }
+      nomorAntrean = await buatNomorAntrean?.call();
+      final idItem = [for (final _ in items) generateId()];
       await _transaksiDao.simpanTransaksiLengkap(
         transaksi_: TransaksiCompanion.insert(
           id: transaksiId,
@@ -141,6 +179,8 @@ class TransaksiRepository {
           tipeOrderId: Value(tipeOrderId),
           catatan: Value(catatan),
           nomorStruk: nomorStruk,
+          nomorAntrean: Value(nomorAntrean),
+          statusPesanan: Value(statusAwal),
           tanggal: now,
           status: TransaksiStatus.selesai,
           // totalDiskon/totalPajak GABUNGAN (member+promo, service+pajak) -
@@ -165,7 +205,7 @@ class TransaksiRepository {
         items: [
           for (var i = 0; i < items.length; i++)
             ItemTransaksiCompanion.insert(
-              id: generateId(),
+              id: idItem[i],
               transaksiId: transaksiId,
               produkId: items[i].produkId,
               namaProduk: items[i].namaProduk,
@@ -176,6 +216,7 @@ class TransaksiRepository {
               updatedAt: now,
             ),
         ],
+        modifierList: _modifierCompanions(items, idItem, now),
         // Kasbon murni (totalBayar == 0, belum bayar sama sekali di awal) -
         // TIDAK ada baris Pembayaran sama sekali, sama konvensi dgn backend
         // checkout_service.py (baris pembayaran baru ada begitu ada uang
@@ -295,6 +336,7 @@ class TransaksiRepository {
     return HasilTransaksi(
       id: transaksiId,
       nomorStruk: nomorStruk,
+      nomorAntrean: nomorAntrean,
       tanggal: now,
       items: items,
       subtotal: hasil.subtotal,
@@ -404,10 +446,12 @@ class TransaksiRepository {
         .firstOrNull;
     final bayar = await _transaksiDao.pembayaranUtamaTransaksi(transaksiId);
     final jumlahPembayaran = await _transaksiDao.jumlahPembayaranTransaksi(transaksiId);
+    final modifierRows = await _transaksiDao.modifierUntukItemList([for (final i in items) i.id]);
 
     return DetailTransaksi(
       id: row.id,
       nomorStruk: row.nomorStruk,
+      nomorAntrean: row.nomorAntrean,
       tanggal: row.tanggal,
       status: row.status,
       items: [
@@ -415,9 +459,12 @@ class TransaksiRepository {
           ItemKeranjang(
             produkId: item.produkId,
             namaProduk: item.namaProduk,
-            hargaSatuan: item.hargaSatuan,
+            // item_transaksi.harga_satuan = harga akhir per unit (sudah termasuk tambahan);
+            // ItemKeranjang.hargaSatuan adalah harga dasar, jadi tambahan dikurangkan.
+            hargaSatuan: item.hargaSatuan - _modifierItem(item.id, modifierRows).fold<int>(0, (a, m) => a + m.harga),
             qty: item.qty,
             lacakStok: true,
+            modifiers: _modifierItem(item.id, modifierRows),
           ),
       ],
       subtotal: row.subtotal,
@@ -480,6 +527,34 @@ class TransaksiRepository {
     );
   }
 
+  /// Ubah status pesanan (Baru, Diproses, Siap, Selesai, ...). Dicatat waktunya
+  /// supaya ikut terkirim ke server lewat sync.
+  Future<void> ubahStatusPesanan(String transaksiId, StatusPesanan status) =>
+      _transaksiDao.ubahStatusPesanan(transaksiId, status, nowEpochMs());
+
+  /// Pesanan bernomor status milik [outletId] sejak awal hari [sekarang] (waktu setempat).
+  Future<List<PesananStatus>> pesananHariIni(String outletId, {DateTime? sekarang}) async {
+    final w = sekarang ?? DateTime.now();
+    final awalHari = DateTime(w.year, w.month, w.day).millisecondsSinceEpoch;
+    final rows = await _transaksiDao.pesananBerstatus(outletId: outletId, sejakMs: awalHari);
+    final item = await _transaksiDao.itemUntukTransaksiList([for (final r in rows) r.id]);
+    return [
+      for (final r in rows)
+        PesananStatus(
+          id: r.id,
+          nomorStruk: r.nomorStruk,
+          nomorAntrean: r.nomorAntrean,
+          tanggal: r.tanggal,
+          status: r.statusPesanan!,
+          pelangganId: r.pelangganId,
+          ringkasanItem: [
+            for (final i in item.where((x) => x.transaksiId == r.id))
+              '${i.qty == i.qty.roundToDouble() ? i.qty.toInt() : i.qty}x ${i.namaProduk}',
+          ].join(', '),
+        ),
+    ];
+  }
+
   /// Void transaksi: tandai statusnya + balikkan stok yang sudah terdebet
   /// saat checkout (jenis voidTransaksi, qty positif) untuk item yang
   /// lacakStok - dalam satu transaction() yang sama seperti checkout.
@@ -496,6 +571,13 @@ class TransaksiRepository {
     final now = nowEpochMs();
 
     await _transaksiDao.transaction(() async {
+      // Void hanya sekali. Tanpa pengecekan ini, tiap void ulang mencatat
+      // mutasi stok lagi dan stok bertambah terus (BUG-013).
+      final saatIni = await _transaksiDao.transaksiById(transaksiId);
+      if (saatIni.status == TransaksiStatus.dibatalkan) {
+        throw const TransaksiSudahDivoidException();
+      }
+
       await _transaksiDao.voidTransaksi(
         transaksiId: transaksiId,
         alasan: alasan,
@@ -545,6 +627,7 @@ class TransaksiRepository {
       if (draftIdSebelumnya != null) {
         await _transaksiDao.hapusPesananTersimpan(draftIdSebelumnya);
       }
+      final idItem = [for (final _ in items) generateId()];
       await _transaksiDao.simpanTransaksiLengkap(
         transaksi_: TransaksiCompanion.insert(
           id: transaksiId,
@@ -568,7 +651,7 @@ class TransaksiRepository {
         items: [
           for (var i = 0; i < items.length; i++)
             ItemTransaksiCompanion.insert(
-              id: generateId(),
+              id: idItem[i],
               transaksiId: transaksiId,
               produkId: items[i].produkId,
               namaProduk: items[i].namaProduk,
@@ -579,6 +662,7 @@ class TransaksiRepository {
               updatedAt: now,
             ),
         ],
+        modifierList: _modifierCompanions(items, idItem, now),
         pembayaranList: const [],
       );
     });
@@ -595,15 +679,19 @@ class TransaksiRepository {
   /// pola dgn voidTransaksiLama di atas), bukan disimpan di item_transaksi.
   Future<List<ItemKeranjang>> itemUntukResumePesanan(String transaksiId) async {
     final rows = await _transaksiDao.itemUntukTransaksi(transaksiId);
+    final modifierRows = await _transaksiDao.modifierUntukItemList([for (final r in rows) r.id]);
     final items = <ItemKeranjang>[];
     for (final row in rows) {
       final produk = await _produkDao.produkById(row.produkId);
+      final modifiers = _modifierItem(row.id, modifierRows);
       items.add(ItemKeranjang(
         produkId: row.produkId,
         namaProduk: row.namaProduk,
-        hargaSatuan: row.hargaSatuan,
+        // harga tersimpan = harga akhir per unit; dasar = akhir dikurangi tambahan
+        hargaSatuan: row.hargaSatuan - modifiers.fold<int>(0, (a, m) => a + m.harga),
         qty: row.qty,
         lacakStok: produk?.lacakStok ?? false,
+        modifiers: modifiers,
       ));
     }
     return items;

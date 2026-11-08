@@ -9,6 +9,7 @@ import '../../features/pelanggan/presentation/pages/pelanggan_list_page.dart';
 import '../../features/pelanggan/presentation/pages/pelunasan_page.dart';
 import '../../features/pelanggan/presentation/pages/piutang_list_page.dart';
 import '../../features/lainnya/presentation/pages/lainnya_page.dart';
+import '../../features/transaksi/presentation/pages/status_pesanan_page.dart';
 import '../../features/lainnya/presentation/pages/paket_langganan_page.dart';
 import '../../features/lainnya/presentation/pages/pengaturan_metode_bayar_page.dart';
 import '../../features/lainnya/presentation/pages/pengaturan_outlet_struk_page.dart';
@@ -16,6 +17,7 @@ import '../../features/lainnya/presentation/pages/pengaturan_printer_page.dart';
 import '../../features/produk/domain/kategori.dart';
 import '../../features/produk/domain/produk.dart';
 import '../../features/produk/presentation/pages/kategori_form_page.dart';
+import '../../features/produk/presentation/pages/grup_tambahan_page.dart';
 import '../../features/produk/presentation/pages/kategori_list_page.dart';
 import '../../features/produk/presentation/pages/produk_form_page.dart';
 import '../../features/produk/presentation/pages/produk_list_page.dart';
@@ -187,6 +189,10 @@ GoRouter _buildRouter() => GoRouter(
       ],
     ),
     GoRoute(
+      path: '/status-pesanan',
+      builder: (context, state) => const StatusPesananPage(),
+    ),
+    GoRoute(
       path: '/stok',
       builder: (context, state) => const StokListPage(),
       routes: [
@@ -235,6 +241,10 @@ GoRouter _buildRouter() => GoRouter(
           builder: (context, state) => KategoriFormPage(kategoriEdit: state.extra as Kategori),
         ),
       ],
+    ),
+    GoRoute(
+      path: '/grup-tambahan',
+      builder: (context, state) => const GrupTambahanPage(),
     ),
     GoRoute(
       path: '/pajak',

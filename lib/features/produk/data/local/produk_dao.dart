@@ -1,13 +1,17 @@
 import 'package:drift/drift.dart';
 
 import '../../../../core/database/app_database.dart';
+import '../../domain/grup_tambahan.dart';
+import 'tables/grup_modifier_table.dart';
 import 'tables/kategori_table.dart';
+import 'tables/modifier_table.dart';
+import 'tables/produk_grup_modifier_table.dart';
 import 'tables/produk_table.dart';
 import 'tables/produk_varian_table.dart';
 
 part 'produk_dao.g.dart';
 
-@DriftAccessor(tables: [Produk, ProdukVarian, Kategori])
+@DriftAccessor(tables: [Produk, ProdukVarian, Kategori, GrupModifier, Modifier, ProdukGrupModifier])
 class ProdukDao extends DatabaseAccessor<AppDatabase> with _$ProdukDaoMixin {
   ProdukDao(super.db);
 
@@ -63,6 +67,112 @@ class ProdukDao extends DatabaseAccessor<AppDatabase> with _$ProdukDaoMixin {
   /// Cache lokal setelah DELETE (soft delete) sukses di backend - pola
   /// sama dgn PajakDao.nonaktifkanLokal, bedanya kategori tidak punya
   /// kolom `aktif` (cuma deletedAt, sesuai skema resmi).
+  // ---- Varian/tambahan produk (IMOGI no. 42) ----
+
+  Future<void> upsertGrupModifier(GrupModifierCompanion data) => into(grupModifier).insertOnConflictUpdate(data);
+
+  Future<void> upsertModifier(ModifierCompanion data) => into(modifier).insertOnConflictUpdate(data);
+
+  /// Mengganti SELURUH relasi produk-grup dengan [pasangan] (produkId, grupId):
+  /// server selalu mengirim snapshot penuh, jadi relasi yang dilepas di server
+  /// ikut hilang di HP.
+  Future<void> gantiRelasiProdukGrup(List<(String, String)> pasangan) => transaction(() async {
+        await delete(produkGrupModifier).go();
+        final now = DateTime.now().millisecondsSinceEpoch;
+        await batch((b) => b.insertAll(
+              produkGrupModifier,
+              [
+                for (final (p, g) in pasangan)
+                  ProdukGrupModifierCompanion.insert(produkId: p, grupModifierId: g, createdAt: now),
+              ],
+              mode: InsertMode.insertOrReplace,
+            ));
+      });
+
+  /// Grup tambahan beserta opsi aktifnya untuk satu produk, berurutan.
+  /// Grup tanpa opsi aktif tidak ditampilkan (tidak ada yang bisa dipilih).
+  Future<List<GrupTambahan>> grupUntukProduk(String produkId) async {
+    final grupRows = await (select(grupModifier).join([
+      innerJoin(produkGrupModifier, produkGrupModifier.grupModifierId.equalsExp(grupModifier.id)),
+    ])
+          ..where(produkGrupModifier.produkId.equals(produkId) & grupModifier.deletedAt.isNull())
+          ..orderBy([OrderingTerm.asc(grupModifier.nama)]))
+        .map((r) => r.readTable(grupModifier))
+        .get();
+    if (grupRows.isEmpty) return const [];
+    final opsiRows = await (select(modifier)
+          ..where((t) => t.grupModifierId.isIn([for (final g in grupRows) g.id]) & t.aktif.equals(true) & t.deletedAt.isNull())
+          ..orderBy([(t) => OrderingTerm.asc(t.urutan), (t) => OrderingTerm.asc(t.nama)]))
+        .get();
+    return [
+      for (final g in grupRows)
+        if (opsiRows.any((o) => o.grupModifierId == g.id))
+          GrupTambahan(
+            id: g.id,
+            nama: g.nama,
+            minPilih: g.minPilih,
+            maksPilih: g.maksPilih,
+            opsi: [
+              for (final o in opsiRows)
+                if (o.grupModifierId == g.id) OpsiTambahan(id: o.id, nama: o.nama, harga: o.hargaTambahan),
+            ],
+          ),
+    ];
+  }
+
+  /// Semua grup toko beserta SELURUH opsinya (termasuk nonaktif) untuk halaman
+  /// kelola; ikut diperbarui saat grup/opsi/relasi berubah.
+  Stream<List<GrupTambahan>> watchGrupKelola() => customSelect(
+        'SELECT 1',
+        readsFrom: {grupModifier, modifier, produkGrupModifier},
+      ).watch().asyncMap((_) async {
+        final grupRows = await (select(grupModifier)
+              ..where((t) => t.deletedAt.isNull())
+              ..orderBy([(t) => OrderingTerm.asc(t.nama)]))
+            .get();
+        if (grupRows.isEmpty) return <GrupTambahan>[];
+        final opsiRows = await (select(modifier)
+              ..where((t) => t.grupModifierId.isIn([for (final g in grupRows) g.id]) & t.deletedAt.isNull())
+              ..orderBy([(t) => OrderingTerm.asc(t.urutan), (t) => OrderingTerm.asc(t.nama)]))
+            .get();
+        return [
+          for (final g in grupRows)
+            GrupTambahan(
+              id: g.id,
+              nama: g.nama,
+              minPilih: g.minPilih,
+              maksPilih: g.maksPilih,
+              opsi: [
+                for (final o in opsiRows)
+                  if (o.grupModifierId == g.id)
+                    OpsiTambahan(id: o.id, nama: o.nama, harga: o.hargaTambahan, aktif: o.aktif),
+              ],
+            ),
+        ];
+      });
+
+  Future<Set<String>> produkIdUntukGrup(String grupId) async {
+    final rows = await (select(produkGrupModifier)..where((t) => t.grupModifierId.equals(grupId))).get();
+    return {for (final r in rows) r.produkId};
+  }
+
+  /// Cache lokal setelah PUT .../produk sukses di server.
+  Future<void> setProdukUntukGrupLokal(String grupId, Set<String> produkIds) => transaction(() async {
+        await (delete(produkGrupModifier)..where((t) => t.grupModifierId.equals(grupId))).go();
+        final now = DateTime.now().millisecondsSinceEpoch;
+        for (final id in produkIds) {
+          await into(produkGrupModifier).insertOnConflictUpdate(
+            ProdukGrupModifierCompanion.insert(produkId: id, grupModifierId: grupId, createdAt: now),
+          );
+        }
+      });
+
+  Future<void> hapusGrupLokal(String id) => (update(grupModifier)..where((t) => t.id.equals(id)))
+      .write(GrupModifierCompanion(deletedAt: Value(DateTime.now().millisecondsSinceEpoch)));
+
+  Future<void> hapusModifierLokal(String id) => (update(modifier)..where((t) => t.id.equals(id)))
+      .write(ModifierCompanion(deletedAt: Value(DateTime.now().millisecondsSinceEpoch)));
+
   Future<void> hapusKategoriLokal(String id) => (update(kategori)..where((t) => t.id.equals(id)))
       .write(KategoriCompanion(deletedAt: Value(DateTime.now().millisecondsSinceEpoch)));
 }

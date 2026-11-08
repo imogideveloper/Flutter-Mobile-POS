@@ -361,6 +361,10 @@ class _PaketLanggananPageState extends ConsumerState<PaketLanggananPage> {
                 : 'Berlaku sampai ${_formatTanggal.format(DateTime.parse(berakhir).toLocal())}',
             style: AppTypography.secondary,
           ),
+          if (l['trial_aktif'] == true) ...[
+            const SizedBox(height: AppSpacing.md),
+            _bannerTrial(l),
+          ],
           const SizedBox(height: AppSpacing.md),
           const Divider(height: 1),
           const SizedBox(height: AppSpacing.md),
@@ -371,6 +375,56 @@ class _PaketLanggananPageState extends ConsumerState<PaketLanggananPage> {
               _pemakaianItem('Produk', pemakaian['produk'] as int),
             ],
           ),
+        ],
+      ),
+    );
+  }
+
+  /// Status masa trial berdasarkan usia akun (arahan lead 2026-11-08):
+  /// "Free trial paket X selama N bulan. Batas berakhir: tanggal". Saat
+  /// sisa hari <= ambang notifikasi (awal 7 hari) banner berubah jadi
+  /// peringatan. Hanya tampil bila server mengirim trial_aktif=true.
+  Widget _bannerTrial(Map<String, dynamic> l) {
+    final paket = (l['paket_efektif_nama'] as String?) ?? 'berbayar';
+    final bulan = l['trial_durasi_bulan'] as int?;
+    final berakhirIso = l['trial_berakhir'] as String?;
+    final sisa = l['trial_hari_tersisa'] as int?;
+    final ambang = (l['trial_notifikasi_hari'] as int?) ?? 7;
+    final hampirBerakhir = sisa != null && sisa <= ambang;
+    final tanggal = berakhirIso == null ? null : _formatTanggal.format(DateTime.parse(berakhirIso).toLocal());
+
+    return Container(
+      key: const Key('paketLangganan.bannerTrial'),
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: hampirBerakhir ? AppColors.warningBg : AppColors.primaryTint,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: hampirBerakhir ? AppColors.warningBgAlt : AppColors.primaryTintBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            bulan == null ? 'Free trial paket $paket' : 'Free trial paket $paket selama $bulan bulan',
+            style: AppTypography.bodyEmphasis.copyWith(
+              color: hampirBerakhir ? AppColors.warningTextStrong : AppColors.primaryDark,
+            ),
+          ),
+          if (tanggal != null) ...[
+            const SizedBox(height: 2),
+            Text('Batas berakhir: $tanggal', style: AppTypography.secondary),
+          ],
+          if (hampirBerakhir) ...[
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              sisa == 0
+                  ? 'Free trial berakhir hari ini. Pilih paket supaya fitur tetap aktif.'
+                  : 'Free trial berakhir dalam $sisa hari. Pilih paket supaya fitur tetap aktif.',
+              key: const Key('paketLangganan.peringatanTrial'),
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.warningText),
+            ),
+          ],
         ],
       ),
     );

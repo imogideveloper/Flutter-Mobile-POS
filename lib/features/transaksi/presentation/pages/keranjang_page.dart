@@ -12,6 +12,7 @@ import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/avatar_initial.dart';
 import '../../../../core/widgets/fitur_terkunci.dart';
+import '../../../../core/widgets/qty_dialog.dart';
 import '../../../../core/widgets/qty_stepper.dart';
 import '../../domain/item_keranjang.dart';
 import '../../../order/domain/tipe_order.dart';
@@ -424,6 +425,12 @@ class _ItemRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(item.namaProduk, style: AppTypography.bodyEmphasis),
+                if (item.modifiers.isNotEmpty)
+                  Text(
+                    item.modifiers.map((m) => m.harga > 0 ? '${m.nama} (+${_formatRupiah.format(m.harga)})' : m.nama).join(', '),
+                    key: Key('keranjang.tambahan.${item.kunciBaris}'),
+                    style: AppTypography.secondary,
+                  ),
                 Text(_formatRupiah.format(item.subtotal), style: AppTypography.bodyEmphasis),
               ],
             ),
@@ -458,10 +465,28 @@ class _ItemRow extends StatelessWidget {
                       return;
                     }
                   }
-                  ref.read(keranjangProvider.notifier).ubahQty(item.produkId, item.qty + 1);
+                  ref.read(keranjangProvider.notifier).ubahQty(item.kunciBaris, item.qty + 1);
                 },
                 onDecrement: () =>
-                    ref.read(keranjangProvider.notifier).ubahQty(item.produkId, item.qty - 1),
+                    ref.read(keranjangProvider.notifier).ubahQty(item.kunciBaris, item.qty - 1),
+                onQtyTap: () async {
+                  final hasil = await tampilkanIsiJumlah(context, judul: item.namaProduk, awal: item.qty);
+                  if (hasil == null || !context.mounted) return;
+                  if (hasil > 0 && item.lacakStok && !izinkanStokMinus) {
+                    final tersedia = stok?.jumlah ?? 0;
+                    if (hasil > tersedia) {
+                      showAppToast(
+                        context,
+                        message: tersedia <= 0
+                            ? 'Stok "${item.namaProduk}" habis'
+                            : 'Stok "${item.namaProduk}" tidak cukup - sisa ${tersedia.toStringAsFixed(0)}',
+                        variant: ToastVariant.warning,
+                      );
+                      return;
+                    }
+                  }
+                  ref.read(keranjangProvider.notifier).ubahQty(item.kunciBaris, hasil);
+                },
               );
             },
           ),

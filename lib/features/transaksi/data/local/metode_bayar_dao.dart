@@ -12,6 +12,34 @@ class MetodeBayarDao extends DatabaseAccessor<AppDatabase> with _$MetodeBayarDao
   Future<void> upsertMetodeBayar(MetodeBayarCompanion data) =>
       into(metodeBayar).insertOnConflictUpdate(data);
 
+  /// Ubah HANYA kolom `aktif` pada baris yang sudah ada. Jangan pakai
+  /// [upsertMetodeBayar] dengan Companion parsial: INSERT-nya ditolak
+  /// SQLite (NOT NULL toko_id/nama/tipe) sehingga perubahan lokal gagal
+  /// walau server sudah berubah.
+  Future<void> ubahAktif(String id, bool aktif, {required int now}) =>
+      (update(metodeBayar)..where((t) => t.id.equals(id))).write(
+        MetodeBayarCompanion(aktif: Value(aktif), updatedAt: Value(now)),
+      );
+
+  /// Sama seperti [ubahAktif] tetapi untuk nama/label dan urutan.
+  Future<void> ubahNamaUrutan(String id, {required String nama, required int urutan, required int now}) =>
+      (update(metodeBayar)..where((t) => t.id.equals(id))).write(
+        MetodeBayarCompanion(nama: Value(nama), urutan: Value(urutan), updatedAt: Value(now)),
+      );
+
+  /// ID metode bayar tunai milik toko (yang aktif dulu) - dipakai sync
+  /// sebagai `metode_bayar_id` untuk transaksi tanpa baris Pembayaran
+  /// (kasbon murni), supaya yang terkirim UUID sungguhan, bukan placeholder.
+  Future<String?> idMetodeTunai(String tokoId) async {
+    final rows = await (select(metodeBayar)
+          ..where((t) =>
+              t.tokoId.equals(tokoId) & t.tipe.equalsValue(MetodeBayarTipe.tunai) & t.deletedAt.isNull())
+          ..orderBy([(t) => OrderingTerm.desc(t.aktif), (t) => OrderingTerm.asc(t.urutan)])
+          ..limit(1))
+        .get();
+    return rows.isEmpty ? null : rows.first.id;
+  }
+
   /// Bersihkan baris "hantu" - metode bayar lokal yang dibuat
   /// `seedMetodeBayarDefault` SEBELUM device pairing (toko_id placeholder
   /// 'toko-default', ikut termigrasi ke toko_id asli oleh

@@ -10,7 +10,7 @@ import uuid
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.services.fitur_service import langganan_aktif_toko, paket_efektif
+from app.services.fitur_service import langganan_aktif_toko, paket_efektif, trial_toko
 
 
 async def pastikan_kuota_outlet(db: AsyncSession, *, toko_id: uuid.UUID, jumlah_sekarang: int) -> None:
@@ -24,8 +24,13 @@ async def pastikan_kuota_outlet(db: AsyncSession, *, toko_id: uuid.UUID, jumlah_
     # supaya outlet ikut turun ke kuota Gratis begitu langganan kedaluwarsa,
     # persis seperti kuota pengguna/produk.
     langganan = await langganan_aktif_toko(db, toko_id)
+    trial = await trial_toko(db, toko_id)
 
-    if langganan is not None:
+    if trial is not None and trial.aktif:
+        # Masa trial: kuota mengikuti paket efektif (tertinggi), bukan
+        # jumlah outlet yang dibayar di langganan Gratis (selalu 1).
+        batas = (await paket_efektif(db, toko_id)).maks_outlet
+    elif langganan is not None:
         batas: int | None = langganan.jumlah_outlet
     else:
         paket = await paket_efektif(db, toko_id)

@@ -10,6 +10,10 @@ mixin _$ProdukDaoMixin on DatabaseAccessor<AppDatabase> {
   $SatuanTable get satuan => attachedDatabase.satuan;
   $ProdukTable get produk => attachedDatabase.produk;
   $ProdukVarianTable get produkVarian => attachedDatabase.produkVarian;
+  $GrupModifierTable get grupModifier => attachedDatabase.grupModifier;
+  $ModifierTable get modifier => attachedDatabase.modifier;
+  $ProdukGrupModifierTable get produkGrupModifier =>
+      attachedDatabase.produkGrupModifier;
   ProdukDaoManager get managers => ProdukDaoManager(this);
 }
 
@@ -28,4 +32,13 @@ class ProdukDaoManager {
       $$ProdukTableTableManager(_db.attachedDatabase, _db.produk);
   $$ProdukVarianTableTableManager get produkVarian =>
       $$ProdukVarianTableTableManager(_db.attachedDatabase, _db.produkVarian);
+  $$GrupModifierTableTableManager get grupModifier =>
+      $$GrupModifierTableTableManager(_db.attachedDatabase, _db.grupModifier);
+  $$ModifierTableTableManager get modifier =>
+      $$ModifierTableTableManager(_db.attachedDatabase, _db.modifier);
+  $$ProdukGrupModifierTableTableManager get produkGrupModifier =>
+      $$ProdukGrupModifierTableTableManager(
+        _db.attachedDatabase,
+        _db.produkGrupModifier,
+      );
 }

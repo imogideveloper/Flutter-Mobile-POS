@@ -19,6 +19,7 @@ from app.core.db import SessionLocal
 from app.services.jobs_service import (
     cek_kasbon_jatuh_tempo_dan_notifikasi,
     cek_stok_menipis_dan_notifikasi,
+    cek_trial_hampir_berakhir_dan_notifikasi,
     tandai_langganan_kedaluwarsa,
 )
 
@@ -41,6 +42,12 @@ async def job_cek_kasbon_jatuh_tempo(ctx: dict) -> str:
     return f"{jumlah} notifikasi kasbon jatuh tempo dibuat"
 
 
+async def job_cek_trial_hampir_berakhir(ctx: dict) -> str:
+    async with SessionLocal() as db:
+        jumlah = await cek_trial_hampir_berakhir_dan_notifikasi(db)
+    return f"{jumlah} notifikasi trial hampir berakhir dibuat"
+
+
 class WorkerSettings:
     redis_settings = RedisSettings.from_dsn(get_settings().redis_url)
     cron_jobs = [
@@ -54,4 +61,7 @@ class WorkerSettings:
         # operasional toko mulai, supaya owner lihat notifikasi besok
         # jatuh tempo/sudah lewat di awal hari.
         cron(job_cek_kasbon_jatuh_tempo, hour=7, minute=0),
+        # Harian jam 07:30 - masa trial berdasarkan usia akun (arahan lead
+        # 2026-11-08): notifikasi sekali per toko saat sisa <= 7 hari.
+        cron(job_cek_trial_hampir_berakhir, hour=7, minute=30),
     ]

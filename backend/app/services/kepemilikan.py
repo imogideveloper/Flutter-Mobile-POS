@@ -82,7 +82,12 @@ async def pastikan_produk_milik_toko(
 
 
 async def get_shift_aktif(
-    session: AsyncSession, shift_id: uuid.UUID, toko_id: uuid.UUID, outlet_id: uuid.UUID
+    session: AsyncSession,
+    shift_id: uuid.UUID,
+    toko_id: uuid.UUID,
+    outlet_id: uuid.UUID,
+    *,
+    harus_buka: bool = True,
 ) -> Shift:
     """Shift harus milik toko DAN outlet yang sama dgn request yang sedang
     diproses, dan statusnya masih 'buka' - shift milik outlet/toko lain,
@@ -93,7 +98,7 @@ async def get_shift_aktif(
         shift is None
         or shift.toko_id != toko_id
         or shift.outlet_id != outlet_id
-        or shift.status != "buka"
+        or (harus_buka and shift.status != "buka")
     ):
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Shift tidak ditemukan atau tidak aktif")
     return shift

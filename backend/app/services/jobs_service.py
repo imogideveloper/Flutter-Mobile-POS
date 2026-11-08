@@ -9,7 +9,14 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.audit import Notifikasi
-from app.models.outlet import Langganan, Outlet
+from app.models.outlet import Langganan, Outlet, Toko
+from app.services.fitur_service import paket_tertinggi, trial_toko
+from app.services.platform_service import (
+    DEFAULT_TRIAL_NOTIFIKASI_HARI,
+    KUNCI_TRIAL_NOTIFIKASI_HARI,
+    KUNCI_USIA_AKUN_BULAN,
+    ambil_int,
+)
 from app.models.stok import Stok
 from app.models.transaksi import Transaksi
 
@@ -44,6 +51,46 @@ async def tandai_langganan_kedaluwarsa(db: AsyncSession) -> int:
 
     await db.commit()
     return len(rows)
+
+
+async def cek_trial_hampir_berakhir_dan_notifikasi(db: AsyncSession) -> int:
+    """Notifikasi SEKALI per toko saat masa trial (berdasarkan usia akun)
+    tinggal `trial_notifikasi_hari` hari (awal 7) atau kurang. Tidak
+    dikirim ulang untuk toko yang sudah pernah dapat (dedupe lewat
+    ref_tipe='trial' + ref_id=toko_id), dan tidak dikirim bila trial mati
+    atau sudah berakhir."""
+
+    if await ambil_int(db, KUNCI_USIA_AKUN_BULAN, 0) <= 0:
+        return 0
+    batas_hari = await ambil_int(db, KUNCI_TRIAL_NOTIFIKASI_HARI, DEFAULT_TRIAL_NOTIFIKASI_HARI)
+
+    dibuat = 0
+    for toko_id in (await db.execute(select(Toko.id))).scalars().all():
+        trial = await trial_toko(db, toko_id)
+        if trial is None or not trial.aktif or trial.hari_tersisa > batas_hari:
+            continue
+        sudah_ada = await db.scalar(
+            select(Notifikasi).where(Notifikasi.ref_tipe == "trial", Notifikasi.ref_id == toko_id)
+        )
+        if sudah_ada is not None:
+            continue
+
+        tertinggi = await paket_tertinggi(db)
+        nama_paket = tertinggi.nama if tertinggi is not None else "berbayar"
+        db.add(
+            Notifikasi(
+                toko_id=toko_id,
+                jenis="langganan",
+                judul=f"Free trial paket {nama_paket} berakhir dalam {trial.hari_tersisa} hari",
+                isi=f"Batas berakhir: {trial.berakhir:%d-%m-%Y}. Pilih paket supaya fitur tetap aktif.",
+                ref_tipe="trial",
+                ref_id=toko_id,
+            )
+        )
+        dibuat += 1
+
+    await db.commit()
+    return dibuat
 
 
 async def cek_stok_menipis_dan_notifikasi(db: AsyncSession) -> int:

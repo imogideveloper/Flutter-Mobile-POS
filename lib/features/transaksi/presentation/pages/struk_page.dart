@@ -10,11 +10,13 @@ import '../../../../core/providers/toko_profile_provider.dart';
 import '../../../../core/struk/cetak_struk_helper.dart';
 import '../../../../core/struk/kirim_whatsapp_helper.dart';
 import '../../../../core/struk/penyusun_struk.dart' as struk;
+import '../../../../core/struk/penyusun_tiket_dapur.dart';
 import '../../../../core/struk/struk_snapshot.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_toast.dart';
+import '../../../fitur/presentation/providers/feature_gate_provider.dart';
 import '../../domain/hasil_transaksi.dart';
 import '../providers/harga_keranjang_provider.dart';
 import '../providers/transaksi_providers.dart';
@@ -97,14 +99,16 @@ class _StrukPageState extends ConsumerState<StrukPage> {
     final data = struk.StrukData(
       namaOutlet: tokoProfile?.namaToko ?? 'Toko',
       nomorStruk: hasil.nomorStruk,
+      nomorAntrean: hasil.nomorAntrean,
       tanggalEpochMs: hasil.tanggal,
       items: [
         for (final item in hasil.items)
           struk.ItemStruk(
             namaProduk: item.namaProduk,
             qty: item.qty,
-            hargaSatuan: item.hargaSatuan,
+            hargaSatuan: item.hargaSatuanFinal,
             subtotal: item.subtotal,
+            modifiers: [for (final m in item.modifiers) m.nama],
           ),
       ],
       subtotal: hasil.subtotal,
@@ -131,6 +135,52 @@ class _StrukPageState extends ConsumerState<StrukPage> {
   Future<void> _cetakOtomatisJikaAktif() async {
     if (!await perluCetakOtomatis(ref)) return;
     await _cetak(diam: true);
+    // Tiket dapur ikut tercetak otomatis setelah pembayaran (bawaan IMOGI:
+    // nyala untuk kafe, restoran, minuman, food court) bila fiturnya terbuka.
+    if (await _tiketDapurTersedia()) await _cetakTiketDapur(diam: true);
+  }
+
+  Future<bool> _tiketDapurTersedia() async {
+    final gate = await ref.read(featureGateProvider.future);
+    return gate.has('tiket_dapur');
+  }
+
+  /// Tiket untuk dapur/bar: hanya menu dan jumlahnya (tanpa harga).
+  /// Semua item ikut tercetak; pilihan kategori yang masuk tiket belum ada.
+  Future<List<struk.BarisStruk>> _bangunBarisTiket() async {
+    final hasil = widget.hasil;
+    final outletId = ref.read(currentOutletIdProvider);
+    final pengaturanOutlet = await ref.read(pengaturanOutletProvider(outletId).future);
+    final lebar = (pengaturanOutlet?.lebarKertasMm ?? 58) == 80 ? 48 : 32;
+    return susunTiketDapur(
+      lebar: lebar,
+      data: TiketDapurData(
+        nomorStruk: hasil.nomorStruk,
+        nomorAntrean: hasil.nomorAntrean,
+        tanggalEpochMs: hasil.tanggal,
+        items: [
+          for (final i in hasil.items)
+            ItemTiketDapur(namaProduk: i.namaProduk, qty: i.qty, tambahan: [for (final m in i.modifiers) m.nama]),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _cetakTiketDapur({bool diam = false}) async {
+    if (_mencetak) return;
+    setState(() => _mencetak = true);
+    try {
+      final status = await cetakStruk(ref, await _bangunBarisTiket());
+      if (!mounted) return;
+      if (diam && status == StatusCetak.printerBelumDiatur) return;
+      showAppToast(
+        context,
+        message: status == StatusCetak.berhasil ? 'Tiket dapur tercetak' : labelStatusCetak(status),
+        variant: variantStatusCetak(status),
+      );
+    } finally {
+      if (mounted) setState(() => _mencetak = false);
+    }
   }
 
   Future<void> _cetak({bool diam = false}) async {
@@ -183,6 +233,21 @@ class _StrukPageState extends ConsumerState<StrukPage> {
                 kasbon ? 'Transaksi tercatat (kasbon)' : 'Pembayaran berhasil',
                 style: AppTypography.cardTitle.copyWith(fontSize: 20),
               ),
+              if (hasil.nomorAntrean != null) ...[
+                const SizedBox(height: AppSpacing.sm),
+                Container(
+                  key: const Key('strukPage.nomorAntrean'),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryTint,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    'Antrian ${hasil.nomorAntrean}',
+                    style: AppTypography.headerTitle.copyWith(fontSize: 24, color: AppColors.primaryDark),
+                  ),
+                ),
+              ],
               const SizedBox(height: AppSpacing.xs),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -298,6 +363,18 @@ class _StrukPageState extends ConsumerState<StrukPage> {
                   ),
                 ],
               ),
+              if (ref.watch(featureGateProvider).value?.has('tiket_dapur') ?? false) ...[
+                const SizedBox(height: AppSpacing.sm),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    key: const Key('strukPage.cetakTiketDapur'),
+                    onPressed: _mencetak ? null : () => _cetakTiketDapur(),
+                    icon: const Icon(Icons.restaurant_outlined, size: 20),
+                    label: const Text('Cetak tiket dapur'),
+                  ),
+                ),
+              ],
               const SizedBox(height: AppSpacing.sm),
               SizedBox(
                 width: double.infinity,

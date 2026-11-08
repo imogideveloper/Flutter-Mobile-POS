@@ -144,9 +144,17 @@ class SyncRepository {
       return (0, 0);
     }
 
+    // Transaksi tanpa baris Pembayaran (kasbon murni) tetap WAJIB membawa
+    // metode_bayar_id berbentuk UUID. Pakai ID metode tunai asli toko ini;
+    // placeholder lama hanya cadangan terakhir.
+    final metodeTunaiId = await metodeBayarDao.idMetodeTunai(sesi.tokoId) ?? metodeBayarTunaiFallback;
+
     final payload = <Map<String, dynamic>>[];
     for (final t in belumSync) {
       final items = await transaksiDao.itemUntukTransaksiList([t.id]);
+      // Varian/tambahan yang dipilih tiap item (IMOGI no. 42). harga_satuan di bawah
+      // sudah HARGA AKHIR termasuk tambahan; server menyimpan modifier apa adanya.
+      final modifierRows = await transaksiDao.modifierUntukItemList([for (final i in items) i.id]);
       final pembayaranList = await transaksiDao.pembayaranUntukTransaksiList([
         t.id,
       ]);
@@ -181,6 +189,8 @@ class SyncRepository {
         if (t.tipeOrderId != null) 'tipe_order_id': t.tipeOrderId,
         if (t.mejaId != null) 'meja_id': t.mejaId,
         'nomor_struk': t.nomorStruk,
+        if (t.nomorAntrean != null) 'nomor_antrean': t.nomorAntrean,
+        if (t.statusPesanan != null) 'status_pesanan': t.statusPesanan!.name,
         'tanggal': DateTime.fromMillisecondsSinceEpoch(
           t.tanggal,
           isUtc: true,
@@ -195,13 +205,22 @@ class SyncRepository {
                 'harga_satuan': i.hargaSatuan.toString(),
                 'hpp_satuan': i.hppSatuan.toString(),
                 'diskon': i.diskon.toString(),
+                'modifiers': [
+                  for (final m in modifierRows)
+                    if (m.itemTransaksiId == i.id)
+                      {
+                        if (m.modifierId != null) 'modifier_id': m.modifierId,
+                        'nama': m.nama,
+                        'harga': m.harga.toString(),
+                      },
+                ],
               },
             )
             .toList(),
         if (promoAsli != null) 'promo_id': promoAsli.promoId,
         'metode_bayar_id': pembayaranList.isNotEmpty
             ? pembayaranList.first.metodeBayarId
-            : metodeBayarTunaiFallback,
+            : metodeTunaiId,
         'total_bayar': t.totalBayar.toString(),
         // Split payment (F3.A) - kirim SEMUA baris Pembayaran lokal transaksi
         // ini (bukan cuma field metode_bayar_id/total_bayar di atas yang
@@ -289,12 +308,16 @@ class SyncRepository {
 
     final pembayaranPayload = await _pembayaranStandalonePayload();
     final pesananBatalPayload = await _pesananBatalPayload();
+    final statusPesananPayload = await _statusPesananPayload();
+    final shiftPayload = await _shiftPayload({for (final t in belumSync) ?t.shiftId});
     final hasil = await api.syncPush(
       accessToken: sesi.accessToken,
       perangkatId: sesi.perangkatId,
       transaksi: payload,
+      shift: shiftPayload,
       pembayaran: pembayaranPayload,
       pesananBatal: pesananBatalPayload,
+      statusPesanan: statusPesananPayload,
     );
 
     final sukses = <String>[];
@@ -314,6 +337,7 @@ class SyncRepository {
     }
     await _tandaiPembayaranSukses(hasil.pembayaran);
     await _tandaiPesananBatalSukses(hasil.pesananBatal);
+    await _tandaiStatusPesananSukses(hasil.statusPesanan);
     return (sukses.length, ditolak);
   }
 
@@ -391,17 +415,65 @@ class SyncRepository {
   Future<void> _pushStandalone(SesiBackend sesi) async {
     final payload = await _pembayaranStandalonePayload();
     final pesananBatalPayload = await _pesananBatalPayload();
-    if (payload.isEmpty && pesananBatalPayload.isEmpty) return;
+    final statusPesananPayload = await _statusPesananPayload();
+    final shiftPayload = await _shiftPayload(const {});
+    if (payload.isEmpty && pesananBatalPayload.isEmpty && statusPesananPayload.isEmpty && shiftPayload.isEmpty) return;
 
     final hasil = await api.syncPush(
       accessToken: sesi.accessToken,
       perangkatId: sesi.perangkatId,
       transaksi: const [],
+      shift: shiftPayload,
       pembayaran: payload,
       pesananBatal: pesananBatalPayload,
+      statusPesanan: statusPesananPayload,
     );
     await _tandaiPembayaranSukses(hasil.pembayaran);
     await _tandaiPesananBatalSukses(hasil.pesananBatal);
+    await _tandaiStatusPesananSukses(hasil.statusPesanan);
+  }
+
+  /// Shift buat/tutup di HP. Tanpa ini server tidak punya shiftnya dan menolak transaksi
+  /// yang merujuknya ("Shift tidak ditemukan"). Dikirim: yang dirujuk transaksi belum-sync,
+  /// yang masih buka, dan yang berubah 2 hari terakhir (server idempoten).
+  Future<List<Map<String, dynamic>>> _shiftPayload(Set<String> idDirujuk) async {
+    final sejak = DateTime.now().toUtc().millisecondsSinceEpoch - 2 * _hariMs;
+    final rows = await transaksiDao.attachedDatabase.shiftDao.shiftUntukSync(idDirujuk: idDirujuk, sejakMs: sejak);
+    final hasil = <Map<String, dynamic>>[];
+    for (final s in rows) {
+      final pengguna = await penggunaDao.cariById(s.penggunaId);
+      final idServer = pengguna?.serverPenggunaId;
+      String iso(int ms) => DateTime.fromMillisecondsSinceEpoch(ms, isUtc: true).toIso8601String();
+      hasil.add({
+        'id': s.id,
+        'outlet_id': s.outletId,
+        'dibuka_pada': iso(s.dibukaPada),
+        if (s.ditutupPada != null) 'ditutup_pada': iso(s.ditutupPada!),
+        'modal_awal': s.modalAwal.toString(),
+        if (s.kasAktual != null) 'kas_aktual': s.kasAktual.toString(),
+        if (s.catatan != null) 'catatan': s.catatan,
+        'status': s.status.name,
+        if (idServer != null) 'pengguna_id': idServer,
+      });
+    }
+    return hasil;
+  }
+
+  /// Status pesanan yang berubah SETELAH transaksinya tersync. Yang transaksinya
+  /// belum tersync tidak ikut sini: status terbarunya ikut payload transaksi.
+  Future<List<Map<String, dynamic>>> _statusPesananPayload() async {
+    final rows = await transaksiDao.statusPesananBelumSync();
+    return [
+      for (final r in rows) {'id': r.id, 'status': r.statusPesanan!.name},
+    ];
+  }
+
+  Future<void> _tandaiStatusPesananSukses(List<HasilPushItem> hasil) async {
+    // 'ditolak' (mis. transaksinya belum ada di server) dibiarkan supaya dicoba lagi.
+    final sukses = [for (final h in hasil) if (h.status != 'ditolak') h.id];
+    if (sukses.isNotEmpty) {
+      await transaksiDao.tandaiStatusPesananSudahSync(sukses, DateTime.now().toUtc().millisecondsSinceEpoch);
+    }
   }
 
   Future<int> _pull(SesiBackend sesi, {String? outletId}) async {
@@ -760,6 +832,41 @@ class SyncRepository {
         ),
       );
     }
+    // Varian/tambahan produk: grup + opsi di-upsert (delta), relasi produk-grup
+    // diganti seluruhnya dengan snapshot server.
+    for (final row in hasil.grupModifier) {
+      await produkDao.upsertGrupModifier(
+        GrupModifierCompanion.insert(
+          id: row['id'] as String,
+          tokoId: tokoId,
+          nama: row['nama'] as String,
+          minPilih: Value(row['min_pilih'] as int),
+          maksPilih: Value(row['maks_pilih'] as int),
+          createdAt: epochMsDariBackend(row['updated_at'] as String),
+          updatedAt: epochMsDariBackend(row['updated_at'] as String),
+          deletedAt: Value(epochMsDariBackendNullable(row['deleted_at'] as String?)),
+        ),
+      );
+    }
+    for (final row in hasil.modifier) {
+      await produkDao.upsertModifier(
+        ModifierCompanion.insert(
+          id: row['id'] as String,
+          grupModifierId: row['grup_modifier_id'] as String,
+          nama: row['nama'] as String,
+          hargaTambahan: Value(uangDariBackend(row['harga_tambahan'] as String)),
+          urutan: Value(row['urutan'] as int),
+          aktif: Value(row['aktif'] as bool),
+          createdAt: epochMsDariBackend(row['updated_at'] as String),
+          updatedAt: epochMsDariBackend(row['updated_at'] as String),
+          deletedAt: Value(epochMsDariBackendNullable(row['deleted_at'] as String?)),
+        ),
+      );
+    }
+    await produkDao.gantiRelasiProdukGrup([
+      for (final row in hasil.produkGrupModifier) (row['produk_id'] as String, row['grup_modifier_id'] as String),
+    ]);
+
     for (final row in hasil.pengguna) {
       await penggunaDao.upsertPenggunaDariSync(
         PenggunaCompanion.insert(

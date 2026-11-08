@@ -11,6 +11,16 @@ part 'shift_dao.g.dart';
 class ShiftDao extends DatabaseAccessor<AppDatabase> with _$ShiftDaoMixin {
   ShiftDao(super.db);
 
+  /// Shift yang perlu dikirim ke server: yang dirujuk transaksi belum-sync, yang masih
+  /// buka, dan yang berubah sejak [sejakMs]. Server idempoten, jadi kirim ulang aman.
+  Future<List<ShiftRow>> shiftUntukSync({required Set<String> idDirujuk, required int sejakMs}) =>
+      (select(shift)
+            ..where((t) =>
+                t.deletedAt.isNull() &
+                (t.id.isIn(idDirujuk) | t.status.equalsValue(ShiftStatus.buka) | t.updatedAt.isBiggerOrEqualValue(sejakMs)))
+            ..orderBy([(t) => OrderingTerm.asc(t.dibukaPada)]))
+          .get();
+
   Future<ShiftRow?> shiftTerbukaDiOutlet(String outletId) =>
       (select(shift)
             ..where((t) =>

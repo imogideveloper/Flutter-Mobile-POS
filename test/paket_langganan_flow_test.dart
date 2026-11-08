@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class _FakeAuthSessionStoreTerisi extends AuthSessionStore {
   _FakeAuthSessionStoreTerisi() : super(const FlutterSecureStorage());
@@ -290,6 +291,70 @@ void main() {
 
     expect(find.text('Bayar dengan QRIS'), findsOneWidget);
     expect(find.textContaining('belum terdeteksi'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(milliseconds: 1));
+  });
+
+  Future<void> bukaHalamanDenganTrial(
+    WidgetTester tester,
+    Map<String, dynamic> tambahan,
+  ) async {
+    // main.dart memanggil ini saat app jalan; di tes harus manual.
+    await initializeDateFormatting('id_ID');
+    final fakeBackend = _FakeBackendApiPaket();
+    fakeBackend.langgananSaya = {...fakeBackend.langgananSaya, ...tambahan};
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        authSessionStoreProvider.overrideWithValue(_FakeAuthSessionStoreTerisi()),
+        backendApiProvider.overrideWithValue(fakeBackend),
+      ],
+      child: const MaterialApp(home: PaketLanggananPage()),
+    ));
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('status trial tampil: "Free trial paket Bisnis selama 4 bulan" + batas berakhir', (tester) async {
+    await bukaHalamanDenganTrial(tester, {
+      'paket_efektif_nama': 'Bisnis',
+      'trial_aktif': true,
+      'trial_durasi_bulan': 4,
+      'trial_berakhir': '2027-03-08T00:00:00Z',
+      'trial_hari_tersisa': 100,
+      'trial_notifikasi_hari': 7,
+    });
+
+    expect(find.byKey(const Key('paketLangganan.bannerTrial')), findsOneWidget);
+    expect(find.text('Free trial paket Bisnis selama 4 bulan'), findsOneWidget);
+    expect(find.textContaining('Batas berakhir:'), findsOneWidget);
+    // Masih jauh dari akhir -> belum ada peringatan.
+    expect(find.byKey(const Key('paketLangganan.peringatanTrial')), findsNothing);
+
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(milliseconds: 1));
+  });
+
+  testWidgets('trial tinggal 7 hari atau kurang - banner menampilkan peringatan', (tester) async {
+    await bukaHalamanDenganTrial(tester, {
+      'paket_efektif_nama': 'Bisnis',
+      'trial_aktif': true,
+      'trial_durasi_bulan': 4,
+      'trial_berakhir': '2027-03-08T00:00:00Z',
+      'trial_hari_tersisa': 5,
+      'trial_notifikasi_hari': 7,
+    });
+
+    expect(find.byKey(const Key('paketLangganan.peringatanTrial')), findsOneWidget);
+    expect(find.textContaining('Free trial berakhir dalam 5 hari'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(milliseconds: 1));
+  });
+
+  testWidgets('tanpa trial (server lama/trial berakhir) - banner tidak tampil', (tester) async {
+    await bukaHalamanDenganTrial(tester, {'trial_aktif': false});
+
+    expect(find.byKey(const Key('paketLangganan.bannerTrial')), findsNothing);
 
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(milliseconds: 1));

@@ -23,6 +23,12 @@ from app.schemas.langganan import (
     PemakaianOut,
     PermintaanUpgradeIn,
 )
+from app.services.fitur_service import paket_efektif, trial_toko
+from app.services.platform_service import (
+    DEFAULT_TRIAL_NOTIFIKASI_HARI,
+    KUNCI_TRIAL_NOTIFIKASI_HARI,
+    ambil_int,
+)
 
 
 async def daftar_paket(db: AsyncSession) -> list[PaketOut]:
@@ -94,6 +100,10 @@ async def langganan_saya(db: AsyncSession, toko_id: uuid.UUID) -> LanggananSayaO
         )
     ) or 0
 
+    trial = await trial_toko(db, toko_id)
+    efektif = await paket_efektif(db, toko_id)
+    notif_hari = await ambil_int(db, KUNCI_TRIAL_NOTIFIKASI_HARI, DEFAULT_TRIAL_NOTIFIKASI_HARI)
+
     return LanggananSayaOut(
         paket_id=paket.id,
         paket_nama=paket.nama,
@@ -103,6 +113,13 @@ async def langganan_saya(db: AsyncSession, toko_id: uuid.UUID) -> LanggananSayaO
         mulai=langganan.mulai,
         berakhir=langganan.berakhir,
         pemakaian=PemakaianOut(outlet=jumlah_outlet, pengguna=jumlah_pengguna, produk=jumlah_produk),
+        paket_efektif_nama=efektif.nama,
+        trial_aktif=bool(trial and trial.aktif),
+        trial_mulai=trial.mulai if trial else None,
+        trial_berakhir=trial.berakhir if trial else None,
+        trial_durasi_bulan=trial.durasi_bulan if trial else None,
+        trial_hari_tersisa=trial.hari_tersisa if trial else None,
+        trial_notifikasi_hari=notif_hari,
     )
 
 

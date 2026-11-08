@@ -38,6 +38,9 @@ abstract class BackendApi {
     required String accessToken,
     required String perangkatId,
     required List<Map<String, dynamic>> transaksi,
+    // Shift yang dibuat/ditutup di HP. Server membuatnya lebih dulu supaya transaksi
+    // yang merujuknya tidak ditolak.
+    List<Map<String, dynamic>> shift = const [],
     // Cicilan/pelunasan kasbon (tahap 3b-1) yang dicatat offline - lihat
     // PembayaranPushIn di backend/app/schemas/sync.py. Beda dari
     // pembayaran yang lahir BERSAMA checkout (itu ikut payload `transaksi`
@@ -47,6 +50,9 @@ abstract class BackendApi {
     // SAAT OFFLINE, dikirim belakangan lewat kategori ini - lihat
     // PesananBatalPushIn di backend/app/schemas/sync.py.
     List<Map<String, dynamic>> pesananBatal = const [],
+    // Perubahan status pesanan (alur IMOGI) SETELAH transaksinya tersync -
+    // lihat StatusPesananPushIn di backend/app/schemas/sync.py.
+    List<Map<String, dynamic>> statusPesanan = const [],
   });
 
   /// `since` = ISO8601, berlaku SAMA utk semua tabel sekaligus (bukan per
@@ -277,6 +283,7 @@ class SyncPushResult {
     required this.transaksi,
     this.pembayaran = const [],
     this.pesananBatal = const [],
+    this.statusPesanan = const [],
   });
 
   final List<HasilPushItem> transaksi;
@@ -284,6 +291,8 @@ class SyncPushResult {
   // Temuan#2 (rapikan F3.E) - hasil kategori `pesanan_batal` (pembatalan
   // pesanan tersimpan yang terjadi saat offline, dikirim belakangan).
   final List<HasilPushItem> pesananBatal;
+  // Hasil kategori `status_pesanan` (perubahan status setelah tersync).
+  final List<HasilPushItem> statusPesanan;
 }
 
 class SyncPullResult {
@@ -309,6 +318,9 @@ class SyncPullResult {
     this.role = const [],
     this.roleIzin = const [],
     this.pelanggan = const [],
+    this.grupModifier = const [],
+    this.modifier = const [],
+    this.produkGrupModifier = const [],
   });
 
   final String waktuPull;
@@ -332,6 +344,11 @@ class SyncPullResult {
   // TANPA pull ini, nilai lokal jadi basi selamanya begitu ada transaksi
   // pertama yg melibatkan pelanggan ybs (lihat SyncRepository._terapkanPull).
   final List<Map<String, dynamic>> pelanggan;
+  // Varian/tambahan produk (IMOGI no. 42). produkGrupModifier = relasi murni,
+  // snapshot penuh tiap pull: device mengganti seluruh isinya.
+  final List<Map<String, dynamic>> grupModifier;
+  final List<Map<String, dynamic>> modifier;
+  final List<Map<String, dynamic>> produkGrupModifier;
   // Tahap 3a Part B - data pendukung lib/core/harga/kalkulator.dart.
   final List<Map<String, dynamic>> hargaOutlet;
   final List<Map<String, dynamic>> hargaGrosir;

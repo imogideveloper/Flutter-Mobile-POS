@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -38,8 +37,10 @@ class PengaturanMetodeBayarPage extends ConsumerWidget {
             metodeBayarId: metode.id,
             body: {'aktif': aktif},
           );
-      await ref.read(metodeBayarDaoProvider).upsertMetodeBayar(
-            MetodeBayarCompanion(id: Value(metode.id), aktif: Value(aktif)),
+      await ref.read(metodeBayarDaoProvider).ubahAktif(
+            metode.id,
+            aktif,
+            now: DateTime.now().toUtc().millisecondsSinceEpoch,
           );
       unawaited(ref.read(syncRepositoryProvider).jalankan());
     } catch (e) {
@@ -91,12 +92,11 @@ class PengaturanMetodeBayarPage extends ConsumerWidget {
             metodeBayarId: metode.id,
             body: {'nama': namaController.text.trim(), 'urutan': urutan},
           );
-      await ref.read(metodeBayarDaoProvider).upsertMetodeBayar(
-            MetodeBayarCompanion(
-              id: Value(metode.id),
-              nama: Value(namaController.text.trim()),
-              urutan: Value(urutan),
-            ),
+      await ref.read(metodeBayarDaoProvider).ubahNamaUrutan(
+            metode.id,
+            nama: namaController.text.trim(),
+            urutan: urutan,
+            now: DateTime.now().toUtc().millisecondsSinceEpoch,
           );
       unawaited(ref.read(syncRepositoryProvider).jalankan());
       if (context.mounted) {

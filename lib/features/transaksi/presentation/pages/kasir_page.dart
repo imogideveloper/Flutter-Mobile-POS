@@ -13,12 +13,16 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/barcode_scan_page.dart';
 import '../../../../core/widgets/empty_state.dart';
+import '../../../../core/widgets/qty_dialog.dart';
+import '../../../../core/widgets/qty_stepper.dart';
 import '../../../produk/domain/produk.dart';
 import '../../../produk/presentation/providers/produk_providers.dart';
 import '../../../shift/presentation/providers/shift_providers.dart';
 import '../../../stok/domain/stok_item.dart';
 import '../../../stok/presentation/providers/stok_providers.dart';
+import '../../domain/item_keranjang.dart';
 import '../providers/harga_keranjang_provider.dart' show pengaturanOutletProvider;
+import '../widgets/pilih_tambahan_sheet.dart';
 import '../providers/keranjang_provider.dart';
 import '../providers/transaksi_providers.dart';
 
@@ -95,7 +99,21 @@ class _KasirGridState extends ConsumerState<_KasirGrid> {
       }
       return;
     }
-    ref.read(keranjangProvider.notifier).tambah(match);
+    await _tambahDenganPilihan(match);
+  }
+
+  /// Produk yang punya varian/tambahan (IMOGI no. 42) membuka pemilih dulu;
+  /// kasir yang membatalkan pemilih tidak menambah apa pun.
+  Future<void> _tambahDenganPilihan(Produk produk) async {
+    final grup = await ref.read(grupTambahanProdukProvider(produk.id).future);
+    if (!mounted) return;
+    if (grup.isEmpty) {
+      ref.read(keranjangProvider.notifier).tambah(produk);
+      return;
+    }
+    final pilihan = await tampilkanPilihTambahan(context, produk: produk, grup: grup);
+    if (pilihan == null || !mounted) return;
+    ref.read(keranjangProvider.notifier).tambah(produk, modifiers: pilihan);
   }
 
   /// Kuncinya adanya SATU titik cek ini - sebelumnya `tambah()` di
@@ -114,6 +132,50 @@ class _KasirGridState extends ConsumerState<_KasirGrid> {
     if (!produk.lacakStok || izinkanStokMinus) return null;
     final tersedia = stok?.jumlah ?? 0;
     return qtyDimintaSetelahnya > tersedia ? tersedia : null;
+  }
+
+  List<ItemKeranjang> _baris(String produkId) =>
+      ref.read(keranjangProvider).where((i) => i.produkId == produkId).toList();
+
+  /// Minus di kartu produk: mengurangi baris TERAKHIR produk itu. Produk dengan beberapa
+  /// pilihan tambahan diatur per baris di keranjang agar pilihan lain tidak ikut berkurang.
+  void _kurangi(Produk produk) {
+    final baris = _baris(produk.id);
+    if (baris.isEmpty) return;
+    final terakhir = baris.last;
+    ref.read(keranjangProvider.notifier).ubahQty(terakhir.kunciBaris, terakhir.qty - 1);
+  }
+
+  Future<void> _isiJumlah({
+    required Produk produk,
+    required StokItem? stok,
+    required bool izinkanStokMinus,
+  }) async {
+    final baris = _baris(produk.id);
+    if (baris.length != 1) {
+      showAppToast(context,
+          message: 'Produk ini punya beberapa pilihan. Atur jumlah per pilihan di keranjang.',
+          variant: ToastVariant.info);
+      context.push('/kasir/keranjang');
+      return;
+    }
+    final hasil = await tampilkanIsiJumlah(context, judul: produk.nama, awal: baris.single.qty);
+    if (hasil == null || !mounted) return;
+    final tersedia = hasil > 0
+        ? _stokTersediaJikaMentok(
+            produk: produk, stok: stok, qtyDimintaSetelahnya: hasil, izinkanStokMinus: izinkanStokMinus)
+        : null;
+    if (tersedia != null) {
+      showAppToast(
+        context,
+        message: tersedia <= 0
+            ? 'Stok "${produk.nama}" habis'
+            : 'Stok "${produk.nama}" tidak cukup - sisa ${tersedia.toStringAsFixed(0)}',
+        variant: ToastVariant.warning,
+      );
+      return;
+    }
+    ref.read(keranjangProvider.notifier).ubahQty(baris.single.kunciBaris, hasil);
   }
 
   void _tambahKeKeranjang({
@@ -138,7 +200,7 @@ class _KasirGridState extends ConsumerState<_KasirGrid> {
       );
       return;
     }
-    ref.read(keranjangProvider.notifier).tambah(produk);
+    _tambahDenganPilihan(produk);
   }
 
   @override
@@ -224,23 +286,27 @@ class _KasirGridState extends ConsumerState<_KasirGrid> {
                   crossAxisCount: 2,
                   mainAxisSpacing: AppSpacing.sm,
                   crossAxisSpacing: AppSpacing.sm,
-                  childAspectRatio: 0.82,
+                  childAspectRatio: 0.7,
                 ),
                 itemCount: tampil.length,
                 itemBuilder: (context, index) {
                   final produk = tampil[index];
-                  final diKeranjang = keranjang.firstWhereOrNull((item) => item.produkId == produk.id);
+                  // Satu produk bisa punya beberapa baris (pilihan tambahan berbeda).
+                  final barisProduk = keranjang.where((item) => item.produkId == produk.id).toList();
+                  final qtyProduk = barisProduk.isEmpty ? null : barisProduk.fold<double>(0, (a, i) => a + i.qty);
                   final stok = stokByProdukId[produk.id];
                   return _ProdukGridTile(
                     produk: produk,
                     stok: stok,
-                    qtyDiKeranjang: diKeranjang?.qty,
+                    qtyDiKeranjang: qtyProduk,
                     onTap: () => _tambahKeKeranjang(
                       produk: produk,
                       stok: stok,
-                      qtySaatIni: diKeranjang?.qty ?? 0,
+                      qtySaatIni: qtyProduk ?? 0,
                       izinkanStokMinus: izinkanStokMinus,
                     ),
+                    onKurang: () => _kurangi(produk),
+                    onIsiJumlah: () => _isiJumlah(produk: produk, stok: stok, izinkanStokMinus: izinkanStokMinus),
                   );
                 },
               );
@@ -331,12 +397,16 @@ class _ProdukGridTile extends StatelessWidget {
     required this.stok,
     required this.qtyDiKeranjang,
     required this.onTap,
+    required this.onKurang,
+    required this.onIsiJumlah,
   });
 
   final Produk produk;
   final StokItem? stok;
   final double? qtyDiKeranjang;
   final VoidCallback onTap;
+  final VoidCallback onKurang;
+  final VoidCallback onIsiJumlah;
 
   @override
   Widget build(BuildContext context) {
@@ -399,27 +469,19 @@ class _ProdukGridTile extends StatelessWidget {
                       stokLabel,
                       style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: stokColor),
                     ),
-                ],
-              ),
-              if (qtyDiKeranjang != null)
-                Positioned(
-                  top: 0,
-                  right: 0,
-                  child: Container(
-                    constraints: const BoxConstraints(minWidth: 26, minHeight: 26),
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
-                    child: Text(
-                      qtyDiKeranjang!.toStringAsFixed(0),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 13,
+                  const Spacer(),
+                  // Pola umum POS: produk yang sudah dipilih menampilkan - jumlah + langsung di kartu.
+                  if (qtyDiKeranjang != null)
+                    Center(
+                      child: QtyStepper(
+                        qty: qtyDiKeranjang!,
+                        onIncrement: onTap,
+                        onDecrement: onKurang,
+                        onQtyTap: onIsiJumlah,
                       ),
                     ),
-                  ),
-                ),
+                ],
+              ),
             ],
           ),
         ),

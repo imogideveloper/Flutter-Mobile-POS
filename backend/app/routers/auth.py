@@ -15,6 +15,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_db
+from app.core.jenis_usaha import normalisasi_jenis_usaha
 from app.core.otp_store import OtpStore, get_otp_store
 from app.core.deps import require_outlet_access
 from app.core.security import (
@@ -125,14 +126,23 @@ async def _daftarkan_toko_baru(db: AsyncSession, body: OtpVerifyIn) -> tuple[Tok
             "Role bawaan 'Owner' tidak ditemukan - pastikan migrasi 0001 (seed) sudah dijalankan",
         )
 
-    paket_gratis = (await db.execute(select(Paket).where(Paket.nama == "Gratis"))).scalar_one_or_none()
+    # Paket TERENDAH (urutan paling kecil: Gratis/Free) - dicari lewat urutan,
+    # bukan nama, supaya tidak bergantung pada katalog yang dipakai.
+    paket_gratis = (
+        await db.execute(select(Paket).where(Paket.aktif.is_(True)).order_by(Paket.urutan.asc()))
+    ).scalars().first()
     if paket_gratis is None:
         raise HTTPException(
             status.HTTP_500_INTERNAL_SERVER_ERROR,
-            "Paket 'Gratis' tidak ditemukan - pastikan migrasi 0001 (seed) sudah dijalankan",
+            "Tidak ada paket aktif - pastikan migrasi (seed paket) sudah dijalankan",
         )
 
-    toko = Toko(nama=body.nama_toko, jenis_usaha=body.jenis_usaha, pemilik_nama=body.nama_pemilik, no_hp=body.no_hp)
+    toko = Toko(
+        nama=body.nama_toko,
+        jenis_usaha=normalisasi_jenis_usaha(body.jenis_usaha),
+        pemilik_nama=body.nama_pemilik,
+        no_hp=body.no_hp,
+    )
     db.add(toko)
     await db.flush()
 

@@ -8,7 +8,9 @@ import '../../../../order/data/local/tables/tipe_order_table.dart';
 import '../../../../shift/data/local/tables/shift_table.dart';
 
 enum TransaksiStatus { draft, tersimpan, selesai, dibatalkan, refundSebagian, refund }
-enum StatusPesanan { baru, diproses, siap, diambil, dibatalkan }
+// diantar dan selesai ditambahkan untuk alur IMOGI (Baru, Diproses, Siap, (Diantar), Selesai);
+// diambil dipertahankan untuk data lama dan dianggap setara selesai.
+enum StatusPesanan { baru, diproses, siap, diambil, dibatalkan, diantar, selesai }
 enum StatusBayarTransaksi { lunas, sebagian, belumBayar }
 
 const statusBayarTransaksiPostgresValue = <StatusBayarTransaksi, String>{
@@ -49,6 +51,11 @@ class Transaksi extends Table {
   IntColumn get tanggal => integer()();
   TextColumn get nomorAntrean => text().nullable()();
   TextColumn get statusPesanan => textEnum<StatusPesanan>().nullable()();
+  // Pelacak sinkron status pesanan: status berubah SETELAH transaksi tersync tidak ikut
+  // payload checkout, jadi dikirim lewat daftar status_pesanan di /sync/push. Belum
+  // tersync bila diubahPada tidak null dan (disinkronPada null atau lebih lama).
+  IntColumn get statusPesananDiubahPada => integer().nullable()();
+  IntColumn get statusPesananDisinkronPada => integer().nullable()();
   TextColumn get status => textEnum<TransaksiStatus>()();
   IntColumn get subtotal => integer().withDefault(const Constant(0))();
   IntColumn get totalDiskon => integer().withDefault(const Constant(0))();

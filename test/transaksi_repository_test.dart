@@ -536,4 +536,48 @@ void main() {
       expect(hasil.totalPajak, 3300);
     },
   );
+
+  test('voidTransaksi kedua kali ditolak dan stok tidak bertambah lagi (BUG-013)', () async {
+    final items = const [
+      ItemKeranjang(produkId: 'p-barang', namaProduk: 'Kopi Hitam', hargaSatuan: 15000, qty: 4, lacakStok: true),
+    ];
+    final hasil = await repo.checkout(
+      tokoId: 't1',
+      outletId: 'o1',
+      shiftId: 'shift1',
+      penggunaId: 'u1',
+      metodeBayarId: 'metode-tunai',
+      items: items,
+      hasil: _hitung(items),
+      totalBayar: 60000,
+    );
+
+    Future<num> stokSaatIni() async => (await (db.select(db.stok)
+              ..where((t) => t.outletId.equals('o1') & t.produkId.equals('p-barang')))
+            .getSingle())
+        .jumlah;
+
+    await repo.voidTransaksi(
+      transaksiId: hasil.id,
+      tokoId: 't1',
+      outletId: 'o1',
+      alasan: 'Salah input',
+      disetujuiOleh: 'owner1',
+      items: hasil.items,
+    );
+    expect(await stokSaatIni(), 10);
+
+    await expectLater(
+      repo.voidTransaksi(
+        transaksiId: hasil.id,
+        tokoId: 't1',
+        outletId: 'o1',
+        alasan: 'Void lagi',
+        disetujuiOleh: 'owner1',
+        items: hasil.items,
+      ),
+      throwsA(isA<TransaksiSudahDivoidException>()),
+    );
+    expect(await stokSaatIni(), 10, reason: 'void ulang tidak boleh menambah stok lagi');
+  });
 }

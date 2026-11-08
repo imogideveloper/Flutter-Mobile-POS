@@ -8,7 +8,10 @@ BUKAN sekadar perbandingan `fitur.tingkat <= paket.urutan` (biar bisa
 diubah tanpa update app, sesuai dokumen) - walau baris paket_fitur-nya
 sendiri awalnya diisi otomatis dari perbandingan itu saat seed."""
 
+import calendar
+import math
 import uuid
+from dataclasses import dataclass
 from datetime import UTC, datetime
 
 from fastapi import Depends, HTTPException, status
@@ -18,7 +21,63 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.db import get_db
 from app.core.deps import get_toko_id
 from app.models.fitur import Fitur, PaketFitur
-from app.models.outlet import Langganan, Paket
+from app.models.outlet import Langganan, Paket, Toko
+from app.services.platform_service import KUNCI_USIA_AKUN_BULAN, ambil_int
+
+
+@dataclass(frozen=True)
+class TrialInfo:
+    """Masa trial berdasarkan usia akun toko (arahan lead 2026-11-08)."""
+
+    mulai: datetime
+    berakhir: datetime
+    durasi_bulan: int
+    aktif: bool
+    hari_tersisa: int  # dibulatkan ke atas; 0 bila sudah berakhir
+
+
+def _utc(dt: datetime) -> datetime:
+    return dt if dt.tzinfo is not None else dt.replace(tzinfo=UTC)
+
+
+def tambah_bulan(dt: datetime, bulan: int) -> datetime:
+    """Tambah bulan KALENDER (31 Okt + 4 bulan = 28/29 Feb bila perlu)."""
+    total = dt.month - 1 + bulan
+    tahun = dt.year + total // 12
+    bln = total % 12 + 1
+    hari = min(dt.day, calendar.monthrange(tahun, bln)[1])
+    return dt.replace(year=tahun, month=bln, day=hari)
+
+
+async def trial_toko(db: AsyncSession, toko_id: uuid.UUID) -> TrialInfo | None:
+    """Info masa trial toko, atau None bila fitur trial mati (pengaturan
+    `usia_akun_bulan` tidak ada atau 0). Usia akun dihitung dari
+    `toko.created_at` (tanggal toko mendaftar) - toko yang sudah ada ikut
+    dihitung dari tanggal pembuatannya."""
+
+    bulan = await ambil_int(db, KUNCI_USIA_AKUN_BULAN, 0)
+    if bulan <= 0:
+        return None
+    toko = await db.get(Toko, toko_id)
+    if toko is None:
+        return None
+
+    mulai = _utc(toko.created_at)
+    berakhir = tambah_bulan(mulai, bulan)
+    sekarang = datetime.now(UTC)
+    aktif = sekarang < berakhir
+    hari = math.ceil((berakhir - sekarang).total_seconds() / 86400) if aktif else 0
+    return TrialInfo(mulai=mulai, berakhir=berakhir, durasi_bulan=bulan, aktif=aktif, hari_tersisa=hari)
+
+
+async def paket_tertinggi(db: AsyncSession) -> Paket | None:
+    """Paket aktif dengan `urutan` tertinggi (kini Bisnis; bila katalog
+    diganti ke Imogi, otomatis Enterprise) - dipakai masa trial supaya
+    logika tidak bergantung pada NAMA paket."""
+
+    return (
+        await db.execute(select(Paket).where(Paket.aktif.is_(True)).order_by(Paket.urutan.desc()))
+    ).scalars().first()
 
 
 async def langganan_aktif_toko(db: AsyncSession, toko_id: uuid.UUID) -> Langganan | None:
@@ -66,12 +125,24 @@ async def paket_efektif(db: AsyncSession, toko_id: uuid.UUID) -> Paket:
     `paket_aktif_toko` langsung."""
 
     paket = await paket_aktif_toko(db, toko_id)
-    if paket is not None:
-        return paket
-    gratis = (await db.execute(select(Paket).where(Paket.nama == "Gratis"))).scalars().first()
-    if gratis is None:
-        raise RuntimeError("Paket 'Gratis' tidak ada di database - seed belum jalan?")
-    return gratis
+    if paket is None:
+        # Paket TERENDAH (urutan terkecil: Gratis/Free) - dicari lewat urutan,
+        # bukan nama, supaya tidak bergantung pada katalog yang dipakai.
+        paket = (
+            await db.execute(select(Paket).where(Paket.aktif.is_(True)).order_by(Paket.urutan.asc()))
+        ).scalars().first()
+        if paket is None:
+            raise RuntimeError("Tidak ada paket aktif di database - seed belum jalan?")
+
+    # Masa trial (arahan lead 2026-11-08): selama usia akun belum mencapai
+    # batas, toko mendapat paket TERTINGGI tanpa pembatasan. Kalau toko
+    # sudah berlangganan paket yang sama atau lebih tinggi, tidak berubah.
+    trial = await trial_toko(db, toko_id)
+    if trial is not None and trial.aktif:
+        tertinggi = await paket_tertinggi(db)
+        if tertinggi is not None and tertinggi.urutan > paket.urutan:
+            return tertinggi
+    return paket
 
 
 async def kode_fitur_toko(db: AsyncSession, toko_id: uuid.UUID) -> set[str]:

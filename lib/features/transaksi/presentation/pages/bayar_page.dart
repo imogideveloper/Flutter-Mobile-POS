@@ -17,7 +17,9 @@ import '../../../promo/presentation/providers/pajak_providers.dart';
 import '../../../shift/presentation/providers/shift_providers.dart';
 import '../../data/local/tables/metode_bayar_table.dart';
 import '../../domain/split_pembayaran.dart';
+import '../../../dapur/presentation/providers/antrean_providers.dart';
 import '../providers/harga_keranjang_provider.dart';
+import '../providers/status_pesanan_providers.dart';
 import '../providers/keranjang_provider.dart';
 import '../providers/transaksi_providers.dart';
 
@@ -156,6 +158,8 @@ class _BayarPageState extends ConsumerState<BayarPage> {
       final hasil = await ref
           .read(transaksiRepositoryProvider)
           .checkout(
+            buatNomorAntrean: await siapkanNomorAntrean(ref),
+            statusAwal: await statusPesananAwal(ref),
             tokoId: tokoId,
             outletId: outletId,
             shiftId: shift.id,

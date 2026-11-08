@@ -57,7 +57,7 @@ class _OtpLoginPageState extends ConsumerState<OtpLoginPage> {
   final _namaPemilikController = TextEditingController();
   final _pinController = TextEditingController();
   final _konfirmasiPinController = TextEditingController();
-  JenisUsaha _jenisUsaha = JenisUsaha.fnb;
+  JenisUsaha _jenisUsaha = JenisUsaha.kafe;
 
   /// Mode masuk saja - "lupa PIN kasir?". OTP WhatsApp yang diverifikasi
   /// sendiri sudah membuktikan kepemilikan nomor HP terdaftar, jadi aman
@@ -166,7 +166,7 @@ class _OtpLoginPageState extends ConsumerState<OtpLoginPage> {
             namaPerangkat: 'Perangkat ${defaultTargetPlatform.name}',
             platform: defaultTargetPlatform.name,
             namaToko: _mode == _Mode.daftar ? _namaTokoController.text.trim() : null,
-            jenisUsaha: _mode == _Mode.daftar ? _jenisUsaha.name : null,
+            jenisUsaha: _mode == _Mode.daftar ? _jenisUsaha.kode : null,
             namaPemilik: _mode == _Mode.daftar ? _namaPemilikController.text.trim() : null,
             pin: pinUntukDikirim,
           );

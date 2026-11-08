@@ -1,4 +1,5 @@
 import 'package:apps_pos/core/database/app_database.dart';
+import 'package:apps_pos/features/shift/data/local/tables/shift_table.dart' show ShiftStatus;
 import 'package:apps_pos/core/network/auth_session_store.dart';
 import 'package:apps_pos/core/network/backend_api.dart';
 import 'package:apps_pos/core/network/sync_repository.dart';
@@ -18,6 +19,8 @@ class _FakeBackendApi implements BackendApi {
   List<Map<String, dynamic>> transaksiDiterima = [];
   List<Map<String, dynamic>> pembayaranDiterima = [];
   List<Map<String, dynamic>> pesananBatalDiterima = [];
+  List<Map<String, dynamic>> statusPesananDiterima = [];
+  List<Map<String, dynamic>> shiftDiterima = [];
   SyncPullResult? pullResponse;
 
   @override
@@ -92,12 +95,16 @@ class _FakeBackendApi implements BackendApi {
     required String accessToken,
     required String perangkatId,
     required List<Map<String, dynamic>> transaksi,
+    List<Map<String, dynamic>> shift = const [],
     List<Map<String, dynamic>> pembayaran = const [],
     List<Map<String, dynamic>> pesananBatal = const [],
+    List<Map<String, dynamic>> statusPesanan = const [],
   }) async {
     transaksiDiterima = transaksi;
+    shiftDiterima = shift;
     pembayaranDiterima = pembayaran;
     pesananBatalDiterima = pesananBatal;
+    statusPesananDiterima = statusPesanan;
     return SyncPushResult(
       transaksi: transaksi
           .map((t) => HasilPushItem(id: t['id'] as String, status: 'diterima'))
@@ -106,6 +113,9 @@ class _FakeBackendApi implements BackendApi {
           .map((p) => HasilPushItem(id: p['id'] as String, status: 'diterima'))
           .toList(),
       pesananBatal: pesananBatal
+          .map((p) => HasilPushItem(id: p['id'] as String, status: 'diterima'))
+          .toList(),
+      statusPesanan: statusPesanan
           .map((p) => HasilPushItem(id: p['id'] as String, status: 'diterima'))
           .toList(),
     );
@@ -788,4 +798,191 @@ void main() {
       expect(pengaturan!.pembulatan, 500);
     },
   );
+
+  // --- Perbaikan bug uji manual 2026-11-08 (BUG-010) ---
+  SyncPullResult pullKosong() => const SyncPullResult(
+        waktuPull: '2026-01-01T00:00:00Z',
+        produk: [],
+        kategori: [],
+        satuan: [],
+        pajak: [],
+        promo: [],
+        metodeBayar: [],
+        stok: [],
+        hargaOutlet: [],
+        hargaGrosir: [],
+        tipeOrderPajak: [],
+        pengaturanOutlet: [],
+        hasMore: {},
+        paket: null,
+        kodeFitur: [],
+        batasFitur: {},
+      );
+
+  Future<void> sisipTransaksi(
+    String id, {
+    required TransaksiStatus status,
+    int totalBayar = 0,
+    String? metodeBayarId,
+  }) async {
+    final now = DateTime.now().toUtc().millisecondsSinceEpoch;
+    await db.into(db.transaksi).insert(
+          TransaksiCompanion.insert(
+            id: id,
+            tokoId: 'toko-asli',
+            outletId: 'outlet-asli',
+            penggunaId: 'pengguna-asli',
+            nomorStruk: status == TransaksiStatus.tersimpan ? 'DRAFT$now' : 'OUT1-$id',
+            tanggal: now,
+            status: status,
+            total: const Value(15000),
+            totalBayar: Value(totalBayar),
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
+    if (metodeBayarId != null) {
+      await db.into(db.pembayaran).insert(
+            PembayaranCompanion.insert(
+              id: 'bayar-$id',
+              transaksiId: id,
+              metodeBayarId: metodeBayarId,
+              jumlah: totalBayar,
+              status: PembayaranStatus.berhasil,
+              createdAt: now,
+              updatedAt: now,
+            ),
+          );
+    }
+  }
+
+  Future<void> sisipMetodeTunai(String id) async {
+    final now = DateTime.now().toUtc().millisecondsSinceEpoch;
+    await db.into(db.metodeBayar).insert(
+          MetodeBayarCompanion.insert(
+            id: id,
+            tokoId: 'toko-asli',
+            nama: 'Tunai',
+            tipe: MetodeBayarTipe.tunai,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
+  }
+
+  test('push: pesanan tersimpan (draft) tidak ikut terkirim sehingga transaksi selesai tidak tertahan', () async {
+    await sisipMetodeTunai('metode-uuid-1');
+    await sisipTransaksi('trx-selesai', status: TransaksiStatus.selesai, totalBayar: 15000, metodeBayarId: 'metode-uuid-1');
+    await sisipTransaksi('trx-draft', status: TransaksiStatus.tersimpan);
+    api.pullResponse = pullKosong();
+
+    final hasil = await repo.jalankan();
+
+    expect(hasil.transaksiTerkirim, 1);
+    expect(api.transaksiDiterima.map((t) => t['id']), ['trx-selesai']);
+    final draft = await (db.select(db.transaksi)..where((t) => t.id.equals('trx-draft'))).getSingle();
+    expect(draft.disinkronPada, isNull, reason: 'draft tetap lokal, tidak ditandai tersinkron');
+  });
+
+  test('push: transaksi tanpa pembayaran (kasbon murni) memakai ID metode tunai asli, bukan placeholder', () async {
+    await sisipMetodeTunai('metode-uuid-asli');
+    await sisipTransaksi('trx-kasbon', status: TransaksiStatus.selesai, totalBayar: 0);
+    api.pullResponse = pullKosong();
+
+    await repo.jalankan();
+
+    expect(api.transaksiDiterima.single['metode_bayar_id'], 'metode-uuid-asli');
+  });
+
+  test('push: nomor antrian ikut terkirim ke backend, dan dihilangkan bila antrian mati', () async {
+    await sisipMetodeTunai('metode-uuid-1');
+    await sisipTransaksi('trx-antre', status: TransaksiStatus.selesai, totalBayar: 15000, metodeBayarId: 'metode-uuid-1');
+    await (db.update(db.transaksi)..where((t) => t.id.equals('trx-antre')))
+        .write(const TransaksiCompanion(nomorAntrean: Value('A-005')));
+    await sisipTransaksi('trx-tanpa', status: TransaksiStatus.selesai, totalBayar: 15000, metodeBayarId: 'metode-uuid-1');
+    api.pullResponse = pullKosong();
+
+    await repo.jalankan();
+
+    final antre = api.transaksiDiterima.firstWhere((t) => t['id'] == 'trx-antre');
+    final tanpa = api.transaksiDiterima.firstWhere((t) => t['id'] == 'trx-tanpa');
+    expect(antre['nomor_antrean'], 'A-005');
+    expect(tanpa.containsKey('nomor_antrean'), isFalse);
+  });
+
+  test('push: shift yang dirujuk transaksi ikut terkirim (kalau tidak, server menolak transaksinya)', () async {
+    await sisipMetodeTunai('metode-uuid-1');
+    final now = DateTime.now().toUtc().millisecondsSinceEpoch;
+    await db.into(db.shift).insert(ShiftCompanion.insert(
+          id: 'shift-lama',
+          tokoId: 'toko-asli',
+          outletId: 'outlet-asli',
+          penggunaId: 'pengguna-asli',
+          dibukaPada: now - 30 * 86400000,
+          ditutupPada: Value(now - 30 * 86400000 + 3600000),
+          modalAwal: const Value(100000),
+          kasAktual: const Value(115000),
+          status: ShiftStatus.tutup,
+          createdAt: now - 30 * 86400000,
+          updatedAt: now - 30 * 86400000,
+        ));
+    await sisipTransaksi('trx-sh', status: TransaksiStatus.selesai, totalBayar: 15000, metodeBayarId: 'metode-uuid-1');
+    await (db.update(db.transaksi)..where((t) => t.id.equals('trx-sh')))
+        .write(const TransaksiCompanion(shiftId: Value('shift-lama')));
+    api.pullResponse = pullKosong();
+
+    await repo.jalankan();
+
+    final s = api.shiftDiterima.single;
+    expect(s['id'], 'shift-lama');
+    expect(s['status'], 'tutup');
+    expect(s['modal_awal'], '100000');
+    expect(s['kas_aktual'], '115000');
+    expect(s.containsKey('ditutup_pada'), isTrue);
+  });
+
+  test('push: status pesanan awal ikut payload transaksi (nama sama dengan kode backend)', () async {
+    await sisipMetodeTunai('metode-uuid-1');
+    await sisipTransaksi('trx-s1', status: TransaksiStatus.selesai, totalBayar: 15000, metodeBayarId: 'metode-uuid-1');
+    await (db.update(db.transaksi)..where((t) => t.id.equals('trx-s1')))
+        .write(const TransaksiCompanion(statusPesanan: Value(StatusPesanan.diproses)));
+    await sisipTransaksi('trx-s2', status: TransaksiStatus.selesai, totalBayar: 15000, metodeBayarId: 'metode-uuid-1');
+    api.pullResponse = pullKosong();
+
+    await repo.jalankan();
+
+    final s1 = api.transaksiDiterima.firstWhere((t) => t['id'] == 'trx-s1');
+    final s2 = api.transaksiDiterima.firstWhere((t) => t['id'] == 'trx-s2');
+    expect(s1['status_pesanan'], 'diproses');
+    expect(s2.containsKey('status_pesanan'), isFalse, reason: 'fitur status pesanan mati = tidak dikirim');
+  });
+
+  test('push: status pesanan ikut payload dan perubahannya dikirim sekali setelah transaksi tersync', () async {
+    await sisipMetodeTunai('metode-uuid-1');
+    await sisipTransaksi('trx-s3', status: TransaksiStatus.selesai, totalBayar: 15000, metodeBayarId: 'metode-uuid-1');
+    await (db.update(db.transaksi)..where((t) => t.id.equals('trx-s3')))
+        .write(const TransaksiCompanion(statusPesanan: Value(StatusPesanan.baru)));
+    api.pullResponse = pullKosong();
+
+    // Sync pertama: transaksi terkirim dengan status awal; tidak ada perubahan terpisah.
+    await repo.jalankan();
+    expect(api.transaksiDiterima.single['status_pesanan'], 'baru');
+    expect(api.statusPesananDiterima, isEmpty);
+
+    // Pelayan memajukan status SETELAH tersync -> dikirim lewat daftar status_pesanan.
+    await Future<void>.delayed(const Duration(milliseconds: 10));
+    await db.transaksiDao.ubahStatusPesanan('trx-s3', StatusPesanan.siap, DateTime.now().toUtc().millisecondsSinceEpoch);
+    api.pullResponse = pullKosong();
+    await repo.jalankan();
+    expect(api.statusPesananDiterima, [
+      {'id': 'trx-s3', 'status': 'siap'},
+    ]);
+
+    // Sync berikutnya tidak mengirim ulang (fake hanya menimpa saat dipanggil,
+    // jadi dikosongkan dulu; tanpa perubahan baru, syncPush tidak dipanggil sama sekali).
+    api.statusPesananDiterima = [];
+    api.pullResponse = pullKosong();
+    await repo.jalankan();
+    expect(api.statusPesananDiterima, isEmpty);
+  });
 }

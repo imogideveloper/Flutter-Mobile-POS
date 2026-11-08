@@ -26,6 +26,7 @@ from app.models.produk import (
 )
 from app.models.promo import Pajak
 from app.routers.produk import ambil_produk_milik_toko
+from app.schemas.penjualan_setup import IdsIn
 from app.schemas.produk_lanjutan import (
     BundlingItemIn,
     BundlingItemOut,
@@ -340,6 +341,39 @@ async def tautkan_grup_modifier_ke_produk(
     if existing is None:
         db.add(ProdukGrupModifier(produk_id=produk_id, grup_modifier_id=grup_modifier_id))
         await db.commit()
+
+
+@router.put("/grup-modifier/{grup_modifier_id}/produk", status_code=status.HTTP_204_NO_CONTENT)
+async def set_produk_grup_modifier(
+    grup_modifier_id: uuid.UUID,
+    body: IdsIn,
+    toko_id: uuid.UUID = Depends(get_toko_id),
+    role_id: uuid.UUID = Depends(get_role_id),
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    """Ganti SELURUH daftar produk yang memakai grup ini (replace-all, pola sama
+    dengan PUT .../produk milik promo)."""
+    await _wajib_izin_produk_kelola(db, role_id)
+    await _ambil_grup_modifier_milik_toko(db, grup_modifier_id, toko_id)
+    ids = set(body.ids)
+    if ids:
+        valid = set(
+            (await db.execute(select(Produk.id).where(Produk.id.in_(ids), Produk.toko_id == toko_id)))
+            .scalars()
+            .all()
+        )
+        if valid != ids:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Ada produk yang tidak ditemukan")
+    ada = (
+        await db.execute(select(ProdukGrupModifier).where(ProdukGrupModifier.grup_modifier_id == grup_modifier_id))
+    ).scalars().all()
+    for baris in ada:
+        if baris.produk_id not in ids:
+            await db.delete(baris)
+    sudah = {baris.produk_id for baris in ada}
+    for produk_id in ids - sudah:
+        db.add(ProdukGrupModifier(produk_id=produk_id, grup_modifier_id=grup_modifier_id))
+    await db.commit()
 
 
 @router.get("/produk/{produk_id}/grup-modifier", response_model=list[GrupModifierOut])

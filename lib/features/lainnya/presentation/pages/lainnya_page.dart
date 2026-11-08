@@ -178,6 +178,17 @@ class LainnyaPage extends ConsumerWidget {
                     value: 'Lihat shift',
                     onTap: () => context.push('/shift'),
                   ),
+                  Consumer(
+                    builder: (context, ref, _) {
+                      final punya = ref.watch(featureGateProvider).value?.has('status_pesanan') ?? false;
+                      if (!punya) return const SizedBox.shrink();
+                      return SettingsMenuRow(
+                        label: 'Status pesanan',
+                        value: 'Pantau',
+                        onTap: () => context.push('/status-pesanan'),
+                      );
+                    },
+                  ),
                   SettingsMenuRow(
                     label: 'Pelanggan',
                     value: '$jumlahPelanggan',
@@ -226,6 +237,11 @@ class LainnyaPage extends ConsumerWidget {
                     label: 'Kategori produk',
                     value: 'Atur',
                     onTap: () => context.push('/kategori'),
+                  ),
+                  SettingsMenuRow(
+                    label: 'Varian & tambahan',
+                    value: 'Atur',
+                    onTap: () => context.push('/grup-tambahan'),
                   ),
                   SettingsMenuRow(
                     label: 'Tipe pesanan & meja',

@@ -18696,6 +18696,28 @@ class $TransaksiTable extends Transaksi
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   ).withConverter<StatusPesanan?>($TransaksiTable.$converterstatusPesanann);
+  static const VerificationMeta _statusPesananDiubahPadaMeta =
+      const VerificationMeta('statusPesananDiubahPada');
+  @override
+  late final GeneratedColumn<int> statusPesananDiubahPada =
+      GeneratedColumn<int>(
+        'status_pesanan_diubah_pada',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _statusPesananDisinkronPadaMeta =
+      const VerificationMeta('statusPesananDisinkronPada');
+  @override
+  late final GeneratedColumn<int> statusPesananDisinkronPada =
+      GeneratedColumn<int>(
+        'status_pesanan_disinkron_pada',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      );
   @override
   late final GeneratedColumnWithTypeConverter<TransaksiStatus, String> status =
       GeneratedColumn<String>(
@@ -18951,6 +18973,8 @@ class $TransaksiTable extends Transaksi
     tanggal,
     nomorAntrean,
     statusPesanan,
+    statusPesananDiubahPada,
+    statusPesananDisinkronPada,
     status,
     subtotal,
     totalDiskon,
@@ -19075,6 +19099,24 @@ class $TransaksiTable extends Transaksi
         nomorAntrean.isAcceptableOrUnknown(
           data['nomor_antrean']!,
           _nomorAntreanMeta,
+        ),
+      );
+    }
+    if (data.containsKey('status_pesanan_diubah_pada')) {
+      context.handle(
+        _statusPesananDiubahPadaMeta,
+        statusPesananDiubahPada.isAcceptableOrUnknown(
+          data['status_pesanan_diubah_pada']!,
+          _statusPesananDiubahPadaMeta,
+        ),
+      );
+    }
+    if (data.containsKey('status_pesanan_disinkron_pada')) {
+      context.handle(
+        _statusPesananDisinkronPadaMeta,
+        statusPesananDisinkronPada.isAcceptableOrUnknown(
+          data['status_pesanan_disinkron_pada']!,
+          _statusPesananDisinkronPadaMeta,
         ),
       );
     }
@@ -19281,6 +19323,14 @@ class $TransaksiTable extends Transaksi
           data['${effectivePrefix}status_pesanan'],
         ),
       ),
+      statusPesananDiubahPada: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}status_pesanan_diubah_pada'],
+      ),
+      statusPesananDisinkronPada: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}status_pesanan_disinkron_pada'],
+      ),
       status: $TransaksiTable.$converterstatus.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.string,
@@ -19407,6 +19457,8 @@ class TransaksiRow extends DataClass implements Insertable<TransaksiRow> {
   final int tanggal;
   final String? nomorAntrean;
   final StatusPesanan? statusPesanan;
+  final int? statusPesananDiubahPada;
+  final int? statusPesananDisinkronPada;
   final TransaksiStatus status;
   final int subtotal;
   final int totalDiskon;
@@ -19442,6 +19494,8 @@ class TransaksiRow extends DataClass implements Insertable<TransaksiRow> {
     required this.tanggal,
     this.nomorAntrean,
     this.statusPesanan,
+    this.statusPesananDiubahPada,
+    this.statusPesananDisinkronPada,
     required this.status,
     required this.subtotal,
     required this.totalDiskon,
@@ -19494,6 +19548,16 @@ class TransaksiRow extends DataClass implements Insertable<TransaksiRow> {
     if (!nullToAbsent || statusPesanan != null) {
       map['status_pesanan'] = Variable<String>(
         $TransaksiTable.$converterstatusPesanann.toSql(statusPesanan),
+      );
+    }
+    if (!nullToAbsent || statusPesananDiubahPada != null) {
+      map['status_pesanan_diubah_pada'] = Variable<int>(
+        statusPesananDiubahPada,
+      );
+    }
+    if (!nullToAbsent || statusPesananDisinkronPada != null) {
+      map['status_pesanan_disinkron_pada'] = Variable<int>(
+        statusPesananDisinkronPada,
       );
     }
     {
@@ -19571,6 +19635,13 @@ class TransaksiRow extends DataClass implements Insertable<TransaksiRow> {
       statusPesanan: statusPesanan == null && nullToAbsent
           ? const Value.absent()
           : Value(statusPesanan),
+      statusPesananDiubahPada: statusPesananDiubahPada == null && nullToAbsent
+          ? const Value.absent()
+          : Value(statusPesananDiubahPada),
+      statusPesananDisinkronPada:
+          statusPesananDisinkronPada == null && nullToAbsent
+          ? const Value.absent()
+          : Value(statusPesananDisinkronPada),
       status: Value(status),
       subtotal: Value(subtotal),
       totalDiskon: Value(totalDiskon),
@@ -19630,6 +19701,12 @@ class TransaksiRow extends DataClass implements Insertable<TransaksiRow> {
       statusPesanan: $TransaksiTable.$converterstatusPesanann.fromJson(
         serializer.fromJson<String?>(json['statusPesanan']),
       ),
+      statusPesananDiubahPada: serializer.fromJson<int?>(
+        json['statusPesananDiubahPada'],
+      ),
+      statusPesananDisinkronPada: serializer.fromJson<int?>(
+        json['statusPesananDisinkronPada'],
+      ),
       status: $TransaksiTable.$converterstatus.fromJson(
         serializer.fromJson<String>(json['status']),
       ),
@@ -19678,6 +19755,12 @@ class TransaksiRow extends DataClass implements Insertable<TransaksiRow> {
       'statusPesanan': serializer.toJson<String?>(
         $TransaksiTable.$converterstatusPesanann.toJson(statusPesanan),
       ),
+      'statusPesananDiubahPada': serializer.toJson<int?>(
+        statusPesananDiubahPada,
+      ),
+      'statusPesananDisinkronPada': serializer.toJson<int?>(
+        statusPesananDisinkronPada,
+      ),
       'status': serializer.toJson<String>(
         $TransaksiTable.$converterstatus.toJson(status),
       ),
@@ -19720,6 +19803,8 @@ class TransaksiRow extends DataClass implements Insertable<TransaksiRow> {
     int? tanggal,
     Value<String?> nomorAntrean = const Value.absent(),
     Value<StatusPesanan?> statusPesanan = const Value.absent(),
+    Value<int?> statusPesananDiubahPada = const Value.absent(),
+    Value<int?> statusPesananDisinkronPada = const Value.absent(),
     TransaksiStatus? status,
     int? subtotal,
     int? totalDiskon,
@@ -19757,6 +19842,12 @@ class TransaksiRow extends DataClass implements Insertable<TransaksiRow> {
     statusPesanan: statusPesanan.present
         ? statusPesanan.value
         : this.statusPesanan,
+    statusPesananDiubahPada: statusPesananDiubahPada.present
+        ? statusPesananDiubahPada.value
+        : this.statusPesananDiubahPada,
+    statusPesananDisinkronPada: statusPesananDisinkronPada.present
+        ? statusPesananDisinkronPada.value
+        : this.statusPesananDisinkronPada,
     status: status ?? this.status,
     subtotal: subtotal ?? this.subtotal,
     totalDiskon: totalDiskon ?? this.totalDiskon,
@@ -19814,6 +19905,12 @@ class TransaksiRow extends DataClass implements Insertable<TransaksiRow> {
       statusPesanan: data.statusPesanan.present
           ? data.statusPesanan.value
           : this.statusPesanan,
+      statusPesananDiubahPada: data.statusPesananDiubahPada.present
+          ? data.statusPesananDiubahPada.value
+          : this.statusPesananDiubahPada,
+      statusPesananDisinkronPada: data.statusPesananDisinkronPada.present
+          ? data.statusPesananDisinkronPada.value
+          : this.statusPesananDisinkronPada,
       status: data.status.present ? data.status.value : this.status,
       subtotal: data.subtotal.present ? data.subtotal.value : this.subtotal,
       totalDiskon: data.totalDiskon.present
@@ -19880,6 +19977,8 @@ class TransaksiRow extends DataClass implements Insertable<TransaksiRow> {
           ..write('tanggal: $tanggal, ')
           ..write('nomorAntrean: $nomorAntrean, ')
           ..write('statusPesanan: $statusPesanan, ')
+          ..write('statusPesananDiubahPada: $statusPesananDiubahPada, ')
+          ..write('statusPesananDisinkronPada: $statusPesananDisinkronPada, ')
           ..write('status: $status, ')
           ..write('subtotal: $subtotal, ')
           ..write('totalDiskon: $totalDiskon, ')
@@ -19920,6 +20019,8 @@ class TransaksiRow extends DataClass implements Insertable<TransaksiRow> {
     tanggal,
     nomorAntrean,
     statusPesanan,
+    statusPesananDiubahPada,
+    statusPesananDisinkronPada,
     status,
     subtotal,
     totalDiskon,
@@ -19959,6 +20060,8 @@ class TransaksiRow extends DataClass implements Insertable<TransaksiRow> {
           other.tanggal == this.tanggal &&
           other.nomorAntrean == this.nomorAntrean &&
           other.statusPesanan == this.statusPesanan &&
+          other.statusPesananDiubahPada == this.statusPesananDiubahPada &&
+          other.statusPesananDisinkronPada == this.statusPesananDisinkronPada &&
           other.status == this.status &&
           other.subtotal == this.subtotal &&
           other.totalDiskon == this.totalDiskon &&
@@ -19996,6 +20099,8 @@ class TransaksiCompanion extends UpdateCompanion<TransaksiRow> {
   final Value<int> tanggal;
   final Value<String?> nomorAntrean;
   final Value<StatusPesanan?> statusPesanan;
+  final Value<int?> statusPesananDiubahPada;
+  final Value<int?> statusPesananDisinkronPada;
   final Value<TransaksiStatus> status;
   final Value<int> subtotal;
   final Value<int> totalDiskon;
@@ -20032,6 +20137,8 @@ class TransaksiCompanion extends UpdateCompanion<TransaksiRow> {
     this.tanggal = const Value.absent(),
     this.nomorAntrean = const Value.absent(),
     this.statusPesanan = const Value.absent(),
+    this.statusPesananDiubahPada = const Value.absent(),
+    this.statusPesananDisinkronPada = const Value.absent(),
     this.status = const Value.absent(),
     this.subtotal = const Value.absent(),
     this.totalDiskon = const Value.absent(),
@@ -20069,6 +20176,8 @@ class TransaksiCompanion extends UpdateCompanion<TransaksiRow> {
     required int tanggal,
     this.nomorAntrean = const Value.absent(),
     this.statusPesanan = const Value.absent(),
+    this.statusPesananDiubahPada = const Value.absent(),
+    this.statusPesananDisinkronPada = const Value.absent(),
     required TransaksiStatus status,
     this.subtotal = const Value.absent(),
     this.totalDiskon = const Value.absent(),
@@ -20114,6 +20223,8 @@ class TransaksiCompanion extends UpdateCompanion<TransaksiRow> {
     Expression<int>? tanggal,
     Expression<String>? nomorAntrean,
     Expression<String>? statusPesanan,
+    Expression<int>? statusPesananDiubahPada,
+    Expression<int>? statusPesananDisinkronPada,
     Expression<String>? status,
     Expression<int>? subtotal,
     Expression<int>? totalDiskon,
@@ -20151,6 +20262,10 @@ class TransaksiCompanion extends UpdateCompanion<TransaksiRow> {
       if (tanggal != null) 'tanggal': tanggal,
       if (nomorAntrean != null) 'nomor_antrean': nomorAntrean,
       if (statusPesanan != null) 'status_pesanan': statusPesanan,
+      if (statusPesananDiubahPada != null)
+        'status_pesanan_diubah_pada': statusPesananDiubahPada,
+      if (statusPesananDisinkronPada != null)
+        'status_pesanan_disinkron_pada': statusPesananDisinkronPada,
       if (status != null) 'status': status,
       if (subtotal != null) 'subtotal': subtotal,
       if (totalDiskon != null) 'total_diskon': totalDiskon,
@@ -20190,6 +20305,8 @@ class TransaksiCompanion extends UpdateCompanion<TransaksiRow> {
     Value<int>? tanggal,
     Value<String?>? nomorAntrean,
     Value<StatusPesanan?>? statusPesanan,
+    Value<int?>? statusPesananDiubahPada,
+    Value<int?>? statusPesananDisinkronPada,
     Value<TransaksiStatus>? status,
     Value<int>? subtotal,
     Value<int>? totalDiskon,
@@ -20227,6 +20344,10 @@ class TransaksiCompanion extends UpdateCompanion<TransaksiRow> {
       tanggal: tanggal ?? this.tanggal,
       nomorAntrean: nomorAntrean ?? this.nomorAntrean,
       statusPesanan: statusPesanan ?? this.statusPesanan,
+      statusPesananDiubahPada:
+          statusPesananDiubahPada ?? this.statusPesananDiubahPada,
+      statusPesananDisinkronPada:
+          statusPesananDisinkronPada ?? this.statusPesananDisinkronPada,
       status: status ?? this.status,
       subtotal: subtotal ?? this.subtotal,
       totalDiskon: totalDiskon ?? this.totalDiskon,
@@ -20294,6 +20415,16 @@ class TransaksiCompanion extends UpdateCompanion<TransaksiRow> {
     if (statusPesanan.present) {
       map['status_pesanan'] = Variable<String>(
         $TransaksiTable.$converterstatusPesanann.toSql(statusPesanan.value),
+      );
+    }
+    if (statusPesananDiubahPada.present) {
+      map['status_pesanan_diubah_pada'] = Variable<int>(
+        statusPesananDiubahPada.value,
+      );
+    }
+    if (statusPesananDisinkronPada.present) {
+      map['status_pesanan_disinkron_pada'] = Variable<int>(
+        statusPesananDisinkronPada.value,
       );
     }
     if (status.present) {
@@ -20385,6 +20516,8 @@ class TransaksiCompanion extends UpdateCompanion<TransaksiRow> {
           ..write('tanggal: $tanggal, ')
           ..write('nomorAntrean: $nomorAntrean, ')
           ..write('statusPesanan: $statusPesanan, ')
+          ..write('statusPesananDiubahPada: $statusPesananDiubahPada, ')
+          ..write('statusPesananDisinkronPada: $statusPesananDisinkronPada, ')
           ..write('status: $status, ')
           ..write('subtotal: $subtotal, ')
           ..write('totalDiskon: $totalDiskon, ')
@@ -56540,6 +56673,8 @@ typedef $$TransaksiTableCreateCompanionBuilder =
       required int tanggal,
       Value<String?> nomorAntrean,
       Value<StatusPesanan?> statusPesanan,
+      Value<int?> statusPesananDiubahPada,
+      Value<int?> statusPesananDisinkronPada,
       required TransaksiStatus status,
       Value<int> subtotal,
       Value<int> totalDiskon,
@@ -56578,6 +56713,8 @@ typedef $$TransaksiTableUpdateCompanionBuilder =
       Value<int> tanggal,
       Value<String?> nomorAntrean,
       Value<StatusPesanan?> statusPesanan,
+      Value<int?> statusPesananDiubahPada,
+      Value<int?> statusPesananDisinkronPada,
       Value<TransaksiStatus> status,
       Value<int> subtotal,
       Value<int> totalDiskon,
@@ -56914,6 +57051,16 @@ class $$TransaksiTableFilterComposer
   get statusPesanan => $composableBuilder(
     column: $table.statusPesanan,
     builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<int> get statusPesananDiubahPada => $composableBuilder(
+    column: $table.statusPesananDiubahPada,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get statusPesananDisinkronPada => $composableBuilder(
+    column: $table.statusPesananDisinkronPada,
+    builder: (column) => ColumnFilters(column),
   );
 
   ColumnWithTypeConverterFilters<TransaksiStatus, TransaksiStatus, String>
@@ -57428,6 +57575,16 @@ class $$TransaksiTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get statusPesananDiubahPada => $composableBuilder(
+    column: $table.statusPesananDiubahPada,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get statusPesananDisinkronPada => $composableBuilder(
+    column: $table.statusPesananDisinkronPada,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get status => $composableBuilder(
     column: $table.status,
     builder: (column) => ColumnOrderings(column),
@@ -57728,6 +57885,16 @@ class $$TransaksiTableAnnotationComposer
         column: $table.statusPesanan,
         builder: (column) => column,
       );
+
+  GeneratedColumn<int> get statusPesananDiubahPada => $composableBuilder(
+    column: $table.statusPesananDiubahPada,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get statusPesananDisinkronPada => $composableBuilder(
+    column: $table.statusPesananDisinkronPada,
+    builder: (column) => column,
+  );
 
   GeneratedColumnWithTypeConverter<TransaksiStatus, String> get status =>
       $composableBuilder(column: $table.status, builder: (column) => column);
@@ -58233,6 +58400,8 @@ class $$TransaksiTableTableManager
                 Value<int> tanggal = const Value.absent(),
                 Value<String?> nomorAntrean = const Value.absent(),
                 Value<StatusPesanan?> statusPesanan = const Value.absent(),
+                Value<int?> statusPesananDiubahPada = const Value.absent(),
+                Value<int?> statusPesananDisinkronPada = const Value.absent(),
                 Value<TransaksiStatus> status = const Value.absent(),
                 Value<int> subtotal = const Value.absent(),
                 Value<int> totalDiskon = const Value.absent(),
@@ -58269,6 +58438,8 @@ class $$TransaksiTableTableManager
                 tanggal: tanggal,
                 nomorAntrean: nomorAntrean,
                 statusPesanan: statusPesanan,
+                statusPesananDiubahPada: statusPesananDiubahPada,
+                statusPesananDisinkronPada: statusPesananDisinkronPada,
                 status: status,
                 subtotal: subtotal,
                 totalDiskon: totalDiskon,
@@ -58307,6 +58478,8 @@ class $$TransaksiTableTableManager
                 required int tanggal,
                 Value<String?> nomorAntrean = const Value.absent(),
                 Value<StatusPesanan?> statusPesanan = const Value.absent(),
+                Value<int?> statusPesananDiubahPada = const Value.absent(),
+                Value<int?> statusPesananDisinkronPada = const Value.absent(),
                 required TransaksiStatus status,
                 Value<int> subtotal = const Value.absent(),
                 Value<int> totalDiskon = const Value.absent(),
@@ -58343,6 +58516,8 @@ class $$TransaksiTableTableManager
                 tanggal: tanggal,
                 nomorAntrean: nomorAntrean,
                 statusPesanan: statusPesanan,
+                statusPesananDiubahPada: statusPesananDiubahPada,
+                statusPesananDisinkronPada: statusPesananDisinkronPada,
                 status: status,
                 subtotal: subtotal,
                 totalDiskon: totalDiskon,

@@ -10,37 +10,39 @@ class KeranjangNotifier extends Notifier<List<ItemKeranjang>> {
   @override
   List<ItemKeranjang> build() => [];
 
-  void tambah(Produk produk) {
-    final index = state.indexWhere((item) => item.produkId == produk.id);
+  /// Menambah satu unit [produk]. [modifiers] = pilihan tambahan (varian/topping);
+  /// pilihan berbeda menjadi baris terpisah, pilihan sama menambah qty barisnya.
+  void tambah(Produk produk, {List<ModifierPilihan> modifiers = const []}) {
+    final baru = ItemKeranjang(
+      produkId: produk.id,
+      namaProduk: produk.nama,
+      hargaSatuan: produk.hargaJual,
+      qty: 1,
+      lacakStok: produk.lacakStok,
+      modifiers: modifiers,
+    );
+    final index = state.indexWhere((item) => item.kunciBaris == baru.kunciBaris);
     if (index == -1) {
-      state = [
-        ...state,
-        ItemKeranjang(
-          produkId: produk.id,
-          namaProduk: produk.nama,
-          hargaSatuan: produk.hargaJual,
-          qty: 1,
-          lacakStok: produk.lacakStok,
-        ),
-      ];
+      state = [...state, baru];
       return;
     }
-    ubahQty(produk.id, state[index].qty + 1);
+    ubahQty(baru.kunciBaris, state[index].qty + 1);
   }
 
-  void ubahQty(String produkId, double qty) {
+  /// [kunciBaris] = ItemKeranjang.kunciBaris (sama dengan produkId untuk item tanpa tambahan).
+  void ubahQty(String kunciBaris, double qty) {
     if (qty <= 0) {
-      hapus(produkId);
+      hapus(kunciBaris);
       return;
     }
     state = [
       for (final item in state)
-        if (item.produkId == produkId) item.copyWith(qty: qty) else item,
+        if (item.kunciBaris == kunciBaris) item.copyWith(qty: qty) else item,
     ];
   }
 
-  void hapus(String produkId) {
-    state = state.where((item) => item.produkId != produkId).toList();
+  void hapus(String kunciBaris) {
+    state = state.where((item) => item.kunciBaris != kunciBaris).toList();
   }
 
   void kosongkan() {

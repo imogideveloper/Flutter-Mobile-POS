@@ -20,6 +20,7 @@ class HasilTransaksi {
     this.sisaTagihan = 0,
     this.jatuhTempo,
     this.produkStokMenipis = const [],
+    this.nomorAntrean,
   });
 
   final String id;
@@ -43,4 +44,6 @@ class HasilTransaksi {
   // toast pengingat tepat setelah checkout, bukan cuma badge pasif di
   // halaman Stok yang baru kelihatan kalau kasir sempat buka halaman itu.
   final List<String> produkStokMenipis;
+  // Nomor antrian ("A-001") bila fitur antrian aktif, lihat AntreanRepository.
+  final String? nomorAntrean;
 }

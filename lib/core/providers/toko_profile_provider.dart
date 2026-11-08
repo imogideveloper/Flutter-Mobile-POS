@@ -2,19 +2,39 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'device_pairing_provider.dart';
 
-/// Jenis usaha - preset ini nanti menentukan fitur yang dinyalakan default
-/// (lihat dokumen tech stack bagian 4.2, `toko.pengaturan_fitur`) begitu
-/// modul feature-gating dibangun. Untuk sekarang murni dipakai sebagai
-/// info tampilan di halaman Daftar & Lainnya.
-enum JenisUsaha { retail, fnb, jasa, laundry, fashion }
+/// Jenis usaha: HANYA modul Makanan & Minuman dari dokumen IMOGI (IMOGI POS
+/// Menu & Fitur, 5 Nov 2026). `kode` = kode jenis usaha IMOGI (3 huruf), itu
+/// yang dikirim ke backend dan disimpan di `toko.jenis_usaha` sebagai kontrak
+/// dengan dashboard. Jenis usaha nanti menentukan nilai bawaan pengaturan dan
+/// bagian yang tampil (utama/opsional/tidak relevan).
+enum JenisUsaha {
+  kafe('CAF', 'Kafe & Kedai Kopi'),
+  restoran('RES', 'Restoran'),
+  katering('CAT', 'Katering'),
+  roti('BRD', 'Roti, Kue & Camilan'),
+  bahanSegar('FRZ', 'Bahan Segar & Makanan Beku'),
+  minuman('BEV', 'Minuman'),
+  kios('STL', 'Kios & Food Court');
 
-const labelJenisUsaha = {
-  JenisUsaha.retail: 'Toko / Retail',
-  JenisUsaha.fnb: 'Makanan & Minuman',
-  JenisUsaha.jasa: 'Jasa',
-  JenisUsaha.laundry: 'Laundry',
-  JenisUsaha.fashion: 'Fashion',
-};
+  const JenisUsaha(this.kode, this.label);
+
+  final String kode;
+  final String label;
+
+  /// Dari kode IMOGI. Nilai lama versi sebelumnya ('fnb', atau nama enum
+  /// lama) dan nilai tak dikenal dianggap Kafe & Kedai Kopi.
+  static JenisUsaha dariKode(String? nilai) {
+    if (nilai == null) return JenisUsaha.kafe;
+    final n = nilai.trim();
+    for (final j in JenisUsaha.values) {
+      if (j.kode == n.toUpperCase() || j.name == n) return j;
+    }
+    return JenisUsaha.kafe;
+  }
+}
+
+/// Dipertahankan untuk kode lama yang memakai peta ini.
+final labelJenisUsaha = {for (final j in JenisUsaha.values) j: j.label};
 
 /// Profil toko hasil Daftar - SENGAJA disimpan lokal (bukan di tabel drift
 /// `toko`, itu memang tidak ada di SQLite HP per rencana sync, lihat
@@ -44,10 +64,7 @@ final tokoProfileProvider = FutureProvider<TokoProfile?>((ref) async {
   final namaPemilik = await storage.read(key: _kNamaPemilikKey);
   if (nama == null || jenisStr == null || namaPemilik == null) return null;
 
-  final jenis = JenisUsaha.values.firstWhere(
-    (j) => j.name == jenisStr,
-    orElse: () => JenisUsaha.retail,
-  );
+  final jenis = JenisUsaha.dariKode(jenisStr);
   return TokoProfile(namaToko: nama, jenisUsaha: jenis, namaPemilik: namaPemilik);
 });
 
@@ -59,7 +76,7 @@ Future<void> simpanTokoProfile(
 }) async {
   final storage = ref.read(secureStorageProvider);
   await storage.write(key: _kNamaTokoKey, value: namaToko);
-  await storage.write(key: _kJenisUsahaKey, value: jenisUsaha.name);
+  await storage.write(key: _kJenisUsahaKey, value: jenisUsaha.kode);
   await storage.write(key: _kNamaPemilikKey, value: namaPemilik);
   ref.invalidate(tokoProfileProvider);
 }

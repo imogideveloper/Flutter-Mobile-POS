@@ -5,6 +5,7 @@ import app.models  # noqa: F401 - registrasi semua tabel ke Base.metadata
 from app.core.config import get_settings
 from app.routers import (
     admin_langganan,
+    admin_platform,
     audit,
     auth,
     fitur,
@@ -63,6 +64,7 @@ app.include_router(transfer_stok.router)
 app.include_router(audit.router)
 app.include_router(langganan.router)
 app.include_router(admin_langganan.router)
+app.include_router(admin_platform.router)
 app.include_router(payment_xendit.router)
 
 

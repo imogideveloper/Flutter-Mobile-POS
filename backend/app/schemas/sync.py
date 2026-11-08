@@ -4,7 +4,7 @@ from decimal import Decimal
 
 from pydantic import BaseModel
 
-from app.schemas.transaksi import CheckoutIn
+from app.schemas.transaksi import CheckoutIn, StatusPesananKode
 
 
 class PelangganPushIn(BaseModel):
@@ -74,6 +74,14 @@ class PesananBatalPushIn(BaseModel):
     pengguna_id: uuid.UUID | None = None
 
 
+class StatusPesananPushIn(BaseModel):
+    """Perubahan status pesanan yang terjadi di HP SETELAH transaksinya tersync
+    (jadi tidak ikut payload checkout). `id` = id transaksi."""
+
+    id: uuid.UUID
+    status: StatusPesananKode
+
+
 class SyncPushIn(BaseModel):
     perangkat_id: uuid.UUID
     transaksi: list[CheckoutIn] = []
@@ -82,6 +90,7 @@ class SyncPushIn(BaseModel):
     pelanggan: list[PelangganPushIn] = []
     pembayaran: list[PembayaranPushIn] = []
     pesanan_batal: list[PesananBatalPushIn] = []
+    status_pesanan: list[StatusPesananPushIn] = []
 
 
 class HasilItemPush(BaseModel):
@@ -97,6 +106,7 @@ class SyncPushOut(BaseModel):
     pelanggan: list[HasilItemPush]
     pembayaran: list[HasilItemPush]
     pesanan_batal: list[HasilItemPush]
+    status_pesanan: list[HasilItemPush] = []
 
 
 class SyncPullOut(BaseModel):
@@ -117,6 +127,13 @@ class SyncPullOut(BaseModel):
     # menghitung izin efektif per pengguna.role_id TANPA perlu tabel
     # master `izin` terpisah (kode izin sudah diresolve di sini).
     role_izin: list[dict]
+    # Katalog varian/tambahan produk (dokumen IMOGI no. 42). grup_modifier dan
+    # modifier = delta by updated_at; produk_grup_modifier = relasi murni, snapshot
+    # PENUH tiap pull (device mengganti seluruh isinya). Default [] supaya client
+    # lama tidak terpengaruh.
+    grup_modifier: list[dict] = []
+    modifier: list[dict] = []
+    produk_grup_modifier: list[dict] = []
     stok: list[dict]
     # Tahap 3a Part B - data yang dibutuhkan lib/core/harga/kalkulator.dart
     # di HP supaya keranjang bisa hitung grosir/harga per-outlet/service

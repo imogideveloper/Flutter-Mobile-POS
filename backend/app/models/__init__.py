@@ -10,6 +10,7 @@ from . import (  # noqa: F401
     order,
     outlet,
     pelanggan,
+    platform,
     produk,
     promo,
     stok,

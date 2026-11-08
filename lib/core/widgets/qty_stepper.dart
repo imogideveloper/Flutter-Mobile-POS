@@ -11,11 +11,15 @@ class QtyStepper extends StatelessWidget {
     required this.qty,
     required this.onIncrement,
     required this.onDecrement,
+    this.onQtyTap,
   });
 
   final num qty;
   final VoidCallback onIncrement;
   final VoidCallback? onDecrement;
+
+  /// Bila diisi, angka jumlah bisa diketuk untuk mengisi jumlah manual.
+  final VoidCallback? onQtyTap;
 
   @override
   Widget build(BuildContext context) {
@@ -30,12 +34,20 @@ class QtyStepper extends StatelessWidget {
           onTap: onDecrement,
           semanticLabel: 'Kurangi',
         ),
-        SizedBox(
-          width: 28,
-          child: Text(
-            qty % 1 == 0 ? qty.toStringAsFixed(0) : qty.toString(),
-            textAlign: TextAlign.center,
-            style: AppTypography.moneyAmount.copyWith(fontSize: 15),
+        InkWell(
+          key: const Key('qty.angka'),
+          onTap: onQtyTap,
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            constraints: const BoxConstraints(minWidth: 32),
+            height: 36,
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: 2),
+            child: Text(
+              qty % 1 == 0 ? qty.toStringAsFixed(0) : qty.toString(),
+              textAlign: TextAlign.center,
+              style: AppTypography.moneyAmount.copyWith(fontSize: 15),
+            ),
           ),
         ),
         _StepperButton(

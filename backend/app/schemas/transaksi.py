@@ -2,7 +2,9 @@ import uuid
 from datetime import date, datetime
 from decimal import Decimal
 
-from pydantic import BaseModel
+from typing import Literal
+
+from pydantic import BaseModel, Field
 
 
 class ModifierPilihIn(BaseModel):
@@ -86,6 +88,12 @@ class CheckoutIn(BaseModel):
     tipe_order_id: uuid.UUID | None = None
     meja_id: uuid.UUID | None = None
     nomor_struk: str
+    # Nomor antrian yang dibuat HP sendiri saat offline (format "A-001",
+    # lihat lib/features/dapur/data/antrean_repository.dart). Disimpan apa
+    # adanya; None = antrian dimatikan / fitur nomor_antrean tidak aktif.
+    nomor_antrean: str | None = Field(default=None, max_length=10)
+    # Status awal pesanan (None = fitur status pesanan mati di HP).
+    status_pesanan: "StatusPesananKode | None" = None
     tanggal: datetime
     items: list[ItemTransaksiIn]
     promo_id: uuid.UUID | None = None
@@ -209,6 +217,11 @@ class CheckoutOut(BaseModel):
     jatuh_tempo: date | None = None
 
 
+# Tahap status pesanan (alur IMOGI: Baru, Diproses, Siap, (Diantar), Selesai). 'diambil' dipertahankan
+# untuk data lama dan dianggap setara 'selesai'.
+StatusPesananKode = Literal["baru", "diproses", "siap", "diantar", "selesai", "diambil", "dibatalkan"]
+
+
 class VoidIn(BaseModel):
     alasan: str
 
@@ -218,6 +231,7 @@ class TransaksiOut(BaseModel):
     outlet_id: uuid.UUID
     pelanggan_id: uuid.UUID | None = None
     nomor_struk: str
+    nomor_antrean: str | None = None
     tanggal: datetime
     status: str
     subtotal: Decimal

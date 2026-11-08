@@ -355,7 +355,7 @@ def _body_untuk(method: str, path: str, ids: dict[str, uuid.UUID]) -> dict | Non
         return {}  # semua *UpdateIn - field opsional
     if path == "/level-member":
         return {"nama": "Level Sweep"}
-    if path in ("/promo/{promo_id}/produk", "/promo/{promo_id}/outlet"):
+    if path in ("/promo/{promo_id}/produk", "/promo/{promo_id}/outlet", "/grup-modifier/{grup_modifier_id}/produk"):
         return {"ids": []}
     if path in (
         "/produk/{produk_id}/pajak/{pajak_id}",
