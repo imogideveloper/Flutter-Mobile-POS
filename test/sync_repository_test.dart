@@ -975,6 +975,25 @@ void main() {
     ]);
   });
 
+  test('jalankan: panggilan yang datang saat sync masih berjalan menunggu hasil yang sama (tidak ada push/pull ganda)', () async {
+    await sisipMetodeTunai('metode-uuid-1');
+    await sisipTransaksi('trx-sf', status: TransaksiStatus.selesai, totalBayar: 15000, metodeBayarId: 'metode-uuid-1');
+    api.pullResponse = pullKosong();
+
+    final pertama = repo.jalankan();
+    final kedua = repo.jalankan();
+    expect(identical(pertama, kedua), isTrue);
+    final hasil = await pertama;
+    expect(hasil.transaksiTerkirim, 1);
+    expect((await kedua).transaksiTerkirim, 1);
+
+    // Setelah selesai, panggilan berikutnya memulai sync baru (tidak macet pada hasil lama).
+    api.pullResponse = pullKosong();
+    final ketiga = repo.jalankan();
+    expect(identical(pertama, ketiga), isFalse);
+    await ketiga;
+  });
+
   test('push: shift yang dirujuk transaksi ikut terkirim (kalau tidak, server menolak transaksinya)', () async {
     await sisipMetodeTunai('metode-uuid-1');
     final now = DateTime.now().toUtc().millisecondsSinceEpoch;

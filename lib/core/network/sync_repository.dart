@@ -103,7 +103,19 @@ class SyncRepository {
   // apa adanya, lihat _cacheLogo.
   final String baseUrl;
 
-  Future<HasilSync> jalankan({String? outletId}) async {
+  Future<HasilSync>? _sedangJalan;
+
+  /// Satu sync pada satu waktu: pemanggil yang datang saat sync masih berjalan (tombol manual,
+  /// sync otomatis, simpan pengaturan) menunggu hasil yang sama, bukan memulai push/pull kedua
+  /// yang berebut menandai transaksi dan menimpa kursor pull.
+  Future<HasilSync> jalankan({String? outletId}) {
+    final aktif = _sedangJalan;
+    if (aktif != null) return aktif;
+    final hasil = _jalankanSekali(outletId: outletId).whenComplete(() => _sedangJalan = null);
+    return _sedangJalan = hasil;
+  }
+
+  Future<HasilSync> _jalankanSekali({String? outletId}) async {
     final sesi = await sessionStore.muat();
     if (sesi == null) {
       throw const BackendException(message: 'Device belum pairing ke backend');

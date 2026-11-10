@@ -10,6 +10,7 @@ import '../../../../core/providers/toko_profile_provider.dart';
 import '../../../../core/struk/cetak_struk_helper.dart';
 import '../../../../core/struk/kirim_whatsapp_helper.dart';
 import '../../../../core/struk/penyusun_struk.dart' as struk;
+import '../../../../core/network/auto_sync.dart';
 import '../../../../core/struk/penyusun_tiket_dapur.dart';
 import '../../../../core/struk/struk_snapshot.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -62,6 +63,8 @@ class _StrukPageState extends ConsumerState<StrukPage> {
     final (data, pengaturan) = await _bangunStrukData();
     final json = strukSnapshotKeJson(data, pengaturan);
     await ref.read(transaksiRepositoryProvider).simpanSnapshotStruk(widget.hasil.id, jsonEncode(json));
+    // Snapshot ikut payload sync, jadi sync otomatis baru dipicu SESUDAH snapshot tersimpan.
+    if (mounted) picuSyncSetelahTransaksi(ref);
   }
 
   /// Toast proaktif tepat setelah checkout utk produk yang saldonya jadi

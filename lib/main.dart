@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
+import 'core/network/auto_sync.dart';
 import 'core/network/fitur_terkunci_event.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
@@ -20,7 +21,7 @@ import 'features/fitur/presentation/providers/feature_gate_provider.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('id_ID');
-  runApp(const ProviderScope(child: AppsPosApp()));
+  runApp(const ProviderScope(child: AutoSyncHost(child: AppsPosApp())));
 }
 
 class AppsPosApp extends ConsumerWidget {

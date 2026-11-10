@@ -13,6 +13,15 @@ TANGGAL = datetime.datetime(2026, 11, 10)
 
 # (ID, {nama kolom: nilai}); catatan DITAMBAHKAN ke sel Notes yang sudah ada.
 BUG = {
+    "BUG-004": {
+        "Status": "Ready for Retest",
+        "Fixed Date": TANGGAL,
+        "_catatan": " 2026-11-11: sync otomatis di latar depan (auto_sync.dart): saat aplikasi dibuka atau kembali aktif, koneksi pulih, "
+                    "tiap 5 menit selama aplikasi terbuka, dan setelah pembayaran (setelah snapshot struk tersimpan). Jeda minimum 30 detik, "
+                    "diperlebar dua kali lipat tiap gagal (maks 15 menit), tidak pernah dua sync bersamaan, kegagalan tidak menampilkan error. "
+                    "BATAS: tanpa workmanager, aplikasi yang tertutup penuh tidak menyinkronkan sendiri. Tes otomatis lulus (auto_sync_test.dart, "
+                    "sync_repository_test.dart). Belum diuji di HP; retest: buat transaksi tanpa membuka menu sync lalu cek server (TC-038).",
+    },
     "BUG-009": {
         "Status": "Ready for Retest",
         "Fixed Date": TANGGAL,
@@ -49,6 +58,13 @@ BUG = {
     },
 }
 TASK = {
+    "TASK-111": {
+        "Status": "Review",
+        "Progress (%)": 0.7,
+        "_catatan": " 2026-11-11: sync otomatis latar depan selesai di kode dan lulus tes otomatis; menunggu uji di HP (TC-038). "
+                    "Belum mencakup sync saat aplikasi tertutup penuh (butuh workmanager/layanan latar belakang) dan belum ada indikator "
+                    "status sync di layar utama.",
+    },
     "TASK-122": {
         "Status": "Review",
         "Progress (%)": 0.6,
