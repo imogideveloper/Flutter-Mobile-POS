@@ -95,7 +95,11 @@ class _RefundPageState extends ConsumerState<RefundPage> {
       // offline, tampilkan pesan netral "butuh koneksi" (bukan error
       // teknis) - lihat BackendException.tidakAdaKoneksi.
       if (mounted) {
-        setState(() => _errorMuat = e.tidakAdaKoneksi ? 'Refund butuh koneksi internet' : e.message);
+        setState(() => _errorMuat = e.tidakAdaKoneksi
+            ? 'Refund butuh koneksi internet'
+            : e.statusCode == 404
+                ? 'Transaksi ini belum ada di server. Sinkronkan dulu dari menu Lainnya, lalu coba lagi.'
+                : e.message);
       }
     } catch (e) {
       if (mounted) setState(() => _errorMuat = 'Gagal memuat item: $e');

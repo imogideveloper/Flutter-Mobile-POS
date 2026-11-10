@@ -13,6 +13,24 @@ TANGGAL = datetime.datetime(2026, 11, 10)
 
 # (ID, {nama kolom: nilai}); catatan DITAMBAHKAN ke sel Notes yang sudah ada.
 BUG = {
+    "BUG-009": {
+        "Status": "Ready for Retest",
+        "Fixed Date": TANGGAL,
+        "_catatan": " 2026-11-10: tombol 'Masuk dengan PIN karyawan' kini hanya tampil bila ada layar PIN untuk dituju (halaman OTP "
+                    "dibuka dari LoginPage di perangkat yang sudah dipasangkan, tombol kembali ke pilih pengguna + PIN). Di perangkat "
+                    "baru tombol disembunyikan dan diganti petunjuk bahwa karyawan masuk dengan PIN setelah perangkat dipasangkan "
+                    "pemilik. Tes otomatis lulus (otp_login_pin_button_test.dart). Login PIN pada perangkat yang sudah dipasangkan "
+                    "sudah dicakup login_flow_test.dart tetapi BELUM diuji di HP; login PIN karyawan asal server dan hak akses per role "
+                    "belum diaudit. Belum Closed.",
+    },
+    "BUG-014": {
+        "Status": "Ready for Retest",
+        "Fixed Date": TANGGAL,
+        "_catatan": " 2026-11-10: tombol Refund kini memeriksa dulu apakah transaksi sudah tersinkron; bila belum, muncul ajakan "
+                    "'Sinkronkan sekarang' SEBELUM PIN diminta, lalu refund dilanjutkan jika sync berhasil. Halaman refund juga "
+                    "menampilkan petunjuk sinkron untuk respons 404. Tes otomatis lulus (refund_belum_sync_test.dart, refund_flow_test.dart). "
+                    "Belum diuji di HP; retest: buat transaksi lalu refund sebelum sync (TC-023). Tidak ada TASK terpisah di Task Tracker.",
+    },
     "BUG-015": {
         "Status": "Ready for Retest",
         "Fixed Date": TANGGAL,
@@ -31,6 +49,12 @@ BUG = {
     },
 }
 TASK = {
+    "TASK-122": {
+        "Status": "Review",
+        "Progress (%)": 0.6,
+        "_catatan": " 2026-11-10: tombol mati diperbaiki dan lulus tes otomatis; menunggu uji di HP (TC-052). Sisa Fase 4: reproduksi "
+                    "login PIN karyawan asal server di HP dan audit hak akses per role (kasir tidak boleh fungsi owner).",
+    },
     "TASK-127": {
         "Status": "Review",
         "Progress (%)": 0.8,

@@ -37,12 +37,18 @@ enum _Mode { masuk, daftar }
 /// otp_service.py), jadi utk testing manual kode OTP harus dibaca dari log
 /// server, TIDAK ditampilkan di app ini (beda dgn versi stub sebelumnya).
 class OtpLoginPage extends ConsumerStatefulWidget {
-  const OtpLoginPage({super.key, required this.onSelesai});
+  const OtpLoginPage({super.key, required this.onSelesai, this.onMasukDenganPin});
 
   /// Dipanggil setelah OTP berhasil ATAU user pilih "Masuk dengan PIN
   /// karyawan" - AuthGatePage lanjut menampilkan LoginPage (pilih
   /// pengguna+PIN) sesudah ini.
   final VoidCallback onSelesai;
+
+  /// Tombol "Masuk dengan PIN karyawan" hanya bermakna bila ada layar PIN untuk dituju, yaitu saat
+  /// halaman ini dibuka dari LoginPage di perangkat yang SUDAH dipasangkan. Di perangkat baru
+  /// (belum ada data karyawan, belum terhubung ke toko) diisi null dan tombolnya disembunyikan
+  /// (BUG-009: dulu tombolnya ada tetapi tidak melakukan apa pun).
+  final VoidCallback? onMasukDenganPin;
 
   @override
   ConsumerState<OtpLoginPage> createState() => _OtpLoginPageState();
@@ -317,11 +323,23 @@ class _OtpLoginPageState extends ConsumerState<OtpLoginPage> {
                   onPressed: _memproses ? null : (tahapOtp ? _verifikasiOtp : _kirimKode),
                 ),
                 const SizedBox(height: AppSpacing.sm),
-                if (_mode == _Mode.masuk)
+                if (_mode == _Mode.masuk && widget.onMasukDenganPin != null)
                   AppSecondaryButton(
+                    key: const Key('otpLogin.masukDenganPin'),
                     label: 'Masuk dengan PIN karyawan',
                     fullWidth: true,
-                    onPressed: widget.onSelesai,
+                    onPressed: widget.onMasukDenganPin,
+                  ),
+                if (_mode == _Mode.masuk && widget.onMasukDenganPin == null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: AppSpacing.xs),
+                    child: Text(
+                      'Perangkat baru dipasangkan oleh pemilik lewat kode OTP. '
+                      'Karyawan masuk dengan PIN setelah perangkat dipasangkan.',
+                      key: const Key('otpLogin.petunjukKaryawan'),
+                      textAlign: TextAlign.center,
+                      style: AppTypography.secondary,
+                    ),
                   ),
                 const SizedBox(height: AppSpacing.lg),
                 Center(

@@ -182,6 +182,60 @@ void main() {
     await tester.pump(const Duration(milliseconds: 1));
   });
 
+  testWidgets('BUG-014 - transaksi belum ada di server (404) menampilkan petunjuk sinkron, bukan "tidak ditemukan"',
+      (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    final detail = DetailTransaksi(
+      id: 'transaksi-1',
+      nomorStruk: 'OUT1-0001',
+      tanggal: DateTime.now().toUtc().millisecondsSinceEpoch,
+      status: TransaksiStatus.selesai,
+      items: const [],
+      subtotal: 45000,
+      rincianPajak: const [],
+      totalPajak: 0,
+      total: 45000,
+      totalBayar: 45000,
+      kembalian: 0,
+    );
+
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        appDatabaseProvider.overrideWith((ref) => db),
+        authSessionStoreProvider.overrideWithValue(_FakeAuthSessionStoreTerisi()),
+        backendApiProvider.overrideWithValue(_FakeBackendApiNotFound()),
+      ],
+      child: MaterialApp(
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: Center(
+              child: ElevatedButton(
+                onPressed: () => Navigator.of(context).push<bool>(
+                  MaterialPageRoute(
+                    builder: (context) => RefundPage(transaksi: detail, disetujuiOleh: 'owner-1'),
+                  ),
+                ),
+                child: const Text('buka refund'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    ));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('buka refund'));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('belum ada di server'), findsOneWidget);
+    expect(find.textContaining('Sinkronkan dulu'), findsOneWidget);
+    expect(find.text('Transaksi tidak ditemukan'), findsNothing);
+
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(milliseconds: 1));
+  });
+
   testWidgets('temuan#4 - offline saat muat item refundable menampilkan pesan netral, bukan error teknis',
       (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
@@ -272,4 +326,14 @@ class _FakeBackendApiOffline implements BackendApi {
 
   @override
   dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
+}
+
+/// Server membalas 404 (transaksi belum pernah sampai ke server, BUG-014).
+class _FakeBackendApiNotFound extends _FakeBackendApiOffline {
+  @override
+  Future<List<Map<String, dynamic>>> ambilItemRefundable({
+    required String accessToken,
+    required String transaksiId,
+  }) async =>
+      throw const BackendException(message: 'Transaksi tidak ditemukan', statusCode: 404);
 }

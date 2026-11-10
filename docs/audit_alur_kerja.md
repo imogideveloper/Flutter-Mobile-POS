@@ -89,3 +89,22 @@ Lihat ringkasan pada laporan sesi; semua tes otomatis relevan lulus.
 - **Tes otomatis:** `test/metode_bayar_label_test.dart` (7 tes), termasuk transaksi nyata yang dibayar dengan UUID tampil sebagai "Transfer Bank".
 - **Tes perangkat:** belum. **Status akhir:** BUG-015 Ready for Retest, TASK-127 Review 80%. Belum Closed.
 - **Next action:** retest di HP: bayar tunai dan transfer lalu cek Riwayat dan Laporan (TC-056).
+
+### BUG-014 (Fase 6), Refund "transaksi tidak ditemukan"
+- **Related Feature ID:** FEAT-014. **Task:** tidak ada task terpisah di Task Tracker (dicatat pada bug). **Kondisi awal:** Open.
+- **Temuan:** refund selalu online dan memakai id item dari server. Transaksi yang belum tersinkron tidak ada di server, sehingga server membalas 404 dan layar menampilkan teks mentah "transaksi tidak ditemukan", **setelah** PIN persetujuan diminta.
+- **Perubahan:** `transaksi_detail_page.dart`: sebelum PIN, cek `disinkronPada`; bila belum, dialog "Transaksi belum tersinkron" dengan tombol "Sinkronkan sekarang" (menjalankan sync, lalu lanjut bila transaksi diterima server; pesan jelas bila offline, sync gagal, atau transaksi ditolak). `refund_page.dart`: respons 404 menampilkan petunjuk sinkron.
+- **Tes otomatis:** `test/refund_belum_sync_test.dart` (dialog muncul, PIN belum diminta, Batal aman) dan 1 tes baru di `test/refund_flow_test.dart` (404 menampilkan petunjuk). Alur refund yang sudah ada tetap lulus.
+- **Tes perangkat:** belum. **Status akhir:** BUG-014 Ready for Retest. Belum Closed.
+- **Catatan:** dugaan penyebab di bug (transaksi belum tersync, BUG-010) terkonfirmasi lewat kode. Refund pada transaksi yang tersinkron tetap bergantung pada koneksi (sesuai desain refund online).
+- **Next action:** retest di HP: buat transaksi, refund sebelum sync (muncul ajakan sinkron), sinkronkan, lalu refund berhasil (TC-023).
+
+### TASK-122 / BUG-009 (Fase 4), tombol "Masuk dengan PIN karyawan"
+- **Related Feature ID:** FEAT-057 (login), FEAT-001. **Kondisi awal:** Open, Backlog. Temuan manual pengguna nomor 1 sudah memiliki ID bug (BUG-009), tidak dibuat bug baru.
+- **Temuan:** `AuthGatePage` memberi `onSelesai: () {}` (kosong) ke `OtpLoginPage` pada perangkat yang belum dipasangkan, jadi tombol tidak melakukan apa pun. Perangkat baru juga belum punya data karyawan (karyawan = pengguna dari server), sehingga layar PIN memang belum bisa dipakai di sana.
+- **Perubahan:** `otp_login_page.dart`: parameter baru `onMasukDenganPin`; tombol hanya tampil bila diisi. `login_page.dart` mengisinya (kembali ke pilih pengguna + PIN) saat membuka halaman OTP dari "Lupa PIN kasir?". Di perangkat baru tombol disembunyikan dan diganti petunjuk "karyawan masuk dengan PIN setelah perangkat dipasangkan pemilik". Perilaku sebelumnya (tombol hidup di halaman lupa PIN) dipertahankan.
+- **Tes otomatis:** `test/otp_login_pin_button_test.dart` (2 tes): perangkat baru tanpa tombol mati dan dengan petunjuk; perangkat terpasang: tombol kembali ke pilih pengguna. Login PIN yang sudah ada (`login_flow_test.dart`: PIN benar masuk, PIN salah ditolak) tetap lulus.
+- **Tes perangkat:** belum. **Status akhir:** BUG-009 Ready for Retest, TASK-122 Review 60%. Belum Closed.
+- **Belum dicakup (Fase 4):** (1) reproduksi login PIN karyawan asal server di HP (pengguna sync, hash PIN, kunci percobaan); gejala "login PIN tidak berhasil" mungkin lebih luas dari tombol ini; (2) audit hak akses per role (kasir tidak boleh menjalankan fungsi owner); (3) logout dan sesi. Butuh akses HP dan akun karyawan nyata.
+- **Keputusan yang dibutuhkan:** apakah karyawan di perangkat baru perlu jalur masuk sendiri (mis. kode undangan), atau cukup menunggu pemilik memasangkan perangkat (perilaku sekarang).
+- **Next action:** retest di HP (TC-052): pasang aplikasi baru, pastikan tidak ada tombol mati dan petunjuk tampil; pada perangkat terpasang uji "Lupa PIN kasir?" lalu tombol PIN.

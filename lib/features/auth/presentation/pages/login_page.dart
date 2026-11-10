@@ -102,7 +102,10 @@ class LoginPage extends ConsumerWidget {
   /// LoginPage di bawahnya otomatis ter-refresh dgn PIN baru begitu balik.
   void _bukaLupaPin(BuildContext context) {
     Navigator.of(context).push(MaterialPageRoute<void>(
-      builder: (_) => OtpLoginPage(onSelesai: () => Navigator.of(context).pop()),
+      builder: (_) => OtpLoginPage(
+        onSelesai: () => Navigator.of(context).pop(),
+        onMasukDenganPin: () => Navigator.of(context).pop(),
+      ),
     ));
   }
 

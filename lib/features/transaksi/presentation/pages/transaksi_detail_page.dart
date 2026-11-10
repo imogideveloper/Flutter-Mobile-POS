@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/auth/pin_approval.dart';
 import '../../../../core/network/auth_session_store.dart';
 import '../../../../core/network/backend_exception.dart';
+import '../../../../core/network/sync_repository.dart';
 import '../../../../core/network/dio_backend_api.dart';
 import '../../../../core/providers/session_provider.dart';
 import '../../../../core/providers/toko_profile_provider.dart';
@@ -234,7 +235,61 @@ class _TransaksiDetailPageState extends ConsumerState<TransaksiDetailPage> {
     }
   }
 
+  /// Refund selalu online dan memakai id item dari server, jadi transaksinya harus sudah ada
+  /// di server. Mengembalikan true bila sudah tersinkron (atau berhasil disinkronkan sekarang).
+  /// BUG-014: dulu transaksi yang belum tersync memunculkan "transaksi tidak ditemukan".
+  Future<bool> _pastikanTersinkron(DetailTransaksi detail) async {
+    Future<bool> sudah() async =>
+        (await ref.read(transaksiDaoProvider).transaksiById(detail.id)).disinkronPada != null;
+    if (await sudah()) return true;
+    if (!mounted) return false;
+
+    final sinkron = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Transaksi belum tersinkron'),
+        content: const Text(
+          'Refund butuh transaksi ini sudah ada di server. Sinkronkan dulu, lalu refund bisa dilanjutkan.',
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Batal')),
+          FilledButton(
+            key: const Key('transaksiDetail.sinkronDulu'),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Sinkronkan sekarang'),
+          ),
+        ],
+      ),
+    );
+    if (sinkron != true || !mounted) return false;
+
+    try {
+      await ref.read(syncRepositoryProvider).jalankan();
+    } on BackendException catch (e) {
+      if (mounted) {
+        showAppToast(
+          context,
+          message: e.tidakAdaKoneksi ? 'Tidak ada koneksi internet. Coba lagi saat online.' : 'Sync gagal: ${e.message}',
+          variant: ToastVariant.danger,
+        );
+      }
+      return false;
+    }
+    ref.invalidate(transaksiBelumSyncCountProvider);
+    if (await sudah()) return true;
+    if (mounted) {
+      showAppToast(
+        context,
+        message: 'Transaksi ini belum diterima server (mungkin ditolak). Cek menu Lainnya untuk jumlah yang menunggu sync.',
+        variant: ToastVariant.warning,
+      );
+    }
+    return false;
+  }
+
   Future<void> _refund(DetailTransaksi detail) async {
+    if (!await _pastikanTersinkron(detail)) return;
+    if (!mounted) return;
     final disetujuiOleh = await mintaOtorisasi(
       context: context,
       ref: ref,
