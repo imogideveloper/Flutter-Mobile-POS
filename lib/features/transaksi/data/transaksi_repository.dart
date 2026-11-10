@@ -18,6 +18,7 @@ import '../domain/hasil_transaksi.dart';
 import '../domain/item_keranjang.dart';
 import '../domain/pesanan_status.dart';
 import '../domain/ringkasan_transaksi.dart';
+import '../../order/data/local/tables/tipe_order_table.dart' show TipeOrderKanal;
 import '../domain/split_pembayaran.dart';
 import 'local/tables/pembayaran_table.dart' show PembayaranJenis, PembayaranStatus;
 import 'local/tables/transaksi_table.dart' show StatusBayarTransaksi, StatusPesanan, TransaksiStatus;
@@ -538,9 +539,18 @@ class TransaksiRepository {
     final awalHari = DateTime(w.year, w.month, w.day).millisecondsSinceEpoch;
     final rows = await _transaksiDao.pesananBerstatus(outletId: outletId, sejakMs: awalHari);
     final item = await _transaksiDao.itemUntukTransaksiList([for (final r in rows) r.id]);
+    final db = _transaksiDao.attachedDatabase;
+    final idTipe = {for (final r in rows) ?r.tipeOrderId};
+    final tipeAntar = idTipe.isEmpty
+        ? <String>{}
+        : {
+            for (final t in await (db.select(db.tipeOrder)..where((t) => t.id.isIn(idTipe))).get())
+              if (t.kanal == TipeOrderKanal.antar) t.id,
+          };
     return [
       for (final r in rows)
         PesananStatus(
+          antar: tipeAntar.contains(r.tipeOrderId),
           id: r.id,
           nomorStruk: r.nomorStruk,
           nomorAntrean: r.nomorAntrean,

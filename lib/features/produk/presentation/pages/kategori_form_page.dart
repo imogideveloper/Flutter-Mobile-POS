@@ -45,6 +45,7 @@ class _KategoriFormPageState extends ConsumerState<KategoriFormPage> {
   late final _urutanController =
       TextEditingController(text: (widget.kategoriEdit?.urutan ?? 0).toString());
   late String _warna = widget.kategoriEdit?.warna ?? _paletWarna.first;
+  late bool _masukTiketDapur = widget.kategoriEdit?.masukTiketDapur ?? true;
   bool _menyimpan = false;
   bool _menghapus = false;
   String? _errorServer;
@@ -74,6 +75,7 @@ class _KategoriFormPageState extends ConsumerState<KategoriFormPage> {
       final body = {
         'nama': _namaController.text.trim(),
         'warna': _warna,
+        'masuk_tiket_dapur': _masukTiketDapur,
         'urutan': int.tryParse(_urutanController.text) ?? 0,
       };
       final Map<String, dynamic> hasil;
@@ -99,6 +101,7 @@ class _KategoriFormPageState extends ConsumerState<KategoriFormPage> {
             nama: hasil['nama'] as String,
             warna: Value(hasil['warna'] as String?),
             urutan: Value(hasil['urutan'] as int),
+            masukTiketDapur: Value((hasil['masuk_tiket_dapur'] as bool?) ?? _masukTiketDapur),
             createdAt: now,
             updatedAt: now,
           ));
@@ -212,6 +215,14 @@ class _KategoriFormPageState extends ConsumerState<KategoriFormPage> {
                   controller: _urutanController,
                   decoration: const InputDecoration(labelText: 'Urutan tampil'),
                   keyboardType: TextInputType.number,
+                ),
+                SwitchListTile(
+                  key: const Key('kategoriForm.masukTiketDapur'),
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('Masuk tiket dapur'),
+                  subtitle: const Text('Matikan untuk kategori yang tidak perlu diteruskan ke dapur/bar'),
+                  value: _masukTiketDapur,
+                  onChanged: (v) => setState(() => _masukTiketDapur = v),
                 ),
                 const SizedBox(height: AppSpacing.xxxl),
                 AppPrimaryButton(

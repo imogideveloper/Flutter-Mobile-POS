@@ -113,6 +113,9 @@ class PengaturanOutlet(Base, TimestampMixin):
     wajib_buka_shift: Mapped[bool] = mapped_column(default=True)
     struk_ringkas: Mapped[bool] = mapped_column(default=False)
     pakai_nomor_antrean: Mapped[bool] = mapped_column(default=False)
+    # Pengaturan nomor antrian (IMOGI no. 34): awalan ("A" -> A-001) dan angka awal tiap hari.
+    antrean_awalan: Mapped[str] = mapped_column(String(5), default="A", server_default="A")
+    antrean_mulai: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
 
     outlet: Mapped["Outlet"] = relationship(back_populates="pengaturan")
 

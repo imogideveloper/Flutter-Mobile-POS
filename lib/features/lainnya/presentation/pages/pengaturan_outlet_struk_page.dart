@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -42,9 +43,13 @@ class _PengaturanOutletStrukPageState extends ConsumerState<PengaturanOutletStru
   bool _tampilLogo = false;
   bool _strukRingkas = false;
   bool _pakaiNomorAntrean = false;
+  final _antreanAwalanController = TextEditingController(text: 'A');
+  final _antreanMulaiController = TextEditingController(text: '1');
   bool _izinkanStokMinus = true;
   int _pembulatan = 0;
   String? _logoUrl;
+
+  int get _antreanMulai => (int.tryParse(_antreanMulaiController.text) ?? 1).clamp(1, 9999);
 
   bool _memuat = true;
   bool _menyimpan = false;
@@ -62,6 +67,8 @@ class _PengaturanOutletStrukPageState extends ConsumerState<PengaturanOutletStru
   void dispose() {
     _headerController.dispose();
     _footerController.dispose();
+    _antreanAwalanController.dispose();
+    _antreanMulaiController.dispose();
     super.dispose();
   }
 
@@ -87,6 +94,8 @@ class _PengaturanOutletStrukPageState extends ConsumerState<PengaturanOutletStru
       _tampilLogo = data['tampil_logo'] as bool;
       _strukRingkas = data['struk_ringkas'] as bool;
       _pakaiNomorAntrean = data['pakai_nomor_antrean'] as bool;
+      _antreanAwalanController.text = (data['antrean_awalan'] as String?) ?? 'A';
+      _antreanMulaiController.text = '${(data['antrean_mulai'] as int?) ?? 1}';
       _izinkanStokMinus = data['izinkan_stok_minus'] as bool;
       _pembulatan = (data['pembulatan'] as int?) ?? 0;
     } catch (e) {
@@ -111,6 +120,8 @@ class _PengaturanOutletStrukPageState extends ConsumerState<PengaturanOutletStru
               'tampil_logo': _tampilLogo,
               'struk_ringkas': _strukRingkas,
               'pakai_nomor_antrean': _pakaiNomorAntrean,
+              'antrean_awalan': _antreanAwalanController.text.trim(),
+              'antrean_mulai': _antreanMulai,
               'pembulatan': _pembulatan,
               'izinkan_stok_minus': _izinkanStokMinus,
             },
@@ -127,6 +138,8 @@ class _PengaturanOutletStrukPageState extends ConsumerState<PengaturanOutletStru
               tampilLogo: Value(_tampilLogo),
               strukRingkas: Value(_strukRingkas),
               pakaiNomorAntrean: Value(_pakaiNomorAntrean),
+              antreanAwalan: Value(_antreanAwalanController.text.trim()),
+              antreanMulai: Value(_antreanMulai),
               pembulatan: Value(_pembulatan),
               izinkanStokMinus: Value(_izinkanStokMinus),
               createdAt: DateTime.now().millisecondsSinceEpoch,
@@ -321,6 +334,38 @@ class _PengaturanOutletStrukPageState extends ConsumerState<PengaturanOutletStru
                         onChanged: (v) => setState(() => _pakaiNomorAntrean = v),
                       ),
                     ),
+                    if (_pakaiNomorAntrean)
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              key: const Key('pengaturanOutletForm.antreanAwalan'),
+                              controller: _antreanAwalanController,
+                              maxLength: 5,
+                              textCapitalization: TextCapitalization.characters,
+                              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9]'))],
+                              decoration: const InputDecoration(
+                                labelText: 'Awalan nomor',
+                                helperText: 'Contoh: A menjadi A-001',
+                                counterText: '',
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: AppSpacing.md),
+                          Expanded(
+                            child: TextField(
+                              key: const Key('pengaturanOutletForm.antreanMulai'),
+                              controller: _antreanMulaiController,
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                              decoration: const InputDecoration(
+                                labelText: 'Mulai dari angka',
+                                helperText: 'Dipakai tiap hari baru',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     const SizedBox(height: AppSpacing.xl),
                     Text('Pratinjau struk', style: AppTypography.cardTitle.copyWith(fontSize: 15)),
                     const SizedBox(height: AppSpacing.sm),

@@ -8,12 +8,14 @@ class KategoriIn(BaseModel):
     nama: str
     warna: str | None = None
     urutan: int = 0
+    masuk_tiket_dapur: bool = True
 
 
 class KategoriUpdateIn(BaseModel):
     nama: str | None = None
     warna: str | None = None
     urutan: int | None = None
+    masuk_tiket_dapur: bool | None = None
 
 
 class KategoriOut(BaseModel):
@@ -21,6 +23,7 @@ class KategoriOut(BaseModel):
     nama: str
     warna: str | None
     urutan: int
+    masuk_tiket_dapur: bool
 
     model_config = {"from_attributes": True}
 

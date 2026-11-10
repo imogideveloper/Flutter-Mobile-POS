@@ -11,6 +11,9 @@ import '../../../../core/network/dio_backend_api.dart';
 import '../../../../core/providers/session_provider.dart';
 import '../../../../core/providers/toko_profile_provider.dart';
 import '../../../../core/struk/cetak_struk_helper.dart';
+import '../../../../core/struk/penyusun_tiket_dapur.dart';
+import '../../../dapur/presentation/tiket_dapur_helper.dart';
+import '../../../fitur/presentation/providers/feature_gate_provider.dart';
 import '../../../../core/struk/penyusun_struk.dart' as struk;
 import '../../../../core/struk/struk_snapshot.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -79,6 +82,43 @@ class _TransaksiDetailPageState extends ConsumerState<TransaksiDetailPage> {
       final status = await cetakStruk(ref, baris, tampilkanLogo: tampilLogo ?? false);
       if (mounted) {
         showAppToast(context, message: labelStatusCetak(status), variant: variantStatusCetak(status));
+      }
+    } finally {
+      if (mounted) setState(() => _mencetak = false);
+    }
+  }
+
+  /// Cetak ulang tiket dapur dari riwayat (mis. tiket asli macet atau hilang).
+  /// Isinya dibangun dari detail transaksi: menu, jumlah, dan tambahan, tanpa harga.
+  Future<void> _cetakUlangTiket(DetailTransaksi detail) async {
+    setState(() => _mencetak = true);
+    try {
+      final outletId = ref.read(currentOutletIdProvider);
+      final pengaturanOutlet = await ref.read(pengaturanOutletProvider(outletId).future);
+      final lebar = (pengaturanOutlet?.lebarKertasMm ?? 58) == 80 ? 48 : 32;
+      final items = await itemUntukTiketDapur(ref, detail.items);
+      if (items.isEmpty) {
+        if (mounted) {
+          showAppToast(context, message: 'Tidak ada item yang masuk tiket dapur', variant: ToastVariant.info);
+        }
+        return;
+      }
+      final baris = susunTiketDapur(
+        lebar: lebar,
+        data: TiketDapurData(
+          nomorStruk: detail.nomorStruk,
+          nomorAntrean: detail.nomorAntrean,
+          tanggalEpochMs: detail.tanggal,
+          items: items,
+        ),
+      );
+      final status = await cetakStruk(ref, baris);
+      if (mounted) {
+        showAppToast(
+          context,
+          message: status == StatusCetak.berhasil ? 'Tiket dapur tercetak' : labelStatusCetak(status),
+          variant: variantStatusCetak(status),
+        );
       }
     } finally {
       if (mounted) setState(() => _mencetak = false);
@@ -303,6 +343,19 @@ class _TransaksiDetailPageState extends ConsumerState<TransaksiDetailPage> {
                     label: Text(_mencetak ? 'Mencetak...' : 'Cetak ulang'),
                   ),
                 ),
+                if (ref.watch(featureGateProvider).value?.has('tiket_dapur') ?? false) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: OutlinedButton.icon(
+                      key: const Key('transaksiDetail.cetakUlangTiket'),
+                      onPressed: _mencetak ? null : () => _cetakUlangTiket(detail),
+                      icon: const Icon(Icons.restaurant_menu, size: 20),
+                      label: const Text('Cetak ulang tiket dapur'),
+                    ),
+                  ),
+                ],
                 if (!sudahVoid) ...[
                   const SizedBox(height: AppSpacing.sm),
                   Row(

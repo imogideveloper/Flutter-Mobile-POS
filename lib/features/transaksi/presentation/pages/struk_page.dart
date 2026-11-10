@@ -16,6 +16,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_toast.dart';
+import '../../../dapur/presentation/tiket_dapur_helper.dart';
 import '../../../fitur/presentation/providers/feature_gate_provider.dart';
 import '../../domain/hasil_transaksi.dart';
 import '../providers/harga_keranjang_provider.dart';
@@ -147,21 +148,20 @@ class _StrukPageState extends ConsumerState<StrukPage> {
 
   /// Tiket untuk dapur/bar: hanya menu dan jumlahnya (tanpa harga).
   /// Semua item ikut tercetak; pilihan kategori yang masuk tiket belum ada.
-  Future<List<struk.BarisStruk>> _bangunBarisTiket() async {
+  Future<List<struk.BarisStruk>?> _bangunBarisTiket() async {
     final hasil = widget.hasil;
     final outletId = ref.read(currentOutletIdProvider);
     final pengaturanOutlet = await ref.read(pengaturanOutletProvider(outletId).future);
     final lebar = (pengaturanOutlet?.lebarKertasMm ?? 58) == 80 ? 48 : 32;
+    final items = await itemUntukTiketDapur(ref, hasil.items);
+    if (items.isEmpty) return null; // semua kategori dimatikan dari tiket dapur
     return susunTiketDapur(
       lebar: lebar,
       data: TiketDapurData(
         nomorStruk: hasil.nomorStruk,
         nomorAntrean: hasil.nomorAntrean,
         tanggalEpochMs: hasil.tanggal,
-        items: [
-          for (final i in hasil.items)
-            ItemTiketDapur(namaProduk: i.namaProduk, qty: i.qty, tambahan: [for (final m in i.modifiers) m.nama]),
-        ],
+        items: items,
       ),
     );
   }
@@ -170,7 +170,14 @@ class _StrukPageState extends ConsumerState<StrukPage> {
     if (_mencetak) return;
     setState(() => _mencetak = true);
     try {
-      final status = await cetakStruk(ref, await _bangunBarisTiket());
+      final baris = await _bangunBarisTiket();
+      if (baris == null) {
+        if (mounted && !diam) {
+          showAppToast(context, message: 'Tidak ada item yang masuk tiket dapur', variant: ToastVariant.info);
+        }
+        return;
+      }
+      final status = await cetakStruk(ref, baris);
       if (!mounted) return;
       if (diam && status == StatusCetak.printerBelumDiatur) return;
       showAppToast(

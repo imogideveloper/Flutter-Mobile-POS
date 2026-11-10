@@ -29,5 +29,7 @@ Future<Future<String?> Function()?> siapkanNomorAntrean(WidgetRef ref) async {
         outletId: outletId,
         perangkatId: sesi.perangkatId,
         waktu: DateTime.now(),
+        awalan: pengaturan.antreanAwalan,
+        mulaiDari: pengaturan.antreanMulai < 1 ? 1 : pengaturan.antreanMulai,
       );
 }

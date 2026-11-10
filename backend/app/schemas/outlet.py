@@ -1,6 +1,6 @@
 import uuid
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class OutletIn(BaseModel):
@@ -48,6 +48,9 @@ class PengaturanOutletIn(BaseModel):
     # tetap boleh PATCH field lain, atau menutup field ini jadi False).
     struk_ringkas: bool | None = None
     pakai_nomor_antrean: bool | None = None
+    # Awalan huruf/angka (maks 5, boleh kosong) dan angka awal nomor tiap hari.
+    antrean_awalan: str | None = Field(default=None, max_length=5, pattern=r"^[A-Za-z0-9]*$")
+    antrean_mulai: int | None = Field(default=None, ge=1, le=9999)
 
 
 class PengaturanOutletOut(BaseModel):
@@ -61,5 +64,7 @@ class PengaturanOutletOut(BaseModel):
     wajib_buka_shift: bool
     struk_ringkas: bool
     pakai_nomor_antrean: bool
+    antrean_awalan: str
+    antrean_mulai: int
 
     model_config = {"from_attributes": True}

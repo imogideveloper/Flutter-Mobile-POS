@@ -4,6 +4,8 @@ import 'package:apps_pos/features/transaksi/data/local/tables/transaksi_table.da
 import 'package:apps_pos/features/transaksi/data/transaksi_repository.dart';
 import 'package:apps_pos/features/transaksi/domain/item_keranjang.dart';
 import 'package:apps_pos/features/transaksi/presentation/pages/status_pesanan_page.dart';
+import 'package:apps_pos/features/order/data/local/tables/tipe_order_table.dart' show TipeOrderKanal;
+import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -80,6 +82,25 @@ void main() {
       expect(daftar.map((p) => p.id), [a.id]);
       expect(daftar.single.ringkasanItem, '2x Kopi Susu');
       expect(daftar.single.status, StatusPesanan.baru);
+    });
+
+    test('pesanan bertipe antar ditandai antar (alurnya memuat tahap Diantar)', () async {
+      final h = await bayar(statusAwal: StatusPesanan.baru);
+      final biasa = await bayar(statusAwal: StatusPesanan.baru);
+      await db.into(db.tipeOrder).insert(TipeOrderCompanion.insert(
+            id: 't-antar',
+            tokoId: 'toko-default',
+            nama: 'Antar',
+            kanal: TipeOrderKanal.antar,
+            createdAt: 0,
+            updatedAt: 0,
+          ));
+      await (db.update(db.transaksi)..where((t) => t.id.equals(h.id as String)))
+          .write(const TransaksiCompanion(tipeOrderId: Value('t-antar')));
+
+      final daftar = await repo.pesananHariIni('o1');
+      expect(daftar.firstWhere((p) => p.id == h.id).antar, isTrue);
+      expect(daftar.firstWhere((p) => p.id == biasa.id).antar, isFalse);
     });
 
     test('pesanan kemarin tidak ikut daftar hari ini', () async {

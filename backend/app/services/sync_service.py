@@ -457,7 +457,7 @@ async def pull(
         ],
     )
     kategori = await _ambil_toko_scoped(
-        "kategori", Kategori, ["id", "nama", "warna", "urutan", "updated_at", "deleted_at"]
+        "kategori", Kategori, ["id", "nama", "warna", "urutan", "masuk_tiket_dapur", "updated_at", "deleted_at"]
     )
     satuan = await _ambil_toko_scoped("satuan", Satuan, ["id", "nama", "singkatan", "updated_at", "deleted_at"])
     pajak = await _ambil_toko_scoped(
@@ -641,7 +641,7 @@ async def pull(
                     [
                         "outlet_id", "header_struk", "footer_struk", "tampil_logo", "lebar_kertas_mm",
                         "pembulatan", "izinkan_stok_minus", "wajib_buka_shift", "struk_ringkas",
-                        "pakai_nomor_antrean", "updated_at", "deleted_at",
+                        "pakai_nomor_antrean", "antrean_awalan", "antrean_mulai", "updated_at", "deleted_at",
                     ],
                 )
             ]

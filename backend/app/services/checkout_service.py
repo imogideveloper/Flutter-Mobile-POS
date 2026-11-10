@@ -125,7 +125,10 @@ async def _validasi_kepemilikan(
             await tolak_fitur_terkunci(db, "tipe_order")
         tipe_order = await db.get(TipeOrder, body.tipe_order_id)
         if tipe_order is None or tipe_order.toko_id != toko_id:
-            raise HTTPException(status.HTTP_404_NOT_FOUND, "Tipe order tidak ditemukan")
+            if body.id is None:
+                raise HTTPException(status.HTTP_404_NOT_FOUND, "Tipe order tidak ditemukan")
+            # Push offline: sama seperti pelanggan, penjualan tetap diterima tanpa tipe order.
+            body.tipe_order_id = None
 
     if body.meja_id is not None:
         # Meja tidak punya kolom toko_id sendiri - kepemilikannya lewat
@@ -133,7 +136,9 @@ async def _validasi_kepemilikan(
         # cocokkan meja ini ke OUTLET YANG SAMA dgn body.outlet_id.
         meja = await db.get(Meja, body.meja_id)
         if meja is None or meja.outlet_id != body.outlet_id:
-            raise HTTPException(status.HTTP_404_NOT_FOUND, "Meja tidak ditemukan")
+            if body.id is None:
+                raise HTTPException(status.HTTP_404_NOT_FOUND, "Meja tidak ditemukan")
+            body.meja_id = None
 
     metode_bayar = await db.get(MetodeBayar, body.metode_bayar_id)
     if metode_bayar is None or metode_bayar.toko_id != toko_id:

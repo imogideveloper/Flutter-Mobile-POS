@@ -5,6 +5,7 @@ class Kategori {
     required this.nama,
     required this.warna,
     required this.urutan,
+    this.masukTiketDapur = true,
   });
 
   final String id;
@@ -12,4 +13,5 @@ class Kategori {
   final String nama;
   final String? warna;
   final int urutan;
+  final bool masukTiketDapur;
 }

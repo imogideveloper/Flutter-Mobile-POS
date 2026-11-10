@@ -172,7 +172,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -233,6 +233,15 @@ class AppDatabase extends _$AppDatabase {
           if (from < 9) {
             await m.addColumn(transaksi, transaksi.statusPesananDiubahPada);
             await m.addColumn(transaksi, transaksi.statusPesananDisinkronPada);
+          }
+          // v9 -> v10 - pengaturan nomor antrian (awalan dan angka awal).
+          if (from < 10) {
+            await m.addColumn(pengaturanOutlet, pengaturanOutlet.antreanAwalan);
+            await m.addColumn(pengaturanOutlet, pengaturanOutlet.antreanMulai);
+          }
+          // v10 -> v11 - kategori masuk tiket dapur (bawaan ikut tercetak).
+          if (from < 11) {
+            await m.addColumn(kategori, kategori.masukTiketDapur);
           }
         },
       );

@@ -29,3 +29,9 @@ final pesananHariIniProvider = FutureProvider<List<PesananStatus>>((ref) {
   final outletId = ref.watch(currentOutletIdProvider);
   return ref.watch(transaksiRepositoryProvider).pesananHariIni(outletId);
 });
+
+/// Alur untuk pesanan bertipe antar (memuat tahap Diantar atau Dikirim).
+final alurAntarStatusPesananProvider = FutureProvider<AlurStatusPesanan>((ref) async {
+  final profil = await ref.watch(tokoProfileProvider.future);
+  return AlurStatusPesanan.untuk(profil?.jenisUsaha.kode, termasukDiantar: true);
+});

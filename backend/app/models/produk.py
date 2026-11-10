@@ -18,6 +18,8 @@ class Kategori(Base, UUIDPkMixin, TimestampMixin):
     nama: Mapped[str] = mapped_column(String(100))
     warna: Mapped[str | None] = mapped_column(String(9), nullable=True)
     urutan: Mapped[int] = mapped_column(Integer, default=0)
+    # Kategori yang masuk tiket dapur (mis. matikan untuk Minuman dingin). Bawaan: ikut tercetak.
+    masuk_tiket_dapur: Mapped[bool] = mapped_column(default=True, server_default="true")
     stasiun_dapur_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("stasiun_dapur.id"), nullable=True
     )

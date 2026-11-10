@@ -221,3 +221,19 @@ async def test_patch_metode_bayar_rename_digate_fitur(client: AsyncClient, db_se
     assert resp2.status_code == 200
     assert resp2.json()["nama"] == "Tunai Kasir 1"
     assert resp2.json()["urutan"] == 1
+
+
+async def test_pengaturan_antrean_awalan_dan_angka_awal(client: AsyncClient, toko_a) -> None:
+    url = f"/outlets/{toko_a.outlet.id}/pengaturan"
+    bawaan = (await client.get(url, headers=toko_a.headers)).json()
+    assert bawaan["antrean_awalan"] == "A" and bawaan["antrean_mulai"] == 1
+
+    resp = await client.patch(url, headers=toko_a.headers, json={"antrean_awalan": "B2", "antrean_mulai": 100})
+    assert resp.status_code == 200
+    assert resp.json()["antrean_awalan"] == "B2" and resp.json()["antrean_mulai"] == 100
+
+    # awalan boleh kosong; angka awal minimal 1; awalan hanya huruf/angka maks 5
+    assert (await client.patch(url, headers=toko_a.headers, json={"antrean_awalan": ""})).status_code == 200
+    assert (await client.patch(url, headers=toko_a.headers, json={"antrean_mulai": 0})).status_code == 422
+    assert (await client.patch(url, headers=toko_a.headers, json={"antrean_awalan": "ABCDEF"})).status_code == 422
+    assert (await client.patch(url, headers=toko_a.headers, json={"antrean_awalan": "A-1"})).status_code == 422

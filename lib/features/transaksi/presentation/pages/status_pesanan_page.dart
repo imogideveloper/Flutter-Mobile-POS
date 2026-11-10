@@ -39,7 +39,9 @@ class StatusPesananPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final pesananAsync = ref.watch(pesananHariIniProvider);
-    final alur = ref.watch(alurStatusPesananProvider).value ?? AlurStatusPesanan.untuk(null);
+    final alurStandar = ref.watch(alurStatusPesananProvider).value ?? AlurStatusPesanan.untuk(null);
+    final alurAntar = ref.watch(alurAntarStatusPesananProvider).value ?? AlurStatusPesanan.untuk(null, termasukDiantar: true);
+    AlurStatusPesanan alurUntuk(PesananStatus p) => p.antar ? alurAntar : alurStandar;
 
     return Scaffold(
       appBar: AppBar(
@@ -63,8 +65,8 @@ class StatusPesananPage extends ConsumerWidget {
               message: 'Belum ada pesanan hari ini',
             );
           }
-          final aktif = [for (final p in semua) if (!alur.sudahSelesai(p.status)) p];
-          final tuntas = [for (final p in semua) if (alur.sudahSelesai(p.status)) p];
+          final aktif = [for (final p in semua) if (!alurUntuk(p).sudahSelesai(p.status)) p];
+          final tuntas = [for (final p in semua) if (alurUntuk(p).sudahSelesai(p.status)) p];
           return ListView(
             padding: const EdgeInsets.all(AppSpacing.xl),
             children: [
@@ -73,12 +75,12 @@ class StatusPesananPage extends ConsumerWidget {
               if (aktif.isEmpty)
                 Text('Semua pesanan sudah selesai', style: AppTypography.secondary)
               else
-                for (final p in aktif) _kartu(context, ref, p, alur),
+                for (final p in aktif) _kartu(context, ref, p, alurUntuk(p)),
               if (tuntas.isNotEmpty) ...[
                 const SizedBox(height: AppSpacing.xl),
                 Text('Selesai hari ini (${tuntas.length})', style: AppTypography.cardTitle),
                 const SizedBox(height: AppSpacing.sm),
-                for (final p in tuntas) _kartu(context, ref, p, alur),
+                for (final p in tuntas) _kartu(context, ref, p, alurUntuk(p)),
               ],
             ],
           );

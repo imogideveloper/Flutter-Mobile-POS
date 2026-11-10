@@ -583,6 +583,7 @@ class SyncRepository {
           nama: row['nama'] as String,
           warna: Value(row['warna'] as String?),
           urutan: Value(row['urutan'] as int? ?? 0),
+          masukTiketDapur: Value(row['masuk_tiket_dapur'] as bool? ?? true),
           createdAt: epochMsDariBackend(row['updated_at'] as String),
           updatedAt: epochMsDariBackend(row['updated_at'] as String),
           deletedAt: Value(
@@ -795,6 +796,8 @@ class SyncRepository {
           wajibBukaShift: Value(row['wajib_buka_shift'] as bool),
           strukRingkas: Value(row['struk_ringkas'] as bool),
           pakaiNomorAntrean: Value(row['pakai_nomor_antrean'] as bool),
+          antreanAwalan: Value((row['antrean_awalan'] as String?) ?? 'A'),
+          antreanMulai: Value((row['antrean_mulai'] as int?) ?? 1),
           createdAt: epochMsDariBackend(row['updated_at'] as String),
           updatedAt: epochMsDariBackend(row['updated_at'] as String),
           deletedAt: Value(

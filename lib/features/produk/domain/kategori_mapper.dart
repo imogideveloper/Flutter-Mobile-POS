@@ -8,5 +8,6 @@ extension KategoriRowMapper on KategoriRow {
         nama: nama,
         warna: warna,
         urutan: urutan,
+        masukTiketDapur: masukTiketDapur,
       );
 }

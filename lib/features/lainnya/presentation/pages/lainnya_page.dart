@@ -55,6 +55,10 @@ class LainnyaPage extends ConsumerWidget {
       if (context.mounted) {
         showAppToast(context, message: 'Sync gagal: ${e.message}', variant: ToastVariant.danger);
       }
+    } finally {
+      // Penghitung "menunggu sync" adalah FutureProvider satu-shot: tanpa ini angkanya
+      // tertinggal di nilai lama walau server sudah menerima transaksinya.
+      ref.invalidate(transaksiBelumSyncCountProvider);
     }
   }
 

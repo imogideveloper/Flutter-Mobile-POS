@@ -67,6 +67,20 @@ class ProdukDao extends DatabaseAccessor<AppDatabase> with _$ProdukDaoMixin {
   /// Cache lokal setelah DELETE (soft delete) sukses di backend - pola
   /// sama dgn PajakDao.nonaktifkanLokal, bedanya kategori tidak punya
   /// kolom `aktif` (cuma deletedAt, sesuai skema resmi).
+  /// Id produk (dari [produkIds]) yang kategorinya TIDAK masuk tiket dapur.
+  /// Produk tanpa kategori selalu masuk tiket.
+  Future<Set<String>> produkTanpaTiketDapur(Iterable<String> produkIds) async {
+    final ids = produkIds.toSet();
+    if (ids.isEmpty) return {};
+    final rows = await (select(produk).join([
+      innerJoin(kategori, kategori.id.equalsExp(produk.kategoriId)),
+    ])
+          ..where(produk.id.isIn(ids) & kategori.masukTiketDapur.equals(false)))
+        .map((r) => r.read(produk.id)!)
+        .get();
+    return rows.toSet();
+  }
+
   // ---- Varian/tambahan produk (IMOGI no. 42) ----
 
   Future<void> upsertGrupModifier(GrupModifierCompanion data) => into(grupModifier).insertOnConflictUpdate(data);

@@ -12,6 +12,8 @@ class Kategori extends Table {
   TextColumn get nama => text()();
   TextColumn get warna => text().nullable()();
   IntColumn get urutan => integer().withDefault(const Constant(0))();
+  // Masuk tiket dapur atau tidak (IMOGI no. 35); bawaan ikut tercetak.
+  BoolColumn get masukTiketDapur => boolean().withDefault(const Constant(true))();
   TextColumn get stasiunDapurId => text().nullable().references(StasiunDapur, #id)();
   IntColumn get createdAt => integer()();
   IntColumn get updatedAt => integer()();

@@ -10,7 +10,11 @@ class PesananStatus {
     required this.ringkasanItem,
     this.nomorAntrean,
     this.pelangganId,
+    this.antar = false,
   });
+
+  /// Tipe pesanan bekanal antar: alurnya memuat tahap Diantar.
+  final bool antar;
 
   final String id;
   final String nomorStruk;
