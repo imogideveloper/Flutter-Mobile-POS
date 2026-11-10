@@ -237,3 +237,34 @@ async def test_pengaturan_antrean_awalan_dan_angka_awal(client: AsyncClient, tok
     assert (await client.patch(url, headers=toko_a.headers, json={"antrean_mulai": 0})).status_code == 422
     assert (await client.patch(url, headers=toko_a.headers, json={"antrean_awalan": "ABCDEF"})).status_code == 422
     assert (await client.patch(url, headers=toko_a.headers, json={"antrean_awalan": "A-1"})).status_code == 422
+
+
+async def test_bug012_simpan_pengaturan_lain_tidak_gagal_karena_logo_terkunci(
+    client: AsyncClient, db_session: AsyncSession
+) -> None:
+    """BUG-012: klien mengirim ulang seluruh pengaturan (termasuk tampil_logo=true bawaan).
+    Pada paket tanpa fitur logo, itu tidak boleh menggagalkan perubahan pengaturan lain."""
+    toko = await buat_toko_siap_pakai(db_session, nama_paket="Gratis")
+    url = f"/outlets/{toko.outlet.id}/pengaturan"
+    assert (await client.get(url, headers=toko.headers)).json()["tampil_logo"] is True
+
+    resp = await client.patch(
+        url,
+        headers=toko.headers,
+        json={"tampil_logo": True, "izinkan_stok_minus": False, "footer_struk": "Terima kasih"},
+    )
+    assert resp.status_code == 200, resp.text
+    assert resp.json()["izinkan_stok_minus"] is False and resp.json()["footer_struk"] == "Terima kasih"
+
+
+async def test_bug012_menyalakan_logo_dari_mati_tetap_diblok_paket(
+    client: AsyncClient, db_session: AsyncSession
+) -> None:
+    """Aturan paket tidak berubah: logo yang sedang mati tidak bisa dinyalakan tanpa fitur logo_struk."""
+    toko = await buat_toko_siap_pakai(db_session, nama_paket="Gratis")
+    url = f"/outlets/{toko.outlet.id}/pengaturan"
+    assert (await client.patch(url, headers=toko.headers, json={"tampil_logo": False})).status_code == 200
+
+    resp = await client.patch(url, headers=toko.headers, json={"tampil_logo": True})
+    assert resp.status_code == 403
+    assert resp.json()["detail"]["fitur"] == "logo_struk"

@@ -21,6 +21,8 @@ class _FakeBackendApi implements BackendApi {
   List<Map<String, dynamic>> pesananBatalDiterima = [];
   List<Map<String, dynamic>> statusPesananDiterima = [];
   List<Map<String, dynamic>> shiftDiterima = [];
+  /// Id transaksi yang dijawab 'ditolak' oleh server palsu ini.
+  Set<String> idDitolak = {};
   SyncPullResult? pullResponse;
 
   @override
@@ -107,7 +109,11 @@ class _FakeBackendApi implements BackendApi {
     statusPesananDiterima = statusPesanan;
     return SyncPushResult(
       transaksi: transaksi
-          .map((t) => HasilPushItem(id: t['id'] as String, status: 'diterima'))
+          .map((t) => HasilPushItem(
+                id: t['id'] as String,
+                status: idDitolak.contains(t['id']) ? 'ditolak' : 'diterima',
+                pesan: idDitolak.contains(t['id']) ? 'Shift tidak ditemukan' : null,
+              ))
           .toList(),
       pembayaran: pembayaran
           .map((p) => HasilPushItem(id: p['id'] as String, status: 'diterima'))
@@ -908,6 +914,32 @@ void main() {
     final tanpa = api.transaksiDiterima.firstWhere((t) => t['id'] == 'trx-tanpa');
     expect(antre['nomor_antrean'], 'A-005');
     expect(tanpa.containsKey('nomor_antrean'), isFalse);
+  });
+
+  test('push: transaksi yang ditolak server tetap menunggu dan dikirim ulang; yang diterima tidak dikirim lagi', () async {
+    await sisipMetodeTunai('metode-uuid-1');
+    await sisipTransaksi('trx-ok', status: TransaksiStatus.selesai, totalBayar: 15000, metodeBayarId: 'metode-uuid-1');
+    await sisipTransaksi('trx-tolak', status: TransaksiStatus.selesai, totalBayar: 15000, metodeBayarId: 'metode-uuid-1');
+    api.idDitolak = {'trx-tolak'};
+    api.pullResponse = pullKosong();
+
+    final hasil = await repo.jalankan();
+    expect(hasil.transaksiTerkirim, 1);
+    expect(hasil.transaksiDitolak, 1);
+    final pending = await db.transaksiDao.transaksiBelumSync();
+    expect(pending.map((t) => t.id), ['trx-tolak'], reason: 'yang ditolak tidak boleh ditandai tersinkron');
+
+    // Sync berikutnya: hanya yang ditolak yang dikirim lagi, tidak ada duplikat yang diterima.
+    api.pullResponse = pullKosong();
+    await repo.jalankan();
+    expect(api.transaksiDiterima.map((t) => t['id']), ['trx-tolak']);
+
+    // Penyebab penolakan hilang -> diterima, lalu tidak dikirim lagi.
+    api.idDitolak = {};
+    api.pullResponse = pullKosong();
+    final hasil3 = await repo.jalankan();
+    expect(hasil3.transaksiTerkirim, 1);
+    expect(await db.transaksiDao.transaksiBelumSync(), isEmpty);
   });
 
   test('push: shift yang dirujuk transaksi ikut terkirim (kalau tidak, server menolak transaksinya)', () async {

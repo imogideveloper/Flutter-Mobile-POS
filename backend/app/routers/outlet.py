@@ -140,7 +140,14 @@ async def ubah_pengaturan_outlet(
         ("tampil_logo", "logo_struk"),
         ("pakai_nomor_antrean", "nomor_antrean"),
     ):
-        if perubahan.get(field) is True and not await has_fitur(db, toko_id, kode_fitur):
+        # Hanya saat nilainya BENAR-BENAR berubah menjadi True. Klien mengirim ulang seluruh
+        # pengaturan tiap simpan, dan tampil_logo bernilai True secara bawaan: tanpa syarat
+        # ini toko paket Gratis tidak bisa menyimpan pengaturan lain apa pun (BUG-012).
+        if (
+            perubahan.get(field) is True
+            and getattr(pengaturan, field) is not True
+            and not await has_fitur(db, toko_id, kode_fitur)
+        ):
             await tolak_fitur_terkunci(db, kode_fitur)
 
     for field, value in perubahan.items():
