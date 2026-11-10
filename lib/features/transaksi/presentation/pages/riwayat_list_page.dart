@@ -218,6 +218,7 @@ class _RiwayatListPageState extends ConsumerState<RiwayatListPage> {
   @override
   Widget build(BuildContext context) {
     final riwayatAsync = ref.watch(riwayatTransaksiProvider);
+    final namaMetode = ref.watch(namaMetodeBayarProvider).value ?? const <String, String>{};
 
     return Scaffold(
       appBar: AppBar(
@@ -326,7 +327,7 @@ class _RiwayatListPageState extends ConsumerState<RiwayatListPage> {
                         padding: const EdgeInsets.fromLTRB(AppSpacing.xl, 0, AppSpacing.xl, AppSpacing.xl),
                         itemCount: hasil.length,
                         separatorBuilder: (context, index) => const SizedBox(height: AppSpacing.sm),
-                        itemBuilder: (context, index) => _RiwayatRow(ringkasan: hasil[index]),
+                        itemBuilder: (context, index) => _RiwayatRow(ringkasan: hasil[index], namaMetode: namaMetode),
                       ),
               ),
             ],
@@ -352,9 +353,10 @@ class _RiwayatListPageState extends ConsumerState<RiwayatListPage> {
 }
 
 class _RiwayatRow extends StatelessWidget {
-  const _RiwayatRow({required this.ringkasan});
+  const _RiwayatRow({required this.ringkasan, this.namaMetode = const {}});
 
   final RingkasanTransaksi ringkasan;
+  final Map<String, String> namaMetode;
 
   @override
   Widget build(BuildContext context) {
@@ -382,7 +384,7 @@ class _RiwayatRow extends StatelessWidget {
                     Text('#${ringkasan.nomorStruk}', style: AppTypography.bodyEmphasis),
                     const SizedBox(width: AppSpacing.xs),
                     Text(
-                      '${_formatWaktu.format(waktu)} · ${labelMetodeBayar(ringkasan.metodeBayarId, jumlahPembayaran: ringkasan.jumlahPembayaran)}',
+                      '${_formatWaktu.format(waktu)} · ${labelMetodeBayar(ringkasan.metodeBayarId, jumlahPembayaran: ringkasan.jumlahPembayaran, nama: namaMetode)}',
                       style: AppTypography.secondary,
                     ),
                   ],

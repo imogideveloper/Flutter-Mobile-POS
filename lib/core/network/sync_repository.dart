@@ -310,11 +310,13 @@ class SyncRepository {
     final pesananBatalPayload = await _pesananBatalPayload();
     final statusPesananPayload = await _statusPesananPayload();
     final shiftPayload = await _shiftPayload({for (final t in belumSync) ?t.shiftId});
+    final kasShiftPayload = await _kasShiftPayload(shiftPayload);
     final hasil = await api.syncPush(
       accessToken: sesi.accessToken,
       perangkatId: sesi.perangkatId,
       transaksi: payload,
       shift: shiftPayload,
+      kasShift: kasShiftPayload,
       pembayaran: pembayaranPayload,
       pesananBatal: pesananBatalPayload,
       statusPesanan: statusPesananPayload,
@@ -417,6 +419,7 @@ class SyncRepository {
     final pesananBatalPayload = await _pesananBatalPayload();
     final statusPesananPayload = await _statusPesananPayload();
     final shiftPayload = await _shiftPayload(const {});
+    final kasShiftPayload = await _kasShiftPayload(shiftPayload);
     if (payload.isEmpty && pesananBatalPayload.isEmpty && statusPesananPayload.isEmpty && shiftPayload.isEmpty) return;
 
     final hasil = await api.syncPush(
@@ -424,6 +427,7 @@ class SyncRepository {
       perangkatId: sesi.perangkatId,
       transaksi: const [],
       shift: shiftPayload,
+      kasShift: kasShiftPayload,
       pembayaran: payload,
       pesananBatal: pesananBatalPayload,
       statusPesanan: statusPesananPayload,
@@ -453,6 +457,27 @@ class SyncRepository {
         if (s.kasAktual != null) 'kas_aktual': s.kasAktual.toString(),
         if (s.catatan != null) 'catatan': s.catatan,
         'status': s.status.name,
+        if (idServer != null) 'pengguna_id': idServer,
+      });
+    }
+    return hasil;
+  }
+
+  /// Kas masuk/keluar milik shift yang ikut dikirim ([shiftPayload]). Tanpa ini kas yang
+  /// seharusnya di server (modal + tunai + kas masuk - kas keluar) tidak sama dengan di HP.
+  Future<List<Map<String, dynamic>>> _kasShiftPayload(List<Map<String, dynamic>> shiftPayload) async {
+    final idShift = [for (final s in shiftPayload) s['id'] as String];
+    final rows = await transaksiDao.attachedDatabase.shiftDao.kasUntukShift(idShift);
+    final hasil = <Map<String, dynamic>>[];
+    for (final k in rows) {
+      final pengguna = k.dibuatOleh == null ? null : await penggunaDao.cariById(k.dibuatOleh!);
+      final idServer = pengguna?.serverPenggunaId;
+      hasil.add({
+        'id': k.id,
+        'shift_id': k.shiftId,
+        'jenis': k.jenis.name,
+        'jumlah': k.jumlah.toString(),
+        'keterangan': k.keterangan,
         if (idServer != null) 'pengguna_id': idServer,
       });
     }

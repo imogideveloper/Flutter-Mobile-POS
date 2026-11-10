@@ -21,6 +21,16 @@ class ShiftDao extends DatabaseAccessor<AppDatabase> with _$ShiftDaoMixin {
             ..orderBy([(t) => OrderingTerm.asc(t.dibukaPada)]))
           .get();
 
+  /// Kas masuk/keluar milik [shiftIds], untuk dikirim bersama shiftnya.
+  Future<List<KasShiftRow>> kasUntukShift(Iterable<String> shiftIds) {
+    final ids = shiftIds.toSet();
+    if (ids.isEmpty) return Future.value(const []);
+    return (select(kasShift)
+          ..where((t) => t.shiftId.isIn(ids) & t.deletedAt.isNull())
+          ..orderBy([(t) => OrderingTerm.asc(t.createdAt)]))
+        .get();
+  }
+
   Future<ShiftRow?> shiftTerbukaDiOutlet(String outletId) =>
       (select(shift)
             ..where((t) =>

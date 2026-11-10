@@ -250,6 +250,8 @@ class DioBackendApi implements BackendApi {
     required String perangkatId,
     required List<Map<String, dynamic>> transaksi,
     List<Map<String, dynamic>> shift = const [],
+    // Kas masuk/keluar di dalam shift; dikirim bersama shiftnya (server idempoten per id).
+    List<Map<String, dynamic>> kasShift = const [],
     List<Map<String, dynamic>> pembayaran = const [],
     List<Map<String, dynamic>> pesananBatal = const [],
     List<Map<String, dynamic>> statusPesanan = const [],
@@ -261,6 +263,7 @@ class DioBackendApi implements BackendApi {
           'perangkat_id': perangkatId,
           'transaksi': transaksi,
           'shift': shift,
+          'kas_shift': kasShift,
           'pembayaran': pembayaran,
           'pesanan_batal': pesananBatal,
           'status_pesanan': statusPesanan,

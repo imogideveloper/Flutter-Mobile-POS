@@ -147,3 +147,35 @@ async def test_transaksi_yang_ditolak_bisa_dikirim_ulang_setelah_penyebabnya_hil
     )
     assert kedua.json()["transaksi"][0]["status"] == "diterima"
     assert await _hitung(db_session, Transaksi, Transaksi.id == trx_uuid) == 1
+
+
+async def test_kas_masuk_keluar_shift_ikut_dihitung_dan_retry_tidak_menggandakan(
+    client: AsyncClient, db_session: AsyncSession, toko_a
+) -> None:
+    from app.models.transaksi import KasShift
+
+    produk = await buat_produk(db_session, toko_a.toko.id)
+    metode = await buat_metode_bayar(db_session, toko_a.toko.id)
+    perangkat = await buat_perangkat(db_session, toko_a.toko.id, toko_a.outlet.id)
+    shift_id, masuk_id, keluar_id = uuid.uuid4(), uuid.uuid4(), uuid.uuid4()
+    payload = {
+        "perangkat_id": str(perangkat.id),
+        "shift": [_shift(toko_a, shift_id)],  # modal 100.000, kas aktual 130.000
+        "kas_shift": [
+            {"id": str(masuk_id), "shift_id": str(shift_id), "jenis": "masuk", "jumlah": "20000", "keterangan": "Tambah modal"},
+            {"id": str(keluar_id), "shift_id": str(shift_id), "jenis": "keluar", "jumlah": "5000", "keterangan": "Beli es"},
+        ],
+        "transaksi": [_trx(toko_a, produk, metode, shift_id=shift_id, nomor="OUT1-INT-0005")],  # tunai 30.000
+    }
+
+    for _ in range(2):
+        resp = await client.post("/sync/push", headers=toko_a.headers, json=payload)
+        assert resp.status_code == 200
+        assert {h["status"] for h in resp.json()["kas_shift"]} <= {"diterima", "sudah_ada"}
+
+    assert await _hitung(db_session, KasShift, KasShift.shift_id == shift_id) == 2
+    shift = (await db_session.execute(select(Shift).where(Shift.id == shift_id))).scalar_one()
+    await db_session.refresh(shift)
+    # 100.000 modal + 30.000 penjualan tunai + 20.000 kas masuk - 5.000 kas keluar
+    assert float(shift.kas_seharusnya) == 145000
+    assert float(shift.selisih) == 130000 - 145000

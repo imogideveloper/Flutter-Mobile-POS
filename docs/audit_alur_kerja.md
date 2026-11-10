@@ -76,8 +76,16 @@ Format laporan task sesuai `docs/alur_kerja.md`.
 
 ### TASK-115 / BUG-018, 019, 020 (Fase 3), integritas sync
 - **Tes otomatis baru:** `backend/tests/test_sync_integritas.py` (4 tes): retry batch tiga kali tidak menggandakan transaksi, shift, maupun potongan stok; push shift "buka" yang terlambat tidak membuka kembali shift yang sudah tutup; satu transaksi ditolak tidak menahan yang lain, alasan dikirim balik, dan sync log bernilai `sebagian`; transaksi yang ditolak bisa diterima pada pengiriman berikutnya setelah penyebabnya hilang. Flutter: 1 tes baru di `test/sync_repository_test.dart` (ditolak tetap menunggu dan dikirim ulang; yang diterima tidak dikirim lagi).
-- **Temuan audit (belum dikerjakan):** **kas masuk/keluar shift (`kas_shift`) belum dikirim oleh HP** padahal server mendukungnya. Akibatnya kas yang seharusnya di server bisa berbeda dari HP. Butuh penambahan push dan tes. Status TASK-115 tetap In Progress.
+- **Temuan audit, kini dikerjakan:** kas masuk/keluar shift (`kas_shift`) sebelumnya tidak dikirim HP, sehingga kas yang seharusnya di server bisa berbeda dari HP. Kini dikirim bersama shiftnya (idempoten per id) dan server menghitung ulang kas setelahnya. Tes: backend (kas 100.000 + 30.000 tunai + 20.000 masuk - 5.000 keluar = 145.000, retry tidak menggandakan) dan Flutter (payload kas_shift). Status TASK-115 tetap In Progress sampai retest di HP.
 - **Tes perangkat:** sebagian (server menerima 14 transaksi dan 2 shift dari HP pada 2026-11-10); retest lengkap dan pencatatan ke sheet Retest masih diperlukan.
 
 ### Hasil tes keseluruhan
 Lihat ringkasan pada laporan sesi; semua tes otomatis relevan lulus.
+
+### TASK-127 / BUG-015 (Fase 6), metode pembayaran di riwayat
+- **Related Feature ID:** FEAT-014. **Kondisi awal:** Open, Backlog.
+- **Temuan:** `labelMetodeBayar()` hanya mengenali dua id placeholder lama. Id metode bayar asli dari server berbentuk UUID, sehingga semua transaksi asli tampil "-". Cacat yang sama ada di ringkasan metode di Laporan.
+- **Perubahan:** `metode_bayar_label.dart` mencari nama di peta id-ke-nama dari tabel `metode_bayar` lokal; `namaMetodeBayarProvider` (termasuk metode nonaktif karena transaksi lama masih merujuknya); dipakai di `riwayat_list_page.dart`, `transaksi_detail_page.dart`, dan `laporan_page.dart`. Split tetap "Campuran", id placeholder lama tetap dikenali.
+- **Tes otomatis:** `test/metode_bayar_label_test.dart` (7 tes), termasuk transaksi nyata yang dibayar dengan UUID tampil sebagai "Transfer Bank".
+- **Tes perangkat:** belum. **Status akhir:** BUG-015 Ready for Retest, TASK-127 Review 80%. Belum Closed.
+- **Next action:** retest di HP: bayar tunai dan transfer lalu cek Riwayat dan Laporan (TC-056).

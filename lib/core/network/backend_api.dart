@@ -41,6 +41,8 @@ abstract class BackendApi {
     // Shift yang dibuat/ditutup di HP. Server membuatnya lebih dulu supaya transaksi
     // yang merujuknya tidak ditolak.
     List<Map<String, dynamic>> shift = const [],
+    // Kas masuk/keluar di dalam shift; dikirim bersama shiftnya (server idempoten per id).
+    List<Map<String, dynamic>> kasShift = const [],
     // Cicilan/pelunasan kasbon (tahap 3b-1) yang dicatat offline - lihat
     // PembayaranPushIn di backend/app/schemas/sync.py. Beda dari
     // pembayaran yang lahir BERSAMA checkout (itu ikut payload `transaksi`

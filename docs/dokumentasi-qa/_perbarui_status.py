@@ -13,6 +13,14 @@ TANGGAL = datetime.datetime(2026, 11, 10)
 
 # (ID, {nama kolom: nilai}); catatan DITAMBAHKAN ke sel Notes yang sudah ada.
 BUG = {
+    "BUG-015": {
+        "Status": "Ready for Retest",
+        "Fixed Date": TANGGAL,
+        "_catatan": " 2026-11-10: nama metode bayar kini dicari di tabel metode_bayar lokal (id UUID dari server) lewat "
+                    "namaMetodeBayarProvider; dipakai di daftar riwayat, detail transaksi, dan ringkasan metode di laporan. "
+                    "Split tetap 'Campuran'; id placeholder lama tetap dikenali. Tes otomatis lulus (test/metode_bayar_label_test.dart). "
+                    "Belum diuji di HP; retest: bayar tunai dan transfer lalu cek Riwayat (TC-056).",
+    },
     "BUG-012": {
         "Status": "Ready for Retest",
         "Fixed Date": TANGGAL,
@@ -23,6 +31,16 @@ BUG = {
     },
 }
 TASK = {
+    "TASK-127": {
+        "Status": "Review",
+        "Progress (%)": 0.8,
+        "_catatan": " 2026-11-10: kode diperbaiki dan lulus tes otomatis; menunggu uji di HP (TC-056).",
+    },
+    "TASK-115": {
+        "_catatan": " 2026-11-10: kas masuk/keluar shift kini ikut dikirim HP bersama shiftnya (idempoten per id); kas yang "
+                    "seharusnya dihitung ulang server setelah kas masuk/keluar dan transaksi tersimpan. Tes otomatis lulus "
+                    "(backend dan Flutter). Belum diuji di HP; progress tetap 90% sampai retest sync di perangkat.",
+    },
     "TASK-125": {
         "Status": "Review",
         "Progress (%)": 0.8,
@@ -48,7 +66,13 @@ def terapkan(ws, nama_id, data, kolom_catatan):
             for nama, nilai in data[kode].items():
                 if nama == "_catatan":
                     sel = ws.cell(r, kolom[kolom_catatan])
-                    sel.value = (sel.value or "") + nilai
+                    teks = sel.value or ""
+                    # Idempoten: bersihkan catatan yang terlanjur dobel, jangan menambah yang sama dua kali.
+                    while nilai in teks and teks.count(nilai) > 1:
+                        teks = teks.replace(nilai, "", 1)
+                    if nilai not in teks:
+                        teks += nilai
+                    sel.value = teks
                 else:
                     ws.cell(r, kolom[nama]).value = nilai
             n += 1

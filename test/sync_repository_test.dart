@@ -1,4 +1,5 @@
 import 'package:apps_pos/core/database/app_database.dart';
+import 'package:apps_pos/features/shift/data/local/tables/kas_shift_table.dart' show KasShiftJenis;
 import 'package:apps_pos/features/shift/data/local/tables/shift_table.dart' show ShiftStatus;
 import 'package:apps_pos/core/network/auth_session_store.dart';
 import 'package:apps_pos/core/network/backend_api.dart';
@@ -21,6 +22,7 @@ class _FakeBackendApi implements BackendApi {
   List<Map<String, dynamic>> pesananBatalDiterima = [];
   List<Map<String, dynamic>> statusPesananDiterima = [];
   List<Map<String, dynamic>> shiftDiterima = [];
+  List<Map<String, dynamic>> kasShiftDiterima = [];
   /// Id transaksi yang dijawab 'ditolak' oleh server palsu ini.
   Set<String> idDitolak = {};
   SyncPullResult? pullResponse;
@@ -98,12 +100,15 @@ class _FakeBackendApi implements BackendApi {
     required String perangkatId,
     required List<Map<String, dynamic>> transaksi,
     List<Map<String, dynamic>> shift = const [],
+    // Kas masuk/keluar di dalam shift; dikirim bersama shiftnya (server idempoten per id).
+    List<Map<String, dynamic>> kasShift = const [],
     List<Map<String, dynamic>> pembayaran = const [],
     List<Map<String, dynamic>> pesananBatal = const [],
     List<Map<String, dynamic>> statusPesanan = const [],
   }) async {
     transaksiDiterima = transaksi;
     shiftDiterima = shift;
+    kasShiftDiterima = kasShift;
     pembayaranDiterima = pembayaran;
     pesananBatalDiterima = pesananBatal;
     statusPesananDiterima = statusPesanan;
@@ -940,6 +945,34 @@ void main() {
     final hasil3 = await repo.jalankan();
     expect(hasil3.transaksiTerkirim, 1);
     expect(await db.transaksiDao.transaksiBelumSync(), isEmpty);
+  });
+
+  test('push: kas masuk/keluar milik shift yang dikirim ikut terkirim, lengkap dengan jenis dan jumlah', () async {
+    await sisipMetodeTunai('metode-uuid-1');
+    final now = DateTime.now().toUtc().millisecondsSinceEpoch;
+    await db.into(db.shift).insert(ShiftCompanion.insert(
+          id: 'shift-kas',
+          tokoId: 'toko-asli',
+          outletId: 'outlet-asli',
+          penggunaId: 'pengguna-asli',
+          dibukaPada: now,
+          modalAwal: const Value(100000),
+          status: ShiftStatus.buka,
+          createdAt: now,
+          updatedAt: now,
+        ));
+    await db.shiftDao.catatKasMasukKeluar(shiftId: 'shift-kas', jenis: KasShiftJenis.masuk, jumlah: 20000, keterangan: 'Tambah modal');
+    await db.shiftDao.catatKasMasukKeluar(shiftId: 'shift-kas', jenis: KasShiftJenis.keluar, jumlah: 5000, keterangan: 'Beli es');
+    api.pullResponse = pullKosong();
+
+    await repo.jalankan();
+
+    expect(api.shiftDiterima.single['id'], 'shift-kas');
+    final kas = api.kasShiftDiterima;
+    expect(kas.map((k) => (k['jenis'], k['jumlah'], k['keterangan'], k['shift_id'])), [
+      ('masuk', '20000', 'Tambah modal', 'shift-kas'),
+      ('keluar', '5000', 'Beli es', 'shift-kas'),
+    ]);
   });
 
   test('push: shift yang dirujuk transaksi ikut terkirim (kalau tidak, server menolak transaksinya)', () async {

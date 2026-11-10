@@ -28,6 +28,14 @@ final metodeBayarAktifProvider = StreamProvider<List<MetodeBayarRow>>((ref) {
   return ref.watch(metodeBayarDaoProvider).watchMetodeBayarAktif();
 });
 
+/// Peta id metode bayar -> nama (termasuk yang nonaktif, karena transaksi lama masih
+/// merujuknya) untuk label di riwayat, detail, dan laporan.
+final namaMetodeBayarProvider = StreamProvider<Map<String, String>>((ref) {
+  return ref.watch(metodeBayarDaoProvider).watchSemuaMetodeBayar().map(
+        (rows) => {for (final r in rows) r.id: r.nama},
+      );
+});
+
 final transaksiRepositoryProvider = Provider<TransaksiRepository>((ref) {
   return TransaksiRepository(
     ref.watch(transaksiDaoProvider),

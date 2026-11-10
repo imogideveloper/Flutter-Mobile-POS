@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../../transaksi/presentation/providers/transaksi_providers.dart' show namaMetodeBayarProvider;
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -85,7 +86,7 @@ class LaporanPage extends ConsumerWidget {
           ),
           Expanded(
             child: ringkasanAsync.when(
-              data: (ringkasan) => _IsiLaporan(ringkasan: ringkasan),
+              data: (ringkasan) => _IsiLaporan(ringkasan: ringkasan, namaMetode: ref.watch(namaMetodeBayarProvider).value ?? const <String, String>{}),
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, stackTrace) => Center(child: Text('Gagal memuat laporan: $error')),
             ),
@@ -160,9 +161,10 @@ class _TabPeriode extends ConsumerWidget {
 }
 
 class _IsiLaporan extends StatelessWidget {
-  const _IsiLaporan({required this.ringkasan});
+  const _IsiLaporan({required this.ringkasan, this.namaMetode = const {}});
 
   final RingkasanLaporan ringkasan;
+  final Map<String, String> namaMetode;
 
   @override
   Widget build(BuildContext context) {
@@ -333,7 +335,7 @@ class _IsiLaporan extends StatelessWidget {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        '${ringkasan.metodeBayar[i].labelOverride ?? labelMetodeBayar(ringkasan.metodeBayar[i].metodeBayarId)} '
+                        '${ringkasan.metodeBayar[i].labelOverride ?? labelMetodeBayar(ringkasan.metodeBayar[i].metodeBayarId, nama: namaMetode)} '
                         '${ringkasan.metodeBayar[i].persen.round()}%',
                         style: AppTypography.secondary,
                       ),

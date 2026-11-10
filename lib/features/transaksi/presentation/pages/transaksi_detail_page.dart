@@ -262,6 +262,7 @@ class _TransaksiDetailPageState extends ConsumerState<TransaksiDetailPage> {
   @override
   Widget build(BuildContext context) {
     final detailAsync = ref.watch(detailTransaksiProvider(widget.transaksiId));
+    final namaMetode = ref.watch(namaMetodeBayarProvider).value ?? const <String, String>{};
 
     return Scaffold(
       appBar: AppBar(
@@ -284,7 +285,7 @@ class _TransaksiDetailPageState extends ConsumerState<TransaksiDetailPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  '${_formatWaktu.format(waktu)} · ${labelMetodeBayar(detail.metodeBayarId, jumlahPembayaran: detail.jumlahPembayaran)}'
+                  '${_formatWaktu.format(waktu)} · ${labelMetodeBayar(detail.metodeBayarId, jumlahPembayaran: detail.jumlahPembayaran, nama: namaMetode)}'
                   '${detail.namaPelanggan != null ? ' · ${detail.namaPelanggan}' : ''}',
                   style: AppTypography.secondary,
                 ),
