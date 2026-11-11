@@ -769,6 +769,18 @@ class $PengaturanOutletTable extends PengaturanOutlet
     requiredDuringInsert: false,
     defaultValue: const Constant(1),
   );
+  static const VerificationMeta _estimasiMenitMeta = const VerificationMeta(
+    'estimasiMenit',
+  );
+  @override
+  late final GeneratedColumn<int> estimasiMenit = GeneratedColumn<int>(
+    'estimasi_menit',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -816,6 +828,7 @@ class $PengaturanOutletTable extends PengaturanOutlet
     pakaiNomorAntrean,
     antreanAwalan,
     antreanMulai,
+    estimasiMenit,
     createdAt,
     updatedAt,
     deletedAt,
@@ -933,6 +946,15 @@ class $PengaturanOutletTable extends PengaturanOutlet
         ),
       );
     }
+    if (data.containsKey('estimasi_menit')) {
+      context.handle(
+        _estimasiMenitMeta,
+        estimasiMenit.isAcceptableOrUnknown(
+          data['estimasi_menit']!,
+          _estimasiMenitMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -1012,6 +1034,10 @@ class $PengaturanOutletTable extends PengaturanOutlet
         DriftSqlType.int,
         data['${effectivePrefix}antrean_mulai'],
       )!,
+      estimasiMenit: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}estimasi_menit'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}created_at'],
@@ -1047,6 +1073,7 @@ class PengaturanOutletRow extends DataClass
   final bool pakaiNomorAntrean;
   final String antreanAwalan;
   final int antreanMulai;
+  final int estimasiMenit;
   final int createdAt;
   final int updatedAt;
   final int? deletedAt;
@@ -1063,6 +1090,7 @@ class PengaturanOutletRow extends DataClass
     required this.pakaiNomorAntrean,
     required this.antreanAwalan,
     required this.antreanMulai,
+    required this.estimasiMenit,
     required this.createdAt,
     required this.updatedAt,
     this.deletedAt,
@@ -1086,6 +1114,7 @@ class PengaturanOutletRow extends DataClass
     map['pakai_nomor_antrean'] = Variable<bool>(pakaiNomorAntrean);
     map['antrean_awalan'] = Variable<String>(antreanAwalan);
     map['antrean_mulai'] = Variable<int>(antreanMulai);
+    map['estimasi_menit'] = Variable<int>(estimasiMenit);
     map['created_at'] = Variable<int>(createdAt);
     map['updated_at'] = Variable<int>(updatedAt);
     if (!nullToAbsent || deletedAt != null) {
@@ -1112,6 +1141,7 @@ class PengaturanOutletRow extends DataClass
       pakaiNomorAntrean: Value(pakaiNomorAntrean),
       antreanAwalan: Value(antreanAwalan),
       antreanMulai: Value(antreanMulai),
+      estimasiMenit: Value(estimasiMenit),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
@@ -1138,6 +1168,7 @@ class PengaturanOutletRow extends DataClass
       pakaiNomorAntrean: serializer.fromJson<bool>(json['pakaiNomorAntrean']),
       antreanAwalan: serializer.fromJson<String>(json['antreanAwalan']),
       antreanMulai: serializer.fromJson<int>(json['antreanMulai']),
+      estimasiMenit: serializer.fromJson<int>(json['estimasiMenit']),
       createdAt: serializer.fromJson<int>(json['createdAt']),
       updatedAt: serializer.fromJson<int>(json['updatedAt']),
       deletedAt: serializer.fromJson<int?>(json['deletedAt']),
@@ -1159,6 +1190,7 @@ class PengaturanOutletRow extends DataClass
       'pakaiNomorAntrean': serializer.toJson<bool>(pakaiNomorAntrean),
       'antreanAwalan': serializer.toJson<String>(antreanAwalan),
       'antreanMulai': serializer.toJson<int>(antreanMulai),
+      'estimasiMenit': serializer.toJson<int>(estimasiMenit),
       'createdAt': serializer.toJson<int>(createdAt),
       'updatedAt': serializer.toJson<int>(updatedAt),
       'deletedAt': serializer.toJson<int?>(deletedAt),
@@ -1178,6 +1210,7 @@ class PengaturanOutletRow extends DataClass
     bool? pakaiNomorAntrean,
     String? antreanAwalan,
     int? antreanMulai,
+    int? estimasiMenit,
     int? createdAt,
     int? updatedAt,
     Value<int?> deletedAt = const Value.absent(),
@@ -1194,6 +1227,7 @@ class PengaturanOutletRow extends DataClass
     pakaiNomorAntrean: pakaiNomorAntrean ?? this.pakaiNomorAntrean,
     antreanAwalan: antreanAwalan ?? this.antreanAwalan,
     antreanMulai: antreanMulai ?? this.antreanMulai,
+    estimasiMenit: estimasiMenit ?? this.estimasiMenit,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
@@ -1234,6 +1268,9 @@ class PengaturanOutletRow extends DataClass
       antreanMulai: data.antreanMulai.present
           ? data.antreanMulai.value
           : this.antreanMulai,
+      estimasiMenit: data.estimasiMenit.present
+          ? data.estimasiMenit.value
+          : this.estimasiMenit,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
@@ -1255,6 +1292,7 @@ class PengaturanOutletRow extends DataClass
           ..write('pakaiNomorAntrean: $pakaiNomorAntrean, ')
           ..write('antreanAwalan: $antreanAwalan, ')
           ..write('antreanMulai: $antreanMulai, ')
+          ..write('estimasiMenit: $estimasiMenit, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt')
@@ -1276,6 +1314,7 @@ class PengaturanOutletRow extends DataClass
     pakaiNomorAntrean,
     antreanAwalan,
     antreanMulai,
+    estimasiMenit,
     createdAt,
     updatedAt,
     deletedAt,
@@ -1296,6 +1335,7 @@ class PengaturanOutletRow extends DataClass
           other.pakaiNomorAntrean == this.pakaiNomorAntrean &&
           other.antreanAwalan == this.antreanAwalan &&
           other.antreanMulai == this.antreanMulai &&
+          other.estimasiMenit == this.estimasiMenit &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt);
@@ -1314,6 +1354,7 @@ class PengaturanOutletCompanion extends UpdateCompanion<PengaturanOutletRow> {
   final Value<bool> pakaiNomorAntrean;
   final Value<String> antreanAwalan;
   final Value<int> antreanMulai;
+  final Value<int> estimasiMenit;
   final Value<int> createdAt;
   final Value<int> updatedAt;
   final Value<int?> deletedAt;
@@ -1331,6 +1372,7 @@ class PengaturanOutletCompanion extends UpdateCompanion<PengaturanOutletRow> {
     this.pakaiNomorAntrean = const Value.absent(),
     this.antreanAwalan = const Value.absent(),
     this.antreanMulai = const Value.absent(),
+    this.estimasiMenit = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -1349,6 +1391,7 @@ class PengaturanOutletCompanion extends UpdateCompanion<PengaturanOutletRow> {
     this.pakaiNomorAntrean = const Value.absent(),
     this.antreanAwalan = const Value.absent(),
     this.antreanMulai = const Value.absent(),
+    this.estimasiMenit = const Value.absent(),
     required int createdAt,
     required int updatedAt,
     this.deletedAt = const Value.absent(),
@@ -1369,6 +1412,7 @@ class PengaturanOutletCompanion extends UpdateCompanion<PengaturanOutletRow> {
     Expression<bool>? pakaiNomorAntrean,
     Expression<String>? antreanAwalan,
     Expression<int>? antreanMulai,
+    Expression<int>? estimasiMenit,
     Expression<int>? createdAt,
     Expression<int>? updatedAt,
     Expression<int>? deletedAt,
@@ -1387,6 +1431,7 @@ class PengaturanOutletCompanion extends UpdateCompanion<PengaturanOutletRow> {
       if (pakaiNomorAntrean != null) 'pakai_nomor_antrean': pakaiNomorAntrean,
       if (antreanAwalan != null) 'antrean_awalan': antreanAwalan,
       if (antreanMulai != null) 'antrean_mulai': antreanMulai,
+      if (estimasiMenit != null) 'estimasi_menit': estimasiMenit,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
@@ -1407,6 +1452,7 @@ class PengaturanOutletCompanion extends UpdateCompanion<PengaturanOutletRow> {
     Value<bool>? pakaiNomorAntrean,
     Value<String>? antreanAwalan,
     Value<int>? antreanMulai,
+    Value<int>? estimasiMenit,
     Value<int>? createdAt,
     Value<int>? updatedAt,
     Value<int?>? deletedAt,
@@ -1425,6 +1471,7 @@ class PengaturanOutletCompanion extends UpdateCompanion<PengaturanOutletRow> {
       pakaiNomorAntrean: pakaiNomorAntrean ?? this.pakaiNomorAntrean,
       antreanAwalan: antreanAwalan ?? this.antreanAwalan,
       antreanMulai: antreanMulai ?? this.antreanMulai,
+      estimasiMenit: estimasiMenit ?? this.estimasiMenit,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
@@ -1471,6 +1518,9 @@ class PengaturanOutletCompanion extends UpdateCompanion<PengaturanOutletRow> {
     if (antreanMulai.present) {
       map['antrean_mulai'] = Variable<int>(antreanMulai.value);
     }
+    if (estimasiMenit.present) {
+      map['estimasi_menit'] = Variable<int>(estimasiMenit.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<int>(createdAt.value);
     }
@@ -1501,6 +1551,7 @@ class PengaturanOutletCompanion extends UpdateCompanion<PengaturanOutletRow> {
           ..write('pakaiNomorAntrean: $pakaiNomorAntrean, ')
           ..write('antreanAwalan: $antreanAwalan, ')
           ..write('antreanMulai: $antreanMulai, ')
+          ..write('estimasiMenit: $estimasiMenit, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -38267,6 +38318,7 @@ typedef $$PengaturanOutletTableCreateCompanionBuilder =
       Value<bool> pakaiNomorAntrean,
       Value<String> antreanAwalan,
       Value<int> antreanMulai,
+      Value<int> estimasiMenit,
       required int createdAt,
       required int updatedAt,
       Value<int?> deletedAt,
@@ -38286,6 +38338,7 @@ typedef $$PengaturanOutletTableUpdateCompanionBuilder =
       Value<bool> pakaiNomorAntrean,
       Value<String> antreanAwalan,
       Value<int> antreanMulai,
+      Value<int> estimasiMenit,
       Value<int> createdAt,
       Value<int> updatedAt,
       Value<int?> deletedAt,
@@ -38384,6 +38437,11 @@ class $$PengaturanOutletTableFilterComposer
 
   ColumnFilters<int> get antreanMulai => $composableBuilder(
     column: $table.antreanMulai,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get estimasiMenit => $composableBuilder(
+    column: $table.estimasiMenit,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -38490,6 +38548,11 @@ class $$PengaturanOutletTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get estimasiMenit => $composableBuilder(
+    column: $table.estimasiMenit,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -38593,6 +38656,11 @@ class $$PengaturanOutletTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<int> get estimasiMenit => $composableBuilder(
+    column: $table.estimasiMenit,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<int> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
@@ -38668,6 +38736,7 @@ class $$PengaturanOutletTableTableManager
                 Value<bool> pakaiNomorAntrean = const Value.absent(),
                 Value<String> antreanAwalan = const Value.absent(),
                 Value<int> antreanMulai = const Value.absent(),
+                Value<int> estimasiMenit = const Value.absent(),
                 Value<int> createdAt = const Value.absent(),
                 Value<int> updatedAt = const Value.absent(),
                 Value<int?> deletedAt = const Value.absent(),
@@ -38685,6 +38754,7 @@ class $$PengaturanOutletTableTableManager
                 pakaiNomorAntrean: pakaiNomorAntrean,
                 antreanAwalan: antreanAwalan,
                 antreanMulai: antreanMulai,
+                estimasiMenit: estimasiMenit,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
@@ -38704,6 +38774,7 @@ class $$PengaturanOutletTableTableManager
                 Value<bool> pakaiNomorAntrean = const Value.absent(),
                 Value<String> antreanAwalan = const Value.absent(),
                 Value<int> antreanMulai = const Value.absent(),
+                Value<int> estimasiMenit = const Value.absent(),
                 required int createdAt,
                 required int updatedAt,
                 Value<int?> deletedAt = const Value.absent(),
@@ -38721,6 +38792,7 @@ class $$PengaturanOutletTableTableManager
                 pakaiNomorAntrean: pakaiNomorAntrean,
                 antreanAwalan: antreanAwalan,
                 antreanMulai: antreanMulai,
+                estimasiMenit: estimasiMenit,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,

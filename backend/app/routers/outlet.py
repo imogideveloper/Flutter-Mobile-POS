@@ -150,6 +150,16 @@ async def ubah_pengaturan_outlet(
         ):
             await tolak_fitur_terkunci(db, kode_fitur)
 
+    # Estimasi selesai adalah bagian fitur Status pesanan: hanya digate saat nilainya benar-benar
+    # berubah menjadi > 0 (klien mengirim ulang seluruh pengaturan tiap simpan).
+    estimasi_baru = perubahan.get("estimasi_menit")
+    if (
+        estimasi_baru
+        and estimasi_baru != pengaturan.estimasi_menit
+        and not await has_fitur(db, toko_id, "status_pesanan")
+    ):
+        await tolak_fitur_terkunci(db, "status_pesanan")
+
     for field, value in perubahan.items():
         setattr(pengaturan, field, value)
     await db.commit()

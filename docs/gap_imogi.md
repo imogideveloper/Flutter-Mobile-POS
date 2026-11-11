@@ -195,3 +195,5 @@ Usulan saya berdasarkan jumlah jenis usaha F&B yang menganggapnya inti dan keter
 3. Alur upgrade: manual lewat tim IMOGI (menurut panduan) atau pembayaran Xendit di aplikasi (yang sudah dibangun)?
 4. Cetak struk dan tiket dapur: perangkat printer apa yang dijadikan acuan uji?
 
+
+**KEMAJUAN 2026-11-12 (no. 26 Status pesanan):** estimasi selesai pesanan. Lama pengerjaan bawaan per outlet (menit, 0 = mati) diatur di Pengaturan struk (migrasi 0014, kolom `pengaturan_outlet.estimasi_menit`, ikut sync pull). Halaman Status Pesanan menampilkan "Estimasi selesai HH:mm" (waktu dibuat + menit) selama pesanan Baru/Diproses, dan "Terlambat N mnt" bila lewat. Pengisian > 0 digerbang fitur `status_pesanan`. Belum ada: estimasi per produk (hanya satu angka per outlet), pesan WhatsApp saat siap, dan uji di HP.

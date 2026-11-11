@@ -268,3 +268,27 @@ async def test_bug012_menyalakan_logo_dari_mati_tetap_diblok_paket(
     resp = await client.patch(url, headers=toko.headers, json={"tampil_logo": True})
     assert resp.status_code == 403
     assert resp.json()["detail"]["fitur"] == "logo_struk"
+
+
+async def test_estimasi_menit_bawaan_validasi_dan_gate_status_pesanan(
+    client: AsyncClient, db_session: AsyncSession
+) -> None:
+    gratis = await buat_toko_siap_pakai(db_session, nama_paket="Gratis")
+    url = f"/outlets/{gratis.outlet.id}/pengaturan"
+    assert (await client.get(url, headers=gratis.headers)).json()["estimasi_menit"] == 0
+
+    # Mengirim ulang nilai 0 (bawaan) tidak digate; mengisi > 0 butuh fitur status_pesanan.
+    assert (await client.patch(url, headers=gratis.headers, json={"estimasi_menit": 0})).status_code == 200
+    resp = await client.patch(url, headers=gratis.headers, json={"estimasi_menit": 15})
+    assert resp.status_code == 403
+    assert resp.json()["detail"]["fitur"] == "status_pesanan"
+    assert (await client.patch(url, headers=gratis.headers, json={"estimasi_menit": -1})).status_code == 422
+    assert (await client.patch(url, headers=gratis.headers, json={"estimasi_menit": 481})).status_code == 422
+
+    bisnis = await buat_toko_siap_pakai(db_session, nama_paket="Bisnis")
+    url2 = f"/outlets/{bisnis.outlet.id}/pengaturan"
+    resp2 = await client.patch(url2, headers=bisnis.headers, json={"estimasi_menit": 15})
+    assert resp2.status_code == 200
+    assert resp2.json()["estimasi_menit"] == 15
+    # Setelah aktif, mengirim ulang nilai yang sama tetap lolos.
+    assert (await client.patch(url2, headers=bisnis.headers, json={"estimasi_menit": 15})).status_code == 200

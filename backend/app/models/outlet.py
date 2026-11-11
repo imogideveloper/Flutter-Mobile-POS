@@ -116,6 +116,8 @@ class PengaturanOutlet(Base, TimestampMixin):
     # Pengaturan nomor antrian (IMOGI no. 34): awalan ("A" -> A-001) dan angka awal tiap hari.
     antrean_awalan: Mapped[str] = mapped_column(String(5), default="A", server_default="A")
     antrean_mulai: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
+    # Estimasi selesai pesanan (IMOGI no. 26): lama pengerjaan bawaan dalam menit; 0 = tidak dipakai.
+    estimasi_menit: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
 
     outlet: Mapped["Outlet"] = relationship(back_populates="pengaturan")
 

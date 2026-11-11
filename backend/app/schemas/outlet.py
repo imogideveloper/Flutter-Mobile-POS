@@ -51,6 +51,8 @@ class PengaturanOutletIn(BaseModel):
     # Awalan huruf/angka (maks 5, boleh kosong) dan angka awal nomor tiap hari.
     antrean_awalan: str | None = Field(default=None, max_length=5, pattern=r"^[A-Za-z0-9]*$")
     antrean_mulai: int | None = Field(default=None, ge=1, le=9999)
+    # Lama pengerjaan bawaan (menit) untuk estimasi selesai pesanan; 0 = matikan.
+    estimasi_menit: int | None = Field(default=None, ge=0, le=480)
 
 
 class PengaturanOutletOut(BaseModel):
@@ -66,5 +68,6 @@ class PengaturanOutletOut(BaseModel):
     pakai_nomor_antrean: bool
     antrean_awalan: str
     antrean_mulai: int
+    estimasi_menit: int
 
     model_config = {"from_attributes": True}

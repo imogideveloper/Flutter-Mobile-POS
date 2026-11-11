@@ -45,11 +45,13 @@ class _PengaturanOutletStrukPageState extends ConsumerState<PengaturanOutletStru
   bool _pakaiNomorAntrean = false;
   final _antreanAwalanController = TextEditingController(text: 'A');
   final _antreanMulaiController = TextEditingController(text: '1');
+  final _estimasiController = TextEditingController(text: '0');
   bool _izinkanStokMinus = true;
   int _pembulatan = 0;
   String? _logoUrl;
 
   int get _antreanMulai => (int.tryParse(_antreanMulaiController.text) ?? 1).clamp(1, 9999);
+  int get _estimasiMenit => (int.tryParse(_estimasiController.text) ?? 0).clamp(0, 480);
 
   bool _memuat = true;
   bool _menyimpan = false;
@@ -69,6 +71,7 @@ class _PengaturanOutletStrukPageState extends ConsumerState<PengaturanOutletStru
     _footerController.dispose();
     _antreanAwalanController.dispose();
     _antreanMulaiController.dispose();
+    _estimasiController.dispose();
     super.dispose();
   }
 
@@ -96,6 +99,7 @@ class _PengaturanOutletStrukPageState extends ConsumerState<PengaturanOutletStru
       _pakaiNomorAntrean = data['pakai_nomor_antrean'] as bool;
       _antreanAwalanController.text = (data['antrean_awalan'] as String?) ?? 'A';
       _antreanMulaiController.text = '${(data['antrean_mulai'] as int?) ?? 1}';
+      _estimasiController.text = '${(data['estimasi_menit'] as int?) ?? 0}';
       _izinkanStokMinus = data['izinkan_stok_minus'] as bool;
       _pembulatan = (data['pembulatan'] as int?) ?? 0;
     } catch (e) {
@@ -122,6 +126,7 @@ class _PengaturanOutletStrukPageState extends ConsumerState<PengaturanOutletStru
               'pakai_nomor_antrean': _pakaiNomorAntrean,
               'antrean_awalan': _antreanAwalanController.text.trim(),
               'antrean_mulai': _antreanMulai,
+              'estimasi_menit': _estimasiMenit,
               'pembulatan': _pembulatan,
               'izinkan_stok_minus': _izinkanStokMinus,
             },
@@ -140,6 +145,7 @@ class _PengaturanOutletStrukPageState extends ConsumerState<PengaturanOutletStru
               pakaiNomorAntrean: Value(_pakaiNomorAntrean),
               antreanAwalan: Value(_antreanAwalanController.text.trim()),
               antreanMulai: Value(_antreanMulai),
+              estimasiMenit: Value(_estimasiMenit),
               pembulatan: Value(_pembulatan),
               izinkanStokMinus: Value(_izinkanStokMinus),
               createdAt: DateTime.now().millisecondsSinceEpoch,
@@ -366,6 +372,19 @@ class _PengaturanOutletStrukPageState extends ConsumerState<PengaturanOutletStru
                           ),
                         ],
                       ),
+                    FiturTerkunci(
+                      kode: 'status_pesanan',
+                      child: TextField(
+                        key: const Key('pengaturanOutletForm.estimasiMenit'),
+                        controller: _estimasiController,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        decoration: const InputDecoration(
+                          labelText: 'Estimasi selesai pesanan (menit)',
+                          helperText: '0 = tidak ditampilkan di Status pesanan',
+                        ),
+                      ),
+                    ),
                     const SizedBox(height: AppSpacing.xl),
                     Text('Pratinjau struk', style: AppTypography.cardTitle.copyWith(fontSize: 15)),
                     const SizedBox(height: AppSpacing.sm),

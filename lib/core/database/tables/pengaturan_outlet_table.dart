@@ -22,6 +22,8 @@ class PengaturanOutlet extends Table {
   // Pengaturan nomor antrian (IMOGI no. 34): awalan dan angka awal tiap hari.
   TextColumn get antreanAwalan => text().withDefault(const Constant('A'))();
   IntColumn get antreanMulai => integer().withDefault(const Constant(1))();
+  // Estimasi selesai pesanan (IMOGI no. 26): lama pengerjaan bawaan (menit); 0 = tidak dipakai.
+  IntColumn get estimasiMenit => integer().withDefault(const Constant(0))();
   IntColumn get createdAt => integer()();
   IntColumn get updatedAt => integer()();
   IntColumn get deletedAt => integer().nullable()();

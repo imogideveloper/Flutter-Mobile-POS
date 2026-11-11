@@ -136,3 +136,11 @@ Lihat ringkasan pada laporan sesi; semua tes otomatis relevan lulus.
 - **Tes otomatis:** `test/logout_kasir_test.dart` (kasir tanpa tab Produk keluar lewat Lainnya, sesi berakhir). Seluruh 295 tes lulus.
 - **Sifat sesi (perilaku lama, tidak diubah):** sesi hanya di memori; menutup aplikasi = pilih akun lagi. Keranjang/pesanan belum disimpan tidak dibersihkan saat ganti kasir (belum diputuskan, perlu keputusan lead).
 - **Tes perangkat:** belum. Next action: di HP login Kasir, buka Lainnya, ketuk "Keluar / ganti kasir", pastikan kembali ke pilih pengguna.
+
+### FEAT no. 26 (Status pesanan), estimasi selesai
+- **Catatan alur:** fitur baru, belum punya TASK/FEAT/TC terpisah di workbook (sama seperti empat fitur 2026-11-10); ID perlu ditetapkan lead/QA, tidak saya karang.
+- **Perubahan:** backend migrasi 0014 + `estimasi_menit` (model, skema 0..480, gate `status_pesanan` hanya saat nilai berubah menjadi > 0, sync pull); Flutter kolom drift (skema 12), field di Pengaturan struk (terkunci paket), fungsi murni `labelEstimasiPesanan` ([estimasi_pesanan.dart](lib/features/transaksi/domain/estimasi_pesanan.dart)), tampilan di kartu Status Pesanan.
+- **Tes otomatis:** backend `test_estimasi_menit_bawaan_validasi_dan_gate_status_pesanan` (30 tes terkait lulus di container); Flutter `estimasi_pesanan_test.dart` (3), `status_pesanan_test.dart` (+1 widget). Seluruh 299 tes Flutter lulus. Migrasi 0014 sudah diterapkan di Docker lokal.
+- **Tes perangkat:** belum. **Batas:** satu angka per outlet, bukan per produk; bukan "bukti" Done.
+- **Catatan proses:** `dart format` sempat memformat ulang puluhan berkas yang tidak saya ubah; sudah dibatalkan sebelum commit (diff hanya perubahan fitur).
+- **Next action:** di HP (paket Enterprise/Bisnis) isi estimasi 15 menit di Pengaturan struk, buat pesanan, cek Status Pesanan (jam estimasi, lalu "Terlambat" setelah lewat).

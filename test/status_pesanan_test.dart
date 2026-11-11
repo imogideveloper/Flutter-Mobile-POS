@@ -189,5 +189,28 @@ void main() {
       expect(find.text('Semua pesanan sudah selesai'), findsOneWidget);
       await tutup(tester);
     });
+
+    testWidgets('estimasi selesai tampil saat diaktifkan di pengaturan outlet dan hilang setelah Siap', (tester) async {
+      final h = await bayar(statusAwal: StatusPesanan.baru, outletId: 'outlet-default');
+      final id = h.id as String;
+      await db.hargaDao.upsertPengaturanOutlet(PengaturanOutletCompanion.insert(
+        outletId: 'outlet-default',
+        estimasiMenit: const Value(15),
+        createdAt: 0,
+        updatedAt: 0,
+      ));
+      await buka(tester);
+
+      expect(find.byKey(Key('statusPesanan.estimasi.$id')), findsOneWidget);
+      expect(find.textContaining('Estimasi selesai'), findsOneWidget);
+
+      await tester.tap(find.byKey(Key('statusPesanan.maju.$id'))); // Diproses: masih tampil
+      await tester.pumpAndSettle();
+      expect(find.byKey(Key('statusPesanan.estimasi.$id')), findsOneWidget);
+      await tester.tap(find.byKey(Key('statusPesanan.maju.$id'))); // Siap: hilang
+      await tester.pumpAndSettle();
+      expect(find.byKey(Key('statusPesanan.estimasi.$id')), findsNothing);
+      await tutup(tester);
+    });
   });
 }

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/network/sync_repository.dart';
+import '../../../../core/providers/session_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -12,8 +13,10 @@ import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../domain/alur_status_pesanan.dart';
+import '../../domain/estimasi_pesanan.dart';
 import '../../domain/pesanan_status.dart';
 import '../providers/status_pesanan_providers.dart';
+import '../providers/harga_keranjang_provider.dart' show pengaturanOutletProvider;
 import '../providers/transaksi_providers.dart';
 
 final _formatJam = DateFormat('HH:mm');
@@ -42,6 +45,8 @@ class StatusPesananPage extends ConsumerWidget {
     final alurStandar = ref.watch(alurStatusPesananProvider).value ?? AlurStatusPesanan.untuk(null);
     final alurAntar = ref.watch(alurAntarStatusPesananProvider).value ?? AlurStatusPesanan.untuk(null, termasukDiantar: true);
     AlurStatusPesanan alurUntuk(PesananStatus p) => p.antar ? alurAntar : alurStandar;
+    final outletId = ref.watch(currentOutletIdProvider);
+    final estimasiMenit = ref.watch(pengaturanOutletProvider(outletId)).value?.estimasiMenit ?? 0;
 
     return Scaffold(
       appBar: AppBar(
@@ -75,12 +80,12 @@ class StatusPesananPage extends ConsumerWidget {
               if (aktif.isEmpty)
                 Text('Semua pesanan sudah selesai', style: AppTypography.secondary)
               else
-                for (final p in aktif) _kartu(context, ref, p, alurUntuk(p)),
+                for (final p in aktif) _kartu(context, ref, p, alurUntuk(p), estimasiMenit),
               if (tuntas.isNotEmpty) ...[
                 const SizedBox(height: AppSpacing.xl),
                 Text('Selesai hari ini (${tuntas.length})', style: AppTypography.cardTitle),
                 const SizedBox(height: AppSpacing.sm),
-                for (final p in tuntas) _kartu(context, ref, p, alurUntuk(p)),
+                for (final p in tuntas) _kartu(context, ref, p, alurUntuk(p), estimasiMenit),
               ],
             ],
           );
@@ -89,7 +94,13 @@ class StatusPesananPage extends ConsumerWidget {
     );
   }
 
-  Widget _kartu(BuildContext context, WidgetRef ref, PesananStatus p, AlurStatusPesanan alur) {
+  Widget _kartu(BuildContext context, WidgetRef ref, PesananStatus p, AlurStatusPesanan alur, int estimasiMenit) {
+    final estimasi = labelEstimasiPesanan(
+      tanggalMs: p.tanggal,
+      menit: estimasiMenit,
+      status: p.status,
+      sekarang: DateTime.now(),
+    );
     final berikut = alur.berikutnya(p.status);
     final waktu = _formatJam.format(DateTime.fromMillisecondsSinceEpoch(p.tanggal, isUtc: true).toLocal());
     final tuntas = alur.sudahSelesai(p.status);
@@ -126,6 +137,18 @@ class StatusPesananPage extends ConsumerWidget {
             Text('$waktu · ${p.nomorStruk}', style: AppTypography.secondary),
             const SizedBox(height: AppSpacing.xs),
             Text(p.ringkasanItem),
+            if (estimasi != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Text(
+                  estimasi,
+                  key: Key('statusPesanan.estimasi.${p.id}'),
+                  style: AppTypography.secondary.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: estimasiTerlambat(estimasi) ? AppColors.dangerText : AppColors.primaryDark,
+                  ),
+                ),
+              ),
             if (berikut != null) ...[
               const SizedBox(height: AppSpacing.sm),
               SizedBox(

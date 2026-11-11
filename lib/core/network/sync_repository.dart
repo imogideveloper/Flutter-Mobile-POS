@@ -835,6 +835,7 @@ class SyncRepository {
           pakaiNomorAntrean: Value(row['pakai_nomor_antrean'] as bool),
           antreanAwalan: Value((row['antrean_awalan'] as String?) ?? 'A'),
           antreanMulai: Value((row['antrean_mulai'] as int?) ?? 1),
+          estimasiMenit: Value((row['estimasi_menit'] as int?) ?? 0),
           createdAt: epochMsDariBackend(row['updated_at'] as String),
           updatedAt: epochMsDariBackend(row['updated_at'] as String),
           deletedAt: Value(

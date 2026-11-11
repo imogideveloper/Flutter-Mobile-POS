@@ -641,7 +641,7 @@ async def pull(
                     [
                         "outlet_id", "header_struk", "footer_struk", "tampil_logo", "lebar_kertas_mm",
                         "pembulatan", "izinkan_stok_minus", "wajib_buka_shift", "struk_ringkas",
-                        "pakai_nomor_antrean", "antrean_awalan", "antrean_mulai", "updated_at", "deleted_at",
+                        "pakai_nomor_antrean", "antrean_awalan", "antrean_mulai", "estimasi_menit", "updated_at", "deleted_at",
                     ],
                 )
             ]
