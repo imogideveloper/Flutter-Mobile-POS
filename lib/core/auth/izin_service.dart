@@ -43,6 +43,28 @@ class IzinService {
     return await query.getSingleOrNull() != null;
   }
 
+  /// Semua kode izin milik pengguna (aturan sumber sama dengan [hasIzin]). Dipakai untuk
+  /// menyembunyikan menu yang bukan hak rolenya (mis. kasir tidak melihat Pengguna/Pengaturan).
+  Future<Set<String>> daftarIzin(String penggunaId) async {
+    await _pastikanSeed();
+
+    final pengguna =
+        await (_db.select(_db.pengguna)..where((t) => t.id.equals(penggunaId))).getSingleOrNull();
+    if (pengguna == null) return {};
+
+    final adaDiSync = await (_db.select(_db.roleIzinSync)
+          ..where((t) => t.roleId.equals(pengguna.roleId)))
+        .get();
+    if (adaDiSync.isNotEmpty) return adaDiSync.map((r) => r.izinKode).toSet();
+
+    final query = _db.select(_db.roleIzin).join([
+      innerJoin(_db.izin, _db.izin.id.equalsExp(_db.roleIzin.izinId)),
+    ])
+      ..where(_db.roleIzin.roleId.equals(pengguna.roleId));
+    final baris = await query.get();
+    return baris.map((r) => r.read(_db.izin.kode)!).toSet();
+  }
+
   /// Cari pengguna di toko ini yang PIN-nya cocok DAN punya izin yang
   /// diminta - dipakai saat kasir (tanpa izin) minta approval ke siapapun
   /// yang berwenang (biasanya owner/manajer), bukan mengecek satu akun

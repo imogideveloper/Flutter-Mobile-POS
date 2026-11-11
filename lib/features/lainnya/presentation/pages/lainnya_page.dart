@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 
 import '../../../../core/network/backend_exception.dart';
 import '../../../../core/network/sync_repository.dart';
+import '../../../../core/providers/izin_provider.dart';
 import '../../../../core/providers/session_provider.dart';
 import '../../../../core/providers/toko_profile_provider.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -36,7 +37,11 @@ class LainnyaPage extends ConsumerWidget {
   const LainnyaPage({super.key});
 
   Future<void> _sinkronManual(BuildContext context, WidgetRef ref) async {
-    showAppToast(context, message: 'Sinkronisasi dimulai...', variant: ToastVariant.info);
+    showAppToast(
+      context,
+      message: 'Sinkronisasi dimulai...',
+      variant: ToastVariant.info,
+    );
     try {
       final hasil = await ref.read(syncRepositoryProvider).jalankan();
       // Status gating paket (FeatureGate) baru diperbarui lewat pull -
@@ -46,14 +51,21 @@ class LainnyaPage extends ConsumerWidget {
       if (!context.mounted) return;
       showAppToast(
         context,
-        message: '${hasil.transaksiTerkirim} transaksi terkirim, '
+        message:
+            '${hasil.transaksiTerkirim} transaksi terkirim, '
             '${hasil.jumlahDiterimaPull} data master diperbarui'
             '${hasil.transaksiDitolak > 0 ? ' (${hasil.transaksiDitolak} ditolak)' : ''}',
-        variant: hasil.transaksiDitolak > 0 ? ToastVariant.warning : ToastVariant.success,
+        variant: hasil.transaksiDitolak > 0
+            ? ToastVariant.warning
+            : ToastVariant.success,
       );
     } on BackendException catch (e) {
       if (context.mounted) {
-        showAppToast(context, message: 'Sync gagal: ${e.message}', variant: ToastVariant.danger);
+        showAppToast(
+          context,
+          message: 'Sync gagal: ${e.message}',
+          variant: ToastVariant.danger,
+        );
       }
     } finally {
       // Penghitung "menunggu sync" adalah FutureProvider satu-shot: tanpa ini angkanya
@@ -76,9 +88,12 @@ class LainnyaPage extends ConsumerWidget {
     final stokAsync = ref.watch(stokOutletProvider(outletId));
 
     final namaToko = profilAsync.value?.namaToko ?? 'Toko saya';
-    final penggunaSaatIni = penggunaListAsync.value?.where((p) => p.id == penggunaId).firstOrNull;
-    final roleSaatIni =
-        roleListAsync.value?.where((r) => r.id == penggunaSaatIni?.roleId).firstOrNull;
+    final penggunaSaatIni = penggunaListAsync.value
+        ?.where((p) => p.id == penggunaId)
+        .firstOrNull;
+    final roleSaatIni = roleListAsync.value
+        ?.where((r) => r.id == penggunaSaatIni?.roleId)
+        .firstOrNull;
     final subtitlProfil = [
       if (penggunaSaatIni != null) penggunaSaatIni.nama,
       if (roleSaatIni != null) roleSaatIni.nama,
@@ -94,9 +109,16 @@ class LainnyaPage extends ConsumerWidget {
 
     final jumlahBelumSync = belumSyncAsync.value ?? 0;
     final jumlahPelanggan = pelangganAsync.value?.length ?? 0;
-    final jumlahMenipis = stokAsync.value?.where((s) => s.stokMenipis).length ?? 0;
+    final jumlahMenipis =
+        stokAsync.value?.where((s) => s.stokMenipis).length ?? 0;
     final jumlahKaryawan = penggunaListAsync.value?.length ?? 0;
     final shift = shiftAsync.value;
+
+    // Menu yang bukan hak role disembunyikan (kasir tidak melihat Pengguna/Pengaturan/Stok).
+    // Selama izin belum termuat, semua menu terbatas disembunyikan (aman secara bawaan).
+    final izinSaya = ref.watch(izinSayaProvider).value ?? const <String>{};
+    Widget bila(String kodeIzin, Widget row) =>
+        izinSaya.contains(kodeIzin) ? row : const SizedBox.shrink();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Lainnya')),
@@ -125,14 +147,22 @@ class LainnyaPage extends ConsumerWidget {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.primaryTint,
                       borderRadius: BorderRadius.circular(999),
                     ),
-                    child: const Text('Gratis',
-                        style: TextStyle(
-                            fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primaryDark)),
+                    child: const Text(
+                      'Gratis',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primaryDark,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -141,7 +171,11 @@ class LainnyaPage extends ConsumerWidget {
             AppCard(
               child: Row(
                 children: [
-                  const Icon(Icons.sync, color: AppColors.warningTextStrong, size: 20),
+                  const Icon(
+                    Icons.sync,
+                    color: AppColors.warningTextStrong,
+                    size: 20,
+                  ),
                   const SizedBox(width: AppSpacing.md),
                   Expanded(
                     child: Column(
@@ -153,7 +187,10 @@ class LainnyaPage extends ConsumerWidget {
                               : '$jumlahBelumSync transaksi menunggu sync',
                           style: AppTypography.bodyEmphasis,
                         ),
-                        Text('Ketuk Sync utk kirim/ambil data terbaru', style: AppTypography.secondary),
+                        Text(
+                          'Ketuk Sync utk kirim/ambil data terbaru',
+                          style: AppTypography.secondary,
+                        ),
                       ],
                     ),
                   ),
@@ -170,21 +207,32 @@ class LainnyaPage extends ConsumerWidget {
               padding: EdgeInsets.zero,
               child: Column(
                 children: [
-                  SettingsMenuRow(
-                    label: 'Tutup shift',
-                    value: shift == null
-                        ? 'Shift tutup'
-                        : 'sejak ${_formatWaktu.format(DateTime.fromMillisecondsSinceEpoch(shift.dibukaPada, isUtc: true).toLocal())}',
-                    onTap: () => context.push('/shift'),
+                  bila(
+                    'shift.buka_tutup',
+                    SettingsMenuRow(
+                      label: 'Tutup shift',
+                      value: shift == null
+                          ? 'Shift tutup'
+                          : 'sejak ${_formatWaktu.format(DateTime.fromMillisecondsSinceEpoch(shift.dibukaPada, isUtc: true).toLocal())}',
+                      onTap: () => context.push('/shift'),
+                    ),
                   ),
-                  SettingsMenuRow(
-                    label: 'Kas keluar / masuk',
-                    value: 'Lihat shift',
-                    onTap: () => context.push('/shift'),
+                  bila(
+                    'shift.buka_tutup',
+                    SettingsMenuRow(
+                      label: 'Kas keluar / masuk',
+                      value: 'Lihat shift',
+                      onTap: () => context.push('/shift'),
+                    ),
                   ),
                   Consumer(
                     builder: (context, ref, _) {
-                      final punya = ref.watch(featureGateProvider).value?.has('status_pesanan') ?? false;
+                      final punya =
+                          ref
+                              .watch(featureGateProvider)
+                              .value
+                              ?.has('status_pesanan') ??
+                          false;
                       if (!punya) return const SizedBox.shrink();
                       return SettingsMenuRow(
                         label: 'Status pesanan',
@@ -193,16 +241,24 @@ class LainnyaPage extends ConsumerWidget {
                       );
                     },
                   ),
-                  SettingsMenuRow(
-                    label: 'Pelanggan',
-                    value: '$jumlahPelanggan',
-                    onTap: () => context.push('/pelanggan'),
+                  bila(
+                    'pelanggan.kelola',
+                    SettingsMenuRow(
+                      label: 'Pelanggan',
+                      value: '$jumlahPelanggan',
+                      onTap: () => context.push('/pelanggan'),
+                    ),
                   ),
-                  SettingsMenuRow(
-                    label: 'Stok',
-                    value: jumlahMenipis == 0 ? 'Aman' : '$jumlahMenipis menipis',
-                    onTap: () => context.push('/stok'),
-                    showDivider: false,
+                  bila(
+                    'stok.kelola',
+                    SettingsMenuRow(
+                      label: 'Stok',
+                      value: jumlahMenipis == 0
+                          ? 'Aman'
+                          : '$jumlahMenipis menipis',
+                      onTap: () => context.push('/stok'),
+                      showDivider: false,
+                    ),
                   ),
                 ],
               ),
@@ -213,14 +269,19 @@ class LainnyaPage extends ConsumerWidget {
               padding: EdgeInsets.zero,
               child: Column(
                 children: [
-                  SettingsMenuRow(
-                    label: 'Outlet dan struk',
-                    value: 'Atur',
-                    onTap: () => context.push('/lainnya/outlet-struk'),
+                  bila(
+                    'pengaturan.kelola',
+                    SettingsMenuRow(
+                      label: 'Outlet dan struk',
+                      value: 'Atur',
+                      onTap: () => context.push('/lainnya/outlet-struk'),
+                    ),
                   ),
                   Consumer(
                     builder: (context, ref, _) {
-                      final pengaturanPrinter = ref.watch(pengaturanPrinterProvider);
+                      final pengaturanPrinter = ref.watch(
+                        pengaturanPrinterProvider,
+                      );
                       final namaPrinter = pengaturanPrinter.maybeWhen(
                         data: (p) => p?.namaPrinter,
                         orElse: () => null,
@@ -232,43 +293,64 @@ class LainnyaPage extends ConsumerWidget {
                       );
                     },
                   ),
-                  SettingsMenuRow(
-                    label: 'Metode pembayaran',
-                    value: 'Atur',
-                    onTap: () => context.push('/lainnya/metode-bayar'),
-                  ),
-                  SettingsMenuRow(
-                    label: 'Kategori produk',
-                    value: 'Atur',
-                    onTap: () => context.push('/kategori'),
-                  ),
-                  SettingsMenuRow(
-                    label: 'Varian & tambahan',
-                    value: 'Atur',
-                    onTap: () => context.push('/grup-tambahan'),
-                  ),
-                  SettingsMenuRow(
-                    label: 'Tipe pesanan & meja',
-                    value: 'Atur',
-                    onTap: () => context.push('/tipe-order-meja'),
-                  ),
-                  SettingsMenuRow(
-                    label: 'Level member & poin',
-                    value: 'Atur',
-                    onTap: () => context.push('/level-member-poin'),
-                  ),
-                  SettingsMenuRow(
-                    label: 'Pajak dan service',
-                    value: 'Atur',
-                    onTap: () => context.push('/pajak'),
-                  ),
-                  FiturTerkunci(
-                    kode: 'diskon',
-                    child: SettingsMenuRow(
-                      label: 'Promo',
+                  bila(
+                    'pengaturan.kelola',
+                    SettingsMenuRow(
+                      label: 'Metode pembayaran',
                       value: 'Atur',
-                      onTap: () => context.push('/promo'),
-                      showDivider: false,
+                      onTap: () => context.push('/lainnya/metode-bayar'),
+                    ),
+                  ),
+                  bila(
+                    'produk.kelola',
+                    SettingsMenuRow(
+                      label: 'Kategori produk',
+                      value: 'Atur',
+                      onTap: () => context.push('/kategori'),
+                    ),
+                  ),
+                  bila(
+                    'produk.kelola',
+                    SettingsMenuRow(
+                      label: 'Varian & tambahan',
+                      value: 'Atur',
+                      onTap: () => context.push('/grup-tambahan'),
+                    ),
+                  ),
+                  bila(
+                    'pengaturan.kelola',
+                    SettingsMenuRow(
+                      label: 'Tipe pesanan & meja',
+                      value: 'Atur',
+                      onTap: () => context.push('/tipe-order-meja'),
+                    ),
+                  ),
+                  bila(
+                    'pengaturan.kelola',
+                    SettingsMenuRow(
+                      label: 'Level member & poin',
+                      value: 'Atur',
+                      onTap: () => context.push('/level-member-poin'),
+                    ),
+                  ),
+                  bila(
+                    'promo.kelola',
+                    SettingsMenuRow(
+                      label: 'Pajak dan service',
+                      value: 'Atur',
+                      onTap: () => context.push('/pajak'),
+                    ),
+                  ),
+                  bila(
+                    'promo.kelola',
+                    FiturTerkunci(
+                      kode: 'diskon',
+                      child: SettingsMenuRow(
+                        label: 'Promo',
+                        value: 'Atur',
+                        onTap: () => context.push('/promo'),
+                        showDivider: false,
+                      ),
                     ),
                   ),
                 ],
@@ -280,16 +362,22 @@ class LainnyaPage extends ConsumerWidget {
               padding: EdgeInsets.zero,
               child: Column(
                 children: [
-                  SettingsMenuRow(
-                    label: 'Karyawan dan hak akses',
-                    value: '$jumlahKaryawan orang',
-                    onTap: () => context.push('/pengguna'),
+                  bila(
+                    'pengguna.kelola',
+                    SettingsMenuRow(
+                      label: 'Karyawan dan hak akses',
+                      value: '$jumlahKaryawan orang',
+                      onTap: () => context.push('/pengguna'),
+                    ),
                   ),
-                  SettingsMenuRow(
-                    label: 'Paket langganan',
-                    value: 'Atur',
-                    onTap: () => context.push('/lainnya/paket-langganan'),
-                    showDivider: false,
+                  bila(
+                    'pengaturan.kelola',
+                    SettingsMenuRow(
+                      label: 'Paket langganan',
+                      value: 'Atur',
+                      onTap: () => context.push('/lainnya/paket-langganan'),
+                      showDivider: false,
+                    ),
                   ),
                 ],
               ),

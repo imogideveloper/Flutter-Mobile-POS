@@ -46,6 +46,30 @@ void main() {
     expect(punyaIzin, isFalse);
   });
 
+  test('daftarIzin: owner punya izin Pengguna & Pengaturan, kasir tidak (menu Lainnya)', () async {
+    final kasirId = await buatKasir();
+
+    final owner = await izinService.daftarIzin('pengguna-default');
+    final kasir = await izinService.daftarIzin(kasirId);
+
+    expect(owner, containsAll(['pengguna.kelola', 'pengaturan.kelola', 'stok.kelola', 'laporan.lihat']));
+    expect(kasir, containsAll(['transaksi.buat', 'shift.buka_tutup', 'pelanggan.kelola']));
+    expect(kasir, isNot(contains('pengguna.kelola')));
+    expect(kasir, isNot(contains('pengaturan.kelola')));
+    expect(kasir, isNot(contains('stok.kelola')));
+    expect(await izinService.daftarIzin('tidak-ada'), isEmpty);
+  });
+
+  test('daftarIzin memakai role_izin dari server bila role dikenal di tabel sync', () async {
+    final kasirId = await buatKasir();
+    final roleKasir =
+        await (db.select(db.role)..where((t) => t.nama.equals('Kasir'))).getSingle();
+    await db.into(db.roleIzinSync).insert(
+        RoleIzinSyncCompanion.insert(roleId: roleKasir.id, izinKode: 'laporan.lihat'));
+
+    expect(await izinService.daftarIzin(kasirId), {'laporan.lihat'});
+  });
+
   test('PIN owner yang benar meng-otorisasi aksi yang kasir tidak punya izinnya', () async {
     await buatKasir();
 
