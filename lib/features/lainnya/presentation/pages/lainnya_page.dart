@@ -376,8 +376,17 @@ class LainnyaPage extends ConsumerWidget {
                       label: 'Paket langganan',
                       value: 'Atur',
                       onTap: () => context.push('/lainnya/paket-langganan'),
-                      showDivider: false,
+                      showDivider: true,
                     ),
+                  ),
+                  SettingsMenuRow(
+                    label: 'Keluar / ganti kasir',
+                    value: penggunaSaatIni?.nama ?? '',
+                    onTap: () {
+                      ref.read(currentPenggunaIdProvider.notifier).logout();
+                      context.go('/');
+                    },
+                    showDivider: false,
                   ),
                 ],
               ),
