@@ -44,6 +44,7 @@ import '../../features/transaksi/presentation/pages/keranjang_page.dart';
 import '../../features/transaksi/presentation/pages/pesanan_tersimpan_list_page.dart';
 import '../../features/transaksi/presentation/pages/riwayat_list_page.dart';
 import '../../features/transaksi/presentation/pages/struk_page.dart';
+import '../widgets/izin_guard.dart';
 import 'app_shell.dart';
 
 /// Provider, bukan top-level singleton - GoRouter menyimpan lokasi
@@ -56,10 +57,7 @@ final appRouterProvider = Provider<GoRouter>((ref) => _buildRouter());
 GoRouter _buildRouter() => GoRouter(
   initialLocation: '/',
   routes: [
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const AuthGatePage(),
-    ),
+    GoRoute(path: '/', builder: (context, state) => const AuthGatePage()),
 
     // Bottom-nav shell: 5 tab. Sengaja TIDAK pakai StatefulShellRoute.indexedStack
     // bawaan - implementasi defaultnya membungkus tiap branch tidak aktif dengan
@@ -72,7 +70,8 @@ GoRouter _buildRouter() => GoRouter(
     // aman walau konsekuensinya state navigasi dalam satu tab (bukan state
     // Riverpod, itu tetap awet) reset saat pindah tab lalu balik lagi.
     StatefulShellRoute(
-      builder: (context, state, navigationShell) => AppShell(navigationShell: navigationShell),
+      builder: (context, state, navigationShell) =>
+          AppShell(navigationShell: navigationShell),
       navigatorContainerBuilder: (context, navigationShell, children) =>
           children[navigationShell.currentIndex],
       branches: [
@@ -103,7 +102,8 @@ GoRouter _buildRouter() => GoRouter(
                 ),
                 GoRoute(
                   path: 'struk',
-                  builder: (context, state) => StrukPage(hasil: state.extra as HasilTransaksi),
+                  builder: (context, state) =>
+                      StrukPage(hasil: state.extra as HasilTransaksi),
                 ),
                 GoRoute(
                   path: 'pesanan-tersimpan',
@@ -125,11 +125,17 @@ GoRouter _buildRouter() => GoRouter(
           routes: [
             GoRoute(
               path: '/produk',
-              builder: (context, state) => const ProdukListPage(),
+              builder: (context, state) => IzinGuard(
+                kodeIzin: 'produk.kelola',
+                child: const ProdukListPage(),
+              ),
               routes: [
                 GoRoute(
                   path: 'tambah',
-                  builder: (context, state) => ProdukFormPage(produk: state.extra as Produk?),
+                  builder: (context, state) => IzinGuard(
+                    kodeIzin: 'produk.kelola',
+                    child: ProdukFormPage(produk: state.extra as Produk?),
+                  ),
                 ),
               ],
             ),
@@ -139,7 +145,10 @@ GoRouter _buildRouter() => GoRouter(
           routes: [
             GoRoute(
               path: '/laporan',
-              builder: (context, state) => const LaporanPage(),
+              builder: (context, state) => IzinGuard(
+                kodeIzin: 'laporan.lihat',
+                child: const LaporanPage(),
+              ),
             ),
           ],
         ),
@@ -155,15 +164,24 @@ GoRouter _buildRouter() => GoRouter(
                 ),
                 GoRoute(
                   path: 'outlet-struk',
-                  builder: (context, state) => const PengaturanOutletStrukPage(),
+                  builder: (context, state) => IzinGuard(
+                    kodeIzin: 'pengaturan.kelola',
+                    child: const PengaturanOutletStrukPage(),
+                  ),
                 ),
                 GoRoute(
                   path: 'metode-bayar',
-                  builder: (context, state) => const PengaturanMetodeBayarPage(),
+                  builder: (context, state) => IzinGuard(
+                    kodeIzin: 'pengaturan.kelola',
+                    child: const PengaturanMetodeBayarPage(),
+                  ),
                 ),
                 GoRoute(
                   path: 'paket-langganan',
-                  builder: (context, state) => const PaketLanggananPage(),
+                  builder: (context, state) => IzinGuard(
+                    kodeIzin: 'pengaturan.kelola',
+                    child: const PaketLanggananPage(),
+                  ),
                 ),
               ],
             ),
@@ -175,16 +193,26 @@ GoRouter _buildRouter() => GoRouter(
     // Halaman full-screen di luar bottom nav.
     GoRoute(
       path: '/pengguna',
-      builder: (context, state) => const PenggunaListPage(),
+      builder: (context, state) => IzinGuard(
+        kodeIzin: 'pengguna.kelola',
+        child: const PenggunaListPage(),
+      ),
       routes: [
         GoRoute(
           path: 'tambah',
-          builder: (context, state) => const PenggunaFormPage(),
+          builder: (context, state) => IzinGuard(
+            kodeIzin: 'pengguna.kelola',
+            child: const PenggunaFormPage(),
+          ),
         ),
         GoRoute(
           path: 'edit',
-          builder: (context, state) =>
-              PenggunaFormPage(penggunaEdit: state.extra as Map<String, dynamic>),
+          builder: (context, state) => IzinGuard(
+            kodeIzin: 'pengguna.kelola',
+            child: PenggunaFormPage(
+              penggunaEdit: state.extra as Map<String, dynamic>,
+            ),
+          ),
         ),
       ],
     ),
@@ -194,97 +222,144 @@ GoRouter _buildRouter() => GoRouter(
     ),
     GoRoute(
       path: '/stok',
-      builder: (context, state) => const StokListPage(),
+      builder: (context, state) =>
+          IzinGuard(kodeIzin: 'stok.kelola', child: const StokListPage()),
       routes: [
         GoRoute(
           path: 'catat',
-          builder: (context, state) => const StokMutasiFormPage(),
+          builder: (context, state) => IzinGuard(
+            kodeIzin: 'stok.kelola',
+            child: const StokMutasiFormPage(),
+          ),
         ),
       ],
     ),
     GoRoute(
       path: '/shift',
-      builder: (context, state) => const ShiftPage(),
+      builder: (context, state) =>
+          IzinGuard(kodeIzin: 'shift.buka_tutup', child: const ShiftPage()),
       routes: [
         GoRoute(
           path: 'buka',
-          builder: (context, state) => const BukaShiftFormPage(),
+          builder: (context, state) => IzinGuard(
+            kodeIzin: 'shift.buka_tutup',
+            child: const BukaShiftFormPage(),
+          ),
         ),
         GoRoute(
           path: 'tutup',
-          builder: (context, state) => TutupShiftFormPage(shiftId: state.extra as String),
+          builder: (context, state) => IzinGuard(
+            kodeIzin: 'shift.buka_tutup',
+            child: TutupShiftFormPage(shiftId: state.extra as String),
+          ),
         ),
         GoRoute(
           path: 'kas',
-          builder: (context, state) => CatatKasFormPage(shiftId: state.extra as String),
+          builder: (context, state) => IzinGuard(
+            kodeIzin: 'kas.keluar_masuk',
+            child: CatatKasFormPage(shiftId: state.extra as String),
+          ),
         ),
       ],
     ),
     GoRoute(
       path: '/tipe-order-meja',
-      builder: (context, state) => const TipeOrderMejaPage(),
+      builder: (context, state) => IzinGuard(
+        kodeIzin: 'pengaturan.kelola',
+        child: const TipeOrderMejaPage(),
+      ),
     ),
     GoRoute(
       path: '/level-member-poin',
-      builder: (context, state) => const LevelMemberAturanPoinPage(),
+      builder: (context, state) => IzinGuard(
+        kodeIzin: 'pengaturan.kelola',
+        child: const LevelMemberAturanPoinPage(),
+      ),
     ),
     GoRoute(
       path: '/kategori',
-      builder: (context, state) => const KategoriListPage(),
+      builder: (context, state) =>
+          IzinGuard(kodeIzin: 'produk.kelola', child: const KategoriListPage()),
       routes: [
         GoRoute(
           path: 'tambah',
-          builder: (context, state) => const KategoriFormPage(),
+          builder: (context, state) => IzinGuard(
+            kodeIzin: 'produk.kelola',
+            child: const KategoriFormPage(),
+          ),
         ),
         GoRoute(
           path: 'edit',
-          builder: (context, state) => KategoriFormPage(kategoriEdit: state.extra as Kategori),
+          builder: (context, state) => IzinGuard(
+            kodeIzin: 'produk.kelola',
+            child: KategoriFormPage(kategoriEdit: state.extra as Kategori),
+          ),
         ),
       ],
     ),
     GoRoute(
       path: '/grup-tambahan',
-      builder: (context, state) => const GrupTambahanPage(),
+      builder: (context, state) =>
+          IzinGuard(kodeIzin: 'produk.kelola', child: const GrupTambahanPage()),
     ),
     GoRoute(
       path: '/pajak',
-      builder: (context, state) => const PajakListPage(),
+      builder: (context, state) =>
+          IzinGuard(kodeIzin: 'promo.kelola', child: const PajakListPage()),
       routes: [
         GoRoute(
           path: 'tambah',
-          builder: (context, state) => const PajakFormPage(),
+          builder: (context, state) =>
+              IzinGuard(kodeIzin: 'promo.kelola', child: const PajakFormPage()),
         ),
         GoRoute(
           path: 'edit',
-          builder: (context, state) => PajakFormPage(pajakEdit: state.extra as Pajak),
+          builder: (context, state) => IzinGuard(
+            kodeIzin: 'promo.kelola',
+            child: PajakFormPage(pajakEdit: state.extra as Pajak),
+          ),
         ),
       ],
     ),
     GoRoute(
       path: '/promo',
-      builder: (context, state) => const PromoListPage(),
+      builder: (context, state) =>
+          IzinGuard(kodeIzin: 'promo.kelola', child: const PromoListPage()),
       routes: [
         GoRoute(
           path: 'tambah',
-          builder: (context, state) => const PromoFormPage(),
+          builder: (context, state) =>
+              IzinGuard(kodeIzin: 'promo.kelola', child: const PromoFormPage()),
         ),
         GoRoute(
           path: 'edit',
-          builder: (context, state) => PromoFormPage(promoEdit: state.extra as Promo),
+          builder: (context, state) => IzinGuard(
+            kodeIzin: 'promo.kelola',
+            child: PromoFormPage(promoEdit: state.extra as Promo),
+          ),
         ),
       ],
     ),
     GoRoute(
       path: '/pelanggan',
-      builder: (context, state) => const PelangganListPage(),
+      builder: (context, state) => IzinGuard(
+        kodeIzin: 'pelanggan.kelola',
+        child: const PelangganListPage(),
+      ),
     ),
     GoRoute(
       path: '/piutang',
-      builder: (context, state) => const PiutangListPage(),
+      builder: (context, state) => IzinGuard(
+        kodeIzin: 'pelanggan.kelola',
+        child: const PiutangListPage(),
+      ),
       routes: [
         GoRoute(
           path: 'pelunasan',
-          builder: (context, state) => PelunasanPage(pelangganId: state.extra as String),
+          builder: (context, state) => IzinGuard(
+            kodeIzin: 'pelanggan.kelola',
+            child: PelunasanPage(pelangganId: state.extra as String),
+          ),
         ),
       ],
     ),

@@ -61,11 +61,13 @@ void main() {
     ));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Produk'));
+    // Kasir tidak punya tab Produk (izin produk.kelola); shift dibuka lewat menu Lainnya.
+    expect(find.text('Produk'), findsNothing);
+    expect(find.text('Laporan'), findsNothing);
+    await tester.tap(find.text('Lainnya'));
     await tester.pumpAndSettle();
-    await tester.tap(find.byType(PopupMenuButton<String>));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Shift'));
+    expect(find.text('Karyawan dan hak akses'), findsNothing);
+    await tester.tap(find.text('Tutup shift'));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Buka Shift'));

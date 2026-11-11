@@ -20,10 +20,18 @@ const _tabs = [
 /// Bottom nav 5 tab sesuai layar "Lainnya" di mockup: height 66, bg putih,
 /// border-top 1px, tab aktif warna primary bold.
 class AppBottomNavBar extends StatelessWidget {
-  const AppBottomNavBar({super.key, required this.currentIndex, required this.onTap});
+  const AppBottomNavBar({
+    super.key,
+    required this.currentIndex,
+    required this.onTap,
+    this.tersembunyi = const {},
+  });
 
   final int currentIndex;
   final ValueChanged<int> onTap;
+
+  /// Indeks tab yang tidak ditampilkan (bukan hak role pengguna).
+  final Set<int> tersembunyi;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +46,14 @@ class AppBottomNavBar extends StatelessWidget {
         child: Row(
           children: [
             for (var i = 0; i < _tabs.length; i++)
-              Expanded(child: _NavItem(tab: _tabs[i], selected: i == currentIndex, onTap: () => onTap(i))),
+              if (!tersembunyi.contains(i))
+                Expanded(
+                  child: _NavItem(
+                    tab: _tabs[i],
+                    selected: i == currentIndex,
+                    onTap: () => onTap(i),
+                  ),
+                ),
           ],
         ),
       ),
@@ -47,7 +62,11 @@ class AppBottomNavBar extends StatelessWidget {
 }
 
 class _NavItem extends StatelessWidget {
-  const _NavItem({required this.tab, required this.selected, required this.onTap});
+  const _NavItem({
+    required this.tab,
+    required this.selected,
+    required this.onTap,
+  });
 
   final _NavTab tab;
   final bool selected;
