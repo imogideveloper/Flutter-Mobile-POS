@@ -101,6 +101,13 @@ abstract class BackendApi {
 
   Future<void> hapusPengeluaran({required String accessToken, required String pengeluaranId});
 
+  /// Laporan laba rugi (IMOGI no. 69). [dari] inklusif, [sampai] eksklusif, ISO-8601 dengan offset zona waktu.
+  Future<Map<String, dynamic>> laporanLabaRugi({
+    required String accessToken,
+    required String dari,
+    required String sampai,
+  });
+
   /// Upload logo toko (tahap 4 bagian B.2) - [namaFile] dipakai server utk
   /// sniffing ekstensi dari isi file (magic bytes), bukan dari nama file
   /// ini (nama ini cuma label utk Content-Disposition multipart).

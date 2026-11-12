@@ -252,6 +252,17 @@ class LainnyaPage extends ConsumerWidget {
                   bila(
                     'laporan.lihat',
                     FiturTerkunci(
+                      kode: 'profit_loss',
+                      child: SettingsMenuRow(
+                        label: 'Laba rugi',
+                        value: 'Lihat',
+                        onTap: () => context.push('/laba-rugi'),
+                      ),
+                    ),
+                  ),
+                  bila(
+                    'laporan.lihat',
+                    FiturTerkunci(
                       kode: 'expenses',
                       child: SettingsMenuRow(
                         label: 'Pengeluaran',

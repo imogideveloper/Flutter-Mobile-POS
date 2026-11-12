@@ -68,3 +68,26 @@ class LaporanShiftOut(BaseModel):
     jumlah_transaksi: int
     penjualan_bersih: Decimal
     metode_bayar: list[MetodeBayarPersenOut]
+
+
+class BiayaKategoriOut(BaseModel):
+    kategori: str
+    total: Decimal
+
+
+class LabaRugiOut(BaseModel):
+    """Laporan laba rugi sederhana (IMOGI no. 69). Pajak/service yang dipungut bukan pendapatan,
+    jadi tidak masuk hitungan. `belanja_bahan` ditampilkan terpisah dan TIDAK dikurangkan lagi,
+    karena nilai bahan yang terjual sudah ada di HPP (hindari hitung dua kali)."""
+
+    penjualan_kotor: Decimal
+    diskon: Decimal
+    penjualan_bersih: Decimal
+    hpp: Decimal
+    laba_kotor: Decimal
+    biaya_operasional: list[BiayaKategoriOut]
+    total_biaya_operasional: Decimal
+    laba_bersih: Decimal
+    belanja_bahan: Decimal
+    pajak_dipungut: Decimal
+    jumlah_transaksi: int

@@ -7,8 +7,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.db import get_db
 from app.core.deps import get_pengguna_id, get_role_id, get_toko_id, require_outlet_access
 from app.models.transaksi import Shift
-from app.schemas.laporan import LaporanPiutangOut, LaporanShiftOut, ProdukTerlarisOut, RingkasanPenjualanOut
-from app.services import laporan_service
+from app.schemas.laporan import (
+    LabaRugiOut,
+    LaporanPiutangOut,
+    LaporanShiftOut,
+    ProdukTerlarisOut,
+    RingkasanPenjualanOut,
+)
+from app.services.fitur_service import require_fitur
+from app.services.izin_service import has_izin
+from app.services import laba_rugi_service, laporan_service
 from app.services.kepemilikan import get_outlet_milik_toko
 
 router = APIRouter(prefix="/laporan", tags=["laporan"])
@@ -85,3 +93,27 @@ async def laporan_per_shift(
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Shift tidak ditemukan")
     await require_outlet_access(db, pengguna_id=pengguna_id, role_id=role_id, outlet_id=shift.outlet_id)
     return await laporan_service.laporan_shift(db, toko_id=toko_id, shift=shift)
+
+
+@router.get(
+    "/laba-rugi", response_model=LabaRugiOut, dependencies=[Depends(require_fitur("profit_loss"))]
+)
+async def laporan_laba_rugi(
+    dari: datetime = Query(...),
+    sampai: datetime = Query(...),
+    outlet_id: uuid.UUID | None = Query(None),
+    toko_id: uuid.UUID = Depends(get_toko_id),
+    pengguna_id: uuid.UUID = Depends(get_pengguna_id),
+    role_id: uuid.UUID = Depends(get_role_id),
+    db: AsyncSession = Depends(get_db),
+) -> LabaRugiOut:
+    # Laba rugi memuat HPP dan biaya: hanya peran dengan izin lihat laporan (Owner/Manajer).
+    if not await has_izin(db, role_id, "laporan.lihat"):
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Tidak punya izin melihat laporan laba rugi")
+    if sampai <= dari:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Rentang waktu tidak valid")
+    if outlet_id is not None:
+        await get_outlet_milik_toko(db, outlet_id, toko_id)
+        await require_outlet_access(db, pengguna_id=pengguna_id, role_id=role_id, outlet_id=outlet_id)
+    await laporan_service.pastikan_rentang_diizinkan(db, toko_id=toko_id, dari=dari, sampai=sampai)
+    return await laba_rugi_service.laba_rugi(db, toko_id=toko_id, outlet_id=outlet_id, dari=dari, sampai=sampai)

@@ -93,6 +93,7 @@ _FITUR = [
     ("pengingat_kedaluwarsa", "Pengingat kedaluwarsa produk", "stok", 2),
     ("harga_grosir", "Harga grosir", "produk", 2),
     ("expenses", "Catat pengeluaran & biaya operasional", "akuntansi", 1),
+    ("profit_loss", "Laporan laba rugi", "akuntansi", 2),
 ]
 
 _PAKET = [("Gratis", 0), ("Pro", 1), ("Bisnis", 2)]

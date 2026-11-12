@@ -431,6 +431,24 @@ class DioBackendApi implements BackendApi {
   }
 
   @override
+  Future<Map<String, dynamic>> laporanLabaRugi({
+    required String accessToken,
+    required String dari,
+    required String sampai,
+  }) async {
+    try {
+      final resp = await _dio.get(
+        '/laporan/laba-rugi',
+        queryParameters: {'dari': dari, 'sampai': sampai},
+        options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
+      );
+      return resp.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      _lempar(e);
+    }
+  }
+
+  @override
   Future<String> uploadLogoToko({
     required String accessToken,
     required List<int> bytes,
