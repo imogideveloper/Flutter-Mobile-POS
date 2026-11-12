@@ -135,6 +135,13 @@ abstract class BackendApi {
     required int tzMenit,
   });
 
+  /// Impor pelanggan massal dari CSV (IMOGI no. 53). [simulasi] true = hanya memeriksa, tidak menyimpan.
+  Future<Map<String, dynamic>> imporPelanggan({
+    required String accessToken,
+    required List<Map<String, dynamic>> baris,
+    required bool simulasi,
+  });
+
   /// Impor produk massal dari CSV (IMOGI no. 38). [simulasi] true = hanya memeriksa, tidak menyimpan.
   Future<Map<String, dynamic>> imporProduk({
     required String accessToken,

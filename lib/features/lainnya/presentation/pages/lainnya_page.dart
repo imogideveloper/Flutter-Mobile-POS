@@ -243,6 +243,17 @@ class LainnyaPage extends ConsumerWidget {
                   ),
                   bila(
                     'pelanggan.kelola',
+                    FiturTerkunci(
+                      kode: 'customer_import',
+                      child: SettingsMenuRow(
+                        label: 'Impor pelanggan',
+                        value: 'CSV',
+                        onTap: () => context.push('/impor-pelanggan'),
+                      ),
+                    ),
+                  ),
+                  bila(
+                    'pelanggan.kelola',
                     SettingsMenuRow(
                       label: 'Pelanggan',
                       value: '$jumlahPelanggan',

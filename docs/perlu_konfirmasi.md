@@ -106,3 +106,11 @@ Aturan baca: **Sementara** = perilaku yang sekarang dipakai di kode. **Dampak bi
 | H3 | Waktu absen memakai jam server, wajib online | Absensi offline belum didukung |
 | H4 | Rekap semua karyawan untuk izin `laporan.lihat`; menu Absensi terlihat semua peran | Perlu konfirmasi izin khusus absensi |
 | H5 | **Temuan:** laporan penjualan lama (`/laporan/penjualan` dll.) menerima datetime dari klien apa adanya, belum diaudit untuk bug batas hari/zona waktu seperti yang ditemukan pada absensi | Audit terpisah |
+
+## Tambahan 2026-11-13 (impor pelanggan)
+
+| # | Hal | Sementara |
+|---|---|---|
+| I1 | Impor pelanggan hanya menambah; nomor HP yang sudah terdaftar ditolak, tidak memperbarui data lama | Perlu keputusan "perbarui bila nomor sama" |
+| I2 | Nomor HP dinormalkan ke angka saja; format 0812/62812/+62812 dianggap satu nomor; angka 0 yang hilang karena Excel dipulihkan secara heuristik | Heuristik bisa keliru untuk nomor non-seluler Indonesia |
+| I3 | Impor tidak mengisi poin, level member, atau batas kasbon | Pelanggan lama dengan saldo poin harus dimigrasikan terpisah |

@@ -7,6 +7,7 @@ import '../../features/auth/presentation/pages/pengguna_form_page.dart';
 import '../../features/auth/presentation/pages/pengguna_list_page.dart';
 import '../../features/laporan/presentation/pages/laporan_page.dart';
 import '../../features/pelanggan/presentation/pages/pelanggan_list_page.dart';
+import '../../features/pelanggan/presentation/pages/impor_pelanggan_page.dart';
 import '../../features/pengeluaran/presentation/pages/laba_rugi_page.dart';
 import '../../features/pengeluaran/presentation/pages/rekap_pajak_page.dart';
 import '../../features/pengeluaran/presentation/pages/pengeluaran_page.dart';
@@ -364,6 +365,10 @@ GoRouter _buildRouter() => GoRouter(
     GoRoute(
       path: '/pengeluaran',
       builder: (context, state) => const IzinGuard(kodeIzin: 'laporan.lihat', child: PengeluaranPage()),
+    ),
+    GoRoute(
+      path: '/impor-pelanggan',
+      builder: (context, state) => const IzinGuard(kodeIzin: 'pelanggan.kelola', child: ImporPelangganPage()),
     ),
     GoRoute(
       path: '/pelanggan',

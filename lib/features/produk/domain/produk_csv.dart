@@ -2,6 +2,8 @@
 /// supaya bisa dites langsung. CSV dipilih karena bisa dibuka dan disunting di Excel/Google Sheets.
 library;
 
+import '../../../core/utils/csv_dasar.dart';
+
 const kolomTemplate = ['nama', 'kategori', 'harga_jual', 'hpp', 'sku', 'barcode', 'deskripsi'];
 
 /// Nama kolom lain yang dikenali (kunci = nama kolom di berkas, huruf kecil, tanpa spasi tepi).
@@ -84,9 +86,7 @@ const maksBarisImpor = 500;
 /// Membaca teks CSV. Pemisah (koma atau titik koma, umum di Excel Indonesia) dideteksi dari baris
 /// judul. Baris kosong dilewati.
 HasilBacaCsv bacaCsvProduk(String teks) {
-  final isi = teks.startsWith('﻿') ? teks.substring(1) : teks;
-  final pemisah = _deteksiPemisah(isi);
-  final rows = _uraiCsv(isi, pemisah).where((r) => r.any((c) => c.trim().isNotEmpty)).toList();
+  final rows = bacaBarisCsv(teks);
   if (rows.isEmpty) return const HasilBacaCsv(baris: [], galat: 'Berkas kosong');
 
   final judul = [for (final c in rows.first) _alias[c.trim().toLowerCase()] ?? ''];
@@ -172,7 +172,7 @@ String eksporProdukCsv(Iterable<BarisEkspor> produk) {
       p.sku ?? '',
       p.barcode ?? '',
       p.deskripsi ?? '',
-    ].map(_sel).join(','));
+    ].map(selCsv).join(','));
   }
   return sb.toString();
 }
@@ -197,66 +197,3 @@ class BarisEkspor {
   final String? deskripsi;
 }
 
-String _sel(String nilai) {
-  var v = nilai;
-  if (v.isNotEmpty && '=+-@'.contains(v[0]) && double.tryParse(v) == null) v = "'$v";
-  if (v.contains(',') || v.contains('"') || v.contains('\n') || v.contains('\r') || v.contains(';')) {
-    v = '"${v.replaceAll('"', '""')}"';
-  }
-  return v;
-}
-
-String _deteksiPemisah(String isi) {
-  final barisPertama = isi.split(RegExp(r'\r?\n')).firstWhere((l) => l.trim().isNotEmpty, orElse: () => '');
-  final koma = ','.allMatches(barisPertama).length;
-  final titikKoma = ';'.allMatches(barisPertama).length;
-  return titikKoma > koma ? ';' : ',';
-}
-
-/// Penguraian CSV sederhana yang mengerti sel bertanda petik (pemisah dan baris baru di dalamnya,
-/// petik ganda dilambangkan dua petik).
-List<List<String>> _uraiCsv(String isi, String pemisah) {
-  final rows = <List<String>>[];
-  var row = <String>[];
-  final sel = StringBuffer();
-  var dalamPetik = false;
-
-  void akhiriSel() {
-    row.add(sel.toString());
-    sel.clear();
-  }
-
-  void akhiriBaris() {
-    akhiriSel();
-    rows.add(row);
-    row = <String>[];
-  }
-
-  for (var i = 0; i < isi.length; i++) {
-    final c = isi[i];
-    if (dalamPetik) {
-      if (c == '"') {
-        if (i + 1 < isi.length && isi[i + 1] == '"') {
-          sel.write('"');
-          i++;
-        } else {
-          dalamPetik = false;
-        }
-      } else {
-        sel.write(c);
-      }
-    } else if (c == '"') {
-      dalamPetik = true;
-    } else if (c == pemisah) {
-      akhiriSel();
-    } else if (c == '\n') {
-      akhiriBaris();
-    } else if (c == '\r') {
-      // dilewati; \n yang menutup baris
-    } else {
-      sel.write(c);
-    }
-  }
-  if (sel.isNotEmpty || row.isNotEmpty) akhiriBaris();
-  return rows;
-}
