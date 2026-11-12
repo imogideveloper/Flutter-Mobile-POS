@@ -121,6 +121,20 @@ abstract class BackendApi {
     required String sampai,
   });
 
+  /// Absensi karyawan (IMOGI no. 62), langsung ke server. [tzMenit] = offset zona waktu perangkat.
+  Future<Map<String, dynamic>> absensiSaya({required String accessToken});
+
+  Future<Map<String, dynamic>> absenMasuk({required String accessToken, String? outletId, String? catatan});
+
+  Future<Map<String, dynamic>> absenKeluar({required String accessToken, String? catatan});
+
+  Future<Map<String, dynamic>> daftarAbsensi({
+    required String accessToken,
+    required String dari,
+    required String sampai,
+    required int tzMenit,
+  });
+
   /// Impor produk massal dari CSV (IMOGI no. 38). [simulasi] true = hanya memeriksa, tidak menyimpan.
   Future<Map<String, dynamic>> imporProduk({
     required String accessToken,

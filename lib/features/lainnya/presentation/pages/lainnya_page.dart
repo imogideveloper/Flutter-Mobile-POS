@@ -249,6 +249,14 @@ class LainnyaPage extends ConsumerWidget {
                       onTap: () => context.push('/pelanggan'),
                     ),
                   ),
+                  FiturTerkunci(
+                    kode: 'absensi',
+                    child: SettingsMenuRow(
+                      label: 'Absensi',
+                      value: 'Masuk / keluar',
+                      onTap: () => context.push('/absensi'),
+                    ),
+                  ),
                   bila(
                     'laporan.lihat',
                     FiturTerkunci(

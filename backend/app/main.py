@@ -5,6 +5,7 @@ import app.models  # noqa: F401 - registrasi semua tabel ke Base.metadata
 from app.core.config import get_settings
 from app.routers import (
     admin_langganan,
+    absensi,
     admin_platform,
     audit,
     auth,
@@ -63,6 +64,7 @@ app.include_router(fitur.router)
 app.include_router(order.router)
 app.include_router(pembelian.router)
 app.include_router(pengeluaran.router)
+app.include_router(absensi.router)
 app.include_router(stok_opname.router)
 app.include_router(transfer_stok.router)
 app.include_router(audit.router)

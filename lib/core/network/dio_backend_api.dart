@@ -494,6 +494,66 @@ class DioBackendApi implements BackendApi {
   }
 
   @override
+  Future<Map<String, dynamic>> absensiSaya({required String accessToken}) async {
+    try {
+      final resp = await _dio.get(
+        '/absensi/saya',
+        options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
+      );
+      return resp.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      _lempar(e);
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> absenMasuk({required String accessToken, String? outletId, String? catatan}) async {
+    try {
+      final resp = await _dio.post(
+        '/absensi/masuk',
+        data: {if (outletId != null) 'outlet_id': outletId, if (catatan != null) 'catatan': catatan},
+        options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
+      );
+      return resp.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      _lempar(e);
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> absenKeluar({required String accessToken, String? catatan}) async {
+    try {
+      final resp = await _dio.post(
+        '/absensi/keluar',
+        data: {if (catatan != null) 'catatan': catatan},
+        options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
+      );
+      return resp.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      _lempar(e);
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> daftarAbsensi({
+    required String accessToken,
+    required String dari,
+    required String sampai,
+    required int tzMenit,
+  }) async {
+    try {
+      final resp = await _dio.get(
+        '/absensi',
+        queryParameters: {'dari': dari, 'sampai': sampai, 'tz_menit': tzMenit},
+        options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
+      );
+      return resp.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      _lempar(e);
+    }
+  }
+
+  @override
   Future<String> uploadLogoToko({
     required String accessToken,
     required List<int> bytes,

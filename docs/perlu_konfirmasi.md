@@ -96,3 +96,13 @@ Aturan baca: **Sementara** = perilaku yang sekarang dipakai di kode. **Dampak bi
 | G3 | Kategori yang belum ada dibuat otomatis dari nama di berkas | Salah ketik menghasilkan kategori baru |
 | G4 | Dependensi baru `file_picker` (plugin native) | Perlu diuji di HP; menambah ukuran dan izin berkas aplikasi |
 | G5 | Impor produk butuh internet (langsung ke server) | Selaras pola data master lain, tapi bukan offline-first |
+
+## Tambahan 2026-11-12 (absensi)
+
+| # | Hal | Sementara |
+|---|---|---|
+| H1 | Absen tanpa foto dan tanpa lokasi (GPS) | Kolom di tabel sudah ada; IMOGI mungkin mewajibkan |
+| H2 | Tidak ada jam kerja/jadwal, jadi tidak ada status terlambat (selalu "hadir"); jadwal shift mingguan (no. 63) belum ada | Perlu aturan keterlambatan |
+| H3 | Waktu absen memakai jam server, wajib online | Absensi offline belum didukung |
+| H4 | Rekap semua karyawan untuk izin `laporan.lihat`; menu Absensi terlihat semua peran | Perlu konfirmasi izin khusus absensi |
+| H5 | **Temuan:** laporan penjualan lama (`/laporan/penjualan` dll.) menerima datetime dari klien apa adanya, belum diaudit untuk bug batas hari/zona waktu seperti yang ditemukan pada absensi | Audit terpisah |
