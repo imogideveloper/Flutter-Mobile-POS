@@ -11,12 +11,14 @@ from app.schemas.laporan import (
     LabaRugiOut,
     LaporanPiutangOut,
     LaporanShiftOut,
+    PphFinalOut,
     ProdukTerlarisOut,
+    RekapPajakOut,
     RingkasanPenjualanOut,
 )
 from app.services.fitur_service import require_fitur
 from app.services.izin_service import has_izin
-from app.services import laba_rugi_service, laporan_service
+from app.services import laba_rugi_service, laporan_service, pajak_service
 from app.services.kepemilikan import get_outlet_milik_toko
 
 router = APIRouter(prefix="/laporan", tags=["laporan"])
@@ -117,3 +119,55 @@ async def laporan_laba_rugi(
         await require_outlet_access(db, pengguna_id=pengguna_id, role_id=role_id, outlet_id=outlet_id)
     await laporan_service.pastikan_rentang_diizinkan(db, toko_id=toko_id, dari=dari, sampai=sampai)
     return await laba_rugi_service.laba_rugi(db, toko_id=toko_id, outlet_id=outlet_id, dari=dari, sampai=sampai)
+
+
+async def _validasi_laporan_keuangan(
+    db: AsyncSession,
+    *,
+    dari: datetime,
+    sampai: datetime,
+    outlet_id: uuid.UUID | None,
+    toko_id: uuid.UUID,
+    pengguna_id: uuid.UUID,
+    role_id: uuid.UUID,
+) -> None:
+    if not await has_izin(db, role_id, "laporan.lihat"):
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Tidak punya izin melihat laporan ini")
+    if sampai <= dari:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Rentang waktu tidak valid")
+    if outlet_id is not None:
+        await get_outlet_milik_toko(db, outlet_id, toko_id)
+        await require_outlet_access(db, pengguna_id=pengguna_id, role_id=role_id, outlet_id=outlet_id)
+    await laporan_service.pastikan_rentang_diizinkan(db, toko_id=toko_id, dari=dari, sampai=sampai)
+
+
+@router.get("/rekap-pajak", response_model=RekapPajakOut, dependencies=[Depends(require_fitur("tax_recap"))])
+async def laporan_rekap_pajak(
+    dari: datetime = Query(...),
+    sampai: datetime = Query(...),
+    outlet_id: uuid.UUID | None = Query(None),
+    toko_id: uuid.UUID = Depends(get_toko_id),
+    pengguna_id: uuid.UUID = Depends(get_pengguna_id),
+    role_id: uuid.UUID = Depends(get_role_id),
+    db: AsyncSession = Depends(get_db),
+) -> RekapPajakOut:
+    await _validasi_laporan_keuangan(
+        db, dari=dari, sampai=sampai, outlet_id=outlet_id, toko_id=toko_id, pengguna_id=pengguna_id, role_id=role_id
+    )
+    return await pajak_service.rekap_pajak(db, toko_id=toko_id, outlet_id=outlet_id, dari=dari, sampai=sampai)
+
+
+@router.get("/pph-final", response_model=PphFinalOut, dependencies=[Depends(require_fitur("tax_pph"))])
+async def laporan_pph_final(
+    dari: datetime = Query(...),
+    sampai: datetime = Query(...),
+    outlet_id: uuid.UUID | None = Query(None),
+    toko_id: uuid.UUID = Depends(get_toko_id),
+    pengguna_id: uuid.UUID = Depends(get_pengguna_id),
+    role_id: uuid.UUID = Depends(get_role_id),
+    db: AsyncSession = Depends(get_db),
+) -> PphFinalOut:
+    await _validasi_laporan_keuangan(
+        db, dari=dari, sampai=sampai, outlet_id=outlet_id, toko_id=toko_id, pengguna_id=pengguna_id, role_id=role_id
+    )
+    return await pajak_service.pph_final(db, toko_id=toko_id, outlet_id=outlet_id, dari=dari, sampai=sampai)

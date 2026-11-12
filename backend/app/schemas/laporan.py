@@ -91,3 +91,37 @@ class LabaRugiOut(BaseModel):
     belanja_bahan: Decimal
     pajak_dipungut: Decimal
     jumlah_transaksi: int
+
+
+class RekapPajakBarisOut(BaseModel):
+    nama: str
+    tipe: str  # "pajak" | "service"
+    persen: Decimal
+    jumlah_transaksi: int
+    total: Decimal
+
+
+class RekapPajakOut(BaseModel):
+    """Rekap pajak yang dipungut dari transaksi selesai (IMOGI no. 73). Hanya rekap, bukan
+    pelaporan SPT/PPN."""
+
+    baris: list[RekapPajakBarisOut]
+    total_pajak: Decimal
+    total_service: Decimal
+    jumlah_transaksi: int
+
+
+class PphFinalBulanOut(BaseModel):
+    bulan: str  # "2026-11"
+    omzet: Decimal
+    pph: Decimal
+
+
+class PphFinalOut(BaseModel):
+    """Estimasi PPh Final UMKM (IMOGI no. 70): tarif x peredaran bruto. Hanya estimasi untuk
+    dasar pencatatan; ambang bebas pajak dan status wajib pajak tidak dihitung."""
+
+    tarif_persen: Decimal
+    omzet: Decimal
+    pph_terutang: Decimal
+    per_bulan: list[PphFinalBulanOut]

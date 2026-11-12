@@ -108,6 +108,19 @@ abstract class BackendApi {
     required String sampai,
   });
 
+  /// Rekap pajak PPN/PB1 dan service (IMOGI no. 73) serta estimasi PPh Final (no. 70). Format rentang sama.
+  Future<Map<String, dynamic>> laporanRekapPajak({
+    required String accessToken,
+    required String dari,
+    required String sampai,
+  });
+
+  Future<Map<String, dynamic>> laporanPphFinal({
+    required String accessToken,
+    required String dari,
+    required String sampai,
+  });
+
   /// Upload logo toko (tahap 4 bagian B.2) - [namaFile] dipakai server utk
   /// sniffing ekstensi dari isi file (magic bytes), bukan dari nama file
   /// ini (nama ini cuma label utk Content-Disposition multipart).

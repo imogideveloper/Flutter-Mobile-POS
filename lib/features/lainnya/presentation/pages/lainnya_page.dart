@@ -252,6 +252,17 @@ class LainnyaPage extends ConsumerWidget {
                   bila(
                     'laporan.lihat',
                     FiturTerkunci(
+                      kode: 'tax_recap',
+                      child: SettingsMenuRow(
+                        label: 'Rekap pajak',
+                        value: 'PPN / PPh',
+                        onTap: () => context.push('/rekap-pajak'),
+                      ),
+                    ),
+                  ),
+                  bila(
+                    'laporan.lihat',
+                    FiturTerkunci(
                       kode: 'profit_loss',
                       child: SettingsMenuRow(
                         label: 'Laba rugi',

@@ -94,6 +94,8 @@ _FITUR = [
     ("harga_grosir", "Harga grosir", "produk", 2),
     ("expenses", "Catat pengeluaran & biaya operasional", "akuntansi", 1),
     ("profit_loss", "Laporan laba rugi", "akuntansi", 2),
+    ("tax_recap", "Rekap pajak PPN & PB1", "akuntansi", 2),
+    ("tax_pph", "Rekap pajak PPh Final UMKM (0,5%)", "akuntansi", 2),
 ]
 
 _PAKET = [("Gratis", 0), ("Pro", 1), ("Bisnis", 2)]

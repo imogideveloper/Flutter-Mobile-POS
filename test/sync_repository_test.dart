@@ -19,6 +19,12 @@ import 'package:flutter_test/flutter_test.dart';
 class _FakeBackendApi implements BackendApi {
   // Pengeluaran tidak ikut sync (langsung ke server); tidak dipakai di tes ini.
   @override
+  Future<Map<String, dynamic>> laporanRekapPajak({required String accessToken, required String dari, required String sampai}) =>
+      throw UnimplementedError();
+  @override
+  Future<Map<String, dynamic>> laporanPphFinal({required String accessToken, required String dari, required String sampai}) =>
+      throw UnimplementedError();
+  @override
   Future<Map<String, dynamic>> laporanLabaRugi({required String accessToken, required String dari, required String sampai}) =>
       throw UnimplementedError();
   @override
