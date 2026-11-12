@@ -197,3 +197,5 @@ Usulan saya berdasarkan jumlah jenis usaha F&B yang menganggapnya inti dan keter
 
 
 **KEMAJUAN 2026-11-12 (no. 26 Status pesanan):** estimasi selesai pesanan. Lama pengerjaan bawaan per outlet (menit, 0 = mati) diatur di Pengaturan struk (migrasi 0014, kolom `pengaturan_outlet.estimasi_menit`, ikut sync pull). Halaman Status Pesanan menampilkan "Estimasi selesai HH:mm" (waktu dibuat + menit) selama pesanan Baru/Diproses, dan "Terlambat N mnt" bila lewat. Pengisian > 0 digerbang fitur `status_pesanan`. Belum ada: estimasi per produk (hanya satu angka per outlet), pesan WhatsApp saat siap, dan uji di HP.
+
+**KEMAJUAN 2026-11-12 (no. 26 Status pesanan, lanjutan):** tombol "Kabari pelanggan (WhatsApp)" di kartu Status Pesanan saat pesanan Siap, hanya bila pesanan punya pelanggan bernomor HP. Membuka WhatsApp dengan pesan siap (nama pelanggan, nomor antrian, nama toko; kalimat berbeda untuk pesanan antar); kasir mengirim sendiri, bukan pengiriman otomatis. Belum ada: pengiriman otomatis lewat WhatsApp API, pengaturan templat pesan, dan uji di HP (WhatsApp harus terpasang; bila gagal dibuka, jatuh ke menu bagikan).

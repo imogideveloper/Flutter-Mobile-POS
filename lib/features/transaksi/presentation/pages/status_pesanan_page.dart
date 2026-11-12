@@ -14,6 +14,11 @@ import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../domain/alur_status_pesanan.dart';
 import '../../domain/estimasi_pesanan.dart';
+import '../../domain/pesan_pesanan_siap.dart';
+import '../../../../core/providers/toko_profile_provider.dart';
+import '../../../../core/struk/kirim_whatsapp_helper.dart';
+import '../../../pelanggan/presentation/providers/pelanggan_providers.dart';
+import '../../data/local/tables/transaksi_table.dart' show StatusPesanan;
 import '../../domain/pesanan_status.dart';
 import '../providers/status_pesanan_providers.dart';
 import '../providers/harga_keranjang_provider.dart' show pengaturanOutletProvider;
@@ -149,6 +154,8 @@ class StatusPesananPage extends ConsumerWidget {
                   ),
                 ),
               ),
+            if (p.status == StatusPesanan.siap && p.pelangganId != null)
+              _TombolKabariPelanggan(pesanan: p),
             if (berikut != null) ...[
               const SizedBox(height: AppSpacing.sm),
               SizedBox(
@@ -166,3 +173,45 @@ class StatusPesananPage extends ConsumerWidget {
     );
   }
 }
+
+/// Tombol "Kabari pelanggan" (WhatsApp) saat pesanan Siap. Hanya tampil bila pelanggan pesanan
+/// ini punya nomor HP; pesan dibuka di WhatsApp dan dikirim manual oleh kasir.
+class _TombolKabariPelanggan extends ConsumerWidget {
+  const _TombolKabariPelanggan({required this.pesanan});
+
+  final PesananStatus pesanan;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final pelanggan = ref.watch(_pelangganPesananProvider(pesanan.pelangganId!)).value;
+    final noHp = pelanggan?.noHp;
+    if (noHp == null || noHp.trim().isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.sm),
+      child: SizedBox(
+        width: double.infinity,
+        child: OutlinedButton.icon(
+          key: Key('statusPesanan.kabari.${pesanan.id}'),
+          icon: const Icon(Icons.chat_outlined, size: 18),
+          label: const Text('Kabari pelanggan (WhatsApp)'),
+          onPressed: () async {
+            final namaToko = (await ref.read(tokoProfileProvider.future))?.namaToko;
+            await kirimStrukWhatsApp(
+              noHpPelanggan: noHp,
+              teks: pesanPesananSiap(
+                judul: pesanan.judul,
+                antar: pesanan.antar,
+                namaPelanggan: pelanggan?.nama,
+                namaToko: namaToko,
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+final _pelangganPesananProvider = FutureProvider.family((ref, String id) {
+  return ref.watch(pelangganDaoProvider).pelangganById(id);
+});

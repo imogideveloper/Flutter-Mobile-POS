@@ -144,3 +144,10 @@ Lihat ringkasan pada laporan sesi; semua tes otomatis relevan lulus.
 - **Tes perangkat:** belum. **Batas:** satu angka per outlet, bukan per produk; bukan "bukti" Done.
 - **Catatan proses:** `dart format` sempat memformat ulang puluhan berkas yang tidak saya ubah; sudah dibatalkan sebelum commit (diff hanya perubahan fitur).
 - **Next action:** di HP (paket Enterprise/Bisnis) isi estimasi 15 menit di Pengaturan struk, buat pesanan, cek Status Pesanan (jam estimasi, lalu "Terlambat" setelah lewat).
+
+### FEAT no. 26 (Status pesanan), pesan WhatsApp saat siap
+- **Catatan alur:** fitur baru tanpa TASK/FEAT/TC terpisah di workbook (ID belum ditetapkan lead/QA).
+- **Perubahan:** `pesan_pesanan_siap.dart` (teks murni), tombol di `status_pesanan_page.dart` memakai `kirimStrukWhatsApp` yang sudah ada. Tombol tampil hanya saat status Siap dan pelanggan punya nomor HP; tanpa pelanggan atau tanpa nomor, tidak tampil.
+- **Tes otomatis:** `pesan_pesanan_siap_test.dart` (3) dan `status_pesanan_test.dart` (+2 widget). Seluruh 304 tes Flutter lulus. Pembukaan WhatsApp sungguhan tidak diuji otomatis.
+- **Temuan di sela pekerjaan (belum diperbaiki, di luar lingkup):** `StrukPage._kirimWhatsApp` memanggil `kirimStrukWhatsApp(teks: teks)` tanpa `noHpPelanggan`, jadi "Kirim WhatsApp" di struk selalu memakai menu bagikan walau pelanggan punya nomor HP, padahal dokumentasi helper menyebut nomor dipakai langsung. Perlu keputusan apakah ini disengaja.
+- **Tes perangkat:** belum. Next action: di HP buat pesanan dengan pelanggan bernomor HP, majukan sampai Siap, ketuk tombol, pastikan WhatsApp terbuka ke nomor itu dengan pesan benar.

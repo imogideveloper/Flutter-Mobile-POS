@@ -29,7 +29,8 @@ void main() {
         ]),
       );
 
-  Future<dynamic> bayar({StatusPesanan? statusAwal, String outletId = 'o1'}) => repo.checkout(
+  Future<dynamic> bayar({StatusPesanan? statusAwal, String outletId = 'o1', String? pelangganId}) => repo.checkout(
+        pelangganId: pelangganId,
         tokoId: 't1',
         outletId: outletId,
         shiftId: 's1',
@@ -210,6 +211,43 @@ void main() {
       await tester.tap(find.byKey(Key('statusPesanan.maju.$id'))); // Siap: hilang
       await tester.pumpAndSettle();
       expect(find.byKey(Key('statusPesanan.estimasi.$id')), findsNothing);
+      await tutup(tester);
+    });
+
+    Future<void> pelanggan(String id, {String? noHp}) => db.pelangganDao.upsertPelanggan(PelangganCompanion.insert(
+          id: id,
+          tokoId: 'toko-default',
+          nama: 'Sari',
+          noHp: Value(noHp),
+          createdAt: 0,
+          updatedAt: 0,
+        ));
+
+    testWidgets('tombol Kabari pelanggan hanya muncul saat Siap dan pelanggan punya nomor HP', (tester) async {
+      await pelanggan('pl-hp', noHp: '081234567890');
+      final h = await bayar(statusAwal: StatusPesanan.baru, outletId: 'outlet-default', pelangganId: 'pl-hp');
+      final id = h.id as String;
+      await buka(tester);
+
+      expect(find.byKey(Key('statusPesanan.kabari.$id')), findsNothing, reason: 'belum Siap');
+      await tester.tap(find.byKey(Key('statusPesanan.maju.$id')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(Key('statusPesanan.maju.$id')));
+      await tester.pumpAndSettle();
+      expect(find.text('Siap'), findsOneWidget);
+      expect(find.byKey(Key('statusPesanan.kabari.$id')), findsOneWidget);
+      await tutup(tester);
+    });
+
+    testWidgets('tombol Kabari pelanggan tidak muncul bila pelanggan tanpa nomor HP atau tanpa pelanggan', (tester) async {
+      await pelanggan('pl-nohp');
+      final a = await bayar(statusAwal: StatusPesanan.siap, outletId: 'outlet-default', pelangganId: 'pl-nohp');
+      final b = await bayar(statusAwal: StatusPesanan.siap, outletId: 'outlet-default');
+      await buka(tester);
+
+      expect(find.text('Siap'), findsNWidgets(2));
+      expect(find.byKey(Key('statusPesanan.kabari.${a.id}')), findsNothing);
+      expect(find.byKey(Key('statusPesanan.kabari.${b.id}')), findsNothing);
       await tutup(tester);
     });
   });
