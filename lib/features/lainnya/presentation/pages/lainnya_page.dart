@@ -250,6 +250,17 @@ class LainnyaPage extends ConsumerWidget {
                     ),
                   ),
                   bila(
+                    'laporan.lihat',
+                    FiturTerkunci(
+                      kode: 'expenses',
+                      child: SettingsMenuRow(
+                        label: 'Pengeluaran',
+                        value: 'Catat biaya',
+                        onTap: () => context.push('/pengeluaran'),
+                      ),
+                    ),
+                  ),
+                  bila(
                     'stok.kelola',
                     SettingsMenuRow(
                       label: 'Stok',

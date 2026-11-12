@@ -92,6 +92,7 @@ _FITUR = [
     ("bundling", "Kelola bundling produk", "produk", 2),
     ("pengingat_kedaluwarsa", "Pengingat kedaluwarsa produk", "stok", 2),
     ("harga_grosir", "Harga grosir", "produk", 2),
+    ("expenses", "Catat pengeluaran & biaya operasional", "akuntansi", 1),
 ]
 
 _PAKET = [("Gratis", 0), ("Pro", 1), ("Bisnis", 2)]

@@ -17,6 +17,17 @@ import 'package:flutter_test/flutter_test.dart';
 /// kontrak /sync/push dan /sync/pull persis spt backend/app/services/
 /// sync_service.py (lihat juga dio_backend_api.dart utk pemetaan field).
 class _FakeBackendApi implements BackendApi {
+  // Pengeluaran tidak ikut sync (langsung ke server); tidak dipakai di tes ini.
+  @override
+  Future<Map<String, dynamic>> daftarPengeluaran({required String accessToken, required String dari, required String sampai}) =>
+      throw UnimplementedError();
+  @override
+  Future<Map<String, dynamic>> catatPengeluaran({required String accessToken, required Map<String, dynamic> body}) =>
+      throw UnimplementedError();
+  @override
+  Future<void> hapusPengeluaran({required String accessToken, required String pengeluaranId}) =>
+      throw UnimplementedError();
+
   List<Map<String, dynamic>> transaksiDiterima = [];
   List<Map<String, dynamic>> pembayaranDiterima = [];
   List<Map<String, dynamic>> pesananBatalDiterima = [];

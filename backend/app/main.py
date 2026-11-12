@@ -16,6 +16,7 @@ from app.routers import (
     payment_xendit,
     pelanggan,
     pembelian,
+    pengeluaran,
     pengguna,
     penjualan_setup,
     pesanan_tersimpan,
@@ -59,6 +60,7 @@ app.include_router(laporan.router)
 app.include_router(fitur.router)
 app.include_router(order.router)
 app.include_router(pembelian.router)
+app.include_router(pengeluaran.router)
 app.include_router(stok_opname.router)
 app.include_router(transfer_stok.router)
 app.include_router(audit.router)

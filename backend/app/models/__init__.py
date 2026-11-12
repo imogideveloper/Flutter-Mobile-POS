@@ -9,6 +9,7 @@ from . import (  # noqa: F401
     ops,
     order,
     outlet,
+    pengeluaran,
     pelanggan,
     platform,
     produk,

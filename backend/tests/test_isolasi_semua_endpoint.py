@@ -28,6 +28,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.main import app
+from app.models.pengeluaran import Pengeluaran
 from app.models.order import Meja, TipeOrder
 from app.models.outlet import Outlet, Paket, PermintaanUpgrade
 from app.models.pelanggan import LevelMember
@@ -125,6 +126,13 @@ async def _siapkan_satu_toko(client: AsyncClient, db: AsyncSession, toko, label:
     db.add(harga_grosir)
     await db.commit()
     ids["harga_grosir_id"] = harga_grosir.id
+
+    pengeluaran = Pengeluaran(
+        toko_id=toko.toko.id, tanggal=date(2026, 11, 12), kategori="lainnya", jumlah=Decimal("1000")
+    )
+    db.add(pengeluaran)
+    await db.commit()
+    ids["pengeluaran_id"] = pengeluaran.id
 
     harga_outlet = HargaOutlet(produk_id=produk.id, outlet_id=toko.outlet.id, harga_jual=Decimal("1000"))
     db.add(harga_outlet)

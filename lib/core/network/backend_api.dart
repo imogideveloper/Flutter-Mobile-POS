@@ -87,6 +87,20 @@ abstract class BackendApi {
     required Map<String, dynamic> body,
   });
 
+  /// Pengeluaran & biaya operasional (IMOGI no. 67). Langsung ke server (online), digerbang fitur `expenses`.
+  Future<Map<String, dynamic>> daftarPengeluaran({
+    required String accessToken,
+    required String dari,
+    required String sampai,
+  });
+
+  Future<Map<String, dynamic>> catatPengeluaran({
+    required String accessToken,
+    required Map<String, dynamic> body,
+  });
+
+  Future<void> hapusPengeluaran({required String accessToken, required String pengeluaranId});
+
   /// Upload logo toko (tahap 4 bagian B.2) - [namaFile] dipakai server utk
   /// sniffing ekstensi dari isi file (magic bytes), bukan dari nama file
   /// ini (nama ini cuma label utk Content-Disposition multipart).
