@@ -344,6 +344,17 @@ class LainnyaPage extends ConsumerWidget {
                   ),
                   bila(
                     'produk.kelola',
+                    FiturTerkunci(
+                      kode: 'ekspor_impor',
+                      child: SettingsMenuRow(
+                        label: 'Impor & ekspor produk',
+                        value: 'CSV',
+                        onTap: () => context.push('/impor-produk'),
+                      ),
+                    ),
+                  ),
+                  bila(
+                    'produk.kelola',
                     SettingsMenuRow(
                       label: 'Varian & tambahan',
                       value: 'Atur',

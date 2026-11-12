@@ -21,6 +21,7 @@ import '../../features/produk/domain/kategori.dart';
 import '../../features/produk/domain/produk.dart';
 import '../../features/produk/presentation/pages/kategori_form_page.dart';
 import '../../features/produk/presentation/pages/grup_tambahan_page.dart';
+import '../../features/produk/presentation/pages/impor_ekspor_produk_page.dart';
 import '../../features/produk/presentation/pages/kategori_list_page.dart';
 import '../../features/produk/presentation/pages/produk_form_page.dart';
 import '../../features/produk/presentation/pages/produk_list_page.dart';
@@ -299,6 +300,10 @@ GoRouter _buildRouter() => GoRouter(
           ),
         ),
       ],
+    ),
+    GoRoute(
+      path: '/impor-produk',
+      builder: (context, state) => const IzinGuard(kodeIzin: 'produk.kelola', child: ImporEksporProdukPage()),
     ),
     GoRoute(
       path: '/grup-tambahan',

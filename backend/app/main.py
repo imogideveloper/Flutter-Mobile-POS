@@ -21,6 +21,7 @@ from app.routers import (
     penjualan_setup,
     pesanan_tersimpan,
     produk,
+    produk_impor,
     produk_lanjutan,
     shift,
     stok_opname,
@@ -44,6 +45,7 @@ app.include_router(auth.router)
 app.include_router(toko.router)
 app.include_router(outlet.router)
 app.include_router(produk.router)
+app.include_router(produk_impor.router)
 app.include_router(produk_lanjutan.router)
 app.include_router(pelanggan.router)
 app.include_router(pengguna.router)

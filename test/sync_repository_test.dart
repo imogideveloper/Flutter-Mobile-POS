@@ -25,6 +25,9 @@ class _FakeBackendApi implements BackendApi {
   Future<Map<String, dynamic>> laporanPphFinal({required String accessToken, required String dari, required String sampai}) =>
       throw UnimplementedError();
   @override
+  Future<Map<String, dynamic>> imporProduk({required String accessToken, required List<Map<String, dynamic>> baris, required bool simulasi}) =>
+      throw UnimplementedError();
+  @override
   Future<Map<String, dynamic>> laporanLabaRugi({required String accessToken, required String dari, required String sampai}) =>
       throw UnimplementedError();
   @override

@@ -476,6 +476,24 @@ class DioBackendApi implements BackendApi {
   }
 
   @override
+  Future<Map<String, dynamic>> imporProduk({
+    required String accessToken,
+    required List<Map<String, dynamic>> baris,
+    required bool simulasi,
+  }) async {
+    try {
+      final resp = await _dio.post(
+        '/produk/impor',
+        data: {'baris': baris, 'simulasi': simulasi},
+        options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
+      );
+      return resp.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      _lempar(e);
+    }
+  }
+
+  @override
   Future<String> uploadLogoToko({
     required String accessToken,
     required List<int> bytes,

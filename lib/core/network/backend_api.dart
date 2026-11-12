@@ -121,6 +121,13 @@ abstract class BackendApi {
     required String sampai,
   });
 
+  /// Impor produk massal dari CSV (IMOGI no. 38). [simulasi] true = hanya memeriksa, tidak menyimpan.
+  Future<Map<String, dynamic>> imporProduk({
+    required String accessToken,
+    required List<Map<String, dynamic>> baris,
+    required bool simulasi,
+  });
+
   /// Upload logo toko (tahap 4 bagian B.2) - [namaFile] dipakai server utk
   /// sniffing ekstensi dari isi file (magic bytes), bukan dari nama file
   /// ini (nama ini cuma label utk Content-Disposition multipart).

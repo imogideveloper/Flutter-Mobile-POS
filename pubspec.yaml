@@ -60,6 +60,7 @@ dependencies:
   # Sync & konektivitas
   workmanager: ^0.10.10
   connectivity_plus: ^7.3.2
+  file_picker: ^13.3.3
 
 dev_dependencies:
   flutter_test:

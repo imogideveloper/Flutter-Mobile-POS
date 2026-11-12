@@ -84,3 +84,15 @@ Aturan baca: **Sementara** = perilaku yang sekarang dipakai di kode. **Dampak bi
 1. Bawa bagian A, B, C, D ke lead; E ke QA/PM; F untuk perencanaan.
 2. Saat dijawab, ubah kolom "Sementara" menjadi keputusan resmi (tanggal dan siapa yang memutuskan) dan sesuaikan kode.
 3. Jangan hapus baris; tandai **Diputuskan** supaya riwayatnya tetap ada.
+
+---
+
+## Tambahan 2026-11-12 (impor dan ekspor produk)
+
+| # | Hal | Sementara |
+|---|---|---|
+| G1 | Format impor CSV, bukan .xlsx | Mendukung .xlsx butuh paket tambahan |
+| G2 | Impor hanya menambah; SKU/barcode ganda ditolak, tidak memperbarui produk lama | Perlu keputusan apakah "perbarui bila SKU sama" dibutuhkan |
+| G3 | Kategori yang belum ada dibuat otomatis dari nama di berkas | Salah ketik menghasilkan kategori baru |
+| G4 | Dependensi baru `file_picker` (plugin native) | Perlu diuji di HP; menambah ukuran dan izin berkas aplikasi |
+| G5 | Impor produk butuh internet (langsung ke server) | Selaras pola data master lain, tapi bukan offline-first |
