@@ -11,6 +11,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_toast.dart';
+import '../../../../core/widgets/fitur_terkunci.dart';
 import '../../../../core/widgets/offline_notice_banner.dart';
 import '../../../produk/domain/produk.dart';
 import '../../../produk/presentation/providers/produk_providers.dart';
@@ -45,6 +46,7 @@ class _PromoFormPageState extends ConsumerState<PromoFormPage> {
   late PromoTipe _tipe = widget.promoEdit?.tipe ?? PromoTipe.persen;
   late PromoCakupan _cakupan = widget.promoEdit?.cakupan ?? PromoCakupan.transaksi;
   late bool _aktif = widget.promoEdit?.aktif ?? true;
+  late bool _khususUlangTahun = widget.promoEdit?.khususUlangTahun ?? false;
   bool _menyimpan = false;
   bool _menghapus = false;
   String? _errorServer;
@@ -138,6 +140,7 @@ class _PromoFormPageState extends ConsumerState<PromoFormPage> {
         'min_belanja': _minBelanjaController.text.trim().isEmpty ? '0' : _minBelanjaController.text.trim(),
         'maks_diskon': _maksDiskonController.text.trim().isEmpty ? null : _maksDiskonController.text.trim(),
         if (_modeEdit) 'aktif': _aktif,
+        'khusus_ulang_tahun': _khususUlangTahun,
       };
       final Map<String, dynamic> hasil;
       if (_modeEdit) {
@@ -169,6 +172,7 @@ class _PromoFormPageState extends ConsumerState<PromoFormPage> {
               hasil['maks_diskon'] == null ? null : double.parse(hasil['maks_diskon'].toString()).round(),
             ),
             aktif: Value(hasil['aktif'] as bool),
+            khususUlangTahun: Value((hasil['khusus_ulang_tahun'] as bool?) ?? false),
             createdAt: now,
             updatedAt: now,
           ));
@@ -316,6 +320,21 @@ class _PromoFormPageState extends ConsumerState<PromoFormPage> {
                     if (int.tryParse(value.trim()) == null) return 'Harus berupa angka';
                     return null;
                   },
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                FiturTerkunci(
+                  kode: 'birthday_promo',
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: SwitchListTile(
+                      key: const Key('promoForm.khususUlangTahun'),
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('Khusus ulang tahun pelanggan'),
+                      subtitle: const Text('Hanya bisa dipilih kasir untuk pelanggan yang berulang tahun hari ini'),
+                      value: _khususUlangTahun,
+                      onChanged: (value) => setState(() => _khususUlangTahun = value),
+                    ),
+                  ),
                 ),
                 if (_modeEdit) ...[
                   const SizedBox(height: AppSpacing.lg),

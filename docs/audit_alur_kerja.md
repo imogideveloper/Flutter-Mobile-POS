@@ -238,3 +238,11 @@ Diverifikasi langsung dari tabel `fitur_kebutuhan` di database (hasil migrasi 00
 - **Tes otomatis:** backend `test_pengaturan_struk.py` (+1, 16 lulus); Flutter `margin_produk_test.dart` (6) dan `margin_rendah_list_test.dart` (4). Seluruh 366 tes Flutter lulus.
 - **Workbook:** FEAT-071 menjadi In Progress; TC-089 sampai TC-091 ditambahkan (Not Tested); Gap Imogi no. 37 diperbarui.
 - **Tes perangkat:** belum. Next action: di HP (login Owner) buat produk harga 10.000 HPP 7.000; cek lencana "Margin rendah 30% (batas 50%)", filter, dan ubah batas menjadi 25 di Pengaturan struk.
+
+### FEAT-073 (IMOGI no. 56 Promo ulang tahun), tahap pertama
+- **Catatan prioritas:** fitur ini berstatus Future Release; dikerjakan karena permintaan melanjutkan fitur inti kafe yang belum ada, sebelum scope dikonfirmasi lead (lihat H2).
+- **Rantai yang diperbaiki:** `tanggal_lahir` ada di server tetapi tidak pernah turun ke HP (sync pull tidak membawanya) dan tidak ada isian di form pelanggan maupun skema API pelanggan; kini lengkap dari form, API, impor CSV, sync, sampai penyimpanan di HP (yyyymmdd).
+- **Perubahan:** backend `promo.khusus_ulang_tahun` (migrasi 0017, gerbang `birthday_promo` hanya saat berubah menjadi aktif), `tanggal_lahir` di skema pelanggan, sync pull promo dan pelanggan; Flutter kolom drift (skema 14), `ulang_tahun.dart` (fungsi murni), saklar di form promo, pemilih tanggal lahir di form pelanggan, penjaga di `keranjangPromoProvider` (titik tunggal semua jalur bayar), pemilih promo yang menonaktifkan promo ulang tahun bila tidak memenuhi syarat, penanda di daftar pelanggan. **Perhitungan harga tidak diubah.**
+- **Tes otomatis:** backend `test_promo_ulang_tahun.py` (5); Flutter `ulang_tahun_test.dart` (6), `promo_ulang_tahun_keranjang_test.dart` (4), `pelanggan_ulang_tahun_list_test.dart` (1), tambahan di `sync_repository_test`, `promo_form_flow_test`, `pelanggan_form_flow_test`. Seluruh 381 tes Flutter lulus.
+- **Catatan tes:** dua tes form lama gagal sementara karena tombol Simpan terdorong keluar layar tes oleh isian baru; layar tes dibesarkan, perilaku tidak berubah.
+- **Workbook:** FEAT-073 menjadi In Progress; TC-092 sampai TC-094 (Not Tested); Gap Imogi no. 56 menjadi Sebagian (Gap Imogi kini 15 / 33 / 16 / 23).

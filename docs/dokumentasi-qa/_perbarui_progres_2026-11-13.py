@@ -9,6 +9,7 @@ Jalankan: python _perbarui_progres_2026-11-13.py <Tracker.xlsx> <QA.xlsx> <UAT.x
 Idempoten: dijalankan dua kali tidak menggandakan baris atau catatan.
 """
 import copy
+import re
 import sys
 
 import openpyxl
@@ -55,6 +56,7 @@ def salin_gaya(ws, dari_baris, ke_baris):
 # ----------------------------------------------------------------------------- tracker
 GAP = {
     37: "SEBAGIAN (2026-11-13): penanda margin rendah di form dan daftar produk (filter Margin rendah, lencana, peringatan di form) dengan batas per outlet di Pengaturan struk (bawaan 50% untuk F&B, migrasi 0016); HPP kosong ditandai tersendiri. Hak akses lihat harga beli mengikuti izin produk.kelola (belum ada izin khusus). Lulus tes otomatis, belum diuji di HP.",
+    56: "SEBAGIAN (2026-11-13): promo bisa ditandai Khusus ulang tahun (gerbang paket birthday_promo, migrasi 0017); tanggal lahir pelanggan bisa diisi di form, ikut impor CSV, dan kini ikut sync ke HP (disimpan yyyymmdd); di keranjang promo itu hanya bisa dipilih bila pelanggan berulang tahun hari ini, dicabut otomatis bila pelanggan diganti; daftar pelanggan menandai yang berulang tahun hari ini. Belum: pemberitahuan otomatis ke pelanggan, penerapan otomatis tanpa dipilih kasir, validasi di server saat checkout, rentang hari (mis. seminggu). Belum diuji di HP.",
     # No IMOGI: teks temuan baru (status berubah Belum ada -> Sebagian)
     38: "SEBAGIAN (2026-11-12): Lainnya > Impor & ekspor produk: template CSV, pratinjau, simulasi dan impor (maks 500 baris) lewat POST /produk/impor. Belum: .xlsx, memperbarui produk lama, varian, stok awal, gambar. Plugin file_picker baru; lulus tes otomatis, belum diuji di HP.",
     39: "SEBAGIAN (2026-11-12): ekspor seluruh produk HP ke CSV lewat menu bagikan. Lulus tes otomatis, belum diuji di HP.",
@@ -68,6 +70,7 @@ GAP = {
 
 # Feature ID -> (catatan, TC terkait yang ditambahkan, status baru atau None)
 FEAT = {
+    "FEAT-073": ("Promo ulang tahun (IMOGI no. 56): tahap pertama selesai di kode (penanda pada promo, tanggal lahir pelanggan ikut sync, promo hanya bisa dipilih saat pelanggan berulang tahun hari ini). Belum divalidasi di server saat checkout dan tidak otomatis. Lulus tes otomatis; belum diuji di HP.", ["TC-092", "TC-093", "TC-094"], "In Progress"),
     "FEAT-071": ("Harga beli & margin (IMOGI no. 37): penanda margin di bawah batas per outlet (bawaan 50%, Pengaturan struk), filter dan lencana di daftar produk, peringatan di form; HPP kosong ditandai. Hak akses lihat harga beli mengikuti izin produk.kelola (keputusan sementara, docs/perlu_konfirmasi.md J1). Lulus tes otomatis; belum diuji di HP.", ["TC-089", "TC-090", "TC-091"], "In Progress"),
     "FEAT-076": ("Pengeluaran & biaya operasional: tahap pertama selesai di kode (online-only, 9 kategori, izin laporan.lihat). Lulus tes otomatis; belum diuji di HP.", ["TC-070", "TC-071", "TC-072"], "In Progress"),
     "FEAT-077": ("Laporan laba rugi: tahap pertama selesai di kode (rumus sementara, perlu validasi akuntan). Lulus tes otomatis; belum diuji di HP.", ["TC-073", "TC-074"], "In Progress"),
@@ -228,6 +231,19 @@ TC_BARU = [
      "Produk harga 3.000 tanpa HPP.", "1. Buka tab Produk", "-", "Tampil HPP belum diisi; produk tidak masuk filter Margin rendah.", L, "Negative"),
 ]
 
+TC_BARU += [
+    ("TC-092", "FEAT-073", "Pelanggan", "Tanggal lahir pelanggan tersimpan dan ikut sync", "Tanggal lahir diisi di form dan tetap ada setelah sync.",
+     "Login Owner; internet aktif.", "1. Menu Pelanggan > edit pelanggan > Pilih tanggal lahir > Simpan\n2. Lainnya > Sync\n3. Buka ulang pelanggan itu", "Tanggal lahir hari ini (bulan dan tanggal)",
+     "Tanggal lahir tampil kembali dengan benar; pelanggan itu ditandai Ulang tahun hari ini di daftar.", M, "Functional"),
+    ("TC-093", "FEAT-073", "Pelanggan", "Promo ulang tahun hanya bisa dipilih saat pelanggan berulang tahun", "Kasir memilih promo ulang tahun untuk pelanggan yang berulang tahun hari ini.",
+     "Paket Professional ke atas; promo ditandai Khusus ulang tahun; pelanggan A berulang tahun hari ini, pelanggan B tidak.",
+     "1. Buat keranjang, pilih pelanggan A, buka Promo\n2. Pilih Diskon Ulang Tahun, lanjut bayar\n3. Ulangi dengan pelanggan B", "-",
+     "Untuk A promo bisa dipilih dan diskon terpotong di total; untuk B promo tampak nonaktif dengan keterangan hanya untuk yang berulang tahun.", H, "Functional"),
+    ("TC-094", "FEAT-073", "Pelanggan", "Promo ulang tahun dicabut bila pelanggan diganti dan terkunci di paket bawah", "Penjaga promo dan gerbang paket bekerja.",
+     "Keranjang berisi promo ulang tahun untuk pelanggan A; paket Pro untuk uji gerbang.", "1. Ganti pelanggan A dengan B\n2. Lihat total\n3. Di paket Pro, buat promo dan nyalakan Khusus ulang tahun", "-",
+     "Promo hilang dari total saat pelanggan diganti; di paket Pro server menolak dengan pesan fitur terkunci.", M, "Negative"),
+]
+
 NOTE_TC = "Diusulkan 2026-11-13 dari cara uji fitur; fitur lulus tes otomatis tetapi belum dijalankan di HP. ID berurutan; QA/lead boleh menyesuaikan."
 
 
@@ -259,12 +275,12 @@ def perbarui_qa(path):
 
     ws = wb["Instructions"]
     for r in range(1, ws.max_row + 1):
-        if ws.cell(r, 1).value == "Test Case" and "TC-088" in str(ws.cell(r, 2).value) and "TC-091" not in str(ws.cell(r, 2).value):
+        if ws.cell(r, 1).value == "Test Case" and re.search(r"TC-070 sampai TC-0\d\d", str(ws.cell(r, 2).value)):
             # Perluas rentang pada kalimat yang sudah ada (jangan menambah kalimat kedua).
-            ws.cell(r, 2).value = str(ws.cell(r, 2).value).replace("TC-070 sampai TC-088", "TC-070 sampai TC-091")
-        elif ws.cell(r, 1).value == "Test Case" and "TC-091" not in str(ws.cell(r, 2).value):
+            ws.cell(r, 2).value = re.sub(r"TC-070 sampai TC-0\d\d", "TC-070 sampai TC-094", str(ws.cell(r, 2).value))
+        elif ws.cell(r, 1).value == "Test Case" and "TC-094" not in str(ws.cell(r, 2).value):
             ws.cell(r, 2).value = str(ws.cell(r, 2).value) + (
-                " TC-070 sampai TC-091 ditambahkan 2026-11-13 (diusulkan, Not Tested) untuk fitur baru: pengeluaran, laba rugi, "
+                " TC-070 sampai TC-094 ditambahkan 2026-11-13 (diusulkan, Not Tested) untuk fitur baru: pengeluaran, laba rugi, "
                 "rekap pajak, impor/ekspor produk, impor pelanggan, absensi, estimasi dan WhatsApp status pesanan, hak akses menu. "
                 "Belum ada yang dijalankan di HP."
             )

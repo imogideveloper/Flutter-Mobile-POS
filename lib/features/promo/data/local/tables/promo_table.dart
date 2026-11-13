@@ -23,6 +23,8 @@ class Promo extends Table {
   IntColumn get berlakuMulai => integer().nullable()();
   IntColumn get berlakuSampai => integer().nullable()();
   BoolColumn get aktif => boolean().withDefault(const Constant(true))();
+  // Promo ulang tahun (IMOGI no. 56): hanya bisa dipilih untuk pelanggan yang berulang tahun hari ini.
+  BoolColumn get khususUlangTahun => boolean().withDefault(const Constant(false))();
   IntColumn get createdAt => integer()();
   IntColumn get updatedAt => integer()();
   IntColumn get deletedAt => integer().nullable()();

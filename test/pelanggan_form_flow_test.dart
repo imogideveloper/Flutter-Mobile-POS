@@ -49,6 +49,7 @@ class _FakeBackendApiPelanggan implements BackendApi {
       'total_belanja': '0',
       'batas_kasbon': body['batas_kasbon'],
       'catatan': body['catatan'],
+      'tanggal_lahir': body['tanggal_lahir'],
     };
   }
 
@@ -70,6 +71,7 @@ class _FakeBackendApiPelanggan implements BackendApi {
       'total_belanja': '50000',
       'batas_kasbon': body['batas_kasbon'],
       'catatan': body['catatan'],
+      'tanggal_lahir': body['tanggal_lahir'],
     };
   }
 
@@ -83,11 +85,69 @@ class _FakeBackendApiPelanggan implements BackendApi {
 }
 
 void main() {
+  Pelanggan sari({int? lahir}) => Pelanggan(
+        id: 'pelanggan-1', tokoId: 't', nama: 'Sari', poin: 0, totalBelanja: 0, tanggalLahir: lahir,
+      );
+
+  Future<void> bukaEdit(WidgetTester tester, AppDatabase db, _FakeBackendApiPelanggan fake, Pelanggan p) async {
+    tester.view.physicalSize = const Size(900, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        appDatabaseProvider.overrideWith((ref) => db),
+        authSessionStoreProvider.overrideWithValue(_FakeAuthSessionStoreTerisi()),
+        backendApiProvider.overrideWithValue(fake),
+        isOnlineProvider.overrideWith((ref) => Stream.value(true)),
+      ],
+      child: MaterialApp(home: PelangganFormPage(pelangganEdit: p)),
+    ));
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('tanggal lahir tersimpan dikirim sebagai ISO dan tersimpan di HP sebagai yyyymmdd', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final fake = _FakeBackendApiPelanggan();
+    await bukaEdit(tester, db, fake, sari(lahir: 19950412));
+
+    expect(find.text('Tanggal lahir: 1995-04-12'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('pelangganForm.simpan')));
+    await tester.pumpAndSettle();
+
+    expect(fake.bodyDiterima!['tanggal_lahir'], '1995-04-12');
+    expect((await db.select(db.pelanggan).get()).single.tanggalLahir, 19950412);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(milliseconds: 1));
+  });
+
+  testWidgets('tanggal lahir dapat dihapus lalu dikirim null', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final fake = _FakeBackendApiPelanggan();
+    await bukaEdit(tester, db, fake, sari(lahir: 19950412));
+
+    await tester.tap(find.byKey(const Key('pelangganForm.hapusTanggalLahir')));
+    await tester.pumpAndSettle();
+    expect(find.text('Tanggal lahir (opsional)'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('pelangganForm.simpan')));
+    await tester.pumpAndSettle();
+    expect(fake.bodyDiterima!.containsKey('tanggal_lahir'), isTrue);
+    expect(fake.bodyDiterima!['tanggal_lahir'], isNull);
+    expect((await db.select(db.pelanggan).get()).single.tanggalLahir, isNull);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(milliseconds: 1));
+  });
+
   testWidgets('tambah pelanggan baru - isi form lalu simpan terkirim ke backend', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final fakeBackend = _FakeBackendApiPelanggan();
 
+    tester.view.physicalSize = const Size(900, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
     await tester.pumpWidget(ProviderScope(
       overrides: [
         appDatabaseProvider.overrideWith((ref) => db),
@@ -118,6 +178,9 @@ void main() {
     addTearDown(db.close);
     final fakeBackend = _FakeBackendApiPelanggan();
 
+    tester.view.physicalSize = const Size(900, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
     await tester.pumpWidget(ProviderScope(
       overrides: [
         appDatabaseProvider.overrideWith((ref) => db),
@@ -144,6 +207,9 @@ void main() {
     addTearDown(db.close);
     final fakeBackend = _FakeBackendApiPelanggan();
 
+    tester.view.physicalSize = const Size(900, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
     await tester.pumpWidget(ProviderScope(
       overrides: [
         appDatabaseProvider.overrideWith((ref) => db),
@@ -178,6 +244,9 @@ void main() {
       totalBelanja: 50000,
     );
 
+    tester.view.physicalSize = const Size(900, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
     await tester.pumpWidget(ProviderScope(
       overrides: [
         appDatabaseProvider.overrideWith((ref) => db),

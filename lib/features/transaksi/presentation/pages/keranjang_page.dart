@@ -277,6 +277,7 @@ class KeranjangPage extends ConsumerWidget {
       builder: (context) => _PromoPickerSheet(
         daftar: promoAktif,
         promoIdTerpilih: ref.read(keranjangPromoIdProvider),
+        pelangganUlangTahun: ref.read(keranjangPelangganUlangTahunProvider),
       ),
     );
     ref.read(keranjangPromoIdProvider.notifier).state = dipilih;
@@ -576,10 +577,17 @@ class _RincianRow extends StatelessWidget {
 }
 
 class _PromoPickerSheet extends StatelessWidget {
-  const _PromoPickerSheet({required this.daftar, required this.promoIdTerpilih});
+  const _PromoPickerSheet({
+    required this.daftar,
+    required this.promoIdTerpilih,
+    this.pelangganUlangTahun = false,
+  });
 
   final List<Promo> daftar;
   final String? promoIdTerpilih;
+
+  /// Pelanggan di keranjang berulang tahun hari ini: promo khusus ulang tahun hanya bisa dipilih bila true.
+  final bool pelangganUlangTahun;
 
   @override
   Widget build(BuildContext context) {
@@ -612,14 +620,24 @@ class _PromoPickerSheet extends StatelessWidget {
                   itemBuilder: (context, index) {
                     final p = daftar[index];
                     final terpilih = p.id == promoIdTerpilih;
+                    final terkunciUlangTahun = p.khususUlangTahun && !pelangganUlangTahun;
                     return ListTile(
+                      key: Key('promoPicker.${p.id}'),
+                      enabled: !terkunciUlangTahun,
                       contentPadding: EdgeInsets.zero,
                       leading: Icon(
-                        terpilih ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+                        p.khususUlangTahun
+                            ? Icons.cake_outlined
+                            : (terpilih ? Icons.radio_button_checked : Icons.radio_button_unchecked),
                         color: terpilih ? AppColors.primary : AppColors.textTertiary,
                       ),
                       title: Text(_labelPromo(p)),
-                      onTap: () => Navigator.of(context).pop(p.id),
+                      subtitle: p.khususUlangTahun
+                          ? Text(terkunciUlangTahun
+                              ? 'Hanya untuk pelanggan yang berulang tahun hari ini'
+                              : 'Ulang tahun pelanggan hari ini')
+                          : null,
+                      onTap: terkunciUlangTahun ? null : () => Navigator.of(context).pop(p.id),
                     );
                   },
                 ),

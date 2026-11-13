@@ -12,6 +12,7 @@ class Promo {
     required this.minBelanja,
     this.maksDiskon,
     required this.aktif,
+    this.khususUlangTahun = false,
   });
 
   final String id;
@@ -24,4 +25,7 @@ class Promo {
   final int minBelanja;
   final int? maksDiskon;
   final bool aktif;
+
+  /// Hanya berlaku untuk pelanggan yang berulang tahun hari ini (IMOGI no. 56).
+  final bool khususUlangTahun;
 }

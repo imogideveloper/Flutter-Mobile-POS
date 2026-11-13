@@ -64,6 +64,7 @@ class _FakeBackendApiPromo implements BackendApi {
       'cakupan': body['cakupan'],
       'min_belanja': body['min_belanja'],
       'maks_diskon': body['maks_diskon'],
+      'khusus_ulang_tahun': body['khusus_ulang_tahun'],
       'aktif': true,
     };
   }
@@ -85,6 +86,7 @@ class _FakeBackendApiPromo implements BackendApi {
       'cakupan': body['cakupan'],
       'min_belanja': body['min_belanja'],
       'maks_diskon': body['maks_diskon'],
+      'khusus_ulang_tahun': body['khusus_ulang_tahun'],
       'aktif': body['aktif'],
     };
   }
@@ -122,6 +124,47 @@ void main() {
 
     final rows = await db.select(db.promo).get();
     expect(rows.single.nama, 'Promo Jumat');
+
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(milliseconds: 1));
+  });
+
+  testWidgets('saklar Khusus ulang tahun dikirim ke backend dan tersimpan di HP', (tester) async {
+    tester.view.physicalSize = const Size(900, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    // Cache fitur kosong dianggap terkunci: aktifkan fiturnya seperti paket yang memilikinya.
+    await db.fiturDao.simpanStatusFitur(
+      tokoId: 'toko-default',
+      paket: 'Bisnis',
+      kodeFiturAktif: const ['birthday_promo'],
+      batasPerKode: const {},
+      updatedAt: 0,
+    );
+    final fakeBackend = _FakeBackendApiPromo();
+
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        appDatabaseProvider.overrideWith((ref) => db),
+        authSessionStoreProvider.overrideWithValue(_FakeAuthSessionStoreTerisi()),
+        backendApiProvider.overrideWithValue(fakeBackend),
+        isOnlineProvider.overrideWith((ref) => Stream.value(true)),
+      ],
+      child: _bungkusRouter(const PromoFormPage()),
+    ));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byKey(const Key('promoForm.nama')), 'Diskon Ulang Tahun');
+    await tester.enterText(find.byKey(const Key('promoForm.nilai')), '20');
+    await tester.tap(find.byKey(const Key('promoForm.khususUlangTahun')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('promoForm.simpan')));
+    await tester.pumpAndSettle();
+
+    expect(fakeBackend.bodyDiterima!['khusus_ulang_tahun'], isTrue);
+    expect((await db.select(db.promo).get()).single.khususUlangTahun, isTrue);
 
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(milliseconds: 1));

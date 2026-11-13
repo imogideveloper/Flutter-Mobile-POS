@@ -10,6 +10,7 @@ class Pelanggan {
     required this.totalBelanja,
     this.catatan,
     this.batasKasbon,
+    this.tanggalLahir,
   });
 
   final String id;
@@ -23,6 +24,9 @@ class Pelanggan {
   final String? catatan;
   // NULL = tidak ada batas kasbon (tahap 3b-1).
   final int? batasKasbon;
+
+  /// Tanggal lahir sebagai bilangan yyyymmdd (lihat ulang_tahun.dart); null = tidak diisi.
+  final int? tanggalLahir;
 }
 
 class LevelMember {

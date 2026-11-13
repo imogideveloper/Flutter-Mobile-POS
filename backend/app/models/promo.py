@@ -42,6 +42,8 @@ class Promo(Base, UUIDPkMixin, TimestampMixin):
     berlaku_mulai: Mapped[datetime | None] = mapped_column(nullable=True)
     berlaku_sampai: Mapped[datetime | None] = mapped_column(nullable=True)
     aktif: Mapped[bool] = mapped_column(Boolean, default=True)
+    # Promo ulang tahun (IMOGI no. 56): hanya bisa dipakai untuk pelanggan yang berulang tahun hari ini.
+    khusus_ulang_tahun: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
 
 
 class PromoProduk(Base, CreatedAtOnlyMixin):

@@ -11,6 +11,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/offline_notice_banner.dart';
 import '../../domain/pelanggan.dart';
+import '../../domain/ulang_tahun.dart';
 import '../providers/pelanggan_providers.dart';
 
 /// Tahap 5 C.3 - "edit dan hapus, termasuk batas kasbon, level member".
@@ -34,6 +35,7 @@ class _PelangganFormPageState extends ConsumerState<PelangganFormPage> {
   late final _batasKasbonController =
       TextEditingController(text: widget.pelangganEdit?.batasKasbon?.toString() ?? '');
   late String? _levelMemberId = widget.pelangganEdit?.levelMemberId;
+  late int? _tanggalLahir = widget.pelangganEdit?.tanggalLahir;
   bool _menyimpan = false;
   bool _menghapus = false;
   String? _errorServer;
@@ -48,6 +50,21 @@ class _PelangganFormPageState extends ConsumerState<PelangganFormPage> {
     _catatanController.dispose();
     _batasKasbonController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pilihTanggalLahir() async {
+    final sekarang = DateTime.now();
+    final awal = tanggalLahirKeDateTime(_tanggalLahir) ?? DateTime(sekarang.year - 25, sekarang.month, sekarang.day);
+    final pilih = await showDatePicker(
+      context: context,
+      initialDate: awal,
+      firstDate: DateTime(1900),
+      lastDate: sekarang,
+      initialEntryMode: DatePickerEntryMode.input,
+    );
+    if (pilih != null) {
+      setState(() => _tanggalLahir = pilih.year * 10000 + pilih.month * 100 + pilih.day);
+    }
   }
 
   Future<void> _simpan() async {
@@ -71,6 +88,7 @@ class _PelangganFormPageState extends ConsumerState<PelangganFormPage> {
         'batas_kasbon':
             _batasKasbonController.text.trim().isEmpty ? null : _batasKasbonController.text.trim(),
         'level_member_id': _levelMemberId,
+        'tanggal_lahir': tanggalLahirKeIso(_tanggalLahir),
       };
       final Map<String, dynamic> hasil;
       if (_modeEdit) {
@@ -95,6 +113,7 @@ class _PelangganFormPageState extends ConsumerState<PelangganFormPage> {
             nama: hasil['nama'] as String,
             noHp: Value(hasil['no_hp'] as String?),
             email: Value(hasil['email'] as String?),
+            tanggalLahir: Value(tanggalLahirDariIso(hasil['tanggal_lahir'] as String?)),
             levelMemberId: Value(hasil['level_member_id'] as String?),
             poin: Value((hasil['poin'] as int?) ?? 0),
             totalBelanja: Value(double.parse((hasil['total_belanja'] ?? 0).toString()).round()),
@@ -203,6 +222,29 @@ class _PelangganFormPageState extends ConsumerState<PelangganFormPage> {
                   if (!value.contains('@')) return 'Email tidak valid';
                   return null;
                 },
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      _tanggalLahir == null ? 'Tanggal lahir (opsional)' : 'Tanggal lahir: ${tanggalLahirKeIso(_tanggalLahir)}',
+                      key: const Key('pelangganForm.tanggalLahirTeks'),
+                    ),
+                  ),
+                  OutlinedButton(
+                    key: const Key('pelangganForm.tanggalLahir'),
+                    onPressed: _pilihTanggalLahir,
+                    child: Text(_tanggalLahir == null ? 'Pilih' : 'Ubah'),
+                  ),
+                  if (_tanggalLahir != null)
+                    IconButton(
+                      key: const Key('pelangganForm.hapusTanggalLahir'),
+                      tooltip: 'Hapus tanggal lahir',
+                      icon: const Icon(Icons.clear),
+                      onPressed: () => setState(() => _tanggalLahir = null),
+                    ),
+                ],
               ),
               const SizedBox(height: AppSpacing.lg),
               TextFormField(

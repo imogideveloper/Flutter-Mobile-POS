@@ -124,3 +124,13 @@ Aturan baca: **Sementara** = perilaku yang sekarang dipakai di kode. **Dampak bi
 | J3 | Rumus margin = (harga jual - HPP) / harga jual; tepat di batas dianggap aman | Bila IMOGI memakai markup (dari HPP), angkanya berbeda |
 | J4 | HPP kosong ditandai "HPP belum diisi" dan tidak dihitung sebagai margin rendah | Alternatif: menganggap margin 100% |
 | J5 | Batas margin diletakkan di Pengaturan struk (halaman pengaturan outlet yang ada), padahal panduan menempatkannya di tab Stok/Katalog | Pindah saat Menu Pengaturan IMOGI dibangun |
+
+## Tambahan 2026-11-13 (promo ulang tahun, IMOGI no. 56)
+
+| # | Hal | Sementara |
+|---|---|---|
+| K1 | Promo ulang tahun dipilih manual oleh kasir; tidak otomatis | Penerapan otomatis menyentuh perhitungan harga; perlu keputusan |
+| K2 | Syarat "berulang tahun hari ini" dicek hanya di HP (penjaga di keranjang); server tidak memeriksa saat checkout | Transaksi dari HP yang dimodifikasi bisa memakai promo itu tanpa syarat |
+| K3 | Hari ulang tahun = bulan dan tanggal sama dengan hari ini; yang lahir 29 Februari dirayakan 28 Februari di tahun bukan kabisat | IMOGI mungkin memakai rentang (mis. seminggu atau sebulan) |
+| K4 | Tanggal lahir di HP disimpan sebagai yyyymmdd (kolom lama bermakna epoch tidak pernah terisi) | Tidak ada data lama yang terpengaruh |
+| K5 | Tanggal lahir diisi manual atau lewat impor CSV; tidak ada pengingat ke pelanggan (WhatsApp/SMS) | Pengiriman pesan ulang tahun belum ada (terkait no. 57 kirim WA massal) |

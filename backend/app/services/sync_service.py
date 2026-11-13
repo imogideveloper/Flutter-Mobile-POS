@@ -466,14 +466,14 @@ async def pull(
     )
     promo = await _ambil_toko_scoped(
         "promo", Promo,
-        ["id", "nama", "kode", "tipe", "nilai", "min_belanja", "maks_diskon", "aktif", "updated_at", "deleted_at"],
+        ["id", "nama", "kode", "tipe", "nilai", "min_belanja", "maks_diskon", "aktif", "khusus_ulang_tahun", "updated_at", "deleted_at"],
     )
     metode_bayar = await _ambil_toko_scoped(
         "metode_bayar", MetodeBayar,
         ["id", "nama", "tipe", "butuh_gateway", "masuk_laci", "aktif", "updated_at", "deleted_at"],
     )
     pelanggan = await _ambil_toko_scoped(
-        "pelanggan", Pelanggan, ["id", "nama", "no_hp", "email", "poin", "total_belanja", "updated_at", "deleted_at"]
+        "pelanggan", Pelanggan, ["id", "nama", "no_hp", "email", "tanggal_lahir", "poin", "total_belanja", "updated_at", "deleted_at"]
     )
     # Tahap 5b (desain #2) - "daftar karyawan yang boleh masuk ke outlet
     # perangkat itu": Owner/Manajer (role is_system boleh semua outlet,

@@ -12,7 +12,7 @@ class Pelanggan extends Table {
   TextColumn get nama => text()();
   TextColumn get noHp => text().nullable()();
   TextColumn get email => text().nullable()();
-  // date di Postgres - epoch ms UTC tengah malam.
+  // Bilangan yyyymmdd (mis. 19950412), bebas zona waktu; lihat ulang_tahun.dart. Dulu belum terisi.
   IntColumn get tanggalLahir => integer().nullable()();
   TextColumn get levelMemberId => text().nullable().references(LevelMember, #id)();
   IntColumn get poin => integer().withDefault(const Constant(0))();

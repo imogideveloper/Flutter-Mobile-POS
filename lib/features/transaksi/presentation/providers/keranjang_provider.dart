@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/legacy.dart';
 
 import '../../../produk/domain/produk.dart';
 import '../../../promo/domain/promo.dart';
+import '../../../pelanggan/domain/ulang_tahun.dart';
+import '../../../pelanggan/presentation/providers/pelanggan_providers.dart' show pelangganAktifProvider;
 import '../../../promo/presentation/providers/promo_providers.dart';
 import '../../domain/item_keranjang.dart';
 
@@ -109,15 +111,32 @@ final keranjangCatatanProvider = StateProvider<String?>((ref) => null);
 // ditukar jadi diskon checkout ini. 0 = tidak menukar poin sama sekali.
 final keranjangPoinDitukarProvider = StateProvider<int>((ref) => 0);
 
-/// Promo yang sedang terpilih (null kalau tidak ada/tidak valid lagi).
+/// Apakah pelanggan di keranjang berulang tahun hari ini (IMOGI no. 56).
+final keranjangPelangganUlangTahunProvider = Provider<bool>((ref) {
+  final pelangganId = ref.watch(keranjangPelangganIdProvider);
+  if (pelangganId == null) return false;
+  final daftar = ref.watch(pelangganAktifProvider).maybeWhen(data: (v) => v, orElse: () => const []);
+  for (final p in daftar) {
+    if (p.id == pelangganId) return ulangTahunHariIni(p.tanggalLahir, DateTime.now());
+  }
+  return false;
+});
+
+/// Promo yang sedang terpilih (null kalau tidak ada/tidak valid lagi). Promo khusus ulang tahun
+/// tidak berlaku bila pelanggan di keranjang tidak berulang tahun hari ini, termasuk bila pelanggan
+/// diganti setelah promo dipilih. Semua jalur bayar memakai provider ini.
 final keranjangPromoProvider = Provider<Promo?>((ref) {
   final promoId = ref.watch(keranjangPromoIdProvider);
   if (promoId == null) return null;
+  final ulangTahun = ref.watch(keranjangPelangganUlangTahunProvider);
   final semua = ref
       .watch(promoAktifProvider)
       .maybeWhen(data: (v) => v, orElse: () => const []);
   for (final promo in semua) {
-    if (promo.id == promoId) return promo;
+    if (promo.id == promoId) {
+      if (promo.khususUlangTahun && !ulangTahun) return null;
+      return promo;
+    }
   }
   return null;
 });

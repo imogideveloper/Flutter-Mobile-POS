@@ -97,6 +97,7 @@ _FITUR = [
     ("tax_recap", "Rekap pajak PPN & PB1", "akuntansi", 2),
     ("tax_pph", "Rekap pajak PPh Final UMKM (0,5%)", "akuntansi", 2),
     ("customer_import", "Upload pelanggan via template", "pelanggan", 2),
+    ("birthday_promo", "Promo ulang tahun pelanggan", "pelanggan", 2),
 ]
 
 _PAKET = [("Gratis", 0), ("Pro", 1), ("Bisnis", 2)]

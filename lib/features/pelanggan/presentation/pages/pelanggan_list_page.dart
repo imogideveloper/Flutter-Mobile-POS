@@ -10,6 +10,7 @@ import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/avatar_initial.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../domain/pelanggan.dart';
+import '../../domain/ulang_tahun.dart';
 import '../providers/pelanggan_providers.dart';
 import 'pelanggan_form_page.dart';
 
@@ -164,6 +165,22 @@ class _PelangganRow extends StatelessWidget {
                 Text(pelanggan.nama, style: AppTypography.bodyEmphasis),
                 if (pelanggan.noHp != null)
                   Text(pelanggan.noHp!, style: AppTypography.secondary),
+                if (ulangTahunHariIni(pelanggan.tanggalLahir, DateTime.now()))
+                  Row(
+                    key: Key('pelangganList.ulangTahun.${pelanggan.id}'),
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.cake_outlined, size: 14, color: AppColors.warningTextStrong),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Ulang tahun hari ini',
+                        style: AppTypography.secondary.copyWith(
+                          color: AppColors.warningTextStrong,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
               ],
             ),
           ),

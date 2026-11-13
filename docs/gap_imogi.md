@@ -18,9 +18,9 @@ Tanggal: 2026-11-08. Menggantikan `docs/gap_fnb.md` sebagai acuan utama. Daftar 
 | Relevan untuk Makanan & Minuman (inti atau opsional untuk minimal 1 dari 7 jenis usaha) | 64 |
 | Tidak relevan untuk Makanan & Minuman (disembunyikan) | 23 |
 | ✅ Lengkap | 15 (tidak berubah: belum ada fitur yang diuji di HP, jadi tidak ada yang dinaikkan) |
-| 🟡 Sebagian | 32 (awal audit 24; +8 sejak 2026-11-12/13) |
-| ❌ Belum ada | 17 (awal audit 25) |
-| Fitur inti untuk Kafe & Kedai Kopi | 46 (✅ 11, 🟡 24, ❌ 11); awal audit ✅ 11, 🟡 18, ❌ 17 |
+| 🟡 Sebagian | 33 (awal audit 24; +9 sejak 2026-11-12/13) |
+| ❌ Belum ada | 16 (awal audit 25) |
+| Fitur inti untuk Kafe & Kedai Kopi | 46 (✅ 11, 🟡 25, ❌ 10); awal audit ✅ 11, 🟡 18, ❌ 17 |
 
 **Temuan utama:**
 1. **Katalog paket sudah diselaraskan (fondasi selesai, migrasi 0010).** Backend kini memakai 4 paket IMOGI (Free, Starter, Professional, Enterprise) dan 87 fitur; sebelumnya 3 paket dan 32 fitur hasil salinan Qasir. Harga dan kuota paket masih **harga contoh** karena dokumen IMOGI tidak memuatnya. Fitur baru belum menggerbang apa pun sampai diimplementasikan.
@@ -97,7 +97,7 @@ Diurutkan: inti untuk Kafe & Kedai Kopi lebih dulu. ❌ = belum ada, 🟡 = seba
 | 83 | Akuntansi | Aset tetap & penyusutan | Enterprise | 2 inti, 4 opsional, Kafe: Inti | ❌ | Tidak ada aset tetap dan penyusutan. |
 | 84 | Akuntansi | Laporan keuangan konsolidasi multi-outlet | Enterprise | 2 inti, 5 opsional, Kafe: Inti | ❌ | Tidak ada laporan keuangan konsolidasi. |
 | 87 | Outlet | Multi-Outlet | Professional | 2 inti, 5 opsional, Kafe: Inti | 🟡 | Backend ada; di aplikasi tidak ada UI ganti outlet. |
-| 56 | Pelanggan | Promo ulang tahun pelanggan | Professional | 1 inti, 5 opsional, Kafe: Inti | ❌ | tanggal_lahir ada di backend tetapi tidak disimpan di HP; tidak ada promo ulang tahun. |
+| 56 | Pelanggan | Promo ulang tahun pelanggan | Professional | 1 inti, 5 opsional, Kafe: Inti | 🟡 | SEBAGIAN (2026-11-13): promo bisa ditandai Khusus ulang tahun (gerbang paket birthday_promo, migrasi 0017); tanggal lahir pelanggan bisa diisi di form, ikut impor CSV, dan kini ikut sync ke HP; di keranjang promo itu hanya bisa dipilih bila pelanggan berulang tahun hari ini dan dicabut bila pelanggan diganti; daftar pelanggan menandai yang berulang tahun hari ini. Belum: pemberitahuan ke pelanggan, penerapan otomatis, validasi server saat checkout. Belum diuji di HP. |
 | 71 | Akuntansi | Piutang & hutang usaha (AR/AP) | Professional | 5 inti, 2 opsional, Kafe: Opsional | 🟡 | Piutang pelanggan (kasbon) ada. Hutang usaha ke supplier belum dicocokkan (backend punya modul pembelian). |
 | 16 | Pembayaran | Pembayaran hutang (bon) | Starter | 3 inti, 4 opsional, Kafe: Opsional | 🟡 | Kasbon, jatuh tempo, dan pelunasan ada. Limit bon per pelanggan dan penahanan bon baru belum ditemukan. |
 | 49 | Stok | Kelola stok produk | Free | 3 inti, 4 opsional, Kafe: Opsional | 🟡 | Stok dan mutasi ada, tetapi layar hanya menampilkan mutasi terakhir. Pengaturan saat stok habis terblokir BUG-012. |

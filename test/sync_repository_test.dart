@@ -765,6 +765,90 @@ void main() {
   );
 
   test(
+    'pull: promo khusus ulang tahun dan tanggal lahir pelanggan (yyyymmdd) tersimpan di HP',
+    () async {
+      api.pullResponse = const SyncPullResult(
+        waktuPull: '2026-01-01T00:00:00Z',
+        produk: [],
+        kategori: [],
+        satuan: [],
+        pajak: [],
+        promo: [
+          {
+            'id': 'promo-bday',
+            'nama': 'Diskon Ulang Tahun',
+            'kode': null,
+            'tipe': 'persen',
+            'nilai': '20.00',
+            'min_belanja': '0.00',
+            'maks_diskon': null,
+            'aktif': true,
+            'khusus_ulang_tahun': true,
+            'updated_at': '2026-01-01T00:00:00Z',
+            'deleted_at': null,
+          },
+          {
+            'id': 'promo-biasa',
+            'nama': 'Promo Jumat',
+            'kode': null,
+            'tipe': 'nominal',
+            'nilai': '5000.00',
+            'min_belanja': '0.00',
+            'maks_diskon': null,
+            'aktif': true,
+            'updated_at': '2026-01-01T00:00:00Z',
+            'deleted_at': null,
+          },
+        ],
+        metodeBayar: [],
+        pelanggan: [
+          {
+            'id': 'pel-1',
+            'nama': 'Sari',
+            'no_hp': '081200000001',
+            'email': null,
+            'tanggal_lahir': '1995-04-12',
+            'poin': 0,
+            'total_belanja': '0.00',
+            'updated_at': '2026-01-01T00:00:00Z',
+            'deleted_at': null,
+          },
+          {
+            'id': 'pel-2',
+            'nama': 'Tanpa Lahir',
+            'no_hp': null,
+            'email': null,
+            'tanggal_lahir': null,
+            'poin': 0,
+            'total_belanja': '0.00',
+            'updated_at': '2026-01-01T00:00:00Z',
+            'deleted_at': null,
+          },
+        ],
+        stok: [],
+        hargaOutlet: [],
+        hargaGrosir: [],
+        tipeOrderPajak: [],
+        pengaturanOutlet: [],
+        hasMore: {},
+        paket: null,
+        kodeFitur: [],
+        batasFitur: {},
+      );
+
+      await repo.jalankan();
+
+      final promo = {for (final p in await db.select(db.promo).get()) p.id: p};
+      expect(promo['promo-bday']!.khususUlangTahun, isTrue);
+      expect(promo['promo-biasa']!.khususUlangTahun, isFalse, reason: 'server lama tanpa field = bukan ulang tahun');
+
+      final pelanggan = {for (final p in await db.select(db.pelanggan).get()) p.id: p};
+      expect(pelanggan['pel-1']!.tanggalLahir, 19950412);
+      expect(pelanggan['pel-2']!.tanggalLahir, isNull);
+    },
+  );
+
+  test(
     'pull: harga_outlet/harga_grosir/tipe_order_pajak/pengaturan_outlet diupsert',
     () async {
       api.pullResponse = const SyncPullResult(

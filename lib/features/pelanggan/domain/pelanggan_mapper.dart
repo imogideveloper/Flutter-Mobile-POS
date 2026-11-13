@@ -13,6 +13,7 @@ extension PelangganRowMapper on PelangganRow {
         totalBelanja: totalBelanja,
         catatan: catatan,
         batasKasbon: batasKasbon,
+        tanggalLahir: tanggalLahir,
       );
 }
 

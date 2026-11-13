@@ -13,5 +13,6 @@ extension PromoRowMapper on PromoRow {
         minBelanja: minBelanja,
         maksDiskon: maksDiskon,
         aktif: aktif,
+        khususUlangTahun: khususUlangTahun,
       );
 }

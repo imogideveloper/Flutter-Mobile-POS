@@ -22041,6 +22041,21 @@ class $PromoTable extends Promo with TableInfo<$PromoTable, PromoRow> {
     ),
     defaultValue: const Constant(true),
   );
+  static const VerificationMeta _khususUlangTahunMeta = const VerificationMeta(
+    'khususUlangTahun',
+  );
+  @override
+  late final GeneratedColumn<bool> khususUlangTahun = GeneratedColumn<bool>(
+    'khusus_ulang_tahun',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("khusus_ulang_tahun" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -22088,6 +22103,7 @@ class $PromoTable extends Promo with TableInfo<$PromoTable, PromoRow> {
     berlakuMulai,
     berlakuSampai,
     aktif,
+    khususUlangTahun,
     createdAt,
     updatedAt,
     deletedAt,
@@ -22175,6 +22191,15 @@ class $PromoTable extends Promo with TableInfo<$PromoTable, PromoRow> {
         aktif.isAcceptableOrUnknown(data['aktif']!, _aktifMeta),
       );
     }
+    if (data.containsKey('khusus_ulang_tahun')) {
+      context.handle(
+        _khususUlangTahunMeta,
+        khususUlangTahun.isAcceptableOrUnknown(
+          data['khusus_ulang_tahun']!,
+          _khususUlangTahunMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -22258,6 +22283,10 @@ class $PromoTable extends Promo with TableInfo<$PromoTable, PromoRow> {
         DriftSqlType.bool,
         data['${effectivePrefix}aktif'],
       )!,
+      khususUlangTahun: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}khusus_ulang_tahun'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}created_at'],
@@ -22297,6 +22326,7 @@ class PromoRow extends DataClass implements Insertable<PromoRow> {
   final int? berlakuMulai;
   final int? berlakuSampai;
   final bool aktif;
+  final bool khususUlangTahun;
   final int createdAt;
   final int updatedAt;
   final int? deletedAt;
@@ -22313,6 +22343,7 @@ class PromoRow extends DataClass implements Insertable<PromoRow> {
     this.berlakuMulai,
     this.berlakuSampai,
     required this.aktif,
+    required this.khususUlangTahun,
     required this.createdAt,
     required this.updatedAt,
     this.deletedAt,
@@ -22346,6 +22377,7 @@ class PromoRow extends DataClass implements Insertable<PromoRow> {
       map['berlaku_sampai'] = Variable<int>(berlakuSampai);
     }
     map['aktif'] = Variable<bool>(aktif);
+    map['khusus_ulang_tahun'] = Variable<bool>(khususUlangTahun);
     map['created_at'] = Variable<int>(createdAt);
     map['updated_at'] = Variable<int>(updatedAt);
     if (!nullToAbsent || deletedAt != null) {
@@ -22374,6 +22406,7 @@ class PromoRow extends DataClass implements Insertable<PromoRow> {
           ? const Value.absent()
           : Value(berlakuSampai),
       aktif: Value(aktif),
+      khususUlangTahun: Value(khususUlangTahun),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
@@ -22404,6 +22437,7 @@ class PromoRow extends DataClass implements Insertable<PromoRow> {
       berlakuMulai: serializer.fromJson<int?>(json['berlakuMulai']),
       berlakuSampai: serializer.fromJson<int?>(json['berlakuSampai']),
       aktif: serializer.fromJson<bool>(json['aktif']),
+      khususUlangTahun: serializer.fromJson<bool>(json['khususUlangTahun']),
       createdAt: serializer.fromJson<int>(json['createdAt']),
       updatedAt: serializer.fromJson<int>(json['updatedAt']),
       deletedAt: serializer.fromJson<int?>(json['deletedAt']),
@@ -22429,6 +22463,7 @@ class PromoRow extends DataClass implements Insertable<PromoRow> {
       'berlakuMulai': serializer.toJson<int?>(berlakuMulai),
       'berlakuSampai': serializer.toJson<int?>(berlakuSampai),
       'aktif': serializer.toJson<bool>(aktif),
+      'khususUlangTahun': serializer.toJson<bool>(khususUlangTahun),
       'createdAt': serializer.toJson<int>(createdAt),
       'updatedAt': serializer.toJson<int>(updatedAt),
       'deletedAt': serializer.toJson<int?>(deletedAt),
@@ -22448,6 +22483,7 @@ class PromoRow extends DataClass implements Insertable<PromoRow> {
     Value<int?> berlakuMulai = const Value.absent(),
     Value<int?> berlakuSampai = const Value.absent(),
     bool? aktif,
+    bool? khususUlangTahun,
     int? createdAt,
     int? updatedAt,
     Value<int?> deletedAt = const Value.absent(),
@@ -22466,6 +22502,7 @@ class PromoRow extends DataClass implements Insertable<PromoRow> {
         ? berlakuSampai.value
         : this.berlakuSampai,
     aktif: aktif ?? this.aktif,
+    khususUlangTahun: khususUlangTahun ?? this.khususUlangTahun,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
@@ -22492,6 +22529,9 @@ class PromoRow extends DataClass implements Insertable<PromoRow> {
           ? data.berlakuSampai.value
           : this.berlakuSampai,
       aktif: data.aktif.present ? data.aktif.value : this.aktif,
+      khususUlangTahun: data.khususUlangTahun.present
+          ? data.khususUlangTahun.value
+          : this.khususUlangTahun,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
@@ -22513,6 +22553,7 @@ class PromoRow extends DataClass implements Insertable<PromoRow> {
           ..write('berlakuMulai: $berlakuMulai, ')
           ..write('berlakuSampai: $berlakuSampai, ')
           ..write('aktif: $aktif, ')
+          ..write('khususUlangTahun: $khususUlangTahun, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt')
@@ -22534,6 +22575,7 @@ class PromoRow extends DataClass implements Insertable<PromoRow> {
     berlakuMulai,
     berlakuSampai,
     aktif,
+    khususUlangTahun,
     createdAt,
     updatedAt,
     deletedAt,
@@ -22554,6 +22596,7 @@ class PromoRow extends DataClass implements Insertable<PromoRow> {
           other.berlakuMulai == this.berlakuMulai &&
           other.berlakuSampai == this.berlakuSampai &&
           other.aktif == this.aktif &&
+          other.khususUlangTahun == this.khususUlangTahun &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt);
@@ -22572,6 +22615,7 @@ class PromoCompanion extends UpdateCompanion<PromoRow> {
   final Value<int?> berlakuMulai;
   final Value<int?> berlakuSampai;
   final Value<bool> aktif;
+  final Value<bool> khususUlangTahun;
   final Value<int> createdAt;
   final Value<int> updatedAt;
   final Value<int?> deletedAt;
@@ -22589,6 +22633,7 @@ class PromoCompanion extends UpdateCompanion<PromoRow> {
     this.berlakuMulai = const Value.absent(),
     this.berlakuSampai = const Value.absent(),
     this.aktif = const Value.absent(),
+    this.khususUlangTahun = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -22607,6 +22652,7 @@ class PromoCompanion extends UpdateCompanion<PromoRow> {
     this.berlakuMulai = const Value.absent(),
     this.berlakuSampai = const Value.absent(),
     this.aktif = const Value.absent(),
+    this.khususUlangTahun = const Value.absent(),
     required int createdAt,
     required int updatedAt,
     this.deletedAt = const Value.absent(),
@@ -22631,6 +22677,7 @@ class PromoCompanion extends UpdateCompanion<PromoRow> {
     Expression<int>? berlakuMulai,
     Expression<int>? berlakuSampai,
     Expression<bool>? aktif,
+    Expression<bool>? khususUlangTahun,
     Expression<int>? createdAt,
     Expression<int>? updatedAt,
     Expression<int>? deletedAt,
@@ -22649,6 +22696,7 @@ class PromoCompanion extends UpdateCompanion<PromoRow> {
       if (berlakuMulai != null) 'berlaku_mulai': berlakuMulai,
       if (berlakuSampai != null) 'berlaku_sampai': berlakuSampai,
       if (aktif != null) 'aktif': aktif,
+      if (khususUlangTahun != null) 'khusus_ulang_tahun': khususUlangTahun,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
@@ -22669,6 +22717,7 @@ class PromoCompanion extends UpdateCompanion<PromoRow> {
     Value<int?>? berlakuMulai,
     Value<int?>? berlakuSampai,
     Value<bool>? aktif,
+    Value<bool>? khususUlangTahun,
     Value<int>? createdAt,
     Value<int>? updatedAt,
     Value<int?>? deletedAt,
@@ -22687,6 +22736,7 @@ class PromoCompanion extends UpdateCompanion<PromoRow> {
       berlakuMulai: berlakuMulai ?? this.berlakuMulai,
       berlakuSampai: berlakuSampai ?? this.berlakuSampai,
       aktif: aktif ?? this.aktif,
+      khususUlangTahun: khususUlangTahun ?? this.khususUlangTahun,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
@@ -22737,6 +22787,9 @@ class PromoCompanion extends UpdateCompanion<PromoRow> {
     if (aktif.present) {
       map['aktif'] = Variable<bool>(aktif.value);
     }
+    if (khususUlangTahun.present) {
+      map['khusus_ulang_tahun'] = Variable<bool>(khususUlangTahun.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<int>(createdAt.value);
     }
@@ -22767,6 +22820,7 @@ class PromoCompanion extends UpdateCompanion<PromoRow> {
           ..write('berlakuMulai: $berlakuMulai, ')
           ..write('berlakuSampai: $berlakuSampai, ')
           ..write('aktif: $aktif, ')
+          ..write('khususUlangTahun: $khususUlangTahun, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -60029,6 +60083,7 @@ typedef $$PromoTableCreateCompanionBuilder =
       Value<int?> berlakuMulai,
       Value<int?> berlakuSampai,
       Value<bool> aktif,
+      Value<bool> khususUlangTahun,
       required int createdAt,
       required int updatedAt,
       Value<int?> deletedAt,
@@ -60048,6 +60103,7 @@ typedef $$PromoTableUpdateCompanionBuilder =
       Value<int?> berlakuMulai,
       Value<int?> berlakuSampai,
       Value<bool> aktif,
+      Value<bool> khususUlangTahun,
       Value<int> createdAt,
       Value<int> updatedAt,
       Value<int?> deletedAt,
@@ -60162,6 +60218,11 @@ class $$PromoTableFilterComposer extends Composer<_$AppDatabase, $PromoTable> {
 
   ColumnFilters<bool> get aktif => $composableBuilder(
     column: $table.aktif,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get khususUlangTahun => $composableBuilder(
+    column: $table.khususUlangTahun,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -60300,6 +60361,11 @@ class $$PromoTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get khususUlangTahun => $composableBuilder(
+    column: $table.khususUlangTahun,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -60368,6 +60434,11 @@ class $$PromoTableAnnotationComposer
 
   GeneratedColumn<bool> get aktif =>
       $composableBuilder(column: $table.aktif, builder: (column) => column);
+
+  GeneratedColumn<bool> get khususUlangTahun => $composableBuilder(
+    column: $table.khususUlangTahun,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<int> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -60472,6 +60543,7 @@ class $$PromoTableTableManager
                 Value<int?> berlakuMulai = const Value.absent(),
                 Value<int?> berlakuSampai = const Value.absent(),
                 Value<bool> aktif = const Value.absent(),
+                Value<bool> khususUlangTahun = const Value.absent(),
                 Value<int> createdAt = const Value.absent(),
                 Value<int> updatedAt = const Value.absent(),
                 Value<int?> deletedAt = const Value.absent(),
@@ -60489,6 +60561,7 @@ class $$PromoTableTableManager
                 berlakuMulai: berlakuMulai,
                 berlakuSampai: berlakuSampai,
                 aktif: aktif,
+                khususUlangTahun: khususUlangTahun,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
@@ -60508,6 +60581,7 @@ class $$PromoTableTableManager
                 Value<int?> berlakuMulai = const Value.absent(),
                 Value<int?> berlakuSampai = const Value.absent(),
                 Value<bool> aktif = const Value.absent(),
+                Value<bool> khususUlangTahun = const Value.absent(),
                 required int createdAt,
                 required int updatedAt,
                 Value<int?> deletedAt = const Value.absent(),
@@ -60525,6 +60599,7 @@ class $$PromoTableTableManager
                 berlakuMulai: berlakuMulai,
                 berlakuSampai: berlakuSampai,
                 aktif: aktif,
+                khususUlangTahun: khususUlangTahun,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,

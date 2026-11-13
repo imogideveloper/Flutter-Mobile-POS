@@ -145,6 +145,9 @@ async def tambah_promo(
     db: AsyncSession = Depends(get_db),
 ) -> Promo:
     await _wajib_izin_promo_kelola(db, role_id)
+    # Promo ulang tahun adalah fitur sendiri (IMOGI no. 56): menyalakannya digerbang paket.
+    if body.khusus_ulang_tahun and not await has_fitur(db, toko_id, "birthday_promo"):
+        await tolak_fitur_terkunci(db, "birthday_promo")
     promo = Promo(toko_id=toko_id, **body.model_dump())
     db.add(promo)
     await db.flush()
@@ -177,6 +180,13 @@ async def ubah_promo(
     promo = await _ambil_promo_milik_toko(db, promo_id, toko_id)
 
     perubahan = body.model_dump(exclude_unset=True)
+    # Hanya digerbang saat benar-benar berubah menjadi aktif (klien mengirim ulang seluruh isian).
+    if (
+        perubahan.get("khusus_ulang_tahun") is True
+        and promo.khusus_ulang_tahun is not True
+        and not await has_fitur(db, toko_id, "birthday_promo")
+    ):
+        await tolak_fitur_terkunci(db, "birthday_promo")
     data_lama = {k: str(getattr(promo, k)) for k in perubahan}
     for field, value in perubahan.items():
         setattr(promo, field, value)

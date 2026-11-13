@@ -14,6 +14,7 @@ import '../../features/produk/data/local/harga_dao.dart';
 import '../../features/produk/data/local/produk_dao.dart';
 import '../../features/produk/data/local/satuan_dao.dart';
 import '../../features/produk/data/local/tables/produk_table.dart';
+import '../../features/pelanggan/domain/ulang_tahun.dart';
 import '../../features/promo/data/local/pajak_dao.dart';
 import '../../features/promo/data/local/promo_dao.dart';
 import '../../features/promo/data/local/tables/pajak_table.dart';
@@ -704,6 +705,7 @@ class SyncRepository {
             uangDariBackendNullable(row['maks_diskon'] as String?),
           ),
           aktif: Value(row['aktif'] as bool),
+          khususUlangTahun: Value((row['khusus_ulang_tahun'] as bool?) ?? false),
           createdAt: epochMsDariBackend(row['updated_at'] as String),
           updatedAt: epochMsDariBackend(row['updated_at'] as String),
           deletedAt: Value(
@@ -760,6 +762,7 @@ class SyncRepository {
           nama: row['nama'] as String,
           noHp: Value(row['no_hp'] as String?),
           email: Value(row['email'] as String?),
+          tanggalLahir: Value(tanggalLahirDariIso(row['tanggal_lahir'] as String?)),
           poin: Value(row['poin'] as int),
           totalBelanja: Value(uangDariBackend(row['total_belanja'] as String)),
           createdAt: epochMsDariBackend(row['updated_at'] as String),

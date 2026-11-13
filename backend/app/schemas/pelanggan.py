@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 
 from pydantic import BaseModel
@@ -9,6 +9,7 @@ class PelangganIn(BaseModel):
     nama: str
     no_hp: str | None = None
     email: str | None = None
+    tanggal_lahir: date | None = None
     catatan: str | None = None
     # Opsional (tahap 3b-1) - lihat Pelanggan.batas_kasbon.
     batas_kasbon: Decimal | None = None
@@ -22,6 +23,7 @@ class PelangganUpdateIn(BaseModel):
     nama: str | None = None
     no_hp: str | None = None
     email: str | None = None
+    tanggal_lahir: date | None = None
     catatan: str | None = None
     batas_kasbon: Decimal | None = None
     level_member_id: uuid.UUID | None = None
@@ -33,6 +35,7 @@ class PelangganOut(BaseModel):
     nama: str
     no_hp: str | None
     email: str | None
+    tanggal_lahir: date | None = None
     poin: int
     total_belanja: Decimal
     catatan: str | None

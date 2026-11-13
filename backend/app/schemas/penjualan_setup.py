@@ -41,6 +41,8 @@ class PromoIn(BaseModel):
     cakupan: str = "transaksi"
     min_belanja: Decimal = Decimal("0")
     maks_diskon: Decimal | None = None
+    # Promo ulang tahun (IMOGI no. 56): hanya untuk pelanggan yang berulang tahun hari ini.
+    khusus_ulang_tahun: bool = False
 
 
 class PromoUpdateIn(BaseModel):
@@ -52,6 +54,7 @@ class PromoUpdateIn(BaseModel):
     min_belanja: Decimal | None = None
     maks_diskon: Decimal | None = None
     aktif: bool | None = None
+    khusus_ulang_tahun: bool | None = None
 
 
 class PromoOut(BaseModel):
@@ -64,6 +67,7 @@ class PromoOut(BaseModel):
     min_belanja: Decimal
     maks_diskon: Decimal | None
     aktif: bool
+    khusus_ulang_tahun: bool = False
 
     model_config = {"from_attributes": True}
 
