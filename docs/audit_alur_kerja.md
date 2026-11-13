@@ -246,3 +246,5 @@ Diverifikasi langsung dari tabel `fitur_kebutuhan` di database (hasil migrasi 00
 - **Tes otomatis:** backend `test_promo_ulang_tahun.py` (5); Flutter `ulang_tahun_test.dart` (6), `promo_ulang_tahun_keranjang_test.dart` (4), `pelanggan_ulang_tahun_list_test.dart` (1), tambahan di `sync_repository_test`, `promo_form_flow_test`, `pelanggan_form_flow_test`. Seluruh 381 tes Flutter lulus.
 - **Catatan tes:** dua tes form lama gagal sementara karena tombol Simpan terdorong keluar layar tes oleh isian baru; layar tes dibesarkan, perilaku tidak berubah.
 - **Workbook:** FEAT-073 menjadi In Progress; TC-092 sampai TC-094 (Not Tested); Gap Imogi no. 56 menjadi Sebagian (Gap Imogi kini 15 / 33 / 16 / 23).
+
+- **Pembaruan H2 (2026-11-13, sore):** setelah promo ulang tahun (FEAT-073, Future Release) dibangun, jumlah fitur Future Release yang sudah dikerjakan menjadi **sembilan** (FEAT-034, 035, 036, 038, 073, 076, 077, 078, 080). Fitur Release 1 yang dikerjakan sejak audit: FEAT-071 (margin), serta penyelesaian FEAT-041/042/043 dan FEAT-050/058/059.
