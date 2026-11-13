@@ -781,6 +781,18 @@ class $PengaturanOutletTable extends PengaturanOutlet
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _batasMarginMeta = const VerificationMeta(
+    'batasMargin',
+  );
+  @override
+  late final GeneratedColumn<int> batasMargin = GeneratedColumn<int>(
+    'batas_margin',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(50),
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -829,6 +841,7 @@ class $PengaturanOutletTable extends PengaturanOutlet
     antreanAwalan,
     antreanMulai,
     estimasiMenit,
+    batasMargin,
     createdAt,
     updatedAt,
     deletedAt,
@@ -955,6 +968,15 @@ class $PengaturanOutletTable extends PengaturanOutlet
         ),
       );
     }
+    if (data.containsKey('batas_margin')) {
+      context.handle(
+        _batasMarginMeta,
+        batasMargin.isAcceptableOrUnknown(
+          data['batas_margin']!,
+          _batasMarginMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -1038,6 +1060,10 @@ class $PengaturanOutletTable extends PengaturanOutlet
         DriftSqlType.int,
         data['${effectivePrefix}estimasi_menit'],
       )!,
+      batasMargin: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}batas_margin'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}created_at'],
@@ -1074,6 +1100,7 @@ class PengaturanOutletRow extends DataClass
   final String antreanAwalan;
   final int antreanMulai;
   final int estimasiMenit;
+  final int batasMargin;
   final int createdAt;
   final int updatedAt;
   final int? deletedAt;
@@ -1091,6 +1118,7 @@ class PengaturanOutletRow extends DataClass
     required this.antreanAwalan,
     required this.antreanMulai,
     required this.estimasiMenit,
+    required this.batasMargin,
     required this.createdAt,
     required this.updatedAt,
     this.deletedAt,
@@ -1115,6 +1143,7 @@ class PengaturanOutletRow extends DataClass
     map['antrean_awalan'] = Variable<String>(antreanAwalan);
     map['antrean_mulai'] = Variable<int>(antreanMulai);
     map['estimasi_menit'] = Variable<int>(estimasiMenit);
+    map['batas_margin'] = Variable<int>(batasMargin);
     map['created_at'] = Variable<int>(createdAt);
     map['updated_at'] = Variable<int>(updatedAt);
     if (!nullToAbsent || deletedAt != null) {
@@ -1142,6 +1171,7 @@ class PengaturanOutletRow extends DataClass
       antreanAwalan: Value(antreanAwalan),
       antreanMulai: Value(antreanMulai),
       estimasiMenit: Value(estimasiMenit),
+      batasMargin: Value(batasMargin),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
@@ -1169,6 +1199,7 @@ class PengaturanOutletRow extends DataClass
       antreanAwalan: serializer.fromJson<String>(json['antreanAwalan']),
       antreanMulai: serializer.fromJson<int>(json['antreanMulai']),
       estimasiMenit: serializer.fromJson<int>(json['estimasiMenit']),
+      batasMargin: serializer.fromJson<int>(json['batasMargin']),
       createdAt: serializer.fromJson<int>(json['createdAt']),
       updatedAt: serializer.fromJson<int>(json['updatedAt']),
       deletedAt: serializer.fromJson<int?>(json['deletedAt']),
@@ -1191,6 +1222,7 @@ class PengaturanOutletRow extends DataClass
       'antreanAwalan': serializer.toJson<String>(antreanAwalan),
       'antreanMulai': serializer.toJson<int>(antreanMulai),
       'estimasiMenit': serializer.toJson<int>(estimasiMenit),
+      'batasMargin': serializer.toJson<int>(batasMargin),
       'createdAt': serializer.toJson<int>(createdAt),
       'updatedAt': serializer.toJson<int>(updatedAt),
       'deletedAt': serializer.toJson<int?>(deletedAt),
@@ -1211,6 +1243,7 @@ class PengaturanOutletRow extends DataClass
     String? antreanAwalan,
     int? antreanMulai,
     int? estimasiMenit,
+    int? batasMargin,
     int? createdAt,
     int? updatedAt,
     Value<int?> deletedAt = const Value.absent(),
@@ -1228,6 +1261,7 @@ class PengaturanOutletRow extends DataClass
     antreanAwalan: antreanAwalan ?? this.antreanAwalan,
     antreanMulai: antreanMulai ?? this.antreanMulai,
     estimasiMenit: estimasiMenit ?? this.estimasiMenit,
+    batasMargin: batasMargin ?? this.batasMargin,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
@@ -1271,6 +1305,9 @@ class PengaturanOutletRow extends DataClass
       estimasiMenit: data.estimasiMenit.present
           ? data.estimasiMenit.value
           : this.estimasiMenit,
+      batasMargin: data.batasMargin.present
+          ? data.batasMargin.value
+          : this.batasMargin,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
@@ -1293,6 +1330,7 @@ class PengaturanOutletRow extends DataClass
           ..write('antreanAwalan: $antreanAwalan, ')
           ..write('antreanMulai: $antreanMulai, ')
           ..write('estimasiMenit: $estimasiMenit, ')
+          ..write('batasMargin: $batasMargin, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt')
@@ -1315,6 +1353,7 @@ class PengaturanOutletRow extends DataClass
     antreanAwalan,
     antreanMulai,
     estimasiMenit,
+    batasMargin,
     createdAt,
     updatedAt,
     deletedAt,
@@ -1336,6 +1375,7 @@ class PengaturanOutletRow extends DataClass
           other.antreanAwalan == this.antreanAwalan &&
           other.antreanMulai == this.antreanMulai &&
           other.estimasiMenit == this.estimasiMenit &&
+          other.batasMargin == this.batasMargin &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt);
@@ -1355,6 +1395,7 @@ class PengaturanOutletCompanion extends UpdateCompanion<PengaturanOutletRow> {
   final Value<String> antreanAwalan;
   final Value<int> antreanMulai;
   final Value<int> estimasiMenit;
+  final Value<int> batasMargin;
   final Value<int> createdAt;
   final Value<int> updatedAt;
   final Value<int?> deletedAt;
@@ -1373,6 +1414,7 @@ class PengaturanOutletCompanion extends UpdateCompanion<PengaturanOutletRow> {
     this.antreanAwalan = const Value.absent(),
     this.antreanMulai = const Value.absent(),
     this.estimasiMenit = const Value.absent(),
+    this.batasMargin = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -1392,6 +1434,7 @@ class PengaturanOutletCompanion extends UpdateCompanion<PengaturanOutletRow> {
     this.antreanAwalan = const Value.absent(),
     this.antreanMulai = const Value.absent(),
     this.estimasiMenit = const Value.absent(),
+    this.batasMargin = const Value.absent(),
     required int createdAt,
     required int updatedAt,
     this.deletedAt = const Value.absent(),
@@ -1413,6 +1456,7 @@ class PengaturanOutletCompanion extends UpdateCompanion<PengaturanOutletRow> {
     Expression<String>? antreanAwalan,
     Expression<int>? antreanMulai,
     Expression<int>? estimasiMenit,
+    Expression<int>? batasMargin,
     Expression<int>? createdAt,
     Expression<int>? updatedAt,
     Expression<int>? deletedAt,
@@ -1432,6 +1476,7 @@ class PengaturanOutletCompanion extends UpdateCompanion<PengaturanOutletRow> {
       if (antreanAwalan != null) 'antrean_awalan': antreanAwalan,
       if (antreanMulai != null) 'antrean_mulai': antreanMulai,
       if (estimasiMenit != null) 'estimasi_menit': estimasiMenit,
+      if (batasMargin != null) 'batas_margin': batasMargin,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
@@ -1453,6 +1498,7 @@ class PengaturanOutletCompanion extends UpdateCompanion<PengaturanOutletRow> {
     Value<String>? antreanAwalan,
     Value<int>? antreanMulai,
     Value<int>? estimasiMenit,
+    Value<int>? batasMargin,
     Value<int>? createdAt,
     Value<int>? updatedAt,
     Value<int?>? deletedAt,
@@ -1472,6 +1518,7 @@ class PengaturanOutletCompanion extends UpdateCompanion<PengaturanOutletRow> {
       antreanAwalan: antreanAwalan ?? this.antreanAwalan,
       antreanMulai: antreanMulai ?? this.antreanMulai,
       estimasiMenit: estimasiMenit ?? this.estimasiMenit,
+      batasMargin: batasMargin ?? this.batasMargin,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
@@ -1521,6 +1568,9 @@ class PengaturanOutletCompanion extends UpdateCompanion<PengaturanOutletRow> {
     if (estimasiMenit.present) {
       map['estimasi_menit'] = Variable<int>(estimasiMenit.value);
     }
+    if (batasMargin.present) {
+      map['batas_margin'] = Variable<int>(batasMargin.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<int>(createdAt.value);
     }
@@ -1552,6 +1602,7 @@ class PengaturanOutletCompanion extends UpdateCompanion<PengaturanOutletRow> {
           ..write('antreanAwalan: $antreanAwalan, ')
           ..write('antreanMulai: $antreanMulai, ')
           ..write('estimasiMenit: $estimasiMenit, ')
+          ..write('batasMargin: $batasMargin, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -38319,6 +38370,7 @@ typedef $$PengaturanOutletTableCreateCompanionBuilder =
       Value<String> antreanAwalan,
       Value<int> antreanMulai,
       Value<int> estimasiMenit,
+      Value<int> batasMargin,
       required int createdAt,
       required int updatedAt,
       Value<int?> deletedAt,
@@ -38339,6 +38391,7 @@ typedef $$PengaturanOutletTableUpdateCompanionBuilder =
       Value<String> antreanAwalan,
       Value<int> antreanMulai,
       Value<int> estimasiMenit,
+      Value<int> batasMargin,
       Value<int> createdAt,
       Value<int> updatedAt,
       Value<int?> deletedAt,
@@ -38442,6 +38495,11 @@ class $$PengaturanOutletTableFilterComposer
 
   ColumnFilters<int> get estimasiMenit => $composableBuilder(
     column: $table.estimasiMenit,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get batasMargin => $composableBuilder(
+    column: $table.batasMargin,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -38553,6 +38611,11 @@ class $$PengaturanOutletTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get batasMargin => $composableBuilder(
+    column: $table.batasMargin,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -38661,6 +38724,11 @@ class $$PengaturanOutletTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<int> get batasMargin => $composableBuilder(
+    column: $table.batasMargin,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<int> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
@@ -38737,6 +38805,7 @@ class $$PengaturanOutletTableTableManager
                 Value<String> antreanAwalan = const Value.absent(),
                 Value<int> antreanMulai = const Value.absent(),
                 Value<int> estimasiMenit = const Value.absent(),
+                Value<int> batasMargin = const Value.absent(),
                 Value<int> createdAt = const Value.absent(),
                 Value<int> updatedAt = const Value.absent(),
                 Value<int?> deletedAt = const Value.absent(),
@@ -38755,6 +38824,7 @@ class $$PengaturanOutletTableTableManager
                 antreanAwalan: antreanAwalan,
                 antreanMulai: antreanMulai,
                 estimasiMenit: estimasiMenit,
+                batasMargin: batasMargin,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
@@ -38775,6 +38845,7 @@ class $$PengaturanOutletTableTableManager
                 Value<String> antreanAwalan = const Value.absent(),
                 Value<int> antreanMulai = const Value.absent(),
                 Value<int> estimasiMenit = const Value.absent(),
+                Value<int> batasMargin = const Value.absent(),
                 required int createdAt,
                 required int updatedAt,
                 Value<int?> deletedAt = const Value.absent(),
@@ -38793,6 +38864,7 @@ class $$PengaturanOutletTableTableManager
                 antreanAwalan: antreanAwalan,
                 antreanMulai: antreanMulai,
                 estimasiMenit: estimasiMenit,
+                batasMargin: batasMargin,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,

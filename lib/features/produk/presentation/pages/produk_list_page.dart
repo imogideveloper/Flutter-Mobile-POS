@@ -15,11 +15,13 @@ import '../../../stok/domain/stok_item.dart';
 import '../../../stok/presentation/providers/stok_providers.dart';
 import '../../data/local/tables/produk_table.dart' show ProdukTipe;
 import '../../domain/produk.dart';
+import '../../domain/margin_produk.dart';
 import '../providers/produk_providers.dart';
+import '../../../transaksi/presentation/providers/harga_keranjang_provider.dart' show pengaturanOutletProvider;
 
 final _formatRupiah = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
 
-enum _FilterChip { semua, stokMenipis, nonaktif }
+enum _FilterChip { semua, stokMenipis, marginRendah, nonaktif }
 
 (Color bg, Color fg) _tintUntukTipe(ProdukTipe tipe) => switch (tipe) {
   ProdukTipe.barang => (AppColors.brownBg, AppColors.brownText),
@@ -57,6 +59,8 @@ class _ProdukListPageState extends ConsumerState<ProdukListPage> {
       orElse: () => null,
     );
     final stokOutlet = ref.watch(stokOutletProvider(outletId));
+    // Batas margin diatur per outlet (Pengaturan struk); HPP hanya tampil di halaman ini yang dijaga izin produk.kelola.
+    final batasMargin = ref.watch(pengaturanOutletProvider(outletId)).value?.batasMargin ?? batasMarginBawaan;
     final produkAsync = _filter == _FilterChip.nonaktif
         ? ref.watch(produkSemuaProvider)
         : ref.watch(produkAktifProvider);
@@ -66,6 +70,12 @@ class _ProdukListPageState extends ConsumerState<ProdukListPage> {
         item.produkId: item,
     };
     final jumlahMenipis = stokByProdukId.values.where((s) => s.stokMenipis).length;
+    final jumlahMarginRendah = produkAsync.maybeWhen(
+      data: (items) => items
+          .where((p) => p.aktif && statusMargin(hargaJual: p.hargaJual, hpp: p.hpp, batasPersen: batasMargin) == StatusMargin.rendah)
+          .length,
+      orElse: () => 0,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -137,6 +147,14 @@ class _ProdukListPageState extends ConsumerState<ProdukListPage> {
                       ),
                       const SizedBox(width: AppSpacing.sm),
                       _FilterChipButton(
+                        key: const Key('produkList.filterMarginRendah'),
+                        label: 'Margin rendah · $jumlahMarginRendah',
+                        variant: _ChipVariant.warning,
+                        selected: _filter == _FilterChip.marginRendah,
+                        onTap: () => setState(() => _filter = _FilterChip.marginRendah),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      _FilterChipButton(
                         label: 'Nonaktif',
                         selected: _filter == _FilterChip.nonaktif,
                         onTap: () => setState(() => _filter = _FilterChip.nonaktif),
@@ -154,6 +172,9 @@ class _ProdukListPageState extends ConsumerState<ProdukListPage> {
                   if (_filter == _FilterChip.nonaktif) return !p.aktif;
                   if (_filter == _FilterChip.stokMenipis) {
                     return stokByProdukId[p.id]?.stokMenipis ?? false;
+                  }
+                  if (_filter == _FilterChip.marginRendah) {
+                    return statusMargin(hargaJual: p.hargaJual, hpp: p.hpp, batasPersen: batasMargin) == StatusMargin.rendah;
                   }
                   return true;
                 });
@@ -175,7 +196,7 @@ class _ProdukListPageState extends ConsumerState<ProdukListPage> {
                   itemBuilder: (context, index) {
                     final produk = list[index];
                     final stok = stokByProdukId[produk.id];
-                    return _ProdukRow(produk: produk, stok: stok);
+                    return _ProdukRow(produk: produk, stok: stok, batasMargin: batasMargin);
                   },
                 );
               },
@@ -196,6 +217,7 @@ class _ProdukListPageState extends ConsumerState<ProdukListPage> {
 
 class _FilterChipButton extends StatelessWidget {
   const _FilterChipButton({
+    super.key,
     required this.label,
     required this.selected,
     required this.onTap,
@@ -237,10 +259,11 @@ class _FilterChipButton extends StatelessWidget {
 enum _ChipVariant { warning }
 
 class _ProdukRow extends StatelessWidget {
-  const _ProdukRow({required this.produk, required this.stok});
+  const _ProdukRow({required this.produk, required this.stok, required this.batasMargin});
 
   final Produk produk;
   final StokItem? stok;
+  final int batasMargin;
 
   @override
   Widget build(BuildContext context) {
@@ -262,6 +285,14 @@ class _ProdukRow extends StatelessWidget {
       stokLabel = 'Stok ${stok!.jumlah.toStringAsFixed(0)}';
       stokColor = AppColors.textSecondary;
     }
+
+    final statusMargin_ = statusMargin(hargaJual: produk.hargaJual, hpp: produk.hpp, batasPersen: batasMargin);
+    final persen = marginPersen(hargaJual: produk.hargaJual, hpp: produk.hpp);
+    final marginLabel = switch (statusMargin_) {
+      StatusMargin.rendah => 'Margin rendah $persen% (batas $batasMargin%)',
+      StatusMargin.hppKosong => 'HPP belum diisi',
+      _ => null,
+    };
 
     return Material(
       color: AppColors.surface,
@@ -285,6 +316,15 @@ class _ProdukRow extends StatelessWidget {
                   children: [
                     Text(produk.nama, style: AppTypography.bodyEmphasis),
                     Text(_labelTipe(produk.tipe), style: AppTypography.secondary),
+                    if (marginLabel != null)
+                      Text(
+                        marginLabel,
+                        key: Key('produkList.margin.${produk.id}'),
+                        style: AppTypography.secondary.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: statusMargin_ == StatusMargin.rendah ? AppColors.warningTextStrong : AppColors.textTertiary,
+                        ),
+                      ),
                   ],
                 ),
               ),

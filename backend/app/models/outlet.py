@@ -118,6 +118,8 @@ class PengaturanOutlet(Base, TimestampMixin):
     antrean_mulai: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
     # Estimasi selesai pesanan (IMOGI no. 26): lama pengerjaan bawaan dalam menit; 0 = tidak dipakai.
     estimasi_menit: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    # Batas margin (%) produk: margin di bawah ini ditandai rendah (IMOGI no. 37); bawaan 50 untuk F&B.
+    batas_margin: Mapped[int] = mapped_column(Integer, default=50, server_default="50")
 
     outlet: Mapped["Outlet"] = relationship(back_populates="pengaturan")
 

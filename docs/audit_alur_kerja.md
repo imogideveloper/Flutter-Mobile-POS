@@ -231,3 +231,10 @@ Diverifikasi langsung dari tabel `fitur_kebutuhan` di database (hasil migrasi 00
 - **Uji HP: nol.** Seluruh fitur baru dan perbaikan bug hanya dibuktikan tes otomatis. Menurut arahan, itu bukan bukti Done. Bug Ready for Retest menunggu HP: BUG-004, 009, 012, 013, 014, 015, 018 sampai 021.
 - Risiko baru: plugin native `file_picker` (belum diuji di perangkat); empat fitur keuangan/absensi/impor berbasis internet padahal aplikasi dirancang offline-first; rumus laba rugi dan pajak belum divalidasi akuntan; matriks izin per menu belum disetujui lead.
 - Konsistensi dokumen: hitungan Gap Imogi di markdown dan workbook sama (15 / 32 / 17 / 23); jumlah rumus workbook tidak berubah.
+
+### FEAT-071 (IMOGI no. 37 Harga beli & margin, Release 1, Critical), tahap pertama
+- **Alasan dipilih:** hasil audit H2: ini butir Release 1 prioritas Critical yang belum dikerjakan, relevan inti untuk ketujuh jenis usaha F&B, dan menopang laporan laba rugi (HPP).
+- **Perubahan:** backend `pengaturan_outlet.batas_margin` (migrasi 0016, 0 sampai 100, bawaan 50, tanpa gerbang paket); Flutter kolom drift (skema 13), sync pull, field "Batas margin produk (%)" di Pengaturan struk, fungsi murni `margin_produk.dart`, penanda di form produk (warna dan peringatan), lencana "Margin rendah N% (batas M%)" dan filter "Margin rendah" di daftar produk, "HPP belum diisi" untuk HPP kosong.
+- **Tes otomatis:** backend `test_pengaturan_struk.py` (+1, 16 lulus); Flutter `margin_produk_test.dart` (6) dan `margin_rendah_list_test.dart` (4). Seluruh 366 tes Flutter lulus.
+- **Workbook:** FEAT-071 menjadi In Progress; TC-089 sampai TC-091 ditambahkan (Not Tested); Gap Imogi no. 37 diperbarui.
+- **Tes perangkat:** belum. Next action: di HP (login Owner) buat produk harga 10.000 HPP 7.000; cek lencana "Margin rendah 30% (batas 50%)", filter, dan ubah batas menjadi 25 di Pengaturan struk.

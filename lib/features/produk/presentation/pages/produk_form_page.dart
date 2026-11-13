@@ -28,6 +28,8 @@ import '../../../stok/data/local/tables/mutasi_stok_table.dart'
     show MutasiJenis;
 import '../../data/local/tables/produk_table.dart' show ProdukTipe, produkTipePostgresValue;
 import '../../domain/produk.dart';
+import '../../domain/margin_produk.dart';
+import '../../../transaksi/presentation/providers/harga_keranjang_provider.dart' show pengaturanOutletProvider;
 import '../providers/kategori_providers.dart';
 import '../providers/produk_providers.dart';
 import '../widgets/produk_lanjutan_sections.dart';
@@ -336,9 +338,10 @@ class _ProdukFormPageState extends ConsumerState<ProdukFormPage> {
   Widget build(BuildContext context) {
     final online = isOnlineSaat(ref);
     final margin = _hargaJual - _hpp;
-    final marginPersen = _hargaJual == 0
-        ? 0
-        : (margin / _hargaJual * 100).round();
+    final persenMargin = marginPersen(hargaJual: _hargaJual, hpp: _hpp) ?? 0;
+    // Batas margin diatur per outlet (Pengaturan struk), bawaan 50% untuk makanan dan minuman.
+    final batasMargin = ref.watch(pengaturanOutletProvider(ref.watch(currentOutletIdProvider))).value?.batasMargin ?? batasMarginBawaan;
+    final statusMargin_ = statusMargin(hargaJual: _hargaJual, hpp: _hpp, batasPersen: batasMargin);
 
     return Scaffold(
       appBar: AppBar(
@@ -467,12 +470,25 @@ class _ProdukFormPageState extends ConsumerState<ProdukFormPage> {
                     if (_hargaJual > 0) ...[
                       const SizedBox(height: AppSpacing.sm),
                       Text(
-                        'Margin ${_formatRupiah.format(margin)} · $marginPersen%',
+                        'Margin ${_formatRupiah.format(margin)} · $persenMargin%',
+                        key: const Key('produkForm.margin'),
                         style: AppTypography.secondary.copyWith(
-                          color: AppColors.primaryDark,
+                          color: statusMargin_ == StatusMargin.rendah ? AppColors.warningTextStrong : AppColors.primaryDark,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
+                      if (statusMargin_ == StatusMargin.rendah)
+                        Text(
+                          'Di bawah batas margin $batasMargin%. Periksa harga jual atau HPP.',
+                          key: const Key('produkForm.margin.peringatan'),
+                          style: AppTypography.secondary.copyWith(color: AppColors.warningTextStrong),
+                        )
+                      else if (statusMargin_ == StatusMargin.hppKosong)
+                        Text(
+                          'HPP belum diisi, margin belum akurat.',
+                          key: const Key('produkForm.margin.hppKosong'),
+                          style: AppTypography.secondary,
+                        ),
                     ],
                     const SizedBox(height: AppSpacing.lg),
                     _LabeledField(

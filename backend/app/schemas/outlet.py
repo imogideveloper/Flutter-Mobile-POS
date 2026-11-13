@@ -53,6 +53,7 @@ class PengaturanOutletIn(BaseModel):
     antrean_mulai: int | None = Field(default=None, ge=1, le=9999)
     # Lama pengerjaan bawaan (menit) untuk estimasi selesai pesanan; 0 = matikan.
     estimasi_menit: int | None = Field(default=None, ge=0, le=480)
+    batas_margin: int | None = Field(default=None, ge=0, le=100)
 
 
 class PengaturanOutletOut(BaseModel):
@@ -69,5 +70,6 @@ class PengaturanOutletOut(BaseModel):
     antrean_awalan: str
     antrean_mulai: int
     estimasi_menit: int
+    batas_margin: int
 
     model_config = {"from_attributes": True}

@@ -114,3 +114,13 @@ Aturan baca: **Sementara** = perilaku yang sekarang dipakai di kode. **Dampak bi
 | I1 | Impor pelanggan hanya menambah; nomor HP yang sudah terdaftar ditolak, tidak memperbarui data lama | Perlu keputusan "perbarui bila nomor sama" |
 | I2 | Nomor HP dinormalkan ke angka saja; format 0812/62812/+62812 dianggap satu nomor; angka 0 yang hilang karena Excel dipulihkan secara heuristik | Heuristik bisa keliru untuk nomor non-seluler Indonesia |
 | I3 | Impor tidak mengisi poin, level member, atau batas kasbon | Pelanggan lama dengan saldo poin harus dimigrasikan terpisah |
+
+## Tambahan 2026-11-13 (harga beli dan margin, IMOGI no. 37)
+
+| # | Hal | Sementara |
+|---|---|---|
+| J1 | "Hak akses lihat harga beli": belum ada izin khusus; HPP dan margin hanya terlihat di halaman Produk yang dijaga izin `produk.kelola` (Owner/Manajer), kasir tidak melihatnya | Daftar 18 hak akses IMOGI belum dicocokkan; bila perlu izin `produk.lihat_hpp` terpisah, butuh keputusan lead dan perubahan seed izin |
+| J2 | Batas margin bawaan 50% untuk semua jenis usaha F&B (dari panduan Pengaturan Stok) | Panduan hanya menyebut 50% untuk F&B; bawaan per jenis usaha belum dibedakan |
+| J3 | Rumus margin = (harga jual - HPP) / harga jual; tepat di batas dianggap aman | Bila IMOGI memakai markup (dari HPP), angkanya berbeda |
+| J4 | HPP kosong ditandai "HPP belum diisi" dan tidak dihitung sebagai margin rendah | Alternatif: menganggap margin 100% |
+| J5 | Batas margin diletakkan di Pengaturan struk (halaman pengaturan outlet yang ada), padahal panduan menempatkannya di tab Stok/Katalog | Pindah saat Menu Pengaturan IMOGI dibangun |

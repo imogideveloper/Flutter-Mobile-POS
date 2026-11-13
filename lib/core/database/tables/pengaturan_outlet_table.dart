@@ -24,6 +24,8 @@ class PengaturanOutlet extends Table {
   IntColumn get antreanMulai => integer().withDefault(const Constant(1))();
   // Estimasi selesai pesanan (IMOGI no. 26): lama pengerjaan bawaan (menit); 0 = tidak dipakai.
   IntColumn get estimasiMenit => integer().withDefault(const Constant(0))();
+  // Batas margin (%) produk: margin di bawah ini ditandai rendah (IMOGI no. 37); bawaan 50 untuk F&B.
+  IntColumn get batasMargin => integer().withDefault(const Constant(50))();
   IntColumn get createdAt => integer()();
   IntColumn get updatedAt => integer()();
   IntColumn get deletedAt => integer().nullable()();

@@ -54,6 +54,7 @@ def salin_gaya(ws, dari_baris, ke_baris):
 
 # ----------------------------------------------------------------------------- tracker
 GAP = {
+    37: "SEBAGIAN (2026-11-13): penanda margin rendah di form dan daftar produk (filter Margin rendah, lencana, peringatan di form) dengan batas per outlet di Pengaturan struk (bawaan 50% untuk F&B, migrasi 0016); HPP kosong ditandai tersendiri. Hak akses lihat harga beli mengikuti izin produk.kelola (belum ada izin khusus). Lulus tes otomatis, belum diuji di HP.",
     # No IMOGI: teks temuan baru (status berubah Belum ada -> Sebagian)
     38: "SEBAGIAN (2026-11-12): Lainnya > Impor & ekspor produk: template CSV, pratinjau, simulasi dan impor (maks 500 baris) lewat POST /produk/impor. Belum: .xlsx, memperbarui produk lama, varian, stok awal, gambar. Plugin file_picker baru; lulus tes otomatis, belum diuji di HP.",
     39: "SEBAGIAN (2026-11-12): ekspor seluruh produk HP ke CSV lewat menu bagikan. Lulus tes otomatis, belum diuji di HP.",
@@ -67,6 +68,7 @@ GAP = {
 
 # Feature ID -> (catatan, TC terkait yang ditambahkan, status baru atau None)
 FEAT = {
+    "FEAT-071": ("Harga beli & margin (IMOGI no. 37): penanda margin di bawah batas per outlet (bawaan 50%, Pengaturan struk), filter dan lencana di daftar produk, peringatan di form; HPP kosong ditandai. Hak akses lihat harga beli mengikuti izin produk.kelola (keputusan sementara, docs/perlu_konfirmasi.md J1). Lulus tes otomatis; belum diuji di HP.", ["TC-089", "TC-090", "TC-091"], "In Progress"),
     "FEAT-076": ("Pengeluaran & biaya operasional: tahap pertama selesai di kode (online-only, 9 kategori, izin laporan.lihat). Lulus tes otomatis; belum diuji di HP.", ["TC-070", "TC-071", "TC-072"], "In Progress"),
     "FEAT-077": ("Laporan laba rugi: tahap pertama selesai di kode (rumus sementara, perlu validasi akuntan). Lulus tes otomatis; belum diuji di HP.", ["TC-073", "TC-074"], "In Progress"),
     "FEAT-078": ("Estimasi PPh Final 0,5% per bulan: tahap pertama selesai di kode (tarif tetap, ambang bebas pajak belum dihitung). Lulus tes otomatis; belum diuji di HP.", ["TC-076"], "In Progress"),
@@ -216,6 +218,14 @@ TC_BARU = [
      "Kasir tidak melihat Stok, Pajak, Karyawan, Paket langganan, tab Produk dan Laporan; Owner melihat semuanya.", H, "Functional"),
     ("TC-088", "FEAT-028", "Karyawan", "Keluar/ganti kasir dari Lainnya", "Kasir dapat keluar akun tanpa tab Produk.",
      "Login Kasir.", "1. Lainnya > Keluar / ganti kasir", "-", "Kembali ke layar pilih pengguna; akun berikutnya bisa masuk.", H, "Functional"),
+    ("TC-089", "FEAT-071", "Produk", "Penanda margin rendah di daftar dan form produk", "Produk dengan margin di bawah batas ditandai.",
+     "Login Owner; produk A harga 18.000 HPP 7.000, produk B harga 10.000 HPP 7.000.", "1. Lainnya > Pengaturan struk: pastikan Batas margin 50\n2. Buka tab Produk\n3. Ketuk filter Margin rendah\n4. Buka produk B", "Produk A dan B",
+     "Produk B tampil dengan lencana Margin rendah 30% (batas 50%) dan satu-satunya di filter; produk A tidak ditandai; form B menampilkan peringatan di bawah batas.", H, "Functional"),
+    ("TC-090", "FEAT-071", "Produk", "Batas margin per outlet dapat diubah dan tersinkron", "Batas baru langsung dipakai penanda.",
+     "Login Owner; internet aktif.", "1. Pengaturan struk: ubah Batas margin menjadi 25, Simpan\n2. Buka tab Produk", "Batas 25",
+     "Produk B (margin 30%) tidak lagi ditandai; nilai 25 bertahan setelah sync dan buka ulang aplikasi.", M, "Functional"),
+    ("TC-091", "FEAT-071", "Produk", "HPP kosong ditandai, bukan margin 100 persen", "Produk tanpa HPP diberi penanda tersendiri.",
+     "Produk harga 3.000 tanpa HPP.", "1. Buka tab Produk", "-", "Tampil HPP belum diisi; produk tidak masuk filter Margin rendah.", L, "Negative"),
 ]
 
 NOTE_TC = "Diusulkan 2026-11-13 dari cara uji fitur; fitur lulus tes otomatis tetapi belum dijalankan di HP. ID berurutan; QA/lead boleh menyesuaikan."
@@ -249,9 +259,12 @@ def perbarui_qa(path):
 
     ws = wb["Instructions"]
     for r in range(1, ws.max_row + 1):
-        if ws.cell(r, 1).value == "Test Case" and "TC-088" not in str(ws.cell(r, 2).value):
+        if ws.cell(r, 1).value == "Test Case" and "TC-088" in str(ws.cell(r, 2).value) and "TC-091" not in str(ws.cell(r, 2).value):
+            # Perluas rentang pada kalimat yang sudah ada (jangan menambah kalimat kedua).
+            ws.cell(r, 2).value = str(ws.cell(r, 2).value).replace("TC-070 sampai TC-088", "TC-070 sampai TC-091")
+        elif ws.cell(r, 1).value == "Test Case" and "TC-091" not in str(ws.cell(r, 2).value):
             ws.cell(r, 2).value = str(ws.cell(r, 2).value) + (
-                " TC-070 sampai TC-088 ditambahkan 2026-11-13 (diusulkan, Not Tested) untuk fitur baru: pengeluaran, laba rugi, "
+                " TC-070 sampai TC-091 ditambahkan 2026-11-13 (diusulkan, Not Tested) untuk fitur baru: pengeluaran, laba rugi, "
                 "rekap pajak, impor/ekspor produk, impor pelanggan, absensi, estimasi dan WhatsApp status pesanan, hak akses menu. "
                 "Belum ada yang dijalankan di HP."
             )

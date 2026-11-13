@@ -292,3 +292,17 @@ async def test_estimasi_menit_bawaan_validasi_dan_gate_status_pesanan(
     assert resp2.json()["estimasi_menit"] == 15
     # Setelah aktif, mengirim ulang nilai yang sama tetap lolos.
     assert (await client.patch(url2, headers=bisnis.headers, json={"estimasi_menit": 15})).status_code == 200
+
+
+async def test_batas_margin_bawaan_50_validasi_dan_tersimpan(client: AsyncClient, toko_a) -> None:
+    url = f"/outlets/{toko_a.outlet.id}/pengaturan"
+    assert (await client.get(url, headers=toko_a.headers)).json()["batas_margin"] == 50
+
+    resp = await client.patch(url, headers=toko_a.headers, json={"batas_margin": 35})
+    assert resp.status_code == 200 and resp.json()["batas_margin"] == 35
+    assert (await client.get(url, headers=toko_a.headers)).json()["batas_margin"] == 35
+    # Tidak digerbang paket (Free tier), batas 0 sampai 100
+    assert (await client.patch(url, headers=toko_a.headers, json={"batas_margin": 0})).status_code == 200
+    assert (await client.patch(url, headers=toko_a.headers, json={"batas_margin": 100})).status_code == 200
+    assert (await client.patch(url, headers=toko_a.headers, json={"batas_margin": -1})).status_code == 422
+    assert (await client.patch(url, headers=toko_a.headers, json={"batas_margin": 101})).status_code == 422

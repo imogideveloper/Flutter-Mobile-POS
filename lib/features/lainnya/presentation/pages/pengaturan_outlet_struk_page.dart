@@ -46,12 +46,14 @@ class _PengaturanOutletStrukPageState extends ConsumerState<PengaturanOutletStru
   final _antreanAwalanController = TextEditingController(text: 'A');
   final _antreanMulaiController = TextEditingController(text: '1');
   final _estimasiController = TextEditingController(text: '0');
+  final _batasMarginController = TextEditingController(text: '50');
   bool _izinkanStokMinus = true;
   int _pembulatan = 0;
   String? _logoUrl;
 
   int get _antreanMulai => (int.tryParse(_antreanMulaiController.text) ?? 1).clamp(1, 9999);
   int get _estimasiMenit => (int.tryParse(_estimasiController.text) ?? 0).clamp(0, 480);
+  int get _batasMargin => (int.tryParse(_batasMarginController.text) ?? 50).clamp(0, 100);
 
   bool _memuat = true;
   bool _menyimpan = false;
@@ -72,6 +74,7 @@ class _PengaturanOutletStrukPageState extends ConsumerState<PengaturanOutletStru
     _antreanAwalanController.dispose();
     _antreanMulaiController.dispose();
     _estimasiController.dispose();
+    _batasMarginController.dispose();
     super.dispose();
   }
 
@@ -100,6 +103,7 @@ class _PengaturanOutletStrukPageState extends ConsumerState<PengaturanOutletStru
       _antreanAwalanController.text = (data['antrean_awalan'] as String?) ?? 'A';
       _antreanMulaiController.text = '${(data['antrean_mulai'] as int?) ?? 1}';
       _estimasiController.text = '${(data['estimasi_menit'] as int?) ?? 0}';
+      _batasMarginController.text = '${(data['batas_margin'] as int?) ?? 50}';
       _izinkanStokMinus = data['izinkan_stok_minus'] as bool;
       _pembulatan = (data['pembulatan'] as int?) ?? 0;
     } catch (e) {
@@ -127,6 +131,7 @@ class _PengaturanOutletStrukPageState extends ConsumerState<PengaturanOutletStru
               'antrean_awalan': _antreanAwalanController.text.trim(),
               'antrean_mulai': _antreanMulai,
               'estimasi_menit': _estimasiMenit,
+              'batas_margin': _batasMargin,
               'pembulatan': _pembulatan,
               'izinkan_stok_minus': _izinkanStokMinus,
             },
@@ -146,6 +151,7 @@ class _PengaturanOutletStrukPageState extends ConsumerState<PengaturanOutletStru
               antreanAwalan: Value(_antreanAwalanController.text.trim()),
               antreanMulai: Value(_antreanMulai),
               estimasiMenit: Value(_estimasiMenit),
+              batasMargin: Value(_batasMargin),
               pembulatan: Value(_pembulatan),
               izinkanStokMinus: Value(_izinkanStokMinus),
               createdAt: DateTime.now().millisecondsSinceEpoch,
@@ -372,6 +378,16 @@ class _PengaturanOutletStrukPageState extends ConsumerState<PengaturanOutletStru
                           ),
                         ],
                       ),
+                    TextField(
+                      key: const Key('pengaturanOutletForm.batasMargin'),
+                      controller: _batasMarginController,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      decoration: const InputDecoration(
+                        labelText: 'Batas margin produk (%)',
+                        helperText: 'Produk dengan margin di bawah angka ini ditandai. Bawaan 50 untuk makanan dan minuman.',
+                      ),
+                    ),
                     FiturTerkunci(
                       kode: 'status_pesanan',
                       child: TextField(
