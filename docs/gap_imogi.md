@@ -17,14 +17,14 @@ Tanggal: 2026-11-08. Menggantikan `docs/gap_fnb.md` sebagai acuan utama. Daftar 
 | Fitur di daftar IMOGI | 87 |
 | Relevan untuk Makanan & Minuman (inti atau opsional untuk minimal 1 dari 7 jenis usaha) | 64 |
 | Tidak relevan untuk Makanan & Minuman (disembunyikan) | 23 |
-| ✅ Lengkap | 15 |
-| 🟡 Sebagian | 24 |
-| ❌ Belum ada | 25 |
-| Fitur inti untuk Kafe & Kedai Kopi | 46 (✅ 11, 🟡 18, ❌ 17) |
+| ✅ Lengkap | 15 (tidak berubah: belum ada fitur yang diuji di HP, jadi tidak ada yang dinaikkan) |
+| 🟡 Sebagian | 32 (awal audit 24; +8 sejak 2026-11-12/13) |
+| ❌ Belum ada | 17 (awal audit 25) |
+| Fitur inti untuk Kafe & Kedai Kopi | 46 (✅ 11, 🟡 24, ❌ 11); awal audit ✅ 11, 🟡 18, ❌ 17 |
 
 **Temuan utama:**
 1. **Katalog paket sudah diselaraskan (fondasi selesai, migrasi 0010).** Backend kini memakai 4 paket IMOGI (Free, Starter, Professional, Enterprise) dan 87 fitur; sebelumnya 3 paket dan 32 fitur hasil salinan Qasir. Harga dan kuota paket masih **harga contoh** karena dokumen IMOGI tidak memuatnya. Fitur baru belum menggerbang apa pun sampai diimplementasikan.
-2. **Hampir separuh fitur relevan F&B belum ada**, terutama modul Akuntansi (laba rugi, PPN/PB1, PPh Final, jurnal, payroll, dll.) dan keuangan dasar (pengeluaran).
+2. **Sebelumnya hampir separuh fitur relevan F&B belum ada** (kini 17 dari 64 setelah 8 fitur mendapat versi awal pada 2026-11-12/13). Yang masih belum ada: jurnal, buku besar, neraca, anggaran, payroll, ekspor ke software akuntansi, dan sebagian keuangan lain.
 3. **Alur pesanan kafe sudah terbangun sebagian (2026-11-08):** varian dan tambahan produk (ukuran, level gula, topping), tiket dapur, status pesanan, dan nomor antrian sudah ada di kode dan lulus tes otomatis, tetapi **belum diuji di HP dan printer**. Yang tersisa: estimasi selesai, pesan WhatsApp saat siap, tahap Diantar, pengaturan awalan nomor antrian.
 4. **Menu Pengaturan versi IMOGI belum ada.** IMOGI punya 11 tab pengaturan dengan bawaan otomatis per jenis usaha, simpan otomatis, dan tombol "Kembalikan ke rekomendasi". Aplikasi hanya punya pengaturan terpisah-pisah (lihat bagian 6).
 5. **Beberapa gap dari analisis lama tidak ada di daftar IMOGI**: pilih meja saat transaksi, catatan per item, pisah/gabung bill, layar dapur (KDS), menu habis (sold out), dan tip. Kata "meja" tidak muncul di kedua dokumen. Perlu konfirmasi lead apakah tetap dikerjakan.
@@ -67,11 +67,11 @@ Diurutkan: inti untuk Kafe & Kedai Kopi lebih dulu. ❌ = belum ada, 🟡 = seba
 | 10 | Pembayaran | Pembayaran QRIS | Starter | 7 inti, 0 opsional, Kafe: Inti | 🟡 | QRIS dinamis Xendit belum teruji (kunci kosong). Imogi memakai QRIS statis dari gambar yang diunggah usaha; pengaturan unggah gambar QRIS belum ditemukan. |
 | 36 | Produk | Kelola produk, kategori & harga | Free | 7 inti, 0 opsional, Kafe: Inti | 🟡 | CRUD produk, kategori, dan harga ada. Kasir tidak punya tab kategori (Imogi: tab kasir mengikuti urutan kategori). |
 | 37 | Produk | Harga beli & margin produk | Free | 7 inti, 0 opsional, Kafe: Inti | 🟡 | HPP dan margin tampil di form produk. Belum ada penanda margin di bawah batas (bawaan 50% untuk F&B) dan hak akses lihat harga beli. |
-| 38 | Produk | Upload produk via template | Starter | 7 inti, 0 opsional, Kafe: Inti | ❌ | Tidak ada kode unggah template. |
+| 38 | Produk | Upload produk via template | Starter | 7 inti, 0 opsional, Kafe: Inti | 🟡 | SEBAGIAN (2026-11-12): Lainnya > Impor & ekspor produk: template CSV, pratinjau, simulasi dan impor (maks 500 baris) lewat `POST /produk/impor`. Belum: .xlsx, memperbarui produk lama, varian, stok awal, gambar. Plugin `file_picker` baru, belum diuji di HP. |
 | 65 | Laporan | Tren penjualan | Starter | 7 inti, 0 opsional, Kafe: Inti | 🟡 | Tanpa grafik tren. |
-| 67 | Akuntansi | Catat pengeluaran & biaya operasional | Starter | 7 inti, 0 opsional, Kafe: Inti | ❌ | Tidak ada pencatatan pengeluaran dan kategori pengeluaran (F&B: belanja bahan [HPP], gas LPG, kemasan). |
-| 69 | Akuntansi | Laporan laba rugi | Professional | 7 inti, 0 opsional, Kafe: Inti | ❌ | Hanya laba kotor di ringkasan laporan; tidak ada laporan laba rugi. |
-| 70 | Akuntansi | Rekap pajak PPh Final UMKM (0,5%) | Professional | 7 inti, 0 opsional, Kafe: Inti | ❌ | Tidak ada rekap PPh Final. |
+| 67 | Akuntansi | Catat pengeluaran & biaya operasional | Starter | 7 inti, 0 opsional, Kafe: Inti | 🟡 | SEBAGIAN (2026-11-12): menu Lainnya > Pengeluaran (Owner/Manajer), 9 kategori F&B, rentang hari/7 hari/bulan, total dan rincian per kategori, catat dan hapus; server `/pengeluaran` (migrasi 0015, digerbang fitur `expenses`). Belum: offline (butuh internet), edit, foto nota, berulang. Lulus tes otomatis, belum diuji di HP. |
+| 69 | Akuntansi | Laporan laba rugi | Professional | 7 inti, 0 opsional, Kafe: Inti | 🟡 | SEBAGIAN (2026-11-12): Lainnya > Laba rugi: penjualan kotor, diskon, HPP, laba kotor, biaya operasional, laba bersih; server `/laporan/laba-rugi`. Rumus adalah keputusan sementara (belanja bahan tidak dikurangkan lagi, refund belum dihitung); perlu validasi akuntan. Butuh internet, belum diuji di HP. |
+| 70 | Akuntansi | Rekap pajak PPh Final UMKM (0,5%) | Professional | 7 inti, 0 opsional, Kafe: Inti | 🟡 | SEBAGIAN (2026-11-12): tab PPh Final di Lainnya > Rekap pajak: estimasi tarif 0,5% x peredaran bruto per bulan; server `/laporan/pph-final`. Ambang bebas pajak dan status wajib pajak belum dihitung, hanya estimasi. Belum diuji di HP. |
 | 72 | Akuntansi | HPP & margin per produk/layanan | Professional | 7 inti, 0 opsional, Kafe: Inti | 🟡 | HPP per item tersimpan dan margin tampil di form produk. Belum ada laporan HPP dan margin. |
 | 61 | Karyawan | Kelola karyawan | Starter | 6 inti, 1 opsional, Kafe: Inti | 🟡 | CRUD pengguna dan peran ada. Daftar hak akses Imogi (jualan, bon/DP, status pesanan, lihat margin, pengeluaran, dst.) dan peran bawaan Barista & Dapur belum dicocokkan. |
 | 74 | Akuntansi | Settlement & rekonsiliasi QRIS/e-wallet | Professional | 6 inti, 1 opsional, Kafe: Inti | ❌ | Tidak ada settlement atau rekonsiliasi QRIS dan e-wallet. |
@@ -82,7 +82,7 @@ Diurutkan: inti untuk Kafe & Kedai Kopi lebih dulu. ❌ = belum ada, 🟡 = seba
 | 18 | Pembayaran | Label jenis pembayaran | Enterprise | 3 inti, 4 opsional, Kafe: Inti | 🟡 | Aplikasi: ubah nama/urutan metode bayar. Imogi: label tujuan (GoPay, OVO, ShopeePay, bank) untuk rekonsiliasi. Konsepnya berbeda. |
 | 26 | Dapur | Status pesanan | Enterprise | 3 inti, 3 opsional, Kafe: Inti | 🟡 | SELESAI sebagian (2026-11-08): status awal Baru dibuat saat checkout, halaman Status Pesanan (menu Lainnya) memajukan tahap Baru, Diproses, Siap, Selesai (katering: Dipesan, Dimasak, Siap kirim, Dikirim, Selesai), tersimpan offline dan dikirim lewat sync (migrasi 0011). KEMAJUAN 2026-11-10: pesanan bertipe antar otomatis memuat tahap Diantar. Belum ada estimasi selesai, pesan WhatsApp saat siap, dan uji di HP. |
 | 34 | Dapur | Nomor antrian | Enterprise | 3 inti, 1 opsional, Kafe: Inti | 🟡 | SELESAI sebagian (2026-11-08): HP membuat nomor A-001 sendiri saat offline (per hari, outlet, perangkat), tersimpan di transaksi, tampil di struk dan halaman sukses, dikirim lewat sync. KEMAJUAN 2026-11-10: awalan dan angka awal bisa diatur per outlet di Pengaturan struk (migrasi 0012). Belum ada panggilan suara, layar antrian, dan nama di layar antrian. Belum diuji di HP. |
-| 62 | Karyawan | Absensi karyawan | Professional | 3 inti, 4 opsional, Kafe: Inti | ❌ | Hanya tabel lokal. |
+| 62 | Karyawan | Absensi karyawan | Professional | 3 inti, 4 opsional, Kafe: Inti | 🟡 | SEBAGIAN (2026-11-12): Lainnya > Absensi: absen masuk/keluar, rekap jam kerja, endpoint `/absensi` (waktu server, batas hari mengikuti zona perangkat). Belum: foto, lokasi, jadwal, terlambat, koreksi, offline. Belum diuji di HP. |
 | 63 | Karyawan | Jadwal shift mingguan & cuti | Professional | 3 inti, 4 opsional, Kafe: Inti | ❌ | Tidak ada jadwal shift mingguan dan cuti. |
 | 76 | Akuntansi | Penggajian (payroll) & kasbon karyawan | Enterprise | 3 inti, 4 opsional, Kafe: Inti | ❌ | Tidak ada penggajian dan kasbon karyawan. |
 | 80 | Akuntansi | Chart of Accounts & jurnal umum | Enterprise | 3 inti, 4 opsional, Kafe: Inti | ❌ | Tidak ada chart of accounts dan jurnal umum. |
@@ -93,7 +93,7 @@ Diurutkan: inti untuk Kafe & Kedai Kopi lebih dulu. ❌ = belum ada, 🟡 = seba
 | 6 | Kasir | Biaya layanan per tipe pesanan | Enterprise | 2 inti, 3 opsional, Kafe: Inti | 🟡 | Service fee per tipe pesanan ada. Bawaan 5% makan di tempat untuk kafe dan restoran belum otomatis dari jenis usaha. |
 | 24 | Struk | Logo usaha di struk | Enterprise | 2 inti, 5 opsional, Kafe: Inti | 🟡 | Logo ada (unggah). Imogi juga menyediakan gaya logo siap pakai (lingkaran, cincin, inisial) dan tanpa logo. BUG-012 menghalangi simpan pengaturan di paket Gratis. |
 | 59 | Pelanggan | Survei pelanggan | Professional | 2 inti, 5 opsional, Kafe: Inti | ❌ | Hanya tabel lokal. |
-| 73 | Akuntansi | Rekap pajak PPN & PB1 | Professional | 2 inti, 5 opsional, Kafe: Inti | ❌ | Tidak ada rekap PPN dan PB1. |
+| 73 | Akuntansi | Rekap pajak PPN & PB1 | Professional | 2 inti, 5 opsional, Kafe: Inti | 🟡 | SEBAGIAN (2026-11-12): tab PPN/PB1 di Lainnya > Rekap pajak: pajak dan service dipungut per nama dan tarif; server `/laporan/rekap-pajak`. Belum: ekspor, PPN masukan/keluaran, pelaporan SPT. Belum diuji di HP. |
 | 83 | Akuntansi | Aset tetap & penyusutan | Enterprise | 2 inti, 4 opsional, Kafe: Inti | ❌ | Tidak ada aset tetap dan penyusutan. |
 | 84 | Akuntansi | Laporan keuangan konsolidasi multi-outlet | Enterprise | 2 inti, 5 opsional, Kafe: Inti | ❌ | Tidak ada laporan keuangan konsolidasi. |
 | 87 | Outlet | Multi-Outlet | Professional | 2 inti, 5 opsional, Kafe: Inti | 🟡 | Backend ada; di aplikasi tidak ada UI ganti outlet. |
@@ -103,12 +103,12 @@ Diurutkan: inti untuk Kafe & Kedai Kopi lebih dulu. ❌ = belum ada, 🟡 = seba
 | 49 | Stok | Kelola stok produk | Free | 3 inti, 4 opsional, Kafe: Opsional | 🟡 | Stok dan mutasi ada, tetapi layar hanya menampilkan mutasi terakhir. Pengaturan saat stok habis terblokir BUG-012. |
 | 50 | Stok | Pengingat kedaluwarsa produk | Enterprise | 2 inti, 5 opsional, Kafe: Opsional | ❌ | Backend punya kolom/batch kedaluwarsa; tanpa UI atau job. |
 | 14 | Pembayaran | Pembayaran transfer bank | Free | 1 inti, 6 opsional, Kafe: Opsional | 🟡 | Metode transfer ada. Belum ada daftar rekening bank (bank, nomor, atas nama). |
-| 39 | Produk | Ekspor produk | Starter | 1 inti, 6 opsional, Kafe: Opsional | ❌ | Tidak ada kode ekspor. |
+| 39 | Produk | Ekspor produk | Starter | 1 inti, 6 opsional, Kafe: Opsional | 🟡 | SEBAGIAN (2026-11-12): ekspor seluruh produk HP ke CSV lewat menu bagikan (Lainnya > Impor & ekspor produk). Belum diuji di HP. |
 | 43 | Produk | Jual per kemasan (pcs, dus, pak) | Starter | 1 inti, 1 opsional | ❌ | Tidak ada konsep jual per kemasan (pcs, dus, pak). |
 | 79 | Akuntansi | Pendapatan diterima di muka (deposit/membership) | Enterprise | 1 inti, 3 opsional, Kafe: Opsional | ❌ | Tidak ada pendapatan diterima di muka. |
 | 25 | Struk | Catatan tambahan di struk | Enterprise | 0 inti, 7 opsional, Kafe: Opsional | 🟡 | Catatan pesanan tercetak. Teks catatan tambahan toko di bawah struk (maks. 300 karakter) belum ditemukan. |
 | 27 | Dapur | Terima order, bayar belakangan (nota order) | Free | 0 inti, 3 opsional, Kafe: Opsional | 🟡 | Open bill dan kasbon ada. Tombol Terima Order dan pilihan kapan pelanggan membayar belum ada. |
-| 53 | Pelanggan | Upload pelanggan via template | Professional | 0 inti, 6 opsional, Kafe: Opsional | ❌ | Tidak ada unggah pelanggan lewat template. |
+| 53 | Pelanggan | Upload pelanggan via template | Professional | 0 inti, 6 opsional, Kafe: Opsional | 🟡 | SEBAGIAN (2026-11-13): Lainnya > Impor pelanggan: template CSV, pratinjau, simulasi dan impor lewat `POST /pelanggan/impor`; nomor HP dinormalkan. Belum: memperbarui pelanggan lama, poin/level. Belum diuji di HP. |
 | 57 | Pelanggan | Kirim WA ke banyak pelanggan | Professional | 0 inti, 5 opsional, Kafe: Opsional | ❌ | Hanya kirim struk lewat WhatsApp; belum ada kirim pesan massal ke pelanggan. |
 | 77 | Akuntansi | BPJS & PPh 21 di penggajian | Enterprise | 0 inti, 7 opsional, Kafe: Opsional | ❌ | Tidak ada BPJS dan PPh 21. |
 | 78 | Akuntansi | Tutup buku akhir tahun | Enterprise | 0 inti, 7 opsional, Kafe: Opsional | ❌ | Tidak ada tutup buku akhir tahun. |

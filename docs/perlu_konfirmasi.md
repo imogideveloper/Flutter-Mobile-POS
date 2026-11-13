@@ -59,7 +59,7 @@ Aturan baca: **Sementara** = perilaku yang sekarang dipakai di kode. **Dampak bi
 
 | # | Hal |
 |---|---|
-| E1 | Fitur yang saya tambahkan belum punya ID TASK/FEAT/TC di workbook (tidak saya karang): cetak ulang tiket, tahap Diantar, awalan/angka awal antrian, kategori masuk tiket dapur, estimasi selesai, WhatsApp saat siap, penjagaan izin menu, jalur logout di Lainnya, pengeluaran (no. 67), laba rugi (no. 69), rekap pajak (no. 73 dan 70). Perlu ID dari lead/QA. |
+| E1 | **Dikoreksi 2026-11-13:** delapan fitur IMOGI baru (no. 38, 39, 53, 62, 67, 69, 70, 73) SUDAH punya ID FEAT di Feature Inventory (FEAT-035, 034, 036, 038, 076, 077, 078, 080) dan kini berstatus In Progress; test case baru TC-070 sampai TC-088 dan skenario UAT-016 sampai UAT-019 ditambahkan sebagai rencana (Not Tested / Not Prepared, ID berurutan yang boleh diganti QA/lead). Yang BELUM punya ID: cetak ulang tiket dapur, tahap Diantar, awalan/angka awal antrian, kategori masuk tiket dapur, estimasi selesai, WhatsApp saat siap, penjagaan izin menu, jalur logout (kini dicatat di Notes FEAT-041, FEAT-028, FEAT-050). **Belum ada TASK** untuk fitur-fitur ini di Task Tracker: ID TASK, PIC, dan tanggal perlu ditetapkan lead (tidak saya karang). |
 | E2 | Baris dummy masih ada (BUG-901..903, RUN-901..903, RETEST-901, UAT-RUN-901/902); bukan hasil nyata. |
 | E3 | Konflik antar sumber: BUG-019 dan BUG-020 deskripsi bertukar; UAT-009 vs UAT-012; TASK-022..027 ada di Timeline. Didokumentasikan, belum diputuskan. |
 | E4 | Skrip pembangkit Excel asli hilang; saat ini diperbarui dengan skrip tambal (`_perbarui_catatan.py`, `_perbarui_status.py`). |
