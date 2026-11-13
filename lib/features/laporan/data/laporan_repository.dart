@@ -123,6 +123,15 @@ class LaporanRepository {
       jamRamai: jamRamai,
       metodeBayar: metodeBayar,
       produkTerlaris: produkTerlaris.take(5).toList(),
+      marginProduk: hitungMarginProduk([
+        for (final item in items)
+          BarisItemMargin(
+            nama: item.namaProduk,
+            qty: item.qty,
+            omzet: item.subtotal,
+            hpp: (item.hppSatuan * item.qty).round(),
+          ),
+      ]),
     );
   }
 }

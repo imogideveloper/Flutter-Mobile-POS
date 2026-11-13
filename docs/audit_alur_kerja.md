@@ -262,3 +262,10 @@ Diverifikasi langsung dari tabel `fitur_kebutuhan` di database (hasil migrasi 00
 - **Tes otomatis:** `riwayat_mutasi_stok_test.dart` (5: logika dan halaman dengan mutasi nyata dari `catatMutasi`). Seluruh 392 tes Flutter lulus; tes alur stok yang sudah ada tidak terpengaruh.
 - **Workbook:** FEAT-061 menjadi Ready for QA; TC-097 dan TC-098 (Not Tested); Gap Imogi no. 49 diperbarui (tetap Sebagian).
 - **Batas:** maksimal 300 mutasi terbaru, tanpa filter tanggal; mutasi semua varian produk digabung.
+
+### FEAT-048 (IMOGI no. 72, HPP & margin per produk) dan cacat HPP checkout
+- **Cacat ditemukan saat memulai fitur ini:** `TransaksiRepository.checkout` membuat `ItemTransaksi` tanpa `hppSatuan`, sehingga nilainya selalu 0 (default). Dampak: laba kotor lokal = penjualan, HPP yang dikirim ke server selalu 0, dan laporan laba rugi (no. 69) serta margin tidak pernah memuat HPP untuk transaksi nyata. Tes backend laba rugi lolos karena mengirim `hpp_satuan` secara manual lewat API, sedangkan tes aplikasi tidak memeriksa kolom itu. **Ini menunjukkan tes otomatis saya sebelumnya belum cukup menguji jalur data dari ujung ke ujung.**
+- **Perbaikan:** `_hppSaatIni` membaca HPP produk saat checkout dan menyimpannya sebagai snapshot di tiap item (tidak berubah bila HPP produk diubah kemudian). Hanya jalur checkout transaksi selesai; pesanan tersimpan tidak terpengaruh. **Transaksi lama tidak dikoreksi** (lihat perlu_konfirmasi L2).
+- **Fitur:** kartu "HPP & margin per produk" di tab Laporan (offline, dari data lokal): qty, omzet, HPP, laba, margin %, warna peringatan di bawah batas margin outlet, penanda HPP kosong; dikunci paket Professional (`product_margin`). Domain `hitungMarginProduk`, `MarginProdukLaporan`, `BarisItemMargin`.
+- **Tes otomatis:** `laporan_margin_test.dart` (7: fungsi murni, snapshot HPP saat checkout, HPP tidak berubah mengikuti produk, HPP kosong, dan kartu di halaman Laporan). Seluruh 399 tes Flutter lulus.
+- **Workbook:** FEAT-048 (Laporan F&B, Future Release) menjadi Ready for QA; TC-099 sampai TC-101 (Not Tested). Pembaruan H2: jumlah fitur Future Release yang dikerjakan menjadi **sepuluh** (ditambah FEAT-048).

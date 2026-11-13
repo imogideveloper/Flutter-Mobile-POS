@@ -9,6 +9,10 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../fitur/presentation/providers/feature_gate_provider.dart';
+import '../../../../core/providers/session_provider.dart';
+import '../../../../core/widgets/fitur_terkunci.dart';
+import '../../../produk/domain/margin_produk.dart';
+import '../../../transaksi/presentation/providers/harga_keranjang_provider.dart' show pengaturanOutletProvider;
 import '../../../transaksi/domain/metode_bayar_label.dart';
 import '../../data/laporan_repository.dart';
 import '../../domain/ringkasan_laporan.dart';
@@ -185,6 +189,10 @@ class _IsiLaporan extends StatelessWidget {
           if (ringkasan.jamRamai.isNotEmpty) ..._kartuJamRamai(),
           if (ringkasan.metodeBayar.isNotEmpty) ..._kartuMetodeBayar(),
           _kartuProdukTerlaris(),
+          if (ringkasan.marginProduk.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.md),
+            FiturTerkunci(kode: 'product_margin', child: _KartuMarginProduk(data: ringkasan.marginProduk)),
+          ],
         ],
       ),
     );
@@ -388,4 +396,84 @@ class _IsiLaporan extends StatelessWidget {
       ),
     );
   }
+}
+
+/// HPP dan margin tiap produk pada periode laporan (IMOGI no. 72). Margin di bawah batas outlet
+/// (Pengaturan struk, bawaan 50%) diberi warna peringatan; produk tanpa HPP ditandai tersendiri.
+class _KartuMarginProduk extends ConsumerWidget {
+  const _KartuMarginProduk({required this.data});
+
+  final List<MarginProdukLaporan> data;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final outletId = ref.watch(currentOutletIdProvider);
+    final batas = ref.watch(pengaturanOutletProvider(outletId)).value?.batasMargin ?? batasMarginBawaan;
+    final totalOmzet = data.fold<int>(0, (a, b) => a + b.omzet);
+    final totalHpp = data.fold<int>(0, (a, b) => a + b.hpp);
+    return AppCard(
+      key: const Key('laporan.marginProduk'),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('HPP & margin per produk', style: AppTypography.bodyEmphasis),
+          const SizedBox(height: 2),
+          Text(
+            'Laba ${_formatRupiah.format(totalOmzet - totalHpp)} dari penjualan ${_formatRupiah.format(totalOmzet)}. '
+            'Batas margin $batas%.',
+            style: AppTypography.secondary,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          for (final m in data)
+            Padding(
+              key: Key('laporan.margin.${m.namaProduk}'),
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(m.namaProduk, style: AppTypography.bodyEmphasis),
+                        Text(
+                          '${m.qty.toStringAsFixed(m.qty == m.qty.roundToDouble() ? 0 : 1)}× · HPP ${_formatRupiah.format(m.hpp)}',
+                          style: AppTypography.secondary,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(_formatRupiah.format(m.laba), style: AppTypography.bodyEmphasis),
+                      Text(
+                        _labelMargin(m, batas),
+                        style: AppTypography.secondary.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: _warnaMargin(m, batas),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+String _labelMargin(MarginProdukLaporan m, int batas) {
+  if (m.hppKosong) return 'HPP belum diisi';
+  final persen = m.marginPersen;
+  if (persen == null) return '-';
+  return 'Margin ${persen.round()}%';
+}
+
+Color _warnaMargin(MarginProdukLaporan m, int batas) {
+  if (m.hppKosong) return AppColors.textTertiary;
+  final persen = m.marginPersen;
+  if (persen != null && persen < batas) return AppColors.warningTextStrong;
+  return AppColors.primaryDark;
 }

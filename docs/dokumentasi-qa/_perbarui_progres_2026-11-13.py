@@ -56,6 +56,7 @@ def salin_gaya(ws, dari_baris, ke_baris):
 # ----------------------------------------------------------------------------- tracker
 GAP = {
     37: "SEBAGIAN (2026-11-13): penanda margin rendah di form dan daftar produk (filter Margin rendah, lencana, peringatan di form) dengan batas per outlet di Pengaturan struk (bawaan 50% untuk F&B, migrasi 0016); HPP kosong ditandai tersendiri. Hak akses lihat harga beli mengikuti izin produk.kelola (belum ada izin khusus). Lulus tes otomatis, belum diuji di HP.",
+    72: "SEBAGIAN (2026-11-14): kartu HPP & margin per produk di tab Laporan (qty, HPP, laba, margin %, penanda di bawah batas margin outlet, HPP kosong ditandai); dihitung offline dari data lokal; terkunci paket Professional. DIPERBAIKI: HPP sebelumnya tidak pernah disimpan saat checkout (selalu 0), kini disimpan sebagai snapshot HPP produk saat transaksi. Transaksi lama tetap HPP 0. Belum ada ekspor dan laporan per kategori. Belum diuji di HP.",
     49: "SEBAGIAN (2026-11-14): kini ada riwayat mutasi lengkap per produk (ketuk baris stok): jenis, tanggal dan jam, jumlah, saldo setelah, catatan, total masuk/keluar, filter Masuk/Keluar, sampai 300 mutasi terbaru. Belum: filter tanggal, ekspor riwayat, riwayat per varian, dan pengaturan saat stok habis masih terdampak BUG-012 (sudah diperbaiki di kode, menunggu uji HP). Lulus tes otomatis, belum diuji di HP.",
     36: "SEBAGIAN (2026-11-14): CRUD produk, kategori, dan harga ada; kini kasir juga punya tab kategori (Semua + kategori yang berisi produk, urut menurut pengaturan kategori) yang digabung dengan pencarian. Belum: pengaturan urutan khusus tab kasir terpisah dari urutan kategori. Lulus tes otomatis, belum diuji di HP.",
     56: "SEBAGIAN (2026-11-13): promo bisa ditandai Khusus ulang tahun (gerbang paket birthday_promo, migrasi 0017); tanggal lahir pelanggan bisa diisi di form, ikut impor CSV, dan kini ikut sync ke HP (disimpan yyyymmdd); di keranjang promo itu hanya bisa dipilih bila pelanggan berulang tahun hari ini, dicabut otomatis bila pelanggan diganti; daftar pelanggan menandai yang berulang tahun hari ini. Belum: pemberitahuan otomatis ke pelanggan, penerapan otomatis tanpa dipilih kasir, validasi di server saat checkout, rentang hari (mis. seminggu). Belum diuji di HP.",
@@ -72,6 +73,7 @@ GAP = {
 
 # Feature ID -> (catatan, TC terkait yang ditambahkan, status baru atau None)
 FEAT = {
+    "FEAT-048": ("Laporan F&B: bagian HPP & margin per produk (IMOGI no. 72): kartu di tab Laporan (offline, dari data lokal), terkunci paket Professional; menyertakan perbaikan penting: HPP produk kini disimpan sebagai snapshot saat checkout (sebelumnya selalu 0, sehingga laba kotor, laba rugi, dan margin salah untuk transaksi nyata). Transaksi lama tidak diubah. Lulus tes otomatis; belum diuji di HP.", ["TC-099", "TC-100", "TC-101"], "Ready for QA"),
     "FEAT-061": ("Riwayat mutasi stok per produk (IMOGI no. 49): ketuk baris di halaman Stok membuka riwayat produk (jenis, waktu, jumlah, saldo setelah, catatan), total masuk/keluar, filter Masuk/Keluar, 300 mutasi terbaru. Dijaga izin stok.kelola. Lulus tes otomatis; belum diuji di HP.", ["TC-097", "TC-098"], "Ready for QA"),
     "FEAT-060": ("Filter kategori di kasir (IMOGI no. 36): baris tab kategori di atas daftar produk kasir (Semua + kategori berisi produk, urut menurut pengaturan), digabung dengan pencarian nama/SKU; kategori yang kosong disembunyikan. Lulus tes otomatis; belum diuji di HP.", ["TC-095", "TC-096"], "Ready for QA"),
     "FEAT-073": ("Promo ulang tahun (IMOGI no. 56): tahap pertama selesai di kode (penanda pada promo, tanggal lahir pelanggan ikut sync, promo hanya bisa dipilih saat pelanggan berulang tahun hari ini). Belum divalidasi di server saat checkout dan tidak otomatis. Lulus tes otomatis; belum diuji di HP.", ["TC-092", "TC-093", "TC-094"], "In Progress"),
@@ -236,6 +238,15 @@ TC_BARU = [
 ]
 
 TC_BARU += [
+    ("TC-099", "FEAT-048", "Laporan", "HPP tersimpan saat transaksi dan laba kotor benar", "Perbaikan: HPP produk dicatat sebagai snapshot saat checkout.",
+     "Paket Professional ke atas; produk harga 18.000 dengan HPP 7.000.", "1. Jual 3 produk itu sampai bayar\n2. Buka tab Laporan > Hari ini", "-",
+     "Laba kotor Rp 33.000 (bukan sama dengan penjualan Rp 54.000). Catatan: transaksi lama tetap HPP 0.", H, "Functional"),
+    ("TC-100", "FEAT-048", "Laporan", "Kartu HPP & margin per produk di Laporan", "Margin tiap produk tampil dengan penanda di bawah batas.",
+     "Produk A margin 61%, produk B margin 30%, produk C tanpa HPP; batas margin 50%; semuanya terjual.", "1. Buka tab Laporan\n2. Gulir ke kartu HPP & margin per produk", "-",
+     "A tampil Margin 61%, B Margin 30% berwarna peringatan, C tampil HPP belum diisi; kartu terkunci di paket di bawah Professional.", H, "Functional"),
+    ("TC-101", "FEAT-048", "Laporan", "Mengubah HPP produk tidak mengubah transaksi lama", "Snapshot HPP tidak berubah mengikuti produk.",
+     "Satu transaksi terjual dengan HPP 7.000.", "1. Ubah HPP produk menjadi 9.000\n2. Jual satu lagi\n3. Buka Laporan", "-",
+     "Transaksi lama tetap HPP 7.000, transaksi baru HPP 9.000; total HPP produk 16.000.", M, "Regression"),
     ("TC-097", "FEAT-061", "Stok", "Riwayat mutasi per produk lengkap dengan saldo", "Semua mutasi satu produk tampil beserta saldo sesudahnya.",
      "Login Owner; produk dengan stok awal 10, penjualan 3, pembelian 5; produk lain juga punya mutasi.",
      "1. Lainnya > Stok\n2. Ketuk baris produk itu", "-",
@@ -295,10 +306,10 @@ def perbarui_qa(path):
     for r in range(1, ws.max_row + 1):
         if ws.cell(r, 1).value == "Test Case" and re.search(r"TC-070 sampai TC-0\d\d", str(ws.cell(r, 2).value)):
             # Perluas rentang pada kalimat yang sudah ada (jangan menambah kalimat kedua).
-            ws.cell(r, 2).value = re.sub(r"TC-070 sampai TC-0\d\d", "TC-070 sampai TC-098", str(ws.cell(r, 2).value))
-        elif ws.cell(r, 1).value == "Test Case" and "TC-098" not in str(ws.cell(r, 2).value):
+            ws.cell(r, 2).value = re.sub(r"TC-070 sampai TC-0\d\d", "TC-070 sampai TC-101", str(ws.cell(r, 2).value))
+        elif ws.cell(r, 1).value == "Test Case" and "TC-101" not in str(ws.cell(r, 2).value):
             ws.cell(r, 2).value = str(ws.cell(r, 2).value) + (
-                " TC-070 sampai TC-098 ditambahkan 2026-11-13 (diusulkan, Not Tested) untuk fitur baru: pengeluaran, laba rugi, "
+                " TC-070 sampai TC-101 ditambahkan 2026-11-13 (diusulkan, Not Tested) untuk fitur baru: pengeluaran, laba rugi, "
                 "rekap pajak, impor/ekspor produk, impor pelanggan, absensi, estimasi dan WhatsApp status pesanan, hak akses menu. "
                 "Belum ada yang dijalankan di HP."
             )

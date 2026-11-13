@@ -4,7 +4,7 @@ Disusun 2026-11-13. Acuan fitur: dokumen IMOGI (87 fitur, 4 paket). Cakupan apli
 
 ## 1. Ringkasan
 
-Sejak audit awal (2026-11-08), 13 nomor fitur dari daftar IMOGI mendapat versi pertama di aplikasi (4 di antaranya Release 1, 9 Future Release), sebagian besar fitur inti kafe yang sebelumnya belum ada (laporan keuangan dasar, pengeluaran, absensi, impor data, promo ulang tahun, margin produk). Fondasi sync juga diperbaiki: transaksi yang dibuat offline kini diterima server, dan sync berjalan otomatis.
+Sejak audit awal (2026-11-08), 13 nomor fitur dari daftar IMOGI mendapat versi pertama di aplikasi (4 di antaranya Release 1, 10 Future Release), sebagian besar fitur inti kafe yang sebelumnya belum ada (laporan keuangan dasar, pengeluaran, absensi, impor data, promo ulang tahun, margin produk). Fondasi sync juga diperbaiki: transaksi yang dibuat offline kini diterima server, dan sync berjalan otomatis.
 
 **Yang harus dikatakan terus terang:** semua ini **baru terbukti lewat tes otomatis, belum diuji di HP**. Menurut aturan audit kita, belum ada fitur yang boleh disebut Done. Kami juga membangun beberapa fitur berstatus *Future Release* sebelum Release Scope dikonfirmasi (lihat bagian 5).
 
@@ -17,7 +17,7 @@ Sejak audit awal (2026-11-08), 13 nomor fitur dari daftar IMOGI mendapat versi p
 | belum ada | 25 | 16 |
 | Fitur inti Kafe & Kedai Kopi: lengkap / sebagian / belum ada | 11 / 18 / 17 | 11 / 25 / 10 |
 | Paket di server | 3 paket, 32 fitur (salinan Qasir) | 4 paket IMOGI, 87 fitur |
-| Tes otomatis | | Flutter 392 lulus; backend 438 lulus, 2 gagal karena lingkungan (folder fixture tidak ikut ke container) |
+| Tes otomatis | | Flutter 399 lulus; backend 438 lulus, 2 gagal karena lingkungan (folder fixture tidak ikut ke container) |
 | Analisis kode | | 0 galat, 0 peringatan |
 | Uji di HP | sebagian manual (2026-11-08) | belum ada untuk fitur baru |
 | Pekerjaan | | 22 commit, 223 berkas, 17 migrasi database (0011-0017 baru) |
@@ -33,7 +33,7 @@ Status semua: **kode selesai, lulus tes otomatis, belum diuji di HP**.
 | Pelanggan | Impor pelanggan CSV (53); Promo ulang tahun (56) beserta tanggal lahir pelanggan yang kini ikut sync | Promo dipilih kasir, belum otomatis |
 | Keuangan | Catat pengeluaran (67); Laporan laba rugi (69); Rekap PPN/PB1 (73); Estimasi PPh Final (70) | Butuh internet; rumus belum divalidasi akuntan |
 | Karyawan | Absensi masuk/keluar dan rekap (62); hak akses menu dan rute per peran; jalur keluar/ganti kasir | Tanpa foto, lokasi, jadwal |
-| Fondasi | Sync otomatis; server menerima transaksi offline (shift, kas shift, data induk hilang); lima bug diperbaiki di kode (BUG-004, 009, 012, 014, 015) | Bug berstatus Ready for Retest menunggu HP |
+| Fondasi | Perbaikan HPP checkout (HPP produk kini disimpan saat transaksi; sebelumnya selalu 0); Sync otomatis; server menerima transaksi offline (shift, kas shift, data induk hilang); lima bug diperbaiki di kode (BUG-004, 009, 012, 014, 015) | Bug berstatus Ready for Retest menunggu HP |
 
 ## 4. Yang belum ada (fitur inti kafe)
 

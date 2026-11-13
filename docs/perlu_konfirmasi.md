@@ -134,3 +134,14 @@ Aturan baca: **Sementara** = perilaku yang sekarang dipakai di kode. **Dampak bi
 | K3 | Hari ulang tahun = bulan dan tanggal sama dengan hari ini; yang lahir 29 Februari dirayakan 28 Februari di tahun bukan kabisat | IMOGI mungkin memakai rentang (mis. seminggu atau sebulan) |
 | K4 | Tanggal lahir di HP disimpan sebagai yyyymmdd (kolom lama bermakna epoch tidak pernah terisi) | Tidak ada data lama yang terpengaruh |
 | K5 | Tanggal lahir diisi manual atau lewat impor CSV; tidak ada pengingat ke pelanggan (WhatsApp/SMS) | Pengiriman pesan ulang tahun belum ada (terkait no. 57 kirim WA massal) |
+
+## Tambahan 2026-11-14 (cacat HPP dan laporan margin, IMOGI no. 72)
+
+| # | Hal | Sementara |
+|---|---|---|
+| L1 | **Temuan cacat:** sebelum 2026-11-14 aplikasi tidak pernah menyimpan HPP pada item transaksi (`hppSatuan` selalu 0). Akibatnya laba kotor di tab Laporan, laba rugi (no. 69), dan HPP yang dikirim ke server untuk semua transaksi dari HP bernilai 0 | Diperbaiki di kode: HPP produk disimpan sebagai snapshot saat checkout |
+| L2 | **Data lama tidak dikoreksi:** transaksi yang sudah ada (di HP maupun server) tetap HPP 0, jadi laba rugi periode lama menganggap barang tanpa modal | Perlu keputusan backfill (mengisi HPP produk saat ini ke transaksi lama) atau menandai periode lama tidak akurat; tidak saya lakukan otomatis karena mengubah data transaksi |
+| L3 | Pengujian laba rugi (no. 69) sebelumnya hanya mengirim `hpp_satuan` lewat API, sehingga cacat L1 tidak tertangkap tes otomatis | Tes snapshot HPP di sisi aplikasi kini ada (`laporan_margin_test.dart`) |
+| L4 | HPP yang disimpan = HPP produk saat checkout; HPP tambahan/varian tidak diikutkan, jadi margin item dengan tambahan berbayar sedikit terlalu tinggi | Perlu aturan HPP untuk tambahan |
+| L5 | Kartu HPP & margin dihitung dari data HP (offline), bukan dari server; angkanya bisa berbeda dari laporan server bila perangkat lain juga menjual | Selaras dengan laporan lokal yang sudah ada |
+| L6 | FEAT-048 "Laporan F&B" berstatus Future Release; kartu ini menambah jumlah fitur Future Release yang dikerjakan menjadi sepuluh | Lihat audit_alur_kerja.md H2 |

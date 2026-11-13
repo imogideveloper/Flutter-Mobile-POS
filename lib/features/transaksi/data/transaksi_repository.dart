@@ -85,6 +85,16 @@ class TransaksiRepository {
   /// apa pun sendiri, cuma menyalin hasilnya ke drift (satu mesin hitung
   /// tunggal, tahap 3a bagian A). [hasil.items] harus SAMA URUTAN dan
   /// JUMLAH dengan [items] (dipasangkan per index).
+  /// HPP satuan tiap produk di [items] pada saat ini (0 bila produk tidak ada atau HPP belum diisi).
+  Future<Map<String, int>> _hppSaatIni(List<ItemKeranjang> items) async {
+    final hasil = <String, int>{};
+    for (final id in {for (final i in items) i.produkId}) {
+      final produk = await _produkDao.produkById(id);
+      hasil[id] = produk?.hpp ?? 0;
+    }
+    return hasil;
+  }
+
   Future<HasilTransaksi> checkout({
     required String tokoId,
     required String outletId,
@@ -169,6 +179,9 @@ class TransaksiRepository {
       }
       nomorAntrean = await buatNomorAntrean?.call();
       final idItem = [for (final _ in items) generateId()];
+      // Snapshot HPP per produk saat transaksi dibuat (IMOGI no. 37/69/72): tanpa ini HPP selalu 0 dan
+      // laba kotor, laba rugi, serta margin per produk menganggap barang tanpa modal.
+      final hppProduk = await _hppSaatIni(items);
       await _transaksiDao.simpanTransaksiLengkap(
         transaksi_: TransaksiCompanion.insert(
           id: transaksiId,
@@ -213,6 +226,7 @@ class TransaksiRepository {
               qty: items[i].qty,
               hargaSatuan: hasil.items[i].hargaSatuan,
               subtotal: hasil.items[i].subtotal,
+              hppSatuan: Value(hppProduk[items[i].produkId] ?? 0),
               createdAt: now,
               updatedAt: now,
             ),
