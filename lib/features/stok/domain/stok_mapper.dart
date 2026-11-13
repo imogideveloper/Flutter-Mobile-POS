@@ -18,6 +18,8 @@ extension StokDenganProdukMapper on StokDenganProduk {
 extension MutasiDenganProdukMapper on MutasiDenganProduk {
   MutasiItem toDomain() => MutasiItem(
         id: mutasi.id,
+        produkId: mutasi.produkId,
+        saldoSetelah: mutasi.saldoSetelah,
         produkNama: produk.nama,
         jenis: mutasi.jenis,
         qty: mutasi.qty,

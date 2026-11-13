@@ -17,7 +17,7 @@ Sejak audit awal (2026-11-08), 13 nomor fitur dari daftar IMOGI mendapat versi p
 | belum ada | 25 | 16 |
 | Fitur inti Kafe & Kedai Kopi: lengkap / sebagian / belum ada | 11 / 18 / 17 | 11 / 25 / 10 |
 | Paket di server | 3 paket, 32 fitur (salinan Qasir) | 4 paket IMOGI, 87 fitur |
-| Tes otomatis | | Flutter 387 lulus; backend 438 lulus, 2 gagal karena lingkungan (folder fixture tidak ikut ke container) |
+| Tes otomatis | | Flutter 392 lulus; backend 438 lulus, 2 gagal karena lingkungan (folder fixture tidak ikut ke container) |
 | Analisis kode | | 0 galat, 0 peringatan |
 | Uji di HP | sebagian manual (2026-11-08) | belum ada untuk fitur baru |
 | Pekerjaan | | 22 commit, 223 berkas, 17 migrasi database (0011-0017 baru) |

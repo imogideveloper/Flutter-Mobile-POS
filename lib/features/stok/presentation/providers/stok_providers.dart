@@ -23,3 +23,9 @@ final mutasiTerakhirProvider =
     StreamProvider.family<List<MutasiItem>, String>((ref, outletId) {
   return ref.watch(stokRepositoryProvider).watchMutasiTerakhir(outletId);
 });
+
+/// Riwayat mutasi satu produk: kunci = (outletId, produkId).
+final riwayatMutasiProdukProvider =
+    StreamProvider.family<List<MutasiItem>, (String, String)>((ref, kunci) {
+  return ref.watch(stokRepositoryProvider).watchMutasiProduk(kunci.$1, kunci.$2);
+});

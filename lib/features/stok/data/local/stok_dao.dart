@@ -66,6 +66,24 @@ class StokDao extends DatabaseAccessor<AppDatabase> with _$StokDaoMixin {
         .toList());
   }
 
+  /// Riwayat mutasi satu produk di outlet ini (semua varian), terbaru lebih dulu. Dibatasi [limit]
+  /// supaya daftar tetap ringan; sumber audit lengkap tetap tabel mutasi_stok.
+  Stream<List<MutasiDenganProduk>> watchMutasiProduk(String outletId, String produkId, {int limit = 300}) {
+    final query = select(mutasiStok).join([
+      innerJoin(produk, produk.id.equalsExp(mutasiStok.produkId)),
+    ])
+      ..where(mutasiStok.outletId.equals(outletId) & mutasiStok.produkId.equals(produkId) & mutasiStok.deletedAt.isNull())
+      ..orderBy([OrderingTerm.desc(mutasiStok.createdAt)])
+      ..limit(limit);
+
+    return query.watch().map((rows) => rows
+        .map((row) => MutasiDenganProduk(
+              mutasi: row.readTable(mutasiStok),
+              produk: row.readTable(produk),
+            ))
+        .toList());
+  }
+
   Future<StokRow?> cariStok({
     required String outletId,
     required String produkId,

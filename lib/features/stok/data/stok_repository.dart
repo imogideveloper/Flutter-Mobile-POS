@@ -17,6 +17,10 @@ class StokRepository {
       .watchMutasiTerakhir(outletId, limit: limit)
       .map((rows) => rows.map((row) => row.toDomain()).toList());
 
+  Stream<List<MutasiItem>> watchMutasiProduk(String outletId, String produkId, {int limit = 300}) => _dao
+      .watchMutasiProduk(outletId, produkId, limit: limit)
+      .map((rows) => rows.map((row) => row.toDomain()).toList());
+
   Future<double> batasMinimumUntuk({
     required String outletId,
     required String produkId,

@@ -255,3 +255,10 @@ Diverifikasi langsung dari tabel `fitur_kebutuhan` di database (hasil migrasi 00
 - **Tes otomatis:** `kasir_kategori_test.dart` (6, termasuk alur kasir nyata dengan shift). Seluruh 387 tes Flutter lulus.
 - **Workbook:** FEAT-060 menjadi Ready for QA; TC-095 dan TC-096 (Not Tested); Gap Imogi no. 36 diperbarui. Tidak mengubah angka ringkasan (no. 36 tetap Sebagian sampai diuji di HP).
 - **Keputusan sementara:** urutan tab mengikuti urutan kategori di pengaturan (IMOGI: "tab kasir mengikuti urutan kategori"); belum ada pengaturan urutan terpisah.
+
+### FEAT-061 (IMOGI no. 49, riwayat mutasi stok per produk; Release 1, Medium)
+- **Alasan dipilih:** butir Release 1 berikutnya dari audit H2; tabel `mutasi_stok` sudah mencatat semua mutasi, tetapi halaman Stok hanya menampilkan 10 mutasi terakhir lintas produk, sehingga selisih stok tidak bisa ditelusuri per produk.
+- **Perubahan:** `StokDao.watchMutasiProduk`, `MutasiItem` kini membawa `produkId` dan `saldoSetelah`, fungsi murni `riwayat_mutasi.dart` (label jenis dipindah dari halaman stok, `saringMutasi`, `ringkasMutasi`), halaman `riwayat_mutasi_stok_page.dart`, rute `/stok/riwayat` (dijaga izin `stok.kelola`), baris stok dapat diketuk. Tidak ada perubahan skema, server, atau perhitungan stok (hanya membaca).
+- **Tes otomatis:** `riwayat_mutasi_stok_test.dart` (5: logika dan halaman dengan mutasi nyata dari `catatMutasi`). Seluruh 392 tes Flutter lulus; tes alur stok yang sudah ada tidak terpengaruh.
+- **Workbook:** FEAT-061 menjadi Ready for QA; TC-097 dan TC-098 (Not Tested); Gap Imogi no. 49 diperbarui (tetap Sebagian).
+- **Batas:** maksimal 300 mutasi terbaru, tanpa filter tanggal; mutasi semua varian produk digabung.

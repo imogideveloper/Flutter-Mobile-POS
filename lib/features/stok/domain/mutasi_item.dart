@@ -10,9 +10,15 @@ class MutasiItem {
     required this.qty,
     required this.catatan,
     required this.createdAt,
+    this.produkId = '',
+    this.saldoSetelah,
   });
 
   final String id;
+  final String produkId;
+
+  /// Saldo stok sesudah mutasi ini (null bila tidak tercatat, mis. data lama).
+  final double? saldoSetelah;
   final String produkNama;
   final MutasiJenis jenis;
   final double qty;

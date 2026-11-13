@@ -12,23 +12,13 @@ import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/section_header.dart';
 import '../../data/local/tables/mutasi_stok_table.dart' show MutasiJenis;
 import '../../domain/mutasi_item.dart';
+import '../../domain/riwayat_mutasi.dart';
+import 'riwayat_mutasi_stok_page.dart' show RiwayatMutasiArgs;
 import '../../domain/stok_item.dart';
 import '../providers/stok_providers.dart';
 
 final _formatQty = NumberFormat.decimalPattern('id_ID');
 
-const _labelJenisMutasi = {
-  MutasiJenis.stokAwal: 'Stok awal',
-  MutasiJenis.pembelian: 'Pembelian',
-  MutasiJenis.penjualan: 'Penjualan',
-  MutasiJenis.refund: 'Refund',
-  MutasiJenis.voidTransaksi: 'Void',
-  MutasiJenis.opname: 'Opname',
-  MutasiJenis.transferMasuk: 'Transfer masuk',
-  MutasiJenis.transferKeluar: 'Transfer keluar',
-  MutasiJenis.penyesuaian: 'Penyesuaian',
-  MutasiJenis.produksi: 'Produksi',
-};
 
 class StokListPage extends ConsumerWidget {
   const StokListPage({super.key});
@@ -179,7 +169,13 @@ class _StokRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return InkWell(
+      key: Key('stokRow.${item.produkId}'),
+      onTap: () => context.push(
+        '/stok/riwayat',
+        extra: RiwayatMutasiArgs(produkId: item.produkId, produkNama: item.produkNama),
+      ),
+      child: Container(
       constraints: const BoxConstraints(minHeight: 48),
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       alignment: Alignment.centerLeft,
@@ -201,6 +197,7 @@ class _StokRow extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }
@@ -229,7 +226,7 @@ class _MutasiRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(item.produkNama, style: AppTypography.bodyEmphasis),
-                Text(_labelJenisMutasi[item.jenis] ?? item.jenis.name, style: AppTypography.secondary),
+                Text(labelMutasi(item.jenis), style: AppTypography.secondary),
               ],
             ),
           ),
