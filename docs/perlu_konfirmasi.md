@@ -73,7 +73,7 @@ Aturan baca: **Sementara** = perilaku yang sekarang dipakai di kode. **Dampak bi
 |---|---|
 | F1 | **Semua** perilaku di HP untuk fitur 2026-11-10 sampai 2026-11-12 belum diuji (tes otomatis bukan bukti Done). |
 | F2 | Printer Bluetooth belum teruji (tidak ada printer); kunci Xendit kosong (QRIS dinamis Blocked). |
-| F3 | Tes backend `test_harga_fixtures` dan `test_refund_fixtures` gagal di container karena folder `shared/fixtures` tidak ikut (masalah lingkungan, bukan kode). |
+| F3 | **Selesai 2026-11-14:** `test_harga_fixtures` dan `test_refund_fixtures` ternyata gagal hanya karena folder `shared/` tidak ikut ke container uji (jalur `/shared/fixtures`); setelah folder itu disalin, seluruh 474 tes backend lulus. Bukan masalah kode. Untuk uji di container: salin `shared` ke `/shared` bersama `tests` |
 | F4 | Tidak ada Python di Windows; tes backend dan skrip Excel dijalankan lewat container `api`. |
 | F5 | Empat risiko rilis Play Store ditunda (keystore, alamat server produksi, dll.), lihat temuan_audit.md bag. 6. |
 
@@ -145,3 +145,4 @@ Aturan baca: **Sementara** = perilaku yang sekarang dipakai di kode. **Dampak bi
 | L4 | HPP yang disimpan = HPP produk saat checkout; HPP tambahan/varian tidak diikutkan, jadi margin item dengan tambahan berbayar sedikit terlalu tinggi | Perlu aturan HPP untuk tambahan |
 | L5 | Kartu HPP & margin dihitung dari data HP (offline), bukan dari server; angkanya bisa berbeda dari laporan server bila perangkat lain juga menjual | Selaras dengan laporan lokal yang sudah ada |
 | L6 | FEAT-048 "Laporan F&B" berstatus Future Release; kartu ini menambah jumlah fitur Future Release yang dikerjakan menjadi sepuluh | Lihat audit_alur_kerja.md H2 |
+| L7 | Dua definisi "laba kotor": ringkasan Laporan dan `/laporan/penjualan` = (harga satuan - HPP) x qty tanpa memotong diskon; laporan laba rugi = subtotal - diskon - HPP | Saat ada diskon/promo, laba kotor di Laporan lebih besar daripada di Laba rugi; perlu satu definisi resmi |

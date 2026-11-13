@@ -1,4 +1,7 @@
 import 'package:apps_pos/core/database/app_database.dart';
+import 'package:apps_pos/core/harga/kalkulator.dart' as k;
+import 'package:apps_pos/features/transaksi/data/transaksi_repository.dart';
+import 'package:apps_pos/features/transaksi/domain/item_keranjang.dart';
 import 'package:apps_pos/features/shift/data/local/tables/kas_shift_table.dart' show KasShiftJenis;
 import 'package:apps_pos/features/shift/data/local/tables/shift_table.dart' show ShiftStatus;
 import 'package:apps_pos/core/network/auth_session_store.dart';
@@ -680,6 +683,57 @@ void main() {
       expect(sisa, isEmpty, reason: 'harus ditandai sudah sync setelah diterima server');
     },
   );
+
+  test('push: transaksi dari checkout nyata membawa HPP produk (snapshot) ke payload sync', () async {
+    await db.produkDao.upsertProduk(ProdukCompanion.insert(
+      id: 'kopi',
+      tokoId: 'toko-asli',
+      nama: 'Kopi Susu',
+      tipe: ProdukTipe.barang,
+      hargaJual: const Value(18000),
+      hpp: const Value(7000),
+      createdAt: 0,
+      updatedAt: 0,
+    ));
+    final items = [const ItemKeranjang(produkId: 'kopi', namaProduk: 'Kopi Susu', hargaSatuan: 18000, qty: 3, lacakStok: false)];
+    await TransaksiRepository(db.transaksiDao, db.stokDao, db.produkDao).checkout(
+      tokoId: 'toko-asli',
+      outletId: 'outlet-asli',
+      shiftId: 'shift-uji',
+      penggunaId: 'pengguna-asli',
+      metodeBayarId: 'metode-tunai-default',
+      items: items,
+      hasil: k.hitung(k.TransaksiInput(items: [
+        k.ItemInput(produkId: 'kopi', varianId: null, namaProduk: 'Kopi Susu', qty: 3, hargaJual: 18000),
+      ])),
+      totalBayar: 54000,
+    );
+    api.pullResponse = const SyncPullResult(
+      waktuPull: '2026-01-01T00:00:00Z',
+      produk: [],
+      kategori: [],
+      satuan: [],
+      pajak: [],
+      promo: [],
+      metodeBayar: [],
+      stok: [],
+      hargaOutlet: [],
+      hargaGrosir: [],
+      tipeOrderPajak: [],
+      pengaturanOutlet: [],
+      hasMore: {},
+      paket: null,
+      kodeFitur: [],
+      batasFitur: {},
+    );
+
+    await repo.jalankan();
+
+    final item = (api.transaksiDiterima.single['items'] as List).single as Map<String, dynamic>;
+    expect(item['hpp_satuan'], '7000', reason: 'HPP produk saat checkout harus ikut terkirim, bukan 0');
+    expect(item['harga_satuan'], '18000');
+    expect(api.transaksiDiterima.single['subtotal_klien'], '54000');
+  });
 
   test(
     'pull: produk/pajak/promo/stok diupsert dgn konversi tipe yg benar',
