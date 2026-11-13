@@ -197,3 +197,37 @@ Lihat ringkasan pada laporan sesi; semua tes otomatis relevan lulus.
 - **Dikerjakan:** `docs/gap_imogi.md` dihitung ulang (Lengkap 15, Sebagian 32, Belum ada 17, Tidak relevan 23; Kafe inti Lengkap 11, Sebagian 24, Belum ada 11; awal audit 15/24/25). Tracker: sheet Gap Imogi (8 baris Belum ada menjadi Sebagian), Feature Inventory (8 FEAT menjadi In Progress, FEAT-050 menjadi Ready for QA, catatan dan TC terkait ditambahkan), Paket & Fitur (ekspor_impor, absensi), catatan TASK-122. QA: 19 test case baru (TC-070 sampai TC-088, Not Tested). UAT: 4 skenario draf (UAT-016 sampai UAT-019, Not Prepared). Skrip: `docs/dokumentasi-qa/_perbarui_progres_2026-11-13.py` (idempoten).
 - **Tidak dilakukan (sesuai arahan):** tidak ada status Done/QA Passed/Lengkap; tidak ada hasil uji, run, retest, PIC, tanggal, atau persetujuan yang dikarang; tidak ada TASK baru; dummy (BUG-901..903 dst.) tidak disentuh.
 - **Verifikasi:** jumlah rumus sebelum dan sesudah sama (345, 244, 83); ID TC unik; status Gap Imogi di workbook sama dengan dokumen. Nilai rumus belum dihitung ulang (disimpan tanpa cache; Excel menghitung saat dibuka), sama seperti pembaruan sebelumnya.
+
+## H. Audit kemajuan 2026-11-13
+
+### H1. Apakah fitur yang kita tambahkan termasuk modul Makanan & Minuman?
+Diverifikasi langsung dari tabel `fitur_kebutuhan` di database (hasil migrasi 0010 yang disusun dari dokumen IMOGI). Kode: inti = int, opsional = ops, tidak relevan = na. Jenis usaha: CAF Kafe, RES Restoran, CAT Katering, BRD Roti/Kue, FRZ Bahan Segar/Beku, BEV Minuman, STL Kios/Food Court.
+
+| No | Fitur | CAF | RES | CAT | BRD | FRZ | BEV | STL |
+|---|---|---|---|---|---|---|---|---|
+| 26 | Status pesanan | int | int | int | ops | na | ops | ops |
+| 34 | Nomor antrian | int | na | na | ops | na | int | int |
+| 38 | Upload produk via template | int | int | int | int | int | int | int |
+| 39 | Ekspor produk | ops | ops | ops | ops | int | ops | ops |
+| 42 | Varian dan tambahan | int | int | ops | ops | na | int | int |
+| 53 | Upload pelanggan via template | ops | ops | ops | ops | ops | ops | na |
+| 62 | Absensi | int | int | int | ops | ops | ops | ops |
+| 67 | Catat pengeluaran | int | int | int | int | int | int | int |
+| 69 | Laporan laba rugi | int | int | int | int | int | int | int |
+| 70 | PPh Final UMKM | int | int | int | int | int | int | int |
+| 73 | PPN & PB1 | int | int | ops | ops | ops | ops | ops |
+
+- **Kesimpulan:** kesebelas fitur relevan untuk F&B (tidak satu pun bernilai "na" untuk semua jenis usaha); 23 fitur IMOGI yang tidak punya baris inti maupun opsional adalah yang kita sebut "tidak relevan", dan tidak satu pun dari kesebelas ini ada di sana. Untuk Kafe & Kedai Kopi: 9 inti, 2 opsional (no. 39 dan 53).
+- **Batasan:** "relevan" bukan "prioritas". Sumber data ini adalah dokumen IMOGI yang sudah masuk database; pada sesi ini **tidak dicocokkan ulang ke dokumen aslinya**. Fitur no. 39 dan 53 hanya opsional untuk kafe dan seharusnya tidak didahulukan. Penjagaan izin menu, jalur logout, cetak ulang tiket, dan kategori tiket bukan nomor IMOGI; itu pekerjaan pendukung hasil audit alur.
+
+### H2. Penyimpangan prioritas (arahan A1 dan A2 masih berlaku)
+- **Delapan fitur yang saya bangun pada 2026-11-12/13 (FEAT-034, 035, 036, 038, 076, 077, 078, 080) berstatus Release Scope "Future Release" di Feature Inventory**, jadi berada di luar Release 1 menurut usulan workbook. Scope itu sendiri belum dikonfirmasi lead (TASK-104 masih To Do), tetapi kita membangunnya sebelum scope diputuskan.
+- Pada saat yang sama masih tersisa: TASK-103/104/105 (requirement dan scope) To Do, TASK-107 (TC Critical kasir) Backlog, dan **9 test case Critical Not Tested** (TC-011, 012 pembayaran; TC-041; TC-042, 057, 058, 061; TC-065; TC-068).
+- **Release 1 masih punya 21 butir pengembangan** dan 29 butir yang hanya perlu diuji di HP. Yang belum dikerjakan dan relevan F&B: FEAT-071 harga beli dan margin (Critical, IMOGI no. 37), FEAT-060 filter kategori di kasir (High), FEAT-061 riwayat mutasi stok (Medium), FEAT-045 catatan per item (High), FEAT-044 pilih meja (High, belum dikonfirmasi karena kata "meja" tidak ada di dokumen IMOGI), FEAT-013 catatan tambahan di struk (Low), FEAT-040 tiket per stasiun (Critical, In Progress).
+- **Koreksi arah:** pekerjaan berikutnya diarahkan ke butir Release 1 yang belum dikerjakan, bukan menambah fitur Future Release, sampai lead mengonfirmasi scope.
+
+### H3. Mutu teknis
+- Tes: Flutter 356 lulus; backend 432 lulus, 2 gagal (fixture lingkungan: folder `shared/fixtures` tidak ikut ke container), 2 dilewati. Analisis kode: 0 galat, 0 peringatan, 19 info. Migrasi sampai 0015 diterapkan di Docker lokal.
+- **Uji HP: nol.** Seluruh fitur baru dan perbaikan bug hanya dibuktikan tes otomatis. Menurut arahan, itu bukan bukti Done. Bug Ready for Retest menunggu HP: BUG-004, 009, 012, 013, 014, 015, 018 sampai 021.
+- Risiko baru: plugin native `file_picker` (belum diuji di perangkat); empat fitur keuangan/absensi/impor berbasis internet padahal aplikasi dirancang offline-first; rumus laba rugi dan pajak belum divalidasi akuntan; matriks izin per menu belum disetujui lead.
+- Konsistensi dokumen: hitungan Gap Imogi di markdown dan workbook sama (15 / 32 / 17 / 23); jumlah rumus workbook tidak berubah.
