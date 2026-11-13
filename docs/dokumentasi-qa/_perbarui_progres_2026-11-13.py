@@ -56,6 +56,7 @@ def salin_gaya(ws, dari_baris, ke_baris):
 # ----------------------------------------------------------------------------- tracker
 GAP = {
     37: "SEBAGIAN (2026-11-13): penanda margin rendah di form dan daftar produk (filter Margin rendah, lencana, peringatan di form) dengan batas per outlet di Pengaturan struk (bawaan 50% untuk F&B, migrasi 0016); HPP kosong ditandai tersendiri. Hak akses lihat harga beli mengikuti izin produk.kelola (belum ada izin khusus). Lulus tes otomatis, belum diuji di HP.",
+    36: "SEBAGIAN (2026-11-14): CRUD produk, kategori, dan harga ada; kini kasir juga punya tab kategori (Semua + kategori yang berisi produk, urut menurut pengaturan kategori) yang digabung dengan pencarian. Belum: pengaturan urutan khusus tab kasir terpisah dari urutan kategori. Lulus tes otomatis, belum diuji di HP.",
     56: "SEBAGIAN (2026-11-13): promo bisa ditandai Khusus ulang tahun (gerbang paket birthday_promo, migrasi 0017); tanggal lahir pelanggan bisa diisi di form, ikut impor CSV, dan kini ikut sync ke HP (disimpan yyyymmdd); di keranjang promo itu hanya bisa dipilih bila pelanggan berulang tahun hari ini, dicabut otomatis bila pelanggan diganti; daftar pelanggan menandai yang berulang tahun hari ini. Belum: pemberitahuan otomatis ke pelanggan, penerapan otomatis tanpa dipilih kasir, validasi di server saat checkout, rentang hari (mis. seminggu). Belum diuji di HP.",
     # No IMOGI: teks temuan baru (status berubah Belum ada -> Sebagian)
     38: "SEBAGIAN (2026-11-12): Lainnya > Impor & ekspor produk: template CSV, pratinjau, simulasi dan impor (maks 500 baris) lewat POST /produk/impor. Belum: .xlsx, memperbarui produk lama, varian, stok awal, gambar. Plugin file_picker baru; lulus tes otomatis, belum diuji di HP.",
@@ -70,6 +71,7 @@ GAP = {
 
 # Feature ID -> (catatan, TC terkait yang ditambahkan, status baru atau None)
 FEAT = {
+    "FEAT-060": ("Filter kategori di kasir (IMOGI no. 36): baris tab kategori di atas daftar produk kasir (Semua + kategori berisi produk, urut menurut pengaturan), digabung dengan pencarian nama/SKU; kategori yang kosong disembunyikan. Lulus tes otomatis; belum diuji di HP.", ["TC-095", "TC-096"], "Ready for QA"),
     "FEAT-073": ("Promo ulang tahun (IMOGI no. 56): tahap pertama selesai di kode (penanda pada promo, tanggal lahir pelanggan ikut sync, promo hanya bisa dipilih saat pelanggan berulang tahun hari ini). Belum divalidasi di server saat checkout dan tidak otomatis. Lulus tes otomatis; belum diuji di HP.", ["TC-092", "TC-093", "TC-094"], "In Progress"),
     "FEAT-071": ("Harga beli & margin (IMOGI no. 37): penanda margin di bawah batas per outlet (bawaan 50%, Pengaturan struk), filter dan lencana di daftar produk, peringatan di form; HPP kosong ditandai. Hak akses lihat harga beli mengikuti izin produk.kelola (keputusan sementara, docs/perlu_konfirmasi.md J1). Lulus tes otomatis; belum diuji di HP.", ["TC-089", "TC-090", "TC-091"], "In Progress"),
     "FEAT-076": ("Pengeluaran & biaya operasional: tahap pertama selesai di kode (online-only, 9 kategori, izin laporan.lihat). Lulus tes otomatis; belum diuji di HP.", ["TC-070", "TC-071", "TC-072"], "In Progress"),
@@ -232,6 +234,13 @@ TC_BARU = [
 ]
 
 TC_BARU += [
+    ("TC-095", "FEAT-060", "Kasir", "Tab kategori menyaring produk di kasir", "Kasir memilih kategori untuk mempersempit produk.",
+     "Shift terbuka; ada kategori Minuman dan Makanan berisi produk, satu kategori kosong, satu produk tanpa kategori.",
+     "1. Buka tab Kasir\n2. Ketuk tab Makanan\n3. Ketuk tab Minuman\n4. Ketuk Semua", "-",
+     "Tab hanya menampilkan Semua dan kategori yang berisi produk; ketuk kategori hanya menampilkan produknya; Semua menampilkan seluruhnya termasuk yang tanpa kategori.", H, "Functional"),
+    ("TC-096", "FEAT-060", "Kasir", "Tab kategori digabung dengan pencarian", "Pencarian bekerja di dalam kategori terpilih.",
+     "Sama dengan TC-095.", "1. Ketuk tab Minuman\n2. Ketik nama produk Makanan di kolom cari\n3. Ketik nama produk Minuman", "-",
+     "Produk di luar kategori tidak muncul walau namanya cocok; produk di dalam kategori muncul.", M, "Functional"),
     ("TC-092", "FEAT-073", "Pelanggan", "Tanggal lahir pelanggan tersimpan dan ikut sync", "Tanggal lahir diisi di form dan tetap ada setelah sync.",
      "Login Owner; internet aktif.", "1. Menu Pelanggan > edit pelanggan > Pilih tanggal lahir > Simpan\n2. Lainnya > Sync\n3. Buka ulang pelanggan itu", "Tanggal lahir hari ini (bulan dan tanggal)",
      "Tanggal lahir tampil kembali dengan benar; pelanggan itu ditandai Ulang tahun hari ini di daftar.", M, "Functional"),
@@ -277,10 +286,10 @@ def perbarui_qa(path):
     for r in range(1, ws.max_row + 1):
         if ws.cell(r, 1).value == "Test Case" and re.search(r"TC-070 sampai TC-0\d\d", str(ws.cell(r, 2).value)):
             # Perluas rentang pada kalimat yang sudah ada (jangan menambah kalimat kedua).
-            ws.cell(r, 2).value = re.sub(r"TC-070 sampai TC-0\d\d", "TC-070 sampai TC-094", str(ws.cell(r, 2).value))
-        elif ws.cell(r, 1).value == "Test Case" and "TC-094" not in str(ws.cell(r, 2).value):
+            ws.cell(r, 2).value = re.sub(r"TC-070 sampai TC-0\d\d", "TC-070 sampai TC-096", str(ws.cell(r, 2).value))
+        elif ws.cell(r, 1).value == "Test Case" and "TC-096" not in str(ws.cell(r, 2).value):
             ws.cell(r, 2).value = str(ws.cell(r, 2).value) + (
-                " TC-070 sampai TC-094 ditambahkan 2026-11-13 (diusulkan, Not Tested) untuk fitur baru: pengeluaran, laba rugi, "
+                " TC-070 sampai TC-096 ditambahkan 2026-11-13 (diusulkan, Not Tested) untuk fitur baru: pengeluaran, laba rugi, "
                 "rekap pajak, impor/ekspor produk, impor pelanggan, absensi, estimasi dan WhatsApp status pesanan, hak akses menu. "
                 "Belum ada yang dijalankan di HP."
             )

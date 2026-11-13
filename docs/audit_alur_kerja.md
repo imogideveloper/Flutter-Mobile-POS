@@ -248,3 +248,10 @@ Diverifikasi langsung dari tabel `fitur_kebutuhan` di database (hasil migrasi 00
 - **Workbook:** FEAT-073 menjadi In Progress; TC-092 sampai TC-094 (Not Tested); Gap Imogi no. 56 menjadi Sebagian (Gap Imogi kini 15 / 33 / 16 / 23).
 
 - **Pembaruan H2 (2026-11-13, sore):** setelah promo ulang tahun (FEAT-073, Future Release) dibangun, jumlah fitur Future Release yang sudah dikerjakan menjadi **sembilan** (FEAT-034, 035, 036, 038, 073, 076, 077, 078, 080). Fitur Release 1 yang dikerjakan sejak audit: FEAT-071 (margin), serta penyelesaian FEAT-041/042/043 dan FEAT-050/058/059.
+
+### FEAT-060 (IMOGI no. 36, tab kategori di kasir; Release 1, High)
+- **Alasan dipilih:** butir Release 1 yang belum dikerjakan (audit H2), tanpa perubahan data, server, atau perhitungan uang; risiko rendah.
+- **Perubahan:** `filter_produk_kasir.dart` (fungsi murni `saringProdukKasir` dan `kategoriDenganProduk`), baris chip kategori di `kasir_page.dart` (Semua + kategori yang punya produk, urut menurut kolom urutan lalu nama; kategori terpilih yang kosong kembali ke Semua; digabung dengan pencarian nama/SKU). Produk tanpa kategori hanya tampil di Semua dan saat mencari.
+- **Tes otomatis:** `kasir_kategori_test.dart` (6, termasuk alur kasir nyata dengan shift). Seluruh 387 tes Flutter lulus.
+- **Workbook:** FEAT-060 menjadi Ready for QA; TC-095 dan TC-096 (Not Tested); Gap Imogi no. 36 diperbarui. Tidak mengubah angka ringkasan (no. 36 tetap Sebagian sampai diuji di HP).
+- **Keputusan sementara:** urutan tab mengikuti urutan kategori di pengaturan (IMOGI: "tab kasir mengikuti urutan kategori"); belum ada pengaturan urutan terpisah.

@@ -16,7 +16,10 @@ import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/qty_dialog.dart';
 import '../../../../core/widgets/qty_stepper.dart';
 import '../../../produk/domain/produk.dart';
+import '../../../produk/domain/kategori.dart';
+import '../../../produk/presentation/providers/kategori_providers.dart';
 import '../../../produk/presentation/providers/produk_providers.dart';
+import '../../domain/filter_produk_kasir.dart';
 import '../../../shift/presentation/providers/shift_providers.dart';
 import '../../../stok/domain/stok_item.dart';
 import '../../../stok/presentation/providers/stok_providers.dart';
@@ -83,6 +86,8 @@ class _KasirGrid extends ConsumerStatefulWidget {
 
 class _KasirGridState extends ConsumerState<_KasirGrid> {
   String _kataCari = '';
+  /// Tab kategori (IMOGI no. 36): null = semua kategori.
+  String? _kategoriId;
 
   Future<void> _scan() async {
     final hasil = await Navigator.of(context).push<String>(
@@ -260,16 +265,23 @@ class _KasirGridState extends ConsumerState<_KasirGrid> {
             onChanged: (value) => setState(() => _kataCari = value.trim().toLowerCase()),
           ),
         ),
+        produkAktif.maybeWhen(
+          data: (items) => _BarisKategori(
+            kategori: kategoriDenganProduk(
+              ref.watch(kategoriAktifProvider(ref.watch(currentTokoIdProvider))).value ?? const [],
+              items,
+            ),
+            dipilih: _kategoriId,
+            onPilih: (id) => setState(() => _kategoriId = id),
+          ),
+          orElse: () => const SizedBox.shrink(),
+        ),
         Expanded(
           child: produkAktif.when(
             data: (items) {
-              final tampil = _kataCari.isEmpty
-                  ? items
-                  : items
-                      .where((p) =>
-                          p.nama.toLowerCase().contains(_kataCari) ||
-                          (p.sku?.toLowerCase().contains(_kataCari) ?? false))
-                      .toList();
+              // Kategori yang terpilih tetapi sudah tidak punya produk (mis. produk dinonaktifkan): anggap Semua.
+              final kategoriAda = _kategoriId != null && items.any((p) => p.kategoriId == _kategoriId);
+              final tampil = saringProdukKasir(items, kataCari: _kataCari, kategoriId: kategoriAda ? _kategoriId : null);
 
               if (tampil.isEmpty) {
                 return const EmptyState(icon: Icons.inventory_2_outlined, message: 'Belum ada produk');
@@ -537,6 +549,50 @@ class _FotoProduk extends StatelessWidget {
       color: bg,
       alignment: Alignment.center,
       child: Icon(Icons.inventory_2_outlined, color: fg, size: 26),
+    );
+  }
+}
+
+/// Baris tab kategori di atas daftar produk kasir. Hanya tampil bila ada minimal satu kategori
+/// yang berisi produk; "Semua" selalu pertama.
+class _BarisKategori extends StatelessWidget {
+  const _BarisKategori({required this.kategori, required this.dipilih, required this.onPilih});
+
+  final List<Kategori> kategori;
+  final String? dipilih;
+  final ValueChanged<String?> onPilih;
+
+  @override
+  Widget build(BuildContext context) {
+    if (kategori.isEmpty) return const SizedBox.shrink();
+    final aktif = kategori.any((k) => k.id == dipilih) ? dipilih : null;
+    return SizedBox(
+      height: 44,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(right: AppSpacing.sm),
+            child: ChoiceChip(
+              key: const Key('kasir.kategori.semua'),
+              label: const Text('Semua'),
+              selected: aktif == null,
+              onSelected: (_) => onPilih(null),
+            ),
+          ),
+          for (final k in kategori)
+            Padding(
+              padding: const EdgeInsets.only(right: AppSpacing.sm),
+              child: ChoiceChip(
+                key: Key('kasir.kategori.${k.id}'),
+                label: Text(k.nama),
+                selected: aktif == k.id,
+                onSelected: (_) => onPilih(k.id),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
