@@ -27,6 +27,23 @@ class MetodeBayarDao extends DatabaseAccessor<AppDatabase> with _$MetodeBayarDao
         MetodeBayarCompanion(nama: Value(nama), urutan: Value(urutan), updatedAt: Value(now)),
       );
 
+  /// Rekening tujuan (IMOGI no. 14) - sama alasan dgn [ubahAktif]: update parsial.
+  Future<void> ubahRekening(
+    String id, {
+    required String? bank,
+    required String? nomor,
+    required String? nama,
+    required int now,
+  }) =>
+      (update(metodeBayar)..where((t) => t.id.equals(id))).write(
+        MetodeBayarCompanion(
+          rekeningBank: Value(bank),
+          rekeningNomor: Value(nomor),
+          rekeningNama: Value(nama),
+          updatedAt: Value(now),
+        ),
+      );
+
   /// ID metode bayar tunai milik toko (yang aktif dulu) - dipakai sync
   /// sebagai `metode_bayar_id` untuk transaksi tanpa baris Pembayaran
   /// (kasbon murni), supaya yang terkirim UUID sungguhan, bukan placeholder.

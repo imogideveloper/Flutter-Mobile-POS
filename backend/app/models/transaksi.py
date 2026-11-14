@@ -28,6 +28,9 @@ class MetodeBayar(Base, UUIDPkMixin, TimestampMixin):
     masuk_laci: Mapped[bool] = mapped_column(Boolean, default=False)
     urutan: Mapped[int] = mapped_column(Integer, default=0)
     aktif: Mapped[bool] = mapped_column(Boolean, default=True)
+    rekening_bank: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    rekening_nomor: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    rekening_nama: Mapped[str | None] = mapped_column(String(80), nullable=True)
 
 
 class Shift(Base, UUIDPkMixin, TimestampMixin):

@@ -327,6 +327,22 @@ class _BayarPageState extends ConsumerState<BayarPage> {
                       onMetodeAChanged: (id) => setState(() => _splitMetodeAId = id),
                       onMetodeBChanged: (id) => setState(() => _splitMetodeBId = id),
                     )
+                  else if (metodeTerpilih != null && metodeTerpilih.rekeningNomor != null && metodeTerpilih.tipe != MetodeBayarTipe.tunai)
+                    AppCard(
+                      key: const Key('bayarForm.rekeningTujuan'),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Transfer ke', style: AppTypography.secondary),
+                          Text(
+                            '${metodeTerpilih.rekeningBank ?? ''} ${metodeTerpilih.rekeningNomor}',
+                            style: AppTypography.bodyEmphasis,
+                          ),
+                          if (metodeTerpilih.rekeningNama != null)
+                            Text('a.n. ${metodeTerpilih.rekeningNama}', style: AppTypography.secondary),
+                        ],
+                      ),
+                    )
                   else if (metodeTerpilih != null && metodeTerpilih.tipe == MetodeBayarTipe.tunai) ...[
                     Text('Uang diterima', style: AppTypography.cardTitle.copyWith(fontSize: 15)),
                     const SizedBox(height: AppSpacing.sm),

@@ -725,6 +725,9 @@ class SyncRepository {
           butuhGateway: Value(row['butuh_gateway'] as bool),
           masukLaci: Value(row['masuk_laci'] as bool),
           aktif: Value(row['aktif'] as bool),
+          rekeningBank: Value(row['rekening_bank'] as String?),
+          rekeningNomor: Value(row['rekening_nomor'] as String?),
+          rekeningNama: Value(row['rekening_nama'] as String?),
           createdAt: epochMsDariBackend(row['updated_at'] as String),
           updatedAt: epochMsDariBackend(row['updated_at'] as String),
           deletedAt: Value(

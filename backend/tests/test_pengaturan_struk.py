@@ -306,3 +306,32 @@ async def test_batas_margin_bawaan_50_validasi_dan_tersimpan(client: AsyncClient
     assert (await client.patch(url, headers=toko_a.headers, json={"batas_margin": 100})).status_code == 200
     assert (await client.patch(url, headers=toko_a.headers, json={"batas_margin": -1})).status_code == 422
     assert (await client.patch(url, headers=toko_a.headers, json={"batas_margin": 101})).status_code == 422
+
+
+async def test_rekening_transfer_tersimpan_dan_ikut_sync(client: AsyncClient, db_session: AsyncSession) -> None:
+    """IMOGI no. 14: rekening (bank, nomor, atas nama) tersimpan pada metode
+    transfer, tidak digate paket (Gratis boleh), dan ikut sync pull."""
+    toko = await buat_toko_siap_pakai(db_session, nama_paket="Gratis")
+    transfer = await buat_metode_bayar(db_session, toko.toko.id, tipe="transfer")
+    tunai = await buat_metode_bayar(db_session, toko.toko.id, tipe="tunai")
+
+    resp = await client.patch(
+        f"/metode-bayar/{transfer.id}",
+        headers=toko.headers,
+        json={"rekening_bank": "BCA", "rekening_nomor": "1234567890", "rekening_nama": "Kedai Uji"},
+    )
+    assert resp.status_code == 200
+    assert resp.json()["rekening_bank"] == "BCA"
+    assert resp.json()["rekening_nomor"] == "1234567890"
+    assert resp.json()["rekening_nama"] == "Kedai Uji"
+
+    # Metode tunai tidak punya rekening.
+    resp_tunai = await client.patch(
+        f"/metode-bayar/{tunai.id}", headers=toko.headers, json={"rekening_bank": "BCA"}
+    )
+    assert resp_tunai.status_code == 422
+
+    daftar = await client.get("/metode-bayar", headers=toko.headers)
+    baris = {m["id"]: m for m in daftar.json()}
+    assert baris[str(transfer.id)]["rekening_nomor"] == "1234567890"
+    assert baris[str(tunai.id)]["rekening_nomor"] is None

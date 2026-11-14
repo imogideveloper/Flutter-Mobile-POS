@@ -14,6 +14,7 @@ import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/fitur_terkunci.dart';
 import '../../../../core/widgets/offline_notice_banner.dart';
+import '../../../transaksi/data/local/tables/metode_bayar_table.dart';
 import '../../../transaksi/presentation/providers/transaksi_providers.dart';
 
 final _semuaMetodeBayarProvider = StreamProvider<List<MetodeBayarRow>>((ref) {
@@ -109,6 +110,77 @@ class PengaturanMetodeBayarPage extends ConsumerWidget {
     }
   }
 
+  Future<void> _editRekening(WidgetRef ref, BuildContext context, MetodeBayarRow metode) async {
+    final bankC = TextEditingController(text: metode.rekeningBank ?? '');
+    final nomorC = TextEditingController(text: metode.rekeningNomor ?? '');
+    final namaC = TextEditingController(text: metode.rekeningNama ?? '');
+    final disimpan = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Rekening tujuan'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              key: const Key('pengaturanMetodeBayarForm.rekeningBank'),
+              controller: bankC,
+              decoration: const InputDecoration(labelText: 'Bank / e-wallet'),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            TextField(
+              key: const Key('pengaturanMetodeBayarForm.rekeningNomor'),
+              controller: nomorC,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: 'Nomor rekening'),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            TextField(
+              key: const Key('pengaturanMetodeBayarForm.rekeningNama'),
+              controller: namaC,
+              decoration: const InputDecoration(labelText: 'Atas nama'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Batal')),
+          FilledButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Simpan')),
+        ],
+      ),
+    );
+    if (disimpan != true) return;
+    if (!context.mounted) return;
+
+    final sesi = await ref.read(authSessionStoreProvider).muat();
+    if (sesi == null) return;
+    String? bersih(TextEditingController c) => c.text.trim().isEmpty ? null : c.text.trim();
+    try {
+      await ref.read(backendApiProvider).ubahMetodeBayar(
+            accessToken: sesi.accessToken,
+            metodeBayarId: metode.id,
+            body: {
+              'rekening_bank': bersih(bankC),
+              'rekening_nomor': bersih(nomorC),
+              'rekening_nama': bersih(namaC),
+            },
+          );
+      await ref.read(metodeBayarDaoProvider).ubahRekening(
+            metode.id,
+            bank: bersih(bankC),
+            nomor: bersih(nomorC),
+            nama: bersih(namaC),
+            now: DateTime.now().toUtc().millisecondsSinceEpoch,
+          );
+      unawaited(ref.read(syncRepositoryProvider).jalankan());
+      if (context.mounted) {
+        showAppToast(context, message: 'Rekening tersimpan', variant: ToastVariant.success);
+      }
+    } catch (e) {
+      if (context.mounted) {
+        showAppToast(context, message: 'Gagal menyimpan: $e', variant: ToastVariant.danger);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final daftarAsync = ref.watch(_semuaMetodeBayarProvider);
@@ -140,9 +212,22 @@ class PengaturanMetodeBayarPage extends ConsumerWidget {
                         children: [
                           Text(metode.nama, style: AppTypography.bodyEmphasis),
                           Text(metode.tipe.name, style: AppTypography.secondary),
+                          if (metode.rekeningNomor != null)
+                            Text(
+                              '${metode.rekeningBank ?? ''} ${metode.rekeningNomor} a.n. ${metode.rekeningNama ?? '-'}',
+                              key: Key('pengaturanMetodeBayar.rekening.${metode.id}'),
+                              style: AppTypography.secondary,
+                            ),
                         ],
                       ),
                     ),
+                    if (metode.tipe == MetodeBayarTipe.transfer || metode.tipe == MetodeBayarTipe.ewallet)
+                      IconButton(
+                        key: Key('pengaturanMetodeBayar.rekeningEdit.${metode.id}'),
+                        icon: const Icon(Icons.account_balance_outlined),
+                        tooltip: 'Rekening tujuan',
+                        onPressed: online ? () => _editRekening(ref, context, metode) : null,
+                      ),
                     FiturTerkunci(
                       kode: 'label_pembayaran',
                       child: IconButton(

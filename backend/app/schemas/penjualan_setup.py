@@ -94,6 +94,10 @@ class MetodeBayarUpdateIn(BaseModel):
     nama: str | None = None
     urutan: int | None = None
     aktif: bool | None = None
+    # Rekening tujuan (IMOGI no. 14) - hanya bermakna utk tipe transfer/ewallet.
+    rekening_bank: str | None = None
+    rekening_nomor: str | None = None
+    rekening_nama: str | None = None
 
 
 class MetodeBayarOut(BaseModel):
@@ -104,5 +108,8 @@ class MetodeBayarOut(BaseModel):
     masuk_laci: bool
     urutan: int
     aktif: bool
+    rekening_bank: str | None = None
+    rekening_nomor: str | None = None
+    rekening_nama: str | None = None
 
     model_config = {"from_attributes": True}

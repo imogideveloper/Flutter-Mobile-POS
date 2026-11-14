@@ -91,6 +91,11 @@ async def ubah_pajak(
 
     perubahan = body.model_dump(exclude_unset=True)
     data_lama = {k: str(getattr(pajak, k)) for k in perubahan}
+    if any(k.startswith("rekening_") for k in perubahan) and metode.tipe not in ("transfer", "ewallet"):
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_ENTITY, "Rekening hanya untuk metode transfer atau e-wallet"
+        )
+
     for field, value in perubahan.items():
         setattr(pajak, field, value)
     await catat_audit(
@@ -188,6 +193,11 @@ async def ubah_promo(
     ):
         await tolak_fitur_terkunci(db, "birthday_promo")
     data_lama = {k: str(getattr(promo, k)) for k in perubahan}
+    if any(k.startswith("rekening_") for k in perubahan) and metode.tipe not in ("transfer", "ewallet"):
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_ENTITY, "Rekening hanya untuk metode transfer atau e-wallet"
+        )
+
     for field, value in perubahan.items():
         setattr(promo, field, value)
     await catat_audit(
@@ -324,6 +334,11 @@ async def ubah_metode_bayar(
         db, toko_id, "label_pembayaran"
     ):
         await tolak_fitur_terkunci(db, "label_pembayaran")
+
+    if any(k.startswith("rekening_") for k in perubahan) and metode.tipe not in ("transfer", "ewallet"):
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_ENTITY, "Rekening hanya untuk metode transfer atau e-wallet"
+        )
 
     for field, value in perubahan.items():
         setattr(metode, field, value)

@@ -172,7 +172,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 14;
+  int get schemaVersion => 15;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -250,6 +250,12 @@ class AppDatabase extends _$AppDatabase {
           // v12 -> v13 - batas margin produk (persen, per outlet).
           if (from < 13) {
             await m.addColumn(pengaturanOutlet, pengaturanOutlet.batasMargin);
+          }
+          // v14 -> v15 - rekening tujuan pada metode bayar (IMOGI no. 14).
+          if (from < 15) {
+            await m.addColumn(metodeBayar, metodeBayar.rekeningBank);
+            await m.addColumn(metodeBayar, metodeBayar.rekeningNomor);
+            await m.addColumn(metodeBayar, metodeBayar.rekeningNama);
           }
           // v13 -> v14 - promo ulang tahun (penanda pada promo).
           if (from < 14) {
