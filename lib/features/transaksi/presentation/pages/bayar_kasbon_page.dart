@@ -12,7 +12,9 @@ import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/avatar_initial.dart';
 import '../../../../core/widgets/fitur_terkunci.dart';
+import '../../../pelanggan/domain/batas_kasbon.dart';
 import '../../../pelanggan/domain/pelanggan.dart';
+import '../../../pelanggan/presentation/providers/piutang_providers.dart';
 import '../../../promo/presentation/providers/pajak_providers.dart';
 import '../../../pelanggan/presentation/providers/pelanggan_providers.dart';
 import '../../../pelanggan/presentation/widgets/pelanggan_picker_sheet.dart';
@@ -110,6 +112,29 @@ class _BayarKasbonPageState extends ConsumerState<BayarKasbonPage> {
       if (dp > 0 && metodeTunai == null) {
         if (mounted) {
           showAppToast(context, message: 'Metode Tunai belum diatur', variant: ToastVariant.warning);
+        }
+        return;
+      }
+
+      // Limit bon (IMOGI no. 16): tahan bon baru bila total utang melampaui batas.
+      final pel = (ref.read(pelangganAktifProvider).value ?? const <Pelanggan>[])
+          .where((p) => p.id == pelangganId)
+          .firstOrNull;
+      final utangSekarang = (ref.read(piutangPelangganProvider).value ?? const <PiutangPelanggan>[])
+          .where((u) => u.pelangganId == pelangganId)
+          .fold<int>(0, (a, u) => a + u.totalUtang);
+      final cek = cekBatasKasbon(
+        batas: pel?.batasKasbon,
+        utangSekarang: utangSekarang,
+        sisaTagihanBaru: total - dp < 0 ? 0 : total - dp,
+      );
+      if (!cek.boleh) {
+        if (mounted) {
+          showAppToast(
+            context,
+            message: 'Melebihi limit bon pelanggan. Sisa kuota ${_formatRupiah.format(cek.sisaKuota ?? 0)}',
+            variant: ToastVariant.warning,
+          );
         }
         return;
       }

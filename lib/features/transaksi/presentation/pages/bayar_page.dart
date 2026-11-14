@@ -281,7 +281,9 @@ class _BayarPageState extends ConsumerState<BayarPage> {
                     ),
                   if (daftar.length >= 2) ...[
                     const SizedBox(height: AppSpacing.sm),
-                    SizedBox(
+                    FiturTerkunci(
+                      kode: 'split_payment',
+                      child: SizedBox(
                       width: double.infinity,
                       child: OutlinedButton.icon(
                         key: const Key('bayarForm.toggleSplit'),
@@ -292,6 +294,7 @@ class _BayarPageState extends ConsumerState<BayarPage> {
                         icon: Icon(_modeSplit ? Icons.close : Icons.call_split, size: 18),
                         label: Text(_modeSplit ? 'Batal bayar campur' : 'Bayar campur (2 metode)'),
                       ),
+                    ),
                     ),
                   ],
                   // Kasbon (tahap 3b-1) - baris terpisah drpd grid metode di

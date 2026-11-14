@@ -237,7 +237,8 @@ class _PengaturanOutletStrukPageState extends ConsumerState<PengaturanOutletStru
                     TextField(
                       key: const Key('pengaturanOutletForm.footer'),
                       controller: _footerController,
-                      maxLines: 2,
+                      maxLines: 3,
+                      maxLength: 300,
                       onChanged: (_) => setState(() {}),
                       decoration: const InputDecoration(hintText: 'Contoh: Terima kasih, sampai jumpa lagi!'),
                     ),

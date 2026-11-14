@@ -38,6 +38,13 @@ void main() {
       qty: 10,
     );
     await seedMetodeBayarUjiCoba(db);
+    await db.fiturDao.simpanStatusFitur(
+      tokoId: 'toko-default',
+      paket: 'Pro',
+      kodeFiturAktif: const ['split_payment'],
+      batasPerKode: const {},
+      updatedAt: 0,
+    );
 
     await tester.pumpWidget(ProviderScope(
       overrides: overridesSudahLogin(db),
