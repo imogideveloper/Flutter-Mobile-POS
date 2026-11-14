@@ -124,7 +124,12 @@ abstract class BackendApi {
   /// Absensi karyawan (IMOGI no. 62), langsung ke server. [tzMenit] = offset zona waktu perangkat.
   Future<Map<String, dynamic>> absensiSaya({required String accessToken});
 
-  Future<Map<String, dynamic>> absenMasuk({required String accessToken, String? outletId, String? catatan});
+  Future<Map<String, dynamic>> absenMasuk({
+    required String accessToken,
+    String? outletId,
+    String? catatan,
+    int tzMenit = 0,
+  });
 
   Future<Map<String, dynamic>> absenKeluar({required String accessToken, String? catatan});
 
@@ -134,6 +139,30 @@ abstract class BackendApi {
     required String sampai,
     required int tzMenit,
   });
+
+  /// Jadwal shift mingguan dan cuti (IMOGI no. 63), langsung ke server.
+  Future<List<dynamic>> daftarJadwal({required String accessToken});
+
+  Future<Map<String, dynamic>> aturJadwal({
+    required String accessToken,
+    required String penggunaId,
+    required List<Map<String, dynamic>> hari,
+  });
+
+  Future<Map<String, dynamic>> jadwalSaya({required String accessToken, required int tzMenit});
+
+  Future<Map<String, dynamic>> ajukanCuti({required String accessToken, required Map<String, dynamic> body});
+
+  Future<List<dynamic>> daftarCuti({required String accessToken, String? status});
+
+  Future<Map<String, dynamic>> putuskanCuti({
+    required String accessToken,
+    required String cutiId,
+    required bool setuju,
+    String? catatan,
+  });
+
+  Future<Map<String, dynamic>> batalkanCuti({required String accessToken, required String cutiId});
 
   /// Impor pelanggan massal dari CSV (IMOGI no. 53). [simulasi] true = hanya memeriksa, tidak menyimpan.
   Future<Map<String, dynamic>> imporPelanggan({

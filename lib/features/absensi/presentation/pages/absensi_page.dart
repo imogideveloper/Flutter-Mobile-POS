@@ -82,7 +82,11 @@ class _AbsensiPageState extends ConsumerState<AbsensiPage> {
       final sesi = await _sesi();
       final api = ref.read(backendApiProvider);
       if (_aktif == null) {
-        await api.absenMasuk(accessToken: sesi.accessToken, outletId: sesi.outletId);
+        await api.absenMasuk(
+          accessToken: sesi.accessToken,
+          outletId: sesi.outletId,
+          tzMenit: offsetZonaMenit(DateTime.now()),
+        );
         if (mounted) showAppToast(context, message: 'Absen masuk tercatat', variant: ToastVariant.success);
       } else {
         await api.absenKeluar(accessToken: sesi.accessToken);
@@ -192,7 +196,19 @@ class _AbsensiPageState extends ConsumerState<AbsensiPage> {
                 '${DateFormat('d MMM', 'id_ID').format(i.jamMasuk)} · ${formatJam(i.jamMasuk)} - '
                 '${i.jamKeluar == null ? 'sekarang' : formatJam(i.jamKeluar!)}',
               ),
-              trailing: Text(i.durasiMenit == null ? 'berjalan' : formatDurasi(i.durasiMenit!)),
+              trailing: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(i.durasiMenit == null ? 'berjalan' : formatDurasi(i.durasiMenit!)),
+                  if (i.terlambat)
+                    Text(
+                      'Terlambat',
+                      key: Key('absensi.terlambat.${i.id}'),
+                      style: AppTypography.secondary.copyWith(color: AppColors.warningTextStrong, fontWeight: FontWeight.w700),
+                    ),
+                ],
+              ),
             ),
         ],
       ],

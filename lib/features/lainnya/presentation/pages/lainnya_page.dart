@@ -268,6 +268,14 @@ class LainnyaPage extends ConsumerWidget {
                       onTap: () => context.push('/absensi'),
                     ),
                   ),
+                  FiturTerkunci(
+                    kode: 'staff_schedule',
+                    child: SettingsMenuRow(
+                      label: 'Jadwal & cuti',
+                      value: 'Shift / cuti',
+                      onTap: () => context.push('/jadwal-cuti'),
+                    ),
+                  ),
                   bila(
                     'laporan.lihat',
                     FiturTerkunci(

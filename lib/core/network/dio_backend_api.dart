@@ -507,11 +507,20 @@ class DioBackendApi implements BackendApi {
   }
 
   @override
-  Future<Map<String, dynamic>> absenMasuk({required String accessToken, String? outletId, String? catatan}) async {
+  Future<Map<String, dynamic>> absenMasuk({
+    required String accessToken,
+    String? outletId,
+    String? catatan,
+    int tzMenit = 0,
+  }) async {
     try {
       final resp = await _dio.post(
         '/absensi/masuk',
-        data: {if (outletId != null) 'outlet_id': outletId, if (catatan != null) 'catatan': catatan},
+        data: {
+          if (outletId != null) 'outlet_id': outletId,
+          if (catatan != null) 'catatan': catatan,
+          'tz_menit': tzMenit,
+        },
         options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
       );
       return resp.data as Map<String, dynamic>;
@@ -563,6 +572,111 @@ class DioBackendApi implements BackendApi {
       final resp = await _dio.post(
         '/pelanggan/impor',
         data: {'baris': baris, 'simulasi': simulasi},
+        options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
+      );
+      return resp.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      _lempar(e);
+    }
+  }
+
+  @override
+  Future<List<dynamic>> daftarJadwal({required String accessToken}) async {
+    try {
+      final resp = await _dio.get(
+        '/jadwal',
+        options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
+      );
+      return resp.data as List<dynamic>;
+    } on DioException catch (e) {
+      _lempar(e);
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> aturJadwal({
+    required String accessToken,
+    required String penggunaId,
+    required List<Map<String, dynamic>> hari,
+  }) async {
+    try {
+      final resp = await _dio.put(
+        '/jadwal/$penggunaId',
+        data: {'hari': hari},
+        options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
+      );
+      return resp.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      _lempar(e);
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> jadwalSaya({required String accessToken, required int tzMenit}) async {
+    try {
+      final resp = await _dio.get(
+        '/jadwal/saya',
+        queryParameters: {'tz_menit': tzMenit},
+        options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
+      );
+      return resp.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      _lempar(e);
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> ajukanCuti({required String accessToken, required Map<String, dynamic> body}) async {
+    try {
+      final resp = await _dio.post(
+        '/cuti',
+        data: body,
+        options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
+      );
+      return resp.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      _lempar(e);
+    }
+  }
+
+  @override
+  Future<List<dynamic>> daftarCuti({required String accessToken, String? status}) async {
+    try {
+      final resp = await _dio.get(
+        '/cuti',
+        queryParameters: {if (status != null) 'status': status},
+        options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
+      );
+      return resp.data as List<dynamic>;
+    } on DioException catch (e) {
+      _lempar(e);
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> putuskanCuti({
+    required String accessToken,
+    required String cutiId,
+    required bool setuju,
+    String? catatan,
+  }) async {
+    try {
+      final resp = await _dio.post(
+        '/cuti/$cutiId/putuskan',
+        data: {'setuju': setuju, if (catatan != null) 'catatan': catatan},
+        options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
+      );
+      return resp.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      _lempar(e);
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> batalkanCuti({required String accessToken, required String cutiId}) async {
+    try {
+      final resp = await _dio.post(
+        '/cuti/$cutiId/batalkan',
         options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
       );
       return resp.data as Map<String, dynamic>;

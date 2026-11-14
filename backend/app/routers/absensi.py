@@ -26,6 +26,7 @@ from app.schemas.absensi import (
 )
 from app.services.fitur_service import require_fitur
 from app.services.izin_service import has_izin
+from app.services.jadwal_service import status_absen_masuk
 
 router = APIRouter(prefix="/absensi", tags=["absensi"], dependencies=[Depends(require_fitur("absensi"))])
 
@@ -105,12 +106,15 @@ async def absen_masuk(
     if outlet is None or outlet.toko_id != toko_id:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Outlet tidak ditemukan")
 
+    sekarang = datetime.now(UTC)
+    # Terlambat bila lewat jam mulai shift hari itu + toleransi (jadwal diatur lewat fitur Jadwal & cuti).
+    status_masuk = await status_absen_masuk(db, pengguna_id=pengguna_id, waktu_utc=sekarang, tz_menit=body.tz_menit)
     baris = Absensi(
         toko_id=toko_id,
         outlet_id=outlet.id,
         pengguna_id=pengguna_id,
-        jam_masuk=datetime.now(UTC),
-        status="hadir",
+        jam_masuk=sekarang,
+        status=status_masuk,
         catatan=body.catatan,
     )
     db.add(baris)

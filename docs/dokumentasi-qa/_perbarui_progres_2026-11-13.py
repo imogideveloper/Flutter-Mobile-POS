@@ -56,6 +56,7 @@ def salin_gaya(ws, dari_baris, ke_baris):
 # ----------------------------------------------------------------------------- tracker
 GAP = {
     37: "SEBAGIAN (2026-11-13): penanda margin rendah di form dan daftar produk (filter Margin rendah, lencana, peringatan di form) dengan batas per outlet di Pengaturan struk (bawaan 50% untuk F&B, migrasi 0016); HPP kosong ditandai tersendiri. Hak akses lihat harga beli mengikuti izin produk.kelola (belum ada izin khusus). Lulus tes otomatis, belum diuji di HP.",
+    63: "SEBAGIAN (2026-11-14): Lainnya > Jadwal & cuti: pengelola mengatur shift mingguan tiap karyawan (libur/pagi/siang, jam bawaan 07:00-15:00 dan 14:00-22:00); karyawan melihat jadwalnya, mengajukan cuti/sakit/izin, dan pengelola menyetujui atau menolak (tidak bisa memutuskan pengajuan sendiri); absen masuk menjadi Terlambat bila lewat jam mulai + 10 menit (migrasi 0018, endpoint /jadwal dan /cuti, fitur staff_schedule). Belum: tukar jadwal, jam shift kustom di layar, shift lintas tengah malam, pemberitahuan, dan absensi offline. Belum diuji di HP.",
     72: "SEBAGIAN (2026-11-14): kartu HPP & margin per produk di tab Laporan (qty, HPP, laba, margin %, penanda di bawah batas margin outlet, HPP kosong ditandai); dihitung offline dari data lokal; terkunci paket Professional. DIPERBAIKI: HPP sebelumnya tidak pernah disimpan saat checkout (selalu 0), kini disimpan sebagai snapshot HPP produk saat transaksi. Transaksi lama tetap HPP 0. Belum ada ekspor dan laporan per kategori. Belum diuji di HP.",
     49: "SEBAGIAN (2026-11-14): kini ada riwayat mutasi lengkap per produk (ketuk baris stok): jenis, tanggal dan jam, jumlah, saldo setelah, catatan, total masuk/keluar, filter Masuk/Keluar, sampai 300 mutasi terbaru. Belum: filter tanggal, ekspor riwayat, riwayat per varian, dan pengaturan saat stok habis masih terdampak BUG-012 (sudah diperbaiki di kode, menunggu uji HP). Lulus tes otomatis, belum diuji di HP.",
     36: "SEBAGIAN (2026-11-14): CRUD produk, kategori, dan harga ada; kini kasir juga punya tab kategori (Semua + kategori yang berisi produk, urut menurut pengaturan kategori) yang digabung dengan pencarian. Belum: pengaturan urutan khusus tab kasir terpisah dari urutan kategori. Lulus tes otomatis, belum diuji di HP.",
@@ -73,6 +74,7 @@ GAP = {
 
 # Feature ID -> (catatan, TC terkait yang ditambahkan, status baru atau None)
 FEAT = {
+    "FEAT-075": ("Jadwal shift mingguan & cuti (IMOGI no. 63): tahap pertama selesai di kode (jadwal libur/pagi/siang per karyawan, pengajuan dan persetujuan cuti/sakit/izin, absen Terlambat mengikuti jadwal). Belum ada tukar jadwal dan jam shift kustom di layar. Fitur Future Release; online-only. Lulus tes otomatis; belum diuji di HP.", ["TC-102", "TC-103", "TC-104", "TC-105"], "In Progress"),
     "FEAT-048": ("Laporan F&B: bagian HPP & margin per produk (IMOGI no. 72): kartu di tab Laporan (offline, dari data lokal), terkunci paket Professional; menyertakan perbaikan penting: HPP produk kini disimpan sebagai snapshot saat checkout (sebelumnya selalu 0, sehingga laba kotor, laba rugi, dan margin salah untuk transaksi nyata). Transaksi lama tidak diubah. Lulus tes otomatis; belum diuji di HP.", ["TC-099", "TC-100", "TC-101"], "Ready for QA"),
     "FEAT-061": ("Riwayat mutasi stok per produk (IMOGI no. 49): ketuk baris di halaman Stok membuka riwayat produk (jenis, waktu, jumlah, saldo setelah, catatan), total masuk/keluar, filter Masuk/Keluar, 300 mutasi terbaru. Dijaga izin stok.kelola. Lulus tes otomatis; belum diuji di HP.", ["TC-097", "TC-098"], "Ready for QA"),
     "FEAT-060": ("Filter kategori di kasir (IMOGI no. 36): baris tab kategori di atas daftar produk kasir (Semua + kategori berisi produk, urut menurut pengaturan), digabung dengan pencarian nama/SKU; kategori yang kosong disembunyikan. Lulus tes otomatis; belum diuji di HP.", ["TC-095", "TC-096"], "Ready for QA"),
@@ -238,6 +240,18 @@ TC_BARU = [
 ]
 
 TC_BARU += [
+    ("TC-102", "FEAT-075", "Karyawan", "Pengelola mengatur jadwal mingguan karyawan", "Owner/Manajer menetapkan shift tiap hari untuk satu karyawan.",
+     "Paket Professional ke atas; login Owner; ada karyawan Kasir.", "1. Lainnya > Jadwal & cuti > tab Jadwal\n2. Ketuk karyawan\n3. Atur Senin Pagi, Selasa Siang, Minggu Libur\n4. Simpan", "-",
+     "Jadwal tersimpan dan tampil sebagai Sen Pagi, Sel Siang, Min Libur; setelah buka ulang tetap ada.", H, "Functional"),
+    ("TC-103", "FEAT-075", "Karyawan", "Karyawan mengajukan cuti dan pengelola memutuskan", "Alur pengajuan sampai persetujuan.",
+     "Login Kasir lalu Owner.", "1. Kasir: tab Cuti > Ajukan cuti > pilih tanggal > Kirim\n2. Owner: tab Cuti > Setujui\n3. Kasir: buka tab Jadwal", "-",
+     "Pengajuan berstatus Menunggu lalu Disetujui; Kasir tidak punya tombol Setujui/Tolak; pada tanggal cuti, kartu hari ini menampilkan Cuti (disetujui).", H, "Functional"),
+    ("TC-104", "FEAT-075", "Karyawan", "Absen masuk Terlambat mengikuti jadwal", "Keterlambatan dihitung dari jam mulai shift ditambah 10 menit.",
+     "Kasir punya jadwal hari ini shift Pagi 07:00-15:00 (atau atur jam sesuai uji).", "1. Kasir absen masuk setelah 07:10\n2. Lihat riwayat Absensi\n3. Ulangi pada hari Libur", "-",
+     "Absen setelah 07:10 tercatat Terlambat; absen saat hari libur atau tanpa jadwal tetap Hadir.", H, "Functional"),
+    ("TC-105", "FEAT-075", "Karyawan", "Pembatasan akses jadwal dan cuti", "Karyawan biasa tidak bisa mengatur jadwal atau memutuskan pengajuan.",
+     "Login Kasir.", "1. Buka Jadwal & cuti\n2. Ketuk kartu karyawan\n3. Lihat pengajuan milik orang lain", "-",
+     "Kasir hanya melihat jadwal dan pengajuan miliknya; mengetuk kartu tidak membuka pengaturan; tidak ada tombol Setujui/Tolak; pengajuan milik sendiri hanya bisa dibatalkan.", M, "Negative"),
     ("TC-099", "FEAT-048", "Laporan", "HPP tersimpan saat transaksi dan laba kotor benar", "Perbaikan: HPP produk dicatat sebagai snapshot saat checkout.",
      "Paket Professional ke atas; produk harga 18.000 dengan HPP 7.000.", "1. Jual 3 produk itu sampai bayar\n2. Buka tab Laporan > Hari ini", "-",
      "Laba kotor Rp 33.000 (bukan sama dengan penjualan Rp 54.000). Catatan: transaksi lama tetap HPP 0.", H, "Functional"),
@@ -306,10 +320,10 @@ def perbarui_qa(path):
     for r in range(1, ws.max_row + 1):
         if ws.cell(r, 1).value == "Test Case" and re.search(r"TC-070 sampai TC-0\d\d", str(ws.cell(r, 2).value)):
             # Perluas rentang pada kalimat yang sudah ada (jangan menambah kalimat kedua).
-            ws.cell(r, 2).value = re.sub(r"TC-070 sampai TC-0\d\d", "TC-070 sampai TC-101", str(ws.cell(r, 2).value))
-        elif ws.cell(r, 1).value == "Test Case" and "TC-101" not in str(ws.cell(r, 2).value):
+            ws.cell(r, 2).value = re.sub(r"TC-070 sampai TC-0\d\d", "TC-070 sampai TC-105", str(ws.cell(r, 2).value))
+        elif ws.cell(r, 1).value == "Test Case" and "TC-105" not in str(ws.cell(r, 2).value):
             ws.cell(r, 2).value = str(ws.cell(r, 2).value) + (
-                " TC-070 sampai TC-101 ditambahkan 2026-11-13 (diusulkan, Not Tested) untuk fitur baru: pengeluaran, laba rugi, "
+                " TC-070 sampai TC-105 ditambahkan 2026-11-13 (diusulkan, Not Tested) untuk fitur baru: pengeluaran, laba rugi, "
                 "rekap pajak, impor/ekspor produk, impor pelanggan, absensi, estimasi dan WhatsApp status pesanan, hak akses menu. "
                 "Belum ada yang dijalankan di HP."
             )

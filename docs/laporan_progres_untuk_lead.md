@@ -4,7 +4,7 @@ Disusun 2026-11-13. Acuan fitur: dokumen IMOGI (87 fitur, 4 paket). Cakupan apli
 
 ## 1. Ringkasan
 
-Sejak audit awal (2026-11-08), 13 nomor fitur dari daftar IMOGI mendapat versi pertama di aplikasi (4 di antaranya Release 1, 10 Future Release), sebagian besar fitur inti kafe yang sebelumnya belum ada (laporan keuangan dasar, pengeluaran, absensi, impor data, promo ulang tahun, margin produk). Fondasi sync juga diperbaiki: transaksi yang dibuat offline kini diterima server, dan sync berjalan otomatis.
+Sejak audit awal (2026-11-08), 17 nomor fitur dari daftar IMOGI mendapat versi pertama di aplikasi (6 di antaranya Release 1, 11 Future Release), sebagian besar fitur inti kafe yang sebelumnya belum ada (laporan keuangan dasar, pengeluaran, absensi, impor data, promo ulang tahun, margin produk). Fondasi sync juga diperbaiki: transaksi yang dibuat offline kini diterima server, dan sync berjalan otomatis.
 
 **Yang harus dikatakan terus terang:** semua ini **baru terbukti lewat tes otomatis, belum diuji di HP**. Menurut aturan audit kita, belum ada fitur yang boleh disebut Done. Kami juga membangun beberapa fitur berstatus *Future Release* sebelum Release Scope dikonfirmasi (lihat bagian 5).
 
@@ -13,11 +13,11 @@ Sejak audit awal (2026-11-08), 13 nomor fitur dari daftar IMOGI mendapat versi p
 | | Awal audit | Sekarang |
 |---|---|---|
 | Fitur IMOGI relevan F&B: lengkap | 15 | 15 (tidak naik: belum ada uji HP) |
-| sebagian | 24 | 33 |
-| belum ada | 25 | 16 |
-| Fitur inti Kafe & Kedai Kopi: lengkap / sebagian / belum ada | 11 / 18 / 17 | 11 / 25 / 10 |
+| sebagian | 24 | 34 |
+| belum ada | 25 | 15 |
+| Fitur inti Kafe & Kedai Kopi: lengkap / sebagian / belum ada | 11 / 18 / 17 | 11 / 26 / 9 |
 | Paket di server | 3 paket, 32 fitur (salinan Qasir) | 4 paket IMOGI, 87 fitur |
-| Tes otomatis | | Flutter 400 lulus; backend 474 lulus, 0 gagal (termasuk 36 tes fixture bersama Flutter-backend untuk hitungan harga dan refund) |
+| Tes otomatis | | Flutter 411 lulus; backend 482 lulus, 0 gagal (termasuk 36 tes fixture bersama Flutter-backend untuk hitungan harga dan refund) |
 | Analisis kode | | 0 galat, 0 peringatan |
 | Uji di HP | sebagian manual (2026-11-08) | belum ada untuk fitur baru |
 | Pekerjaan | | 22 commit, 223 berkas, 17 migrasi database (0011-0017 baru) |
@@ -41,7 +41,7 @@ Settlement QRIS (74), jadwal shift dan cuti (63), payroll (76), chart of account
 
 ## 5. Penyimpangan dan risiko (hasil audit)
 
-1. **Urutan kerja terbalik.** Sembilan fitur berstatus *Future Release* (pengeluaran, laba rugi, pajak, impor/ekspor, absensi, impor pelanggan, promo ulang tahun) dibangun sebelum Release Scope (TASK-104) diputuskan. Fitur Release 1 yang masih terbuka: filter kategori di kasir, riwayat mutasi stok, catatan per item, tiket per stasiun, catatan tambahan di struk, pilih meja.
+1. **Urutan kerja terbalik.** Sebelas fitur berstatus *Future Release* (pengeluaran, laba rugi, pajak, impor/ekspor, absensi, jadwal dan cuti, laporan HPP & margin, impor pelanggan, promo ulang tahun) dibangun sebelum Release Scope (TASK-104) diputuskan. Fitur Release 1 yang masih terbuka: filter kategori di kasir, riwayat mutasi stok, catatan per item, tiket per stasiun, catatan tambahan di struk, pilih meja.
 2. **Nol uji HP** untuk semua pekerjaan terbaru. Sembilan test case Critical (termasuk pembayaran TC-011 dan TC-012) belum dijalankan.
 3. **Beberapa keputusan diambil sementara oleh pengembang** (daftar lengkap di `docs/perlu_konfirmasi.md`), terutama rumus laba rugi dan pajak serta matriks izin menu.
 4. **Fitur keuangan, absensi, dan impor berbasis internet** padahal aplikasi dirancang offline-first.

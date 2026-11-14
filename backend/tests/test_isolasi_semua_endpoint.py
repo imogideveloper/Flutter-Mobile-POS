@@ -28,6 +28,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.main import app
+from app.models.jadwal import PengajuanCuti
 from app.models.pengeluaran import Pengeluaran
 from app.models.order import Meja, TipeOrder
 from app.models.outlet import Outlet, Paket, PermintaanUpgrade
@@ -133,6 +134,14 @@ async def _siapkan_satu_toko(client: AsyncClient, db: AsyncSession, toko, label:
     db.add(pengeluaran)
     await db.commit()
     ids["pengeluaran_id"] = pengeluaran.id
+
+    cuti = PengajuanCuti(
+        toko_id=toko.toko.id, pengguna_id=toko.pengguna.id, jenis="cuti",
+        tanggal_mulai=date(2026, 12, 1), tanggal_selesai=date(2026, 12, 2),
+    )
+    db.add(cuti)
+    await db.commit()
+    ids["cuti_id"] = cuti.id
 
     harga_outlet = HargaOutlet(produk_id=produk.id, outlet_id=toko.outlet.id, harga_jual=Decimal("1000"))
     db.add(harga_outlet)
@@ -372,6 +381,12 @@ def _body_untuk(method: str, path: str, ids: dict[str, uuid.UUID]) -> dict | Non
         return None  # link idempoten, tanpa body JSON
     if path == "/pengguna/{pengguna_id}/reset-pin":
         return {"pin": "999999"}
+    if path == "/jadwal/{pengguna_id}":
+        return {"hari": [{"hari": 1, "shift": "pagi"}]}
+    if path == "/cuti/{cuti_id}/putuskan":
+        return {"setuju": True}
+    if path == "/cuti/{cuti_id}/batalkan":
+        return None  # POST tanpa body JSON
 
     raise AssertionError(f"Body utk {method} {path} belum didefinisikan - lengkapi _body_untuk()")
 

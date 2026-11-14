@@ -7,6 +7,8 @@ from pydantic import BaseModel, Field
 class AbsensiMasukIn(BaseModel):
     outlet_id: uuid.UUID | None = None
     catatan: str | None = Field(default=None, max_length=300)
+    # Offset zona waktu perangkat dari UTC (menit); dipakai menilai keterlambatan terhadap jadwal shift.
+    tz_menit: int = Field(default=0, ge=-840, le=840)
 
 
 class AbsensiKeluarIn(BaseModel):

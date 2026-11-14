@@ -31,6 +31,8 @@ class _Api implements BackendApi {
   final int? statusGagal;
   final List<String> panggilan = [];
   String? outletDikirim;
+  int? tzMasukDikirim;
+  bool terlambat = false;
   int? tzDikirim;
 
   Map<String, dynamic> _catatan({required bool keluar}) => {
@@ -41,7 +43,7 @@ class _Api implements BackendApi {
         'jam_masuk': '2026-11-12T01:00:00+00:00',
         'jam_keluar': keluar ? '2026-11-12T03:15:00+00:00' : null,
         'durasi_menit': keluar ? 135 : null,
-        'status': 'hadir',
+        'status': terlambat ? 'terlambat' : 'hadir',
         'catatan': null,
       };
 
@@ -53,8 +55,14 @@ class _Api implements BackendApi {
   }
 
   @override
-  Future<Map<String, dynamic>> absenMasuk({required String accessToken, String? outletId, String? catatan}) async {
+  Future<Map<String, dynamic>> absenMasuk({
+    required String accessToken,
+    String? outletId,
+    String? catatan,
+    int tzMenit = 0,
+  }) async {
     panggilan.add('masuk');
+    tzMasukDikirim = tzMenit;
     outletDikirim = outletId;
     mulaiMasuk = true;
     return _catatan(keluar: false);
@@ -128,6 +136,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(api.panggilan, containsAllInOrder(['saya', 'masuk', 'saya']));
     expect(api.outletDikirim, 'outlet-1');
+    expect(api.tzMasukDikirim, DateTime.now().timeZoneOffset.inMinutes, reason: 'zona waktu dikirim agar terlambat dinilai dengan jam setempat');
     expect(find.textContaining('Sedang masuk sejak'), findsOneWidget);
     expect(find.text('Absen keluar'), findsOneWidget);
 
@@ -135,6 +144,14 @@ void main() {
     await tester.pumpAndSettle();
     expect(api.panggilan.contains('keluar'), isTrue);
     expect(find.text('Belum absen masuk'), findsOneWidget);
+    await _tutup(tester);
+  });
+
+  testWidgets('riwayat menandai absen yang terlambat', (tester) async {
+    final api = _Api()..terlambat = true;
+    await _buka(tester, api);
+    expect(find.byKey(const Key('absensi.terlambat.a1')), findsOneWidget);
+    expect(find.text('Terlambat'), findsOneWidget);
     await _tutup(tester);
   });
 

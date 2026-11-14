@@ -10,6 +10,7 @@ from app.routers import (
     audit,
     auth,
     fitur,
+    jadwal,
     langganan,
     laporan,
     order,
@@ -67,6 +68,7 @@ app.include_router(order.router)
 app.include_router(pembelian.router)
 app.include_router(pengeluaran.router)
 app.include_router(absensi.router)
+app.include_router(jadwal.router)
 app.include_router(stok_opname.router)
 app.include_router(transfer_stok.router)
 app.include_router(audit.router)

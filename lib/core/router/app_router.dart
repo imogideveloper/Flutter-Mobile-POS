@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/absensi/presentation/pages/absensi_page.dart';
+import '../../features/jadwal/presentation/pages/jadwal_cuti_page.dart';
 import '../../features/auth/presentation/pages/auth_gate_page.dart';
 import '../../features/auth/presentation/pages/pengguna_form_page.dart';
 import '../../features/auth/presentation/pages/pengguna_list_page.dart';
@@ -373,6 +374,10 @@ GoRouter _buildRouter() => GoRouter(
     GoRoute(
       path: '/absensi',
       builder: (context, state) => const AbsensiPage(),
+    ),
+    GoRoute(
+      path: '/jadwal-cuti',
+      builder: (context, state) => const JadwalCutiPage(),
     ),
     GoRoute(
       path: '/pengeluaran',

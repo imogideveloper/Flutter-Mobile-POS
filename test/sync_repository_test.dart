@@ -33,8 +33,24 @@ class _FakeBackendApi implements BackendApi {
   @override
   Future<Map<String, dynamic>> absensiSaya({required String accessToken}) => throw UnimplementedError();
   @override
-  Future<Map<String, dynamic>> absenMasuk({required String accessToken, String? outletId, String? catatan}) =>
+  Future<Map<String, dynamic>> absenMasuk({required String accessToken, String? outletId, String? catatan, int tzMenit = 0}) =>
       throw UnimplementedError();
+  @override
+  Future<List<dynamic>> daftarJadwal({required String accessToken}) => throw UnimplementedError();
+  @override
+  Future<Map<String, dynamic>> aturJadwal({required String accessToken, required String penggunaId, required List<Map<String, dynamic>> hari}) =>
+      throw UnimplementedError();
+  @override
+  Future<Map<String, dynamic>> jadwalSaya({required String accessToken, required int tzMenit}) => throw UnimplementedError();
+  @override
+  Future<Map<String, dynamic>> ajukanCuti({required String accessToken, required Map<String, dynamic> body}) => throw UnimplementedError();
+  @override
+  Future<List<dynamic>> daftarCuti({required String accessToken, String? status}) => throw UnimplementedError();
+  @override
+  Future<Map<String, dynamic>> putuskanCuti({required String accessToken, required String cutiId, required bool setuju, String? catatan}) =>
+      throw UnimplementedError();
+  @override
+  Future<Map<String, dynamic>> batalkanCuti({required String accessToken, required String cutiId}) => throw UnimplementedError();
   @override
   Future<Map<String, dynamic>> absenKeluar({required String accessToken, String? catatan}) => throw UnimplementedError();
   @override

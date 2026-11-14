@@ -9,6 +9,7 @@ class CatatanAbsensi {
     required this.jamKeluar,
     required this.durasiMenit,
     this.catatan,
+    this.status = 'hadir',
   });
 
   factory CatatanAbsensi.dariJson(Map<String, dynamic> j) => CatatanAbsensi(
@@ -18,6 +19,7 @@ class CatatanAbsensi {
         jamKeluar: j['jam_keluar'] == null ? null : DateTime.parse(j['jam_keluar'] as String).toLocal(),
         durasiMenit: (j['durasi_menit'] as num?)?.toInt(),
         catatan: j['catatan'] as String?,
+        status: (j['status'] as String?) ?? 'hadir',
       );
 
   final String id;
@@ -26,6 +28,11 @@ class CatatanAbsensi {
   final DateTime? jamKeluar;
   final int? durasiMenit;
   final String? catatan;
+
+  /// hadir atau terlambat (dinilai server terhadap jadwal shift).
+  final String status;
+
+  bool get terlambat => status == 'terlambat';
 
   bool get masihMasuk => jamKeluar == null;
 }

@@ -276,3 +276,13 @@ Diverifikasi langsung dari tabel `fitur_kebutuhan` di database (hasil migrasi 00
 - **Tes baru:** `sync_repository_test.dart`: checkout nyata lalu sync, memastikan `hpp_satuan` di payload sama dengan HPP produk (bukan 0). Ini menutup celah yang sebelumnya lolos karena tes backend mengirim HPP secara manual.
 - **Temuan tambahan:** dua definisi "laba kotor" di aplikasi (ringkasan Laporan dan `/laporan/penjualan` memakai harga satuan x qty tanpa diskon; laba rugi memakai subtotal dikurangi diskon). Bila ada diskon, angkanya berbeda. Tercatat di perlu_konfirmasi (L7).
 - **Tes backend:** 474 lulus, 0 gagal. Dua tes yang selama ini dianggap "gagal karena lingkungan" gagal hanya karena folder `shared` tidak ada di container; setelah disalin, lulus.
+
+### FEAT-075 (IMOGI no. 63 Jadwal shift mingguan & cuti), tahap pertama
+- **Catatan prioritas:** fitur Future Release (Professional), dikerjakan atas permintaan melanjutkan fitur inti kafe yang belum ada; menambah daftar Future Release yang dikerjakan menjadi **sebelas**.
+- **Perubahan:** server `jadwal_kerja` dan `pengajuan_cuti` (migrasi 0018), `/jadwal`, `/jadwal/{pengguna}` (PUT), `/jadwal/saya`, `/cuti`, `/cuti/{id}/putuskan`, `/cuti/{id}/batalkan` (digerbang `staff_schedule`, izin `laporan.lihat` untuk mengatur dan memutuskan), absen masuk menilai Terlambat terhadap jadwal (parameter `tz_menit`); aplikasi: Lainnya > Jadwal & cuti (tab Jadwal dan Cuti), status Terlambat di riwayat Absensi.
+- **Tes otomatis:** backend `test_jadwal_cuti.py` (7) dan penyapu isolasi toko diperluas (`cuti_id`, body PUT); Flutter `jadwal_cuti_test.dart` (10) dan tambahan di `absensi_page_test.dart`. Backend 482 lulus, Flutter 411 lulus.
+- **Aturan yang diuji:** pengelola mengatur, karyawan hanya melihat sendiri; hari dobel/jam salah ditolak; pengajuan bertumpuk ditolak; tidak boleh memutuskan pengajuan sendiri; yang dibatalkan atau ditolak membebaskan tanggal; terlambat dihitung 10 menit setelah jam mulai dengan jam setempat yang terkendali, libur dan tanpa jadwal selalu Hadir.
+- **Workbook:** FEAT-075 menjadi In Progress; TC-102 sampai TC-105 (Not Tested); Gap Imogi no. 63 menjadi Sebagian (kini 15 / 34 / 23 / 15).
+
+### Jawaban atas pertanyaan "apakah fitur sudah dipisah per jenis bisnis?" (2026-11-14)
+- **Belum.** Data pemisahan sudah ada di database (`fitur_kebutuhan`: tiap fitur diklasifikasi inti/opsional/tidak relevan untuk tujuh jenis usaha, hasil migrasi 0010 dari dokumen IMOGI), dan jenis usaha tersimpan per toko, tetapi tidak ada kode yang membaca klasifikasi itu. Aplikasi membedakan perilaku per jenis usaha hanya pada alur Status pesanan katering. Rincian di perlu_konfirmasi M1 sampai M3.

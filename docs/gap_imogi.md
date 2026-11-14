@@ -18,9 +18,11 @@ Tanggal: 2026-11-08. Menggantikan `docs/gap_fnb.md` sebagai acuan utama. Daftar 
 | Relevan untuk Makanan & Minuman (inti atau opsional untuk minimal 1 dari 7 jenis usaha) | 64 |
 | Tidak relevan untuk Makanan & Minuman (disembunyikan) | 23 |
 | ✅ Lengkap | 15 (tidak berubah: belum ada fitur yang diuji di HP, jadi tidak ada yang dinaikkan) |
-| 🟡 Sebagian | 33 (awal audit 24; +9 sejak 2026-11-12/13) |
-| ❌ Belum ada | 16 (awal audit 25) |
-| Fitur inti untuk Kafe & Kedai Kopi | 46 (✅ 11, 🟡 25, ❌ 10); awal audit ✅ 11, 🟡 18, ❌ 17 |
+| 🟡 Sebagian | 34 (awal audit 24; +10 sejak 2026-11-12/14) |
+
+| ❌ Belum ada | 15 (awal audit 25) |
+
+| Fitur inti untuk Kafe & Kedai Kopi | 46 (✅ 11, 🟡 26, ❌ 9); awal audit ✅ 11, 🟡 18, ❌ 17 |
 
 **Temuan utama:**
 1. **Katalog paket sudah diselaraskan (fondasi selesai, migrasi 0010).** Backend kini memakai 4 paket IMOGI (Free, Starter, Professional, Enterprise) dan 87 fitur; sebelumnya 3 paket dan 32 fitur hasil salinan Qasir. Harga dan kuota paket masih **harga contoh** karena dokumen IMOGI tidak memuatnya. Fitur baru belum menggerbang apa pun sampai diimplementasikan.
@@ -83,7 +85,8 @@ Diurutkan: inti untuk Kafe & Kedai Kopi lebih dulu. ❌ = belum ada, 🟡 = seba
 | 26 | Dapur | Status pesanan | Enterprise | 3 inti, 3 opsional, Kafe: Inti | 🟡 | SELESAI sebagian (2026-11-08): status awal Baru dibuat saat checkout, halaman Status Pesanan (menu Lainnya) memajukan tahap Baru, Diproses, Siap, Selesai (katering: Dipesan, Dimasak, Siap kirim, Dikirim, Selesai), tersimpan offline dan dikirim lewat sync (migrasi 0011). KEMAJUAN 2026-11-10: pesanan bertipe antar otomatis memuat tahap Diantar. Belum ada estimasi selesai, pesan WhatsApp saat siap, dan uji di HP. |
 | 34 | Dapur | Nomor antrian | Enterprise | 3 inti, 1 opsional, Kafe: Inti | 🟡 | SELESAI sebagian (2026-11-08): HP membuat nomor A-001 sendiri saat offline (per hari, outlet, perangkat), tersimpan di transaksi, tampil di struk dan halaman sukses, dikirim lewat sync. KEMAJUAN 2026-11-10: awalan dan angka awal bisa diatur per outlet di Pengaturan struk (migrasi 0012). Belum ada panggilan suara, layar antrian, dan nama di layar antrian. Belum diuji di HP. |
 | 62 | Karyawan | Absensi karyawan | Professional | 3 inti, 4 opsional, Kafe: Inti | 🟡 | SEBAGIAN (2026-11-12): Lainnya > Absensi: absen masuk/keluar, rekap jam kerja, endpoint `/absensi` (waktu server, batas hari mengikuti zona perangkat). Belum: foto, lokasi, jadwal, terlambat, koreksi, offline. Belum diuji di HP. |
-| 63 | Karyawan | Jadwal shift mingguan & cuti | Professional | 3 inti, 4 opsional, Kafe: Inti | ❌ | Tidak ada jadwal shift mingguan dan cuti. |
+| 63 | Karyawan | Jadwal shift mingguan & cuti | Professional | 3 inti, 4 opsional, Kafe: Inti | 🟡 | SEBAGIAN (2026-11-14): Lainnya > Jadwal & cuti: pengelola mengatur shift mingguan tiap karyawan (libur/pagi/siang), karyawan melihat jadwal dan mengajukan cuti/sakit/izin, pengelola menyetujui atau menolak (tidak bisa memutuskan milik sendiri); absen masuk menjadi Terlambat bila lewat jam mulai + 10 menit (migrasi 0018, /jadwal dan /cuti, fitur staff_schedule). Belum: tukar jadwal, jam shift kustom di layar, shift lintas tengah malam, pemberitahuan. Belum diuji di HP. |
+
 | 76 | Akuntansi | Penggajian (payroll) & kasbon karyawan | Enterprise | 3 inti, 4 opsional, Kafe: Inti | ❌ | Tidak ada penggajian dan kasbon karyawan. |
 | 80 | Akuntansi | Chart of Accounts & jurnal umum | Enterprise | 3 inti, 4 opsional, Kafe: Inti | ❌ | Tidak ada chart of accounts dan jurnal umum. |
 | 81 | Akuntansi | Buku besar, neraca & arus kas | Enterprise | 3 inti, 4 opsional, Kafe: Inti | ❌ | Tidak ada buku besar, neraca, dan arus kas. |

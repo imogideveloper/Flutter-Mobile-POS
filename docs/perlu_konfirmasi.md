@@ -146,3 +146,16 @@ Aturan baca: **Sementara** = perilaku yang sekarang dipakai di kode. **Dampak bi
 | L5 | Kartu HPP & margin dihitung dari data HP (offline), bukan dari server; angkanya bisa berbeda dari laporan server bila perangkat lain juga menjual | Selaras dengan laporan lokal yang sudah ada |
 | L6 | FEAT-048 "Laporan F&B" berstatus Future Release; kartu ini menambah jumlah fitur Future Release yang dikerjakan menjadi sepuluh | Lihat audit_alur_kerja.md H2 |
 | L7 | Dua definisi "laba kotor": ringkasan Laporan dan `/laporan/penjualan` = (harga satuan - HPP) x qty tanpa memotong diskon; laporan laba rugi = subtotal - diskon - HPP | Saat ada diskon/promo, laba kotor di Laporan lebih besar daripada di Laba rugi; perlu satu definisi resmi |
+
+## Tambahan 2026-11-14 (pemisahan fitur per jenis usaha dan jadwal shift)
+
+| # | Hal | Sementara |
+|---|---|---|
+| M1 | **Pemisahan fitur per jenis usaha (kafe, katering, restoran, dst.) belum diterapkan.** Jenis usaha dipilih saat daftar dan disimpan (`toko.jenis_usaha`, 7 kode IMOGI: CAF, RES, CAT, BRD, FRZ, BEV, STL). Tabel `fitur_kebutuhan` di database sudah memuat klasifikasi inti/opsional/tidak relevan untuk tiap fitur per jenis usaha (mis. Kafe 46 inti, Katering 34 inti), tetapi **tidak ada kode server maupun aplikasi yang membacanya** | Semua jenis usaha melihat menu dan perilaku yang sama. Satu-satunya pembeda yang ada: alur Status pesanan katering (Dipesan, Dimasak, Siap kirim, Dikirim, Selesai) |
+| M2 | Yang belum dibuat sebagai akibat M1: menyembunyikan menu fitur "tidak relevan" per jenis usaha, menandai fitur opsional, dan nilai bawaan pengaturan per jenis usaha (pajak PB1 ditambahkan, service 5% makan di tempat, struk ringkas, nomor antrian menyala untuk kafe/minuman/food court/roti, tiket dapur otomatis, modal awal shift Rp 300.000) | Pengaturan harus dibuat manual oleh pemilik |
+| M3 | Perlu keputusan lead: menyembunyikan menu "tidak relevan" bisa menyembunyikan fitur yang dibutuhkan pemilik; apakah cukup diberi tanda, atau benar-benar disembunyikan sesuai dokumen IMOGI | Menentukan perancangan tahap berikutnya |
+| N1 | Jadwal shift: hanya tiga pola (libur, pagi 07:00-15:00, siang 14:00-22:00) dengan jam bawaan tetap di layar; server sudah menerima jam kustom, belum ada isian di layar; shift lintas tengah malam belum didukung | IMOGI menyebut shift pagi/siang saja; belum jelas apakah malam dibutuhkan |
+| N2 | Toleransi terlambat 10 menit dipasang tetap | IMOGI mungkin mengaturnya per outlet |
+| N3 | Jadwal dan persetujuan cuti memakai izin `laporan.lihat` (Owner/Manajer); pengajuan sendiri tidak boleh diputuskan sendiri | Perlu izin khusus bila Manajer tidak boleh menyetujui cuti |
+| N4 | Cuti yang disetujui hanya ditampilkan di Jadwal; belum menghalangi absen atau menandai Izin/Sakit pada rekap absensi | Perlu aturan hubungan cuti dan absensi |
+| N5 | Tukar jadwal (IMOGI no. 63) belum ada | Tahap berikutnya |

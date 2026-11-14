@@ -6,6 +6,7 @@ from . import (  # noqa: F401
     akun,
     audit,
     fitur,
+    jadwal,
     ops,
     order,
     outlet,
