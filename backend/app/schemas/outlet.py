@@ -37,6 +37,8 @@ class PengaturanOutletIn(BaseModel):
     # lewat exclude_unset, makanya validasi manual).
     lebar_kertas_mm: int | None = None
     tampil_logo: bool | None = None
+    # unggah|lingkaran|cincin|inisial - divalidasi di router; gaya selain unggah digate fitur logo_struk.
+    gaya_logo: str | None = None
     pembulatan: int | None = None
     # Pengaturan operasional dasar (BUKAN fitur berbayar, tidak digate) -
     # sebelumnya kolom ini ADA di model+PengaturanOutletOut (terbaca lewat
@@ -62,6 +64,7 @@ class PengaturanOutletOut(BaseModel):
     footer_struk: str | None
     lebar_kertas_mm: int
     tampil_logo: bool
+    gaya_logo: str = "unggah"
     pembulatan: int
     izinkan_stok_minus: bool
     wajib_buka_shift: bool

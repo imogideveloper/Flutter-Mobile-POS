@@ -874,6 +874,7 @@ class SyncRepository {
           headerStruk: Value(row['header_struk'] as String?),
           footerStruk: Value(row['footer_struk'] as String?),
           tampilLogo: Value(row['tampil_logo'] as bool),
+          gayaLogo: Value((row['gaya_logo'] as String?) ?? 'unggah'),
           lebarKertasMm: Value(row['lebar_kertas_mm'] as int),
           pembulatan: Value(row['pembulatan'] as int),
           izinkanStokMinus: Value(row['izinkan_stok_minus'] as bool),

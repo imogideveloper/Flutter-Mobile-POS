@@ -248,3 +248,12 @@ Aturan baca: **Sementara** = perilaku yang sekarang dipakai di kode. **Dampak bi
 | W3 | Label tidak berlaku untuk QRIS statis (halaman sendiri), bayar campur (split), maupun pelunasan order/kasbon | Susulan |
 | W4 | Baris laporan memakai bentuk "Qris · GoPay" (nama metode, titik tengah, label); sama di HP dan server. Rekonsiliasi dengan mutasi pihak ketiga (settlement, IMOGI no. 74) belum ada | Perlu konfirmasi format laporan |
 | W5 | Menyimpan label butuh paket yang memuat fitur label_pembayaran (Enterprise); paket lebih rendah ditolak 403 | Sesuai katalog IMOGI |
+
+## Tambahan 2026-11-15 (gaya logo struk, IMOGI no. 24)
+
+| # | Hal | Sementara |
+|---|---|---|
+| X1 | Tiga gaya siap pakai dibuat otomatis dari 1-2 huruf awal nama usaha: lingkaran (isi hitam, huruf putih), cincin (garis, huruf hitam), inisial (huruf saja). Hitam-putih murni untuk printer thermal. Bentuk dan huruf diperkirakan dari deskripsi dokumen IMOGI, belum dicocokkan dengan contoh visualnya | Perlu konfirmasi lead terhadap desain IMOGI |
+| X2 | Gaya otomatis digerbang fitur `logo_struk` (Enterprise) seperti saklar logo; bawaan tetap logo unggahan sehingga paket Gratis bisa menyimpan pengaturan lain (BUG-012 tetap aman). Gaya ditolak 403 hanya bila diubah ke gaya otomatis tanpa fitur | Sesuai katalog |
+| X3 | Cetak ulang dari riwayat memakai gaya logo pada pengaturan SAAT INI, bukan gaya saat transaksi (hanya tampil/tidaknya logo yang dibekukan di snapshot struk) | Perlu konfirmasi |
+| X4 | Belum diuji di printer Bluetooth sungguhan (tidak ada perangkat): ukuran 240 px dan ambang hitam-putih bisa perlu disesuaikan untuk kertas 58 mm | Terblokir perangkat |

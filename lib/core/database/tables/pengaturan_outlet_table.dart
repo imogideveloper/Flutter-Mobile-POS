@@ -13,6 +13,8 @@ class PengaturanOutlet extends Table {
   TextColumn get headerStruk => text().nullable()();
   TextColumn get footerStruk => text().nullable()();
   BoolColumn get tampilLogo => boolean().withDefault(const Constant(true))();
+  // Gaya logo struk (IMOGI no. 24): unggah | lingkaran | cincin | inisial.
+  TextColumn get gayaLogo => text().withDefault(const Constant('unggah'))();
   IntColumn get lebarKertasMm => integer().withDefault(const Constant(58))();
   IntColumn get pembulatan => integer().withDefault(const Constant(0))();
   BoolColumn get izinkanStokMinus => boolean().withDefault(const Constant(true))();

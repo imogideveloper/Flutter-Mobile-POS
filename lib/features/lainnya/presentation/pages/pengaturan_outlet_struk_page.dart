@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,6 +18,8 @@ import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/fitur_terkunci.dart';
 import '../../../../core/widgets/offline_notice_banner.dart';
+import '../../../../core/providers/toko_profile_provider.dart';
+import '../../../../core/struk/gaya_logo.dart';
 import '../../../promo/domain/rincian_pajak.dart';
 import '../../../transaksi/presentation/providers/harga_keranjang_provider.dart';
 
@@ -41,6 +43,7 @@ class _PengaturanOutletStrukPageState extends ConsumerState<PengaturanOutletStru
   final _footerController = TextEditingController();
   int _lebarKertasMm = 58;
   bool _tampilLogo = false;
+  GayaLogo _gayaLogo = GayaLogo.unggah;
   bool _strukRingkas = false;
   bool _pakaiNomorAntrean = false;
   final _antreanAwalanController = TextEditingController(text: 'A');
@@ -98,6 +101,7 @@ class _PengaturanOutletStrukPageState extends ConsumerState<PengaturanOutletStru
       _footerController.text = (data['footer_struk'] as String?) ?? '';
       _lebarKertasMm = data['lebar_kertas_mm'] as int;
       _tampilLogo = data['tampil_logo'] as bool;
+      _gayaLogo = GayaLogo.dari(data['gaya_logo'] as String?);
       _strukRingkas = data['struk_ringkas'] as bool;
       _pakaiNomorAntrean = data['pakai_nomor_antrean'] as bool;
       _antreanAwalanController.text = (data['antrean_awalan'] as String?) ?? 'A';
@@ -126,6 +130,7 @@ class _PengaturanOutletStrukPageState extends ConsumerState<PengaturanOutletStru
               'footer_struk': _footerController.text.trim().isEmpty ? null : _footerController.text.trim(),
               'lebar_kertas_mm': _lebarKertasMm,
               'tampil_logo': _tampilLogo,
+              'gaya_logo': _gayaLogo.kode,
               'struk_ringkas': _strukRingkas,
               'pakai_nomor_antrean': _pakaiNomorAntrean,
               'antrean_awalan': _antreanAwalanController.text.trim(),
@@ -146,6 +151,7 @@ class _PengaturanOutletStrukPageState extends ConsumerState<PengaturanOutletStru
               footerStruk: Value(_footerController.text.trim().isEmpty ? null : _footerController.text.trim()),
               lebarKertasMm: Value(_lebarKertasMm),
               tampilLogo: Value(_tampilLogo),
+              gayaLogo: Value(_gayaLogo.kode),
               strukRingkas: Value(_strukRingkas),
               pakaiNomorAntrean: Value(_pakaiNomorAntrean),
               antreanAwalan: Value(_antreanAwalanController.text.trim()),
@@ -323,6 +329,53 @@ class _PengaturanOutletStrukPageState extends ConsumerState<PengaturanOutletStru
                                   ? 'Ganti logo'
                                   : 'Unggah logo'),
                         ),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    FiturTerkunci(
+                      kode: 'logo_struk',
+                      child: Column(
+                        key: const Key('pengaturanOutletForm.gayaLogo'),
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Gaya logo', style: AppTypography.cardTitle.copyWith(fontSize: 15)),
+                          const SizedBox(height: AppSpacing.xs),
+                          Text(
+                            'Logo unggahan atau logo otomatis dari inisial nama usaha. '
+                            'Matikan "Tampilkan logo di struk" untuk struk tanpa logo.',
+                            style: AppTypography.secondary,
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                          Wrap(
+                            spacing: AppSpacing.sm,
+                            runSpacing: AppSpacing.sm,
+                            children: [
+                              for (final g in GayaLogo.values)
+                                ChoiceChip(
+                                  key: Key('pengaturanOutletForm.gaya.${g.kode}'),
+                                  label: Text(g.label),
+                                  selected: _gayaLogo == g,
+                                  onSelected: (_) => setState(() => _gayaLogo = g),
+                                ),
+                            ],
+                          ),
+                          if (_gayaLogo.dibuatOtomatis) ...[
+                            const SizedBox(height: AppSpacing.sm),
+                            Builder(builder: (context) {
+                              final nama = ref.watch(tokoProfileProvider).value?.namaToko ?? 'Toko';
+                              final png = buatLogoGaya(_gayaLogo, nama, ukuran: 120);
+                              return png == null
+                                  ? const SizedBox.shrink()
+                                  : Image.memory(
+                                      png,
+                                      key: const Key('pengaturanOutletForm.pratinjauGaya'),
+                                      width: 80,
+                                      height: 80,
+                                      filterQuality: FilterQuality.none,
+                                    );
+                            }),
+                          ],
+                        ],
                       ),
                     ),
                     const SizedBox(height: AppSpacing.lg),

@@ -12,6 +12,7 @@ import '../../../../core/network/dio_backend_api.dart';
 import '../../../../core/providers/session_provider.dart';
 import '../../../../core/providers/toko_profile_provider.dart';
 import '../../../../core/struk/cetak_struk_helper.dart';
+import '../../../../core/struk/gaya_logo.dart';
 import '../../../../core/struk/penyusun_tiket_dapur.dart';
 import '../../../dapur/presentation/tiket_dapur_helper.dart';
 import '../../../fitur/presentation/providers/feature_gate_provider.dart';
@@ -80,7 +81,14 @@ class _TransaksiDetailPageState extends ConsumerState<TransaksiDetailPage> {
         baris = await _bangunBarisStrukFallback(detail);
       }
 
-      final status = await cetakStruk(ref, baris, tampilkanLogo: tampilLogo ?? false);
+      // Gaya logo mengikuti pengaturan outlet saat ini (hanya tampil/tidaknya logo yang dibekukan di snapshot).
+      final pengaturanOutlet = await ref.read(pengaturanOutletProvider(ref.read(currentOutletIdProvider)).future);
+      final status = await cetakStruk(
+        ref,
+        baris,
+        tampilkanLogo: tampilLogo ?? false,
+        gayaLogo: GayaLogo.dari(pengaturanOutlet?.gayaLogo),
+      );
       if (mounted) {
         showAppToast(context, message: labelStatusCetak(status), variant: variantStatusCetak(status));
       }

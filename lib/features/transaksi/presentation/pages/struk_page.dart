@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/providers/session_provider.dart';
 import '../../../../core/providers/toko_profile_provider.dart';
 import '../../../../core/struk/cetak_struk_helper.dart';
+import '../../../../core/struk/gaya_logo.dart';
 import '../../../../core/struk/kirim_whatsapp_helper.dart';
 import '../../../../core/struk/penyusun_struk.dart' as struk;
 import '../../../../core/network/auto_sync.dart';
@@ -200,7 +201,12 @@ class _StrukPageState extends ConsumerState<StrukPage> {
       final outletId = ref.read(currentOutletIdProvider);
       final pengaturanOutlet = await ref.read(pengaturanOutletProvider(outletId).future);
       final baris = await _bangunBarisStruk();
-      final status = await cetakStruk(ref, baris, tampilkanLogo: pengaturanOutlet?.tampilLogo ?? false);
+      final status = await cetakStruk(
+        ref,
+        baris,
+        tampilkanLogo: pengaturanOutlet?.tampilLogo ?? false,
+        gayaLogo: GayaLogo.dari(pengaturanOutlet?.gayaLogo),
+      );
       if (!mounted) return;
       if (diam && status == StatusCetak.printerBelumDiatur) return; // auto-print diam2 - tidak perlu ganggu kalau memang belum diatur
       showAppToast(context, message: labelStatusCetak(status), variant: variantStatusCetak(status));

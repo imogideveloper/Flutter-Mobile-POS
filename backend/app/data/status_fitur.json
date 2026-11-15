@@ -93,7 +93,7 @@
  },
  "24": {
   "status": "sedang",
-  "catatan": "Logo ada (unggah). Imogi juga menyediakan gaya logo siap pakai (lingkaran, cincin, inisial) dan tanpa logo. BUG-012 menghalangi simpan pengaturan di paket Gratis."
+  "catatan": "SEBAGIAN (2026-11-15): Pengaturan struk punya pilihan Gaya logo: logo unggahan, atau logo otomatis dari inisial nama usaha (lingkaran, cincin, inisial), dengan pratinjau; struk cetak memakai gaya terpilih; tanpa logo = saklar Tampilkan logo dimatikan. Gaya otomatis digerbang fitur logo_struk di server (migrasi 0026) dan ikut sync. BUG-012 (simpan pengaturan paket Gratis) sudah diperbaiki sebelumnya. Belum: logo otomatis tidak tampil di pratinjau struk teks dan belum ada pilihan warna atau font. Lulus tes otomatis (termasuk render gambar), belum diuji di printer dan HP."
  },
  "25": {
   "status": "sedang",

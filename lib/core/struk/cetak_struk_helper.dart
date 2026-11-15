@@ -5,6 +5,8 @@ import '../printer/printer_service.dart';
 import '../widgets/app_toast.dart';
 import 'esc_pos_converter.dart';
 import 'logo_cache.dart';
+import 'gaya_logo.dart';
+import '../providers/toko_profile_provider.dart';
 import 'penyusun_struk.dart';
 
 /// Hasil cetak - dibedakan dari sekedar bool supaya UI bisa tunjukkan
@@ -30,6 +32,8 @@ Future<StatusCetak> cetakStruk(
   WidgetRef ref,
   List<BarisStruk> baris, {
   bool tampilkanLogo = false,
+  // Gaya logo (IMOGI no. 24): selain unggahan, logo dibuat dari inisial nama usaha.
+  GayaLogo gayaLogo = GayaLogo.unggah,
 }) async {
   try {
     final pengaturanPrinter = await ref.read(pengaturanPrinterDaoProvider).ambil();
@@ -43,7 +47,15 @@ Future<StatusCetak> cetakStruk(
     }
     if (!tersambung) return StatusCetak.gagalTersambung;
 
-    final logoBytes = tampilkanLogo ? await LogoCache.ambil() : null;
+    List<int>? logoBytes;
+    if (tampilkanLogo) {
+      if (gayaLogo.dibuatOtomatis) {
+        final namaUsaha = (await ref.read(tokoProfileProvider.future))?.namaToko ?? '';
+        logoBytes = buatLogoGaya(gayaLogo, namaUsaha);
+      } else {
+        logoBytes = await LogoCache.ambil();
+      }
+    }
     final bytes = await konversiKeEscPos(
       baris: baris,
       lebarKertasMm: pengaturanPrinter!.lebarKertasMm,

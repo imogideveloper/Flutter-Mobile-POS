@@ -661,6 +661,18 @@ class $PengaturanOutletTable extends PengaturanOutlet
     ),
     defaultValue: const Constant(true),
   );
+  static const VerificationMeta _gayaLogoMeta = const VerificationMeta(
+    'gayaLogo',
+  );
+  @override
+  late final GeneratedColumn<String> gayaLogo = GeneratedColumn<String>(
+    'gaya_logo',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('unggah'),
+  );
   static const VerificationMeta _lebarKertasMmMeta = const VerificationMeta(
     'lebarKertasMm',
   );
@@ -832,6 +844,7 @@ class $PengaturanOutletTable extends PengaturanOutlet
     headerStruk,
     footerStruk,
     tampilLogo,
+    gayaLogo,
     lebarKertasMm,
     pembulatan,
     izinkanStokMinus,
@@ -888,6 +901,12 @@ class $PengaturanOutletTable extends PengaturanOutlet
       context.handle(
         _tampilLogoMeta,
         tampilLogo.isAcceptableOrUnknown(data['tampil_logo']!, _tampilLogoMeta),
+      );
+    }
+    if (data.containsKey('gaya_logo')) {
+      context.handle(
+        _gayaLogoMeta,
+        gayaLogo.isAcceptableOrUnknown(data['gaya_logo']!, _gayaLogoMeta),
       );
     }
     if (data.containsKey('lebar_kertas_mm')) {
@@ -1024,6 +1043,10 @@ class $PengaturanOutletTable extends PengaturanOutlet
         DriftSqlType.bool,
         data['${effectivePrefix}tampil_logo'],
       )!,
+      gayaLogo: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}gaya_logo'],
+      )!,
       lebarKertasMm: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}lebar_kertas_mm'],
@@ -1091,6 +1114,7 @@ class PengaturanOutletRow extends DataClass
   final String? headerStruk;
   final String? footerStruk;
   final bool tampilLogo;
+  final String gayaLogo;
   final int lebarKertasMm;
   final int pembulatan;
   final bool izinkanStokMinus;
@@ -1109,6 +1133,7 @@ class PengaturanOutletRow extends DataClass
     this.headerStruk,
     this.footerStruk,
     required this.tampilLogo,
+    required this.gayaLogo,
     required this.lebarKertasMm,
     required this.pembulatan,
     required this.izinkanStokMinus,
@@ -1134,6 +1159,7 @@ class PengaturanOutletRow extends DataClass
       map['footer_struk'] = Variable<String>(footerStruk);
     }
     map['tampil_logo'] = Variable<bool>(tampilLogo);
+    map['gaya_logo'] = Variable<String>(gayaLogo);
     map['lebar_kertas_mm'] = Variable<int>(lebarKertasMm);
     map['pembulatan'] = Variable<int>(pembulatan);
     map['izinkan_stok_minus'] = Variable<bool>(izinkanStokMinus);
@@ -1162,6 +1188,7 @@ class PengaturanOutletRow extends DataClass
           ? const Value.absent()
           : Value(footerStruk),
       tampilLogo: Value(tampilLogo),
+      gayaLogo: Value(gayaLogo),
       lebarKertasMm: Value(lebarKertasMm),
       pembulatan: Value(pembulatan),
       izinkanStokMinus: Value(izinkanStokMinus),
@@ -1190,6 +1217,7 @@ class PengaturanOutletRow extends DataClass
       headerStruk: serializer.fromJson<String?>(json['headerStruk']),
       footerStruk: serializer.fromJson<String?>(json['footerStruk']),
       tampilLogo: serializer.fromJson<bool>(json['tampilLogo']),
+      gayaLogo: serializer.fromJson<String>(json['gayaLogo']),
       lebarKertasMm: serializer.fromJson<int>(json['lebarKertasMm']),
       pembulatan: serializer.fromJson<int>(json['pembulatan']),
       izinkanStokMinus: serializer.fromJson<bool>(json['izinkanStokMinus']),
@@ -1213,6 +1241,7 @@ class PengaturanOutletRow extends DataClass
       'headerStruk': serializer.toJson<String?>(headerStruk),
       'footerStruk': serializer.toJson<String?>(footerStruk),
       'tampilLogo': serializer.toJson<bool>(tampilLogo),
+      'gayaLogo': serializer.toJson<String>(gayaLogo),
       'lebarKertasMm': serializer.toJson<int>(lebarKertasMm),
       'pembulatan': serializer.toJson<int>(pembulatan),
       'izinkanStokMinus': serializer.toJson<bool>(izinkanStokMinus),
@@ -1234,6 +1263,7 @@ class PengaturanOutletRow extends DataClass
     Value<String?> headerStruk = const Value.absent(),
     Value<String?> footerStruk = const Value.absent(),
     bool? tampilLogo,
+    String? gayaLogo,
     int? lebarKertasMm,
     int? pembulatan,
     bool? izinkanStokMinus,
@@ -1252,6 +1282,7 @@ class PengaturanOutletRow extends DataClass
     headerStruk: headerStruk.present ? headerStruk.value : this.headerStruk,
     footerStruk: footerStruk.present ? footerStruk.value : this.footerStruk,
     tampilLogo: tampilLogo ?? this.tampilLogo,
+    gayaLogo: gayaLogo ?? this.gayaLogo,
     lebarKertasMm: lebarKertasMm ?? this.lebarKertasMm,
     pembulatan: pembulatan ?? this.pembulatan,
     izinkanStokMinus: izinkanStokMinus ?? this.izinkanStokMinus,
@@ -1278,6 +1309,7 @@ class PengaturanOutletRow extends DataClass
       tampilLogo: data.tampilLogo.present
           ? data.tampilLogo.value
           : this.tampilLogo,
+      gayaLogo: data.gayaLogo.present ? data.gayaLogo.value : this.gayaLogo,
       lebarKertasMm: data.lebarKertasMm.present
           ? data.lebarKertasMm.value
           : this.lebarKertasMm,
@@ -1321,6 +1353,7 @@ class PengaturanOutletRow extends DataClass
           ..write('headerStruk: $headerStruk, ')
           ..write('footerStruk: $footerStruk, ')
           ..write('tampilLogo: $tampilLogo, ')
+          ..write('gayaLogo: $gayaLogo, ')
           ..write('lebarKertasMm: $lebarKertasMm, ')
           ..write('pembulatan: $pembulatan, ')
           ..write('izinkanStokMinus: $izinkanStokMinus, ')
@@ -1344,6 +1377,7 @@ class PengaturanOutletRow extends DataClass
     headerStruk,
     footerStruk,
     tampilLogo,
+    gayaLogo,
     lebarKertasMm,
     pembulatan,
     izinkanStokMinus,
@@ -1366,6 +1400,7 @@ class PengaturanOutletRow extends DataClass
           other.headerStruk == this.headerStruk &&
           other.footerStruk == this.footerStruk &&
           other.tampilLogo == this.tampilLogo &&
+          other.gayaLogo == this.gayaLogo &&
           other.lebarKertasMm == this.lebarKertasMm &&
           other.pembulatan == this.pembulatan &&
           other.izinkanStokMinus == this.izinkanStokMinus &&
@@ -1386,6 +1421,7 @@ class PengaturanOutletCompanion extends UpdateCompanion<PengaturanOutletRow> {
   final Value<String?> headerStruk;
   final Value<String?> footerStruk;
   final Value<bool> tampilLogo;
+  final Value<String> gayaLogo;
   final Value<int> lebarKertasMm;
   final Value<int> pembulatan;
   final Value<bool> izinkanStokMinus;
@@ -1405,6 +1441,7 @@ class PengaturanOutletCompanion extends UpdateCompanion<PengaturanOutletRow> {
     this.headerStruk = const Value.absent(),
     this.footerStruk = const Value.absent(),
     this.tampilLogo = const Value.absent(),
+    this.gayaLogo = const Value.absent(),
     this.lebarKertasMm = const Value.absent(),
     this.pembulatan = const Value.absent(),
     this.izinkanStokMinus = const Value.absent(),
@@ -1425,6 +1462,7 @@ class PengaturanOutletCompanion extends UpdateCompanion<PengaturanOutletRow> {
     this.headerStruk = const Value.absent(),
     this.footerStruk = const Value.absent(),
     this.tampilLogo = const Value.absent(),
+    this.gayaLogo = const Value.absent(),
     this.lebarKertasMm = const Value.absent(),
     this.pembulatan = const Value.absent(),
     this.izinkanStokMinus = const Value.absent(),
@@ -1447,6 +1485,7 @@ class PengaturanOutletCompanion extends UpdateCompanion<PengaturanOutletRow> {
     Expression<String>? headerStruk,
     Expression<String>? footerStruk,
     Expression<bool>? tampilLogo,
+    Expression<String>? gayaLogo,
     Expression<int>? lebarKertasMm,
     Expression<int>? pembulatan,
     Expression<bool>? izinkanStokMinus,
@@ -1467,6 +1506,7 @@ class PengaturanOutletCompanion extends UpdateCompanion<PengaturanOutletRow> {
       if (headerStruk != null) 'header_struk': headerStruk,
       if (footerStruk != null) 'footer_struk': footerStruk,
       if (tampilLogo != null) 'tampil_logo': tampilLogo,
+      if (gayaLogo != null) 'gaya_logo': gayaLogo,
       if (lebarKertasMm != null) 'lebar_kertas_mm': lebarKertasMm,
       if (pembulatan != null) 'pembulatan': pembulatan,
       if (izinkanStokMinus != null) 'izinkan_stok_minus': izinkanStokMinus,
@@ -1489,6 +1529,7 @@ class PengaturanOutletCompanion extends UpdateCompanion<PengaturanOutletRow> {
     Value<String?>? headerStruk,
     Value<String?>? footerStruk,
     Value<bool>? tampilLogo,
+    Value<String>? gayaLogo,
     Value<int>? lebarKertasMm,
     Value<int>? pembulatan,
     Value<bool>? izinkanStokMinus,
@@ -1509,6 +1550,7 @@ class PengaturanOutletCompanion extends UpdateCompanion<PengaturanOutletRow> {
       headerStruk: headerStruk ?? this.headerStruk,
       footerStruk: footerStruk ?? this.footerStruk,
       tampilLogo: tampilLogo ?? this.tampilLogo,
+      gayaLogo: gayaLogo ?? this.gayaLogo,
       lebarKertasMm: lebarKertasMm ?? this.lebarKertasMm,
       pembulatan: pembulatan ?? this.pembulatan,
       izinkanStokMinus: izinkanStokMinus ?? this.izinkanStokMinus,
@@ -1540,6 +1582,9 @@ class PengaturanOutletCompanion extends UpdateCompanion<PengaturanOutletRow> {
     }
     if (tampilLogo.present) {
       map['tampil_logo'] = Variable<bool>(tampilLogo.value);
+    }
+    if (gayaLogo.present) {
+      map['gaya_logo'] = Variable<String>(gayaLogo.value);
     }
     if (lebarKertasMm.present) {
       map['lebar_kertas_mm'] = Variable<int>(lebarKertasMm.value);
@@ -1593,6 +1638,7 @@ class PengaturanOutletCompanion extends UpdateCompanion<PengaturanOutletRow> {
           ..write('headerStruk: $headerStruk, ')
           ..write('footerStruk: $footerStruk, ')
           ..write('tampilLogo: $tampilLogo, ')
+          ..write('gayaLogo: $gayaLogo, ')
           ..write('lebarKertasMm: $lebarKertasMm, ')
           ..write('pembulatan: $pembulatan, ')
           ..write('izinkanStokMinus: $izinkanStokMinus, ')
@@ -38808,6 +38854,7 @@ typedef $$PengaturanOutletTableCreateCompanionBuilder =
       Value<String?> headerStruk,
       Value<String?> footerStruk,
       Value<bool> tampilLogo,
+      Value<String> gayaLogo,
       Value<int> lebarKertasMm,
       Value<int> pembulatan,
       Value<bool> izinkanStokMinus,
@@ -38829,6 +38876,7 @@ typedef $$PengaturanOutletTableUpdateCompanionBuilder =
       Value<String?> headerStruk,
       Value<String?> footerStruk,
       Value<bool> tampilLogo,
+      Value<String> gayaLogo,
       Value<int> lebarKertasMm,
       Value<int> pembulatan,
       Value<bool> izinkanStokMinus,
@@ -38897,6 +38945,11 @@ class $$PengaturanOutletTableFilterComposer
 
   ColumnFilters<bool> get tampilLogo => $composableBuilder(
     column: $table.tampilLogo,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get gayaLogo => $composableBuilder(
+    column: $table.gayaLogo,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -39013,6 +39066,11 @@ class $$PengaturanOutletTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get gayaLogo => $composableBuilder(
+    column: $table.gayaLogo,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get lebarKertasMm => $composableBuilder(
     column: $table.lebarKertasMm,
     builder: (column) => ColumnOrderings(column),
@@ -39125,6 +39183,9 @@ class $$PengaturanOutletTableAnnotationComposer
     column: $table.tampilLogo,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get gayaLogo =>
+      $composableBuilder(column: $table.gayaLogo, builder: (column) => column);
 
   GeneratedColumn<int> get lebarKertasMm => $composableBuilder(
     column: $table.lebarKertasMm,
@@ -39243,6 +39304,7 @@ class $$PengaturanOutletTableTableManager
                 Value<String?> headerStruk = const Value.absent(),
                 Value<String?> footerStruk = const Value.absent(),
                 Value<bool> tampilLogo = const Value.absent(),
+                Value<String> gayaLogo = const Value.absent(),
                 Value<int> lebarKertasMm = const Value.absent(),
                 Value<int> pembulatan = const Value.absent(),
                 Value<bool> izinkanStokMinus = const Value.absent(),
@@ -39262,6 +39324,7 @@ class $$PengaturanOutletTableTableManager
                 headerStruk: headerStruk,
                 footerStruk: footerStruk,
                 tampilLogo: tampilLogo,
+                gayaLogo: gayaLogo,
                 lebarKertasMm: lebarKertasMm,
                 pembulatan: pembulatan,
                 izinkanStokMinus: izinkanStokMinus,
@@ -39283,6 +39346,7 @@ class $$PengaturanOutletTableTableManager
                 Value<String?> headerStruk = const Value.absent(),
                 Value<String?> footerStruk = const Value.absent(),
                 Value<bool> tampilLogo = const Value.absent(),
+                Value<String> gayaLogo = const Value.absent(),
                 Value<int> lebarKertasMm = const Value.absent(),
                 Value<int> pembulatan = const Value.absent(),
                 Value<bool> izinkanStokMinus = const Value.absent(),
@@ -39302,6 +39366,7 @@ class $$PengaturanOutletTableTableManager
                 headerStruk: headerStruk,
                 footerStruk: footerStruk,
                 tampilLogo: tampilLogo,
+                gayaLogo: gayaLogo,
                 lebarKertasMm: lebarKertasMm,
                 pembulatan: pembulatan,
                 izinkanStokMinus: izinkanStokMinus,

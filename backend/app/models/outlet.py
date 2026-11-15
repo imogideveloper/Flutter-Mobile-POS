@@ -107,6 +107,8 @@ class PengaturanOutlet(Base, TimestampMixin):
     header_struk: Mapped[str | None] = mapped_column(Text, nullable=True)
     footer_struk: Mapped[str | None] = mapped_column(Text, nullable=True)
     tampil_logo: Mapped[bool] = mapped_column(default=True)
+    # Gaya logo struk (IMOGI no. 24): unggah (gambar usaha) | lingkaran | cincin | inisial (dibuat dari nama usaha).
+    gaya_logo: Mapped[str] = mapped_column(String(12), default="unggah")
     lebar_kertas_mm: Mapped[int] = mapped_column(Integer, default=58)  # 58|80
     pembulatan: Mapped[int] = mapped_column(Integer, default=0)
     izinkan_stok_minus: Mapped[bool] = mapped_column(default=True)

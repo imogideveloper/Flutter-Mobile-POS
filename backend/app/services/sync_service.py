@@ -644,7 +644,7 @@ async def pull(
                 _ke_dict(
                     pengaturan,
                     [
-                        "outlet_id", "header_struk", "footer_struk", "tampil_logo", "lebar_kertas_mm",
+                        "outlet_id", "header_struk", "footer_struk", "tampil_logo", "gaya_logo", "lebar_kertas_mm",
                         "pembulatan", "izinkan_stok_minus", "wajib_buka_shift", "struk_ringkas",
                         "pakai_nomor_antrean", "antrean_awalan", "antrean_mulai", "estimasi_menit", "batas_margin", "updated_at", "deleted_at",
                     ],

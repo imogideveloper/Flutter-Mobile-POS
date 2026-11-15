@@ -18,6 +18,8 @@ from app.services.fitur_service import has_fitur, tolak_fitur_terkunci
 from app.services.izin_service import has_izin
 from app.services.outlet_service import pastikan_kuota_outlet
 
+GAYA_LOGO_VALID = ("unggah", "lingkaran", "cincin", "inisial")
+
 router = APIRouter(prefix="/outlets", tags=["outlet"])
 
 
@@ -149,6 +151,21 @@ async def ubah_pengaturan_outlet(
             and not await has_fitur(db, toko_id, kode_fitur)
         ):
             await tolak_fitur_terkunci(db, kode_fitur)
+
+    # Gaya logo struk (IMOGI no. 24): nilai harus dikenal; gaya siap pakai (selain 'unggah') bagian fitur
+    # logo_struk dan hanya digate saat nilainya benar-benar berubah (klien mengirim ulang seluruh pengaturan).
+    gaya_baru = perubahan.get("gaya_logo")
+    if gaya_baru is not None:
+        if gaya_baru not in GAYA_LOGO_VALID:
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST, f"gaya_logo harus salah satu dari {', '.join(GAYA_LOGO_VALID)}"
+            )
+        if (
+            gaya_baru != "unggah"
+            and gaya_baru != pengaturan.gaya_logo
+            and not await has_fitur(db, toko_id, "logo_struk")
+        ):
+            await tolak_fitur_terkunci(db, "logo_struk")
 
     # Estimasi selesai adalah bagian fitur Status pesanan: hanya digate saat nilainya benar-benar
     # berubah menjadi > 0 (klien mengirim ulang seluruh pengaturan tiap simpan).
