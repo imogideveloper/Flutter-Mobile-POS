@@ -135,13 +135,22 @@ class LoginPage extends ConsumerWidget {
             top: false,
             child: Padding(
               padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-              child: Center(
-                child: TextButton.icon(
-                  key: const Key('loginPage.lupaPin'),
-                  onPressed: () => _bukaLupaPin(context),
-                  icon: const Icon(Icons.lock_reset_outlined, size: 18),
-                  label: const Text('Lupa PIN kasir?'),
-                ),
+              child: Wrap(
+                alignment: WrapAlignment.center,
+                children: [
+                  TextButton.icon(
+                    key: const Key('loginPage.lupaPin'),
+                    onPressed: () => _bukaLupaPin(context),
+                    icon: const Icon(Icons.lock_reset_outlined, size: 18),
+                    label: const Text('Lupa PIN kasir?'),
+                  ),
+                  TextButton.icon(
+                    key: const Key('loginPage.masukAdmin'),
+                    onPressed: () => context.push('/admin/login'),
+                    icon: const Icon(Icons.admin_panel_settings_outlined, size: 18),
+                    label: const Text('Masuk sebagai Administrator'),
+                  ),
+                ],
               ),
             ),
           ),
