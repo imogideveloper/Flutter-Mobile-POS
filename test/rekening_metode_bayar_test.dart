@@ -1,6 +1,5 @@
 import 'package:apps_pos/core/database/app_database.dart';
 import 'package:apps_pos/features/transaksi/data/local/tables/metode_bayar_table.dart';
-import 'package:drift/drift.dart' hide isNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
