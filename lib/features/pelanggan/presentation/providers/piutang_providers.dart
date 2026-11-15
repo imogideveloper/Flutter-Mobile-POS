@@ -38,7 +38,7 @@ final piutangPelangganProvider = StreamProvider<List<PiutangPelanggan>>((ref) {
 
   return transaksiDao.watchTransaksiOutlet(outletId).asyncMap((rows) async {
     final kasbon = rows.where(
-      (t) => t.statusBayar != StatusBayarTransaksi.lunas && t.pelangganId != null,
+      (t) => t.statusBayar != StatusBayarTransaksi.lunas && t.pelangganId != null && !t.bayarBelakangan,
     );
     final now = DateTime.now().toUtc().millisecondsSinceEpoch;
 

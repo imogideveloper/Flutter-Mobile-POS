@@ -234,6 +234,7 @@ class SyncRepository {
         // bawaan (belum sync) bukan UUID dan akan membuat seluruh push ditolak 422.
         if (t.diskonManualDisetujuiOleh != null && _uuidValid(t.diskonManualDisetujuiOleh!))
           'diskon_manual_disetujui_oleh': t.diskonManualDisetujuiOleh,
+        if (t.bayarBelakangan) 'bayar_belakangan': true,
         if (promoAsli != null) 'promo_id': promoAsli.promoId,
         'metode_bayar_id': pembayaranList.isNotEmpty
             ? pembayaranList.first.metodeBayarId

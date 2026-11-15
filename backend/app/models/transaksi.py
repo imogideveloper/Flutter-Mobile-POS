@@ -107,6 +107,8 @@ class Transaksi(Base, UUIDPkMixin, TimestampMixin):
     status_bayar: Mapped[str] = mapped_column(String(20), default="lunas")
     sisa_tagihan: Mapped[float] = mapped_column(Money, default=0)
     jatuh_tempo: Mapped[date | None] = mapped_column(nullable=True)
+    # Order diterima dulu, dibayar belakangan (IMOGI no. 27) - BUKAN kasbon: tanpa pelanggan, tanpa utang.
+    bayar_belakangan: Mapped[bool] = mapped_column(default=False)
     catatan: Mapped[str | None] = mapped_column(Text, nullable=True)
     alasan_void: Mapped[str | None] = mapped_column(Text, nullable=True)
     void_disetujui_oleh: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("pengguna.id"), nullable=True)

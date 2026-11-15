@@ -219,3 +219,13 @@ Aturan baca: **Sementara** = perilaku yang sekarang dipakai di kode. **Dampak bi
 | T1 | "Usaha kena pajak / tidak kena pajak" tidak disimpan sebagai pengaturan tersendiri: dihitung dari ada/tidaknya pajak (bukan service charge) yang aktif. Saklar di daftar Pajak & Service mengirim perubahan aktif ke server per pajak, sehingga hitungan server dan HP tetap sama | Bila lead ingin status usaha terpisah (mis. nomor PKP), perlu kolom dan aturan hitung baru di kedua sisi |
 | T2 | Saklar mati menonaktifkan pajak, bukan menghapusnya, dan pajak nonaktif kini tampil di daftar dengan label Nonaktif. Service charge tetap berlaku | Perlu konfirmasi |
 | T3 | Preset form: PB1 10% (ditambahkan), PPN 11% (ditambahkan), Service 5%. Nilai resmi dan cara hitung bawaan per jenis usaha belum ditetapkan | Perlu validasi (PB1 biasanya 10% di daerah, tarif bisa berbeda); bawaan per jenis usaha menunggu Batch B |
+
+## Tambahan 2026-11-15 (terima order, bayar belakangan, IMOGI no. 27)
+
+| # | Hal | Sementara |
+|---|---|---|
+| U1 | "Terima Order" dibuat sebagai transaksi sungguhan dengan penanda `bayar_belakangan` (server: kolom baru, migrasi 0024), BUKAN kasbon: tanpa pelanggan wajib, tanpa fitur kasbon, tanpa jatuh tempo, tidak masuk daftar piutang pelanggan. Total_bayar wajib 0 | Perlu konfirmasi lead: apakah order yang belum dibayar sudah dihitung sebagai penjualan di laporan (saat ini ya, sama dengan kasbon) |
+| U2 | Pelunasan memakai endpoint cicilan yang sudah ada; kas masuk ke shift yang sedang terbuka saat dibayar, bukan shift saat order diterima | Sesuai perilaku kasbon |
+| U3 | Pelunasan hanya untuk metode manual (tunai, kartu, transfer, dst.), belum QRIS dinamis; belum ada kembalian untuk tunai (jumlah dicatat sebesar yang dibayarkan, maksimal sisa) | Susulan |
+| U4 | Penukaran poin ditolak saat Terima Order (poin hanya saat membayar) | Perlu konfirmasi |
+| U5 | "Pilihan kapan membayar" (di meja, setelah makan, nanti) dan nota order khusus belum dibuat; struk menampilkan "Order diterima, bayar nanti" dan sisa tagihan | Perlu rincian dari dokumen IMOGI |

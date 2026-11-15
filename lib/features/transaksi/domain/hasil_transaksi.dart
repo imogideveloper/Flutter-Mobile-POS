@@ -18,6 +18,7 @@ class HasilTransaksi {
     required this.kembalian,
     this.statusBayar = 'lunas',
     this.sisaTagihan = 0,
+    this.bayarBelakangan = false,
     this.jatuhTempo,
     this.produkStokMenipis = const [],
     this.nomorAntrean,
@@ -37,6 +38,9 @@ class HasilTransaksi {
   final int kembalian;
   // Kasbon (tahap 3b-1) - 'lunas' | 'sebagian' | 'belumBayar'.
   final String statusBayar;
+
+  /// Order diterima dulu, dibayar belakangan (IMOGI no. 27) - bukan kasbon.
+  final bool bayarBelakangan;
   final int sisaTagihan;
   final int? jatuhTempo;
   // Nama produk yang saldonya jadi <= batas minimum GARA-GARA transaksi ini

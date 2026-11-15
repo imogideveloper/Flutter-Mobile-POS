@@ -240,7 +240,9 @@ class _StrukPageState extends ConsumerState<StrukPage> {
               ),
               const SizedBox(height: AppSpacing.sm),
               Text(
-                kasbon ? 'Transaksi tercatat (kasbon)' : 'Pembayaran berhasil',
+                hasil.bayarBelakangan
+                    ? 'Order diterima, bayar nanti'
+                    : (kasbon ? 'Transaksi tercatat (kasbon)' : 'Pembayaran berhasil'),
                 style: AppTypography.cardTitle.copyWith(fontSize: 20),
               ),
               if (hasil.nomorAntrean != null) ...[

@@ -105,7 +105,7 @@
  },
  "27": {
   "status": "sedang",
-  "catatan": "Open bill dan kasbon ada. Tombol Terima Order dan pilihan kapan pelanggan membayar belum ada."
+  "catatan": "SEBAGIAN (2026-11-15): tombol Terima Order (bayar nanti) di keranjang mencatat pesanan sebagai transaksi belum dibayar tanpa pelanggan (nomor antrean, status pesanan, tiket dapur ikut berjalan; bukan kasbon, paket Gratis boleh); layar Order belum dibayar (Lainnya) mencatat pelunasan penuh atau sebagian per metode bayar; server menerima lewat bayar_belakangan (migrasi 0024). Belum: pilihan jatuh tempo/kapan membayar, cetak nota order khusus, penukaran poin dan metode QRIS saat pelunasan. Lulus tes otomatis, belum diuji di HP."
  },
  "28": {
   "status": "tidak_relevan",

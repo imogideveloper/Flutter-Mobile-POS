@@ -135,6 +135,8 @@ class CheckoutIn(BaseModel):
     # (D.2); push offline tidak pernah ditolak tapi ditandai ke
     # audit_log+notifikasi kalau approval-nya tidak sah (D.3).
     diskon_manual_disetujui_oleh: uuid.UUID | None = None
+    # Order diterima dulu, dibayar belakangan (IMOGI no. 27): total_bayar WAJIB 0; tidak memakai aturan kasbon.
+    bayar_belakangan: bool = False
     # Breakdown yang SUDAH dihitung HP sendiri lewat
     # lib/core/harga/kalkulator.dart (mesin yang SAMA dgn server) - HANYA
     # dipakai utk transaksi offline yang di-push (body.id terisi):

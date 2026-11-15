@@ -24,6 +24,11 @@ import '../../../promo/data/local/tables/promo_table.dart' show PromoTipe;
 import '../../../promo/domain/promo.dart';
 import '../../../promo/presentation/providers/promo_providers.dart';
 import '../../../stok/presentation/providers/stok_providers.dart';
+import '../../data/local/tables/metode_bayar_table.dart' show MetodeBayarTipe;
+import '../../../dapur/presentation/providers/antrean_providers.dart';
+import '../../../promo/presentation/providers/pajak_providers.dart';
+import '../../../shift/presentation/providers/shift_providers.dart';
+import '../providers/status_pesanan_providers.dart';
 import '../widgets/diskon_item_sheet.dart';
 import '../providers/harga_keranjang_provider.dart';
 import '../providers/keranjang_provider.dart';
@@ -66,6 +71,63 @@ class KeranjangPage extends ConsumerWidget {
       showAppToast(context, message: 'Pesanan tersimpan', variant: ToastVariant.success);
       context.pop();
     }
+  }
+
+  /// Terima Order, bayar belakangan (IMOGI no. 27): pesanan langsung tercatat sebagai
+  /// transaksi (nomor antrean, status pesanan, tiket dapur ikut berjalan) tetapi belum
+  /// ada uang masuk. Pelanggan tidak wajib. Pelunasan dicatat dari layar "Order belum dibayar".
+  Future<void> _terimaOrder(BuildContext context, WidgetRef ref) async {
+    final penggunaId = ref.read(currentPenggunaIdProvider);
+    if (penggunaId == null) {
+      showAppToast(context, message: 'Silakan login dulu', variant: ToastVariant.warning);
+      return;
+    }
+    if (ref.read(keranjangPoinDitukarProvider) > 0) {
+      showAppToast(
+        context,
+        message: 'Penukaran poin hanya bisa saat membayar. Batalkan penukaran poin dulu.',
+        variant: ToastVariant.warning,
+      );
+      return;
+    }
+    final outletId = ref.read(currentOutletIdProvider);
+    final tokoId = ref.read(currentTokoIdProvider);
+    final shift = await ref.read(shiftTerbukaProvider(outletId).future);
+    if (shift == null) {
+      if (context.mounted) {
+        showAppToast(context, message: 'Shift tidak aktif', variant: ToastVariant.warning);
+      }
+      return;
+    }
+    final metodeTunai = ref
+        .read(metodeBayarAktifProvider)
+        .value
+        ?.where((m) => m.tipe == MetodeBayarTipe.tunai)
+        .firstOrNull;
+
+    final hasil = await ref.read(transaksiRepositoryProvider).checkout(
+          buatNomorAntrean: await siapkanNomorAntrean(ref),
+          statusAwal: await statusPesananAwal(ref),
+          tokoId: tokoId,
+          outletId: outletId,
+          shiftId: shift.id,
+          penggunaId: penggunaId,
+          metodeBayarId: metodeTunai?.id ?? '',
+          items: ref.read(keranjangProvider),
+          hasil: ref.read(hasilHargaKeranjangProvider),
+          totalBayar: 0,
+          bayarBelakangan: true,
+          pelangganId: ref.read(keranjangPelangganIdProvider),
+          tipeOrderId: ref.read(keranjangTipeOrderIdProvider),
+          catatan: ref.read(keranjangCatatanProvider),
+          promo: ref.read(keranjangPromoProvider),
+          gantikanPesananTersimpanId: ref.read(draftPesananDibukaProvider),
+          daftarPajakAktif:
+              ref.read(pajakAktifProvider(tokoId)).maybeWhen(data: (v) => v, orElse: () => const []),
+          diskonManualDisetujuiOleh: ref.read(persetujuanDiskonKeranjangProvider),
+        );
+    ref.read(keranjangProvider.notifier).kosongkan();
+    if (context.mounted) context.pushReplacement('/kasir/struk', extra: hasil);
   }
 
   @override
@@ -240,12 +302,31 @@ class KeranjangPage extends ConsumerWidget {
           : SafeArea(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.md, AppSpacing.xl, AppSpacing.xl),
-                child: SizedBox(
-                  height: 54,
-                  child: FilledButton(
-                    onPressed: () => context.push('/kasir/bayar'),
-                    child: Text('Bayar ${_formatRupiah.format(total)}'),
-                  ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FiturTerkunci(
+                      kode: 'pay_later',
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 46,
+                        child: OutlinedButton(
+                          key: const Key('keranjangForm.terimaOrder'),
+                          onPressed: () => _terimaOrder(context, ref),
+                          child: const Text('Terima Order (bayar nanti)'),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 54,
+                      child: FilledButton(
+                        onPressed: () => context.push('/kasir/bayar'),
+                        child: Text('Bayar ${_formatRupiah.format(total)}'),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

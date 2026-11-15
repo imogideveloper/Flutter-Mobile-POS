@@ -746,6 +746,64 @@ void main() {
     expect(asli.aktif, isTrue);
   });
 
+  test('push: order bayar belakangan membawa bayar_belakangan=true dan total_bayar 0; transaksi biasa tidak membawanya', () async {
+    await db.produkDao.upsertProduk(ProdukCompanion.insert(
+      id: 'kopi',
+      tokoId: 'toko-asli',
+      nama: 'Kopi Susu',
+      tipe: ProdukTipe.barang,
+      hargaJual: const Value(18000),
+      createdAt: 0,
+      updatedAt: 0,
+    ));
+    final items = [const ItemKeranjang(produkId: 'kopi', namaProduk: 'Kopi Susu', hargaSatuan: 18000, qty: 2, lacakStok: false)];
+    final hasil = k.hitung(k.TransaksiInput(items: [
+      k.ItemInput(produkId: 'kopi', varianId: null, namaProduk: 'Kopi Susu', qty: 2, hargaJual: 18000),
+    ]));
+    final repoTrx = TransaksiRepository(db.transaksiDao, db.stokDao, db.produkDao);
+    Future<void> bayar({required bool nanti}) => repoTrx.checkout(
+          tokoId: 'toko-asli',
+          outletId: 'outlet-asli',
+          shiftId: 'shift-uji',
+          penggunaId: 'pengguna-asli',
+          metodeBayarId: 'metode-tunai-default',
+          items: items,
+          hasil: hasil,
+          totalBayar: nanti ? 0 : hasil.total,
+          bayarBelakangan: nanti,
+        );
+    await bayar(nanti: true);
+    await bayar(nanti: false);
+
+    api.pullResponse = const SyncPullResult(
+      waktuPull: '2026-01-01T00:00:00Z',
+      produk: [],
+      kategori: [],
+      satuan: [],
+      pajak: [],
+      promo: [],
+      metodeBayar: [],
+      stok: [],
+      hargaOutlet: [],
+      hargaGrosir: [],
+      tipeOrderPajak: [],
+      pengaturanOutlet: [],
+      hasMore: {},
+      paket: null,
+      kodeFitur: [],
+      batasFitur: {},
+    );
+    await repo.jalankan();
+
+    final terkirim = api.transaksiDiterima;
+    expect(terkirim, hasLength(2));
+    final nanti = terkirim.firstWhere((t) => t['total_bayar'] == '0');
+    expect(nanti['bayar_belakangan'], true);
+    expect(nanti.containsKey('pelanggan_id'), isFalse, reason: 'bukan kasbon: tanpa pelanggan');
+    final biasa = terkirim.firstWhere((t) => t['total_bayar'] != '0');
+    expect(biasa.containsKey('bayar_belakangan'), isFalse);
+  });
+
   test('push: diskon manual item dan penyetujunya (UUID) ikut payload; id non-UUID tidak dikirim', () async {
     await db.produkDao.upsertProduk(ProdukCompanion.insert(
       id: 'kopi',

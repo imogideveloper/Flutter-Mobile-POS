@@ -544,6 +544,17 @@ async def _siapkan_pembayaran_awal(
     if body.total_bayar >= total:
         return body.total_bayar - total, "lunas", Decimal("0"), None
 
+    # Order diterima dulu, dibayar belakangan (IMOGI no. 27): BUKAN kasbon - tidak butuh
+    # pelanggan, fitur kasbon, maupun batas utang; tidak ada jatuh tempo. Hanya sah bila
+    # belum ada uang masuk sama sekali (uang yang masuk belakangan lewat /{id}/pembayaran).
+    if body.bayar_belakangan:
+        if body.total_bayar != 0:
+            raise HTTPException(
+                status_code=422,
+                detail={"kode": "bayar_belakangan_harus_nol", "pesan": "Order bayar belakangan harus total_bayar 0"},
+            )
+        return Decimal("0"), "belum_bayar", _m(total), None
+
     if not await has_fitur(db, toko_id, "kasbon"):
         await tolak_fitur_terkunci(db, "kasbon")
     if body.pelanggan_id is None:
@@ -714,6 +725,7 @@ async def checkout(
         status_bayar=status_bayar,
         sisa_tagihan=_m(sisa_tagihan),
         jatuh_tempo=jatuh_tempo,
+        bayar_belakangan=body.bayar_belakangan,
         snapshot_struk=body.snapshot_struk,
     )
     db.add(transaksi)

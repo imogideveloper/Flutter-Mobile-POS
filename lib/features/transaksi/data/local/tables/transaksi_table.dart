@@ -68,6 +68,8 @@ class Transaksi extends Table {
   IntColumn get diskonPoin => integer().withDefault(const Constant(0))();
   // Id pengguna yang menyetujui diskon manual per item (IMOGI no. 3); null bila tidak ada diskon manual.
   TextColumn get diskonManualDisetujuiOleh => text().nullable()();
+  // Order diterima dulu, dibayar belakangan (IMOGI no. 27) - bukan kasbon: tanpa pelanggan wajib, tanpa utang.
+  BoolColumn get bayarBelakangan => boolean().withDefault(const Constant(false))();
   IntColumn get totalPajak => integer().withDefault(const Constant(0))();
   IntColumn get pembulatan => integer().withDefault(const Constant(0))();
   IntColumn get total => integer().withDefault(const Constant(0))();

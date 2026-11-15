@@ -152,6 +152,9 @@ class TransaksiRepository {
     // Diskon manual per item (IMOGI no. 3): id penyetuju (izin transaksi.diskon atau PIN approver).
     // Dicatat hanya bila ada item dengan diskon manual.
     String? diskonManualDisetujuiOleh,
+    // Terima order, bayar belakangan (IMOGI no. 27): transaksi tercatat belum dibayar (bukan kasbon);
+    // totalBayar harus 0 dan uang masuk dicatat belakangan lewat catatPembayaranKasbon.
+    bool bayarBelakangan = false,
     // Pembuat nomor antrian (null = antrian mati). Dipanggil DI DALAM
     // transaction checkout supaya nomor tidak terlewat kalau checkout gagal.
     Future<String?> Function()? buatNomorAntrean,
@@ -168,13 +171,15 @@ class TransaksiRepository {
     final rincianGabungan = [...hasil.rincianService, ...hasil.rincianPajak];
     final produkStokMenipis = <String>[];
 
-    final lunas = totalBayar >= totalFinal;
+    assert(!bayarBelakangan || totalBayar == 0, 'Order bayar belakangan harus totalBayar 0');
+    // Total 0 tetap lunas (sama dengan server); selain itu order bayar belakangan selalu belum dibayar.
+    final lunas = totalBayar >= totalFinal && (!bayarBelakangan || totalFinal == 0);
     final statusBayar = lunas
         ? StatusBayarTransaksi.lunas
         : (totalBayar == 0 ? StatusBayarTransaksi.belumBayar : StatusBayarTransaksi.sebagian);
     final sisaTagihan = lunas ? 0 : totalFinal - totalBayar;
     final jatuhTempo =
-        lunas ? null : now + (jatuhTempoHari ?? 7) * Duration.millisecondsPerDay;
+        (lunas || bayarBelakangan) ? null : now + (jatuhTempoHari ?? 7) * Duration.millisecondsPerDay;
 
     await _transaksiDao.transaction(() async {
       if (gantikanPesananTersimpanId != null) {
@@ -217,6 +222,7 @@ class TransaksiRepository {
           poinDitukar: Value(poinDitukar),
           diskonPoin: Value(diskonPoin),
           diskonManualDisetujuiOleh: Value(items.any((i) => i.adaDiskonManual) ? diskonManualDisetujuiOleh : null),
+          bayarBelakangan: Value(bayarBelakangan),
           createdAt: now,
           updatedAt: now,
         ),
@@ -384,6 +390,7 @@ class TransaksiRepository {
       kembalian: kembalian,
       statusBayar: statusBayar.name,
       sisaTagihan: sisaTagihan,
+      bayarBelakangan: bayarBelakangan,
       jatuhTempo: jatuhTempo,
       produkStokMenipis: produkStokMenipis,
     );

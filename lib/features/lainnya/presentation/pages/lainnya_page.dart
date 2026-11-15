@@ -226,6 +226,17 @@ class LainnyaPage extends ConsumerWidget {
                       onTap: () => context.push('/shift'),
                     ),
                   ),
+                  bila(
+                    'transaksi.buat',
+                    FiturTerkunci(
+                      kode: 'pay_later',
+                      child: SettingsMenuRow(
+                        label: 'Order belum dibayar',
+                        value: 'Terima order, bayar nanti',
+                        onTap: () => context.push('/order-belum-dibayar'),
+                      ),
+                    ),
+                  ),
                   Consumer(
                     builder: (context, ref, _) {
                       final punya =

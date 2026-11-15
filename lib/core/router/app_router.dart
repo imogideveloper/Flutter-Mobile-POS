@@ -48,6 +48,7 @@ import '../../features/stok/presentation/pages/riwayat_mutasi_stok_page.dart';
 import '../../features/stok/presentation/pages/stok_mutasi_form_page.dart';
 import '../../features/transaksi/domain/hasil_transaksi.dart';
 import '../../features/transaksi/presentation/pages/bayar_kasbon_page.dart';
+import '../../features/transaksi/presentation/pages/order_belum_dibayar_page.dart';
 import '../../features/transaksi/presentation/pages/bayar_page.dart';
 import '../../features/transaksi/presentation/pages/bayar_qris_page.dart';
 import '../../features/transaksi/presentation/pages/kasir_page.dart';
@@ -228,6 +229,11 @@ GoRouter _buildRouter() => GoRouter(
           ),
         ),
       ],
+    ),
+    GoRoute(
+      path: '/order-belum-dibayar',
+      builder: (context, state) =>
+          IzinGuard(kodeIzin: 'transaksi.buat', child: const OrderBelumDibayarPage()),
     ),
     GoRoute(
       path: '/status-pesanan',
