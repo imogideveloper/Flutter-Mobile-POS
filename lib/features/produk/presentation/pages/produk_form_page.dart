@@ -144,9 +144,7 @@ class _ProdukFormPageState extends ConsumerState<ProdukFormPage> {
   }
 
   Future<void> _scanBarcode() async {
-    final hasil = await Navigator.of(context).push<String>(
-      MaterialPageRoute(builder: (context) => const BarcodeScanPage()),
-    );
+    final hasil = await pindaiBarcode(context);
     if (hasil != null && mounted) {
       setState(() => _barcodeController.text = hasil);
     }

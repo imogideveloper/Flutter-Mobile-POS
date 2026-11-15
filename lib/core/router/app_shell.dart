@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../providers/izin_provider.dart';
 import '../widgets/app_bottom_nav_bar.dart';
+import '../utils/platform_perangkat.dart';
 
 /// Indeks tab bawah (urutan sama dengan branch di app_router.dart).
 const tabProduk = 2;
@@ -26,15 +27,42 @@ class AppShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final izin = ref.watch(izinSayaProvider).value ?? const <String>{};
+    final tersembunyi = tabTersembunyi(izin);
+    void pindahTab(int index) =>
+        navigationShell.goBranch(index, initialLocation: index == navigationShell.currentIndex);
+
+    // Layar lebar (Windows/tablet): navigasi samping + isi dibatasi lebarnya.
+    // Ponsel tetap memakai navigasi bawah seperti sebelumnya.
+    if (MediaQuery.sizeOf(context).width >= lebarMinimalDesktop) {
+      return Scaffold(
+        body: Row(
+          children: [
+            AppNavRail(
+              currentIndex: navigationShell.currentIndex,
+              tersembunyi: tersembunyi,
+              onTap: pindahTab,
+            ),
+            const VerticalDivider(width: 1),
+            Expanded(
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: lebarMaksimalIsi),
+                  child: navigationShell,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Scaffold(
       body: navigationShell,
       bottomNavigationBar: AppBottomNavBar(
         currentIndex: navigationShell.currentIndex,
-        tersembunyi: tabTersembunyi(izin),
-        onTap: (index) => navigationShell.goBranch(
-          index,
-          initialLocation: index == navigationShell.currentIndex,
-        ),
+        tersembunyi: tersembunyi,
+        onTap: pindahTab,
       ),
     );
   }

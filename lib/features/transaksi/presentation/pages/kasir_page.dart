@@ -90,9 +90,7 @@ class _KasirGridState extends ConsumerState<_KasirGrid> {
   String? _kategoriId;
 
   Future<void> _scan() async {
-    final hasil = await Navigator.of(context).push<String>(
-      MaterialPageRoute(builder: (context) => const BarcodeScanPage()),
-    );
+    final hasil = await pindaiBarcode(context);
     if (hasil == null || !mounted) return;
 
     final produkAktif = await ref.read(produkAktifProvider.future);

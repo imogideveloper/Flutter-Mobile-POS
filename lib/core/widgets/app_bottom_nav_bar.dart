@@ -95,3 +95,39 @@ class _NavItem extends StatelessWidget {
     );
   }
 }
+
+/// Navigasi samping untuk layar lebar (desktop/tablet landscape): tab dan
+/// aturan "tersembunyi" sama dengan [AppBottomNavBar]; [currentIndex] dan
+/// [onTap] memakai indeks tab asli (0..4), bukan indeks setelah disaring.
+class AppNavRail extends StatelessWidget {
+  const AppNavRail({
+    super.key,
+    required this.currentIndex,
+    required this.onTap,
+    this.tersembunyi = const {},
+  });
+
+  final int currentIndex;
+  final ValueChanged<int> onTap;
+  final Set<int> tersembunyi;
+
+  @override
+  Widget build(BuildContext context) {
+    final terlihat = [for (var i = 0; i < _tabs.length; i++) if (!tersembunyi.contains(i)) i];
+    final terpilih = terlihat.indexOf(currentIndex);
+    return NavigationRail(
+      key: const Key('appNavRail'),
+      backgroundColor: AppColors.surface,
+      selectedIndex: terpilih < 0 ? 0 : terpilih,
+      labelType: NavigationRailLabelType.all,
+      selectedIconTheme: const IconThemeData(color: AppColors.primary),
+      selectedLabelTextStyle: AppTypography.secondary.copyWith(color: AppColors.primary, fontWeight: FontWeight.w700),
+      unselectedLabelTextStyle: AppTypography.secondary,
+      onDestinationSelected: (i) => onTap(terlihat[i]),
+      destinations: [
+        for (final i in terlihat)
+          NavigationRailDestination(icon: Icon(_tabs[i].icon), label: Text(_tabs[i].label)),
+      ],
+    );
+  }
+}

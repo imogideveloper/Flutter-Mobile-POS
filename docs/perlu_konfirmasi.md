@@ -182,3 +182,13 @@ Aturan baca: **Sementara** = perilaku yang sekarang dipakai di kode. **Dampak bi
 | P5 | Paket yang dipakai usaha dihitung **paket efektif** (selama trial = paket tertinggi), dan paket langganan sebenarnya tampil terpisah di daftar usaha | Di dev, satu-satunya usaha tampil "Enterprise" karena trial 4 bulan |
 | P6 | Pengguna dihitung = karyawan aktif per usaha. "Akun yang download" belum ada hitungan unduhan (butuh data Play Store); yang ada baru usaha terdaftar dan pengguna | Perlu didefinisikan bersama lead |
 | P7 | **Cacat yang ditemukan lewat uji ke Postgres:** migrasi 0020 (akun_admin) tidak punya kolom `deleted_at` sehingga membuat akun admin gagal di Postgres walau tes SQLite lulus; diperbaiki migrasi 0022. Tes backend memakai SQLite dari model, jadi selisih model dan migrasi tidak tertangkap | Perlu uji migrasi ke Postgres sungguhan di CI |
+
+## Tambahan 2026-11-15 (aplikasi Windows, permintaan lead)
+
+| # | Hal | Sementara |
+|---|---|---|
+| Q1 | Aplikasi Windows belum bisa dibuild: **Visual Studio (C++) belum terpasang** di komputer pengembangan; kode dan tata letak sudah disiapkan dan lulus tes otomatis, belum pernah dijalankan di Windows | Pengguna perlu memasang Visual Studio (lihat `docs/windows_desktop.md`) |
+| Q2 | Pemindai kamera tidak tersedia di Windows; diganti dialog ketik/scan (pemindai USB/Bluetooth sebagai keyboard) | Perlu konfirmasi apakah cukup |
+| Q3 | Sync latar belakang (`workmanager`) tidak mendukung Windows; saat ini tidak dipakai di kode, sync berjalan saat aplikasi terbuka | Perlu diputuskan bila sync saat aplikasi tertutup masuk Release 1 |
+| Q4 | Printer Bluetooth di Windows belum teruji | Perlu perangkat |
+| Q5 | Belum ada installer (MSIX/Inno Setup), pintasan keyboard, dan optimasi mouse | Tahap lanjutan |
