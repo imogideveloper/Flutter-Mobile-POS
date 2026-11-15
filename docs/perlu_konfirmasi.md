@@ -211,3 +211,11 @@ Aturan baca: **Sementara** = perilaku yang sekarang dipakai di kode. **Dampak bi
 | S3 | Tombol cepat tetap 5/10/15/20%, belum bisa diatur per usaha | Perlu konfirmasi lead |
 | S4 | Diskon manual hilang bila pesanan tersimpan (open bill) dibuka kembali, karena harga dihitung ulang dari awal | Susulan |
 | S5 | Diskon persen dihitung dari nilai baris di keranjang; bila harga grosir/outlet lebih murah, diskon dibatasi tidak melebihi nilai baris | Perlu uji dengan harga grosir di HP |
+
+## Tambahan 2026-11-15 (status pajak usaha dan preset pajak, IMOGI no. 4)
+
+| # | Hal | Sementara |
+|---|---|---|
+| T1 | "Usaha kena pajak / tidak kena pajak" tidak disimpan sebagai pengaturan tersendiri: dihitung dari ada/tidaknya pajak (bukan service charge) yang aktif. Saklar di daftar Pajak & Service mengirim perubahan aktif ke server per pajak, sehingga hitungan server dan HP tetap sama | Bila lead ingin status usaha terpisah (mis. nomor PKP), perlu kolom dan aturan hitung baru di kedua sisi |
+| T2 | Saklar mati menonaktifkan pajak, bukan menghapusnya, dan pajak nonaktif kini tampil di daftar dengan label Nonaktif. Service charge tetap berlaku | Perlu konfirmasi |
+| T3 | Preset form: PB1 10% (ditambahkan), PPN 11% (ditambahkan), Service 5%. Nilai resmi dan cara hitung bawaan per jenis usaha belum ditetapkan | Perlu validasi (PB1 biasanya 10% di daerah, tarif bisa berbeda); bawaan per jenis usaha menunggu Batch B |

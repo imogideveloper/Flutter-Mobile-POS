@@ -23,6 +23,15 @@ class PajakDao extends DatabaseAccessor<AppDatabase> with _$PajakDaoMixin {
   Future<void> upsertPajak(PajakCompanion data) =>
       into(pajak).insertOnConflictUpdate(data);
 
+  /// Semua pajak/service yang belum dihapus, termasuk yang nonaktif (dipakai
+  /// daftar Pajak & Service dan status pajak usaha).
+  Stream<List<PajakRow>> watchSemuaPajak(String tokoId) =>
+      (select(pajak)..where((t) => t.tokoId.equals(tokoId) & t.deletedAt.isNull())).watch();
+
+  /// Cache lokal setelah server menerima perubahan aktif/nonaktif.
+  Future<void> ubahAktifLokal(String id, bool aktif) =>
+      (update(pajak)..where((t) => t.id.equals(id))).write(PajakCompanion(aktif: Value(aktif)));
+
   /// Tahap 5 C.6 - cache lokal setelah DELETE (soft delete) sukses di
   /// backend, supaya baris langsung hilang dari watchPajakAktif tanpa
   /// menunggu sync pull berikutnya.

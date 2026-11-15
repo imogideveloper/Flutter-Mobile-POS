@@ -13,7 +13,7 @@
  },
  "4": {
   "status": "sedang",
-  "catatan": "Pajak per produk ada. Belum ada pengaturan status pajak usaha (kena/tidak kena), nama pajak (PB1/PPN), dan cara hitung (termasuk/ditambahkan) dengan bawaan per jenis usaha."
+  "catatan": "SEBAGIAN (2026-11-15): daftar Pajak dan Service kini punya saklar Usaha kena pajak (mematikan/menyalakan semua pajak sekaligus, service charge tidak ikut) dan menampilkan pajak nonaktif; form tambah punya pilihan cepat PB1 10%, PPN 11%, dan Service 5% (nilai bisa diubah). Cara hitung termasuk/ditambahkan dan pajak per produk sudah ada sebelumnya. Belum: nilai bawaan per jenis usaha (menunggu Batch B). Lulus tes otomatis, belum diuji di HP."
  },
  "5": {
   "status": "sudah",

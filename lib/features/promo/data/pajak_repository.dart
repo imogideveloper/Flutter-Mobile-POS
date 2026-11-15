@@ -16,6 +16,9 @@ class PajakRepository {
   Stream<List<domain.Pajak>> watchPajakAktif(String tokoId) =>
       _dao.watchPajakAktif(tokoId).map((rows) => rows.map((row) => row.toDomain()).toList());
 
+  Stream<List<domain.Pajak>> watchSemuaPajak(String tokoId) =>
+      _dao.watchSemuaPajak(tokoId).map((rows) => rows.map((row) => row.toDomain()).toList());
+
   Future<void> tambahPajak({
     required String tokoId,
     required String nama,

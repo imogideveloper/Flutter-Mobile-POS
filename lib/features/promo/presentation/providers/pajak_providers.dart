@@ -16,3 +16,8 @@ final pajakRepositoryProvider = Provider<PajakRepository>((ref) {
 final pajakAktifProvider = StreamProvider.family<List<Pajak>, String>((ref, tokoId) {
   return ref.watch(pajakRepositoryProvider).watchPajakAktif(tokoId);
 });
+
+/// Semua pajak/service (aktif dan nonaktif) - untuk daftar dan status pajak usaha.
+final pajakSemuaProvider = StreamProvider.family<List<Pajak>, String>((ref, tokoId) {
+  return ref.watch(pajakRepositoryProvider).watchSemuaPajak(tokoId);
+});

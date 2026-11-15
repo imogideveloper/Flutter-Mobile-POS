@@ -14,6 +14,7 @@ import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/offline_notice_banner.dart';
 import '../../data/local/tables/pajak_table.dart' show PajakTipe;
 import '../../domain/pajak.dart';
+import '../../domain/status_pajak_usaha.dart';
 import '../providers/pajak_providers.dart';
 
 const _labelTipePajak = {PajakTipe.pajak: 'Pajak', PajakTipe.service: 'Service charge'};
@@ -178,6 +179,27 @@ class _PajakFormPageState extends ConsumerState<PajakFormPage> {
                 if (_errorServer != null) ...[
                   Text(_errorServer!, style: const TextStyle(color: Colors.red)),
                   const SizedBox(height: AppSpacing.sm),
+                ],
+                if (!_modeEdit) ...[
+                  Text('Pilihan cepat', style: Theme.of(context).textTheme.labelMedium),
+                  const SizedBox(height: AppSpacing.xs),
+                  Wrap(
+                    spacing: AppSpacing.sm,
+                    children: [
+                      for (final preset in daftarPresetPajak)
+                        ActionChip(
+                          key: Key('pajakForm.preset.${preset.nama}'),
+                          label: Text(preset.label),
+                          onPressed: () => setState(() {
+                            _namaController.text = preset.nama;
+                            _persenController.text = _formatPersen(preset.persen);
+                            _tipe = preset.tipe;
+                            _termasukHarga = preset.termasukHarga;
+                          }),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
                 ],
                 TextFormField(
                   key: const Key('pajakForm.nama'),
