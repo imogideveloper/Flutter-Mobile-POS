@@ -9,7 +9,7 @@
  },
  "3": {
   "status": "sedang",
-  "catatan": "Promo dan diskon ada. Belum ada pengaturan tombol cepat diskon manual, izin diskon item oleh kasir, dan batas diskon dengan PIN owner."
+  "catatan": "SEBAGIAN (2026-11-15): diskon manual per item di keranjang (tombol Diskon: 5/10/15/20%, persen atau nominal sendiri, hapus diskon). Butuh izin transaksi.diskon atau PIN approver; penyetuju tersimpan di transaksi dan dikirim ke server (UUID saja). Total, struk, dan item ikut berubah. Belum: batas diskon kasir tanpa PIN, tombol cepat yang bisa diatur, diskon level transaksi (nominal), dan diskon manual belum ikut saat pesanan tersimpan dibuka kembali. Lulus tes otomatis, belum diuji di HP."
  },
  "4": {
   "status": "sedang",

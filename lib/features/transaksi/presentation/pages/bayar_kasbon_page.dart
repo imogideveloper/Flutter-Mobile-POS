@@ -163,6 +163,7 @@ class _BayarKasbonPageState extends ConsumerState<BayarKasbonPage> {
                 .maybeWhen(data: (v) => v, orElse: () => const []),
             poinDitukar: poinDitukar,
             diskonPoin: diskonPoin,
+            diskonManualDisetujuiOleh: ref.read(persetujuanDiskonKeranjangProvider),
           );
       if (poinDitukar > 0) {
         await ref.read(pelangganRepositoryProvider).catatPoin(

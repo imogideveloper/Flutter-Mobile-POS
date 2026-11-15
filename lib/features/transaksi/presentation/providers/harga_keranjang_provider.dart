@@ -203,6 +203,7 @@ final hasilHargaKeranjangProvider = Provider<k.HasilKalkulasi>((ref) {
       namaProduk: item.namaProduk,
       qty: item.qty,
       hargaJual: item.hargaSatuan,
+      diskonOverride: item.adaDiskonManual ? item.diskonManual : null,
       modifiers: [for (final m in item.modifiers) k.ModifierInput(nama: m.nama, harga: m.harga)],
       hargaOutlet: hargaOutletMap[(item.produkId, null)],
       hargaGrosirTiers: tiers,

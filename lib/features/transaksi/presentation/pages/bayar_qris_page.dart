@@ -146,6 +146,7 @@ class _BayarQrisPageState extends ConsumerState<BayarQrisPage> {
                 .maybeWhen(data: (v) => v, orElse: () => const []),
             poinDitukar: poinDitukar,
             diskonPoin: diskonPoin,
+            diskonManualDisetujuiOleh: ref.read(persetujuanDiskonKeranjangProvider),
           );
       if (poinDitukar > 0 && pelangganId != null) {
         await ref.read(pelangganRepositoryProvider).catatPoin(

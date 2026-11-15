@@ -66,6 +66,8 @@ class Transaksi extends Table {
   // ke backend/CheckoutIn.poinDitukar - lihat TransaksiRepository.checkout).
   IntColumn get poinDitukar => integer().withDefault(const Constant(0))();
   IntColumn get diskonPoin => integer().withDefault(const Constant(0))();
+  // Id pengguna yang menyetujui diskon manual per item (IMOGI no. 3); null bila tidak ada diskon manual.
+  TextColumn get diskonManualDisetujuiOleh => text().nullable()();
   IntColumn get totalPajak => integer().withDefault(const Constant(0))();
   IntColumn get pembulatan => integer().withDefault(const Constant(0))();
   IntColumn get total => integer().withDefault(const Constant(0))();

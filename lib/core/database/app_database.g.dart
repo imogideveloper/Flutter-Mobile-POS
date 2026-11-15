@@ -19033,6 +19033,17 @@ class $TransaksiTable extends Transaksi
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _diskonManualDisetujuiOlehMeta =
+      const VerificationMeta('diskonManualDisetujuiOleh');
+  @override
+  late final GeneratedColumn<String> diskonManualDisetujuiOleh =
+      GeneratedColumn<String>(
+        'diskon_manual_disetujui_oleh',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   static const VerificationMeta _totalPajakMeta = const VerificationMeta(
     'totalPajak',
   );
@@ -19238,6 +19249,7 @@ class $TransaksiTable extends Transaksi
     totalDiskon,
     poinDitukar,
     diskonPoin,
+    diskonManualDisetujuiOleh,
     totalPajak,
     pembulatan,
     total,
@@ -19406,6 +19418,15 @@ class $TransaksiTable extends Transaksi
       context.handle(
         _diskonPoinMeta,
         diskonPoin.isAcceptableOrUnknown(data['diskon_poin']!, _diskonPoinMeta),
+      );
+    }
+    if (data.containsKey('diskon_manual_disetujui_oleh')) {
+      context.handle(
+        _diskonManualDisetujuiOlehMeta,
+        diskonManualDisetujuiOleh.isAcceptableOrUnknown(
+          data['diskon_manual_disetujui_oleh']!,
+          _diskonManualDisetujuiOlehMeta,
+        ),
       );
     }
     if (data.containsKey('total_pajak')) {
@@ -19611,6 +19632,10 @@ class $TransaksiTable extends Transaksi
         DriftSqlType.int,
         data['${effectivePrefix}diskon_poin'],
       )!,
+      diskonManualDisetujuiOleh: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}diskon_manual_disetujui_oleh'],
+      ),
       totalPajak: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}total_pajak'],
@@ -19722,6 +19747,7 @@ class TransaksiRow extends DataClass implements Insertable<TransaksiRow> {
   final int totalDiskon;
   final int poinDitukar;
   final int diskonPoin;
+  final String? diskonManualDisetujuiOleh;
   final int totalPajak;
   final int pembulatan;
   final int total;
@@ -19759,6 +19785,7 @@ class TransaksiRow extends DataClass implements Insertable<TransaksiRow> {
     required this.totalDiskon,
     required this.poinDitukar,
     required this.diskonPoin,
+    this.diskonManualDisetujuiOleh,
     required this.totalPajak,
     required this.pembulatan,
     required this.total,
@@ -19827,6 +19854,11 @@ class TransaksiRow extends DataClass implements Insertable<TransaksiRow> {
     map['total_diskon'] = Variable<int>(totalDiskon);
     map['poin_ditukar'] = Variable<int>(poinDitukar);
     map['diskon_poin'] = Variable<int>(diskonPoin);
+    if (!nullToAbsent || diskonManualDisetujuiOleh != null) {
+      map['diskon_manual_disetujui_oleh'] = Variable<String>(
+        diskonManualDisetujuiOleh,
+      );
+    }
     map['total_pajak'] = Variable<int>(totalPajak);
     map['pembulatan'] = Variable<int>(pembulatan);
     map['total'] = Variable<int>(total);
@@ -19905,6 +19937,10 @@ class TransaksiRow extends DataClass implements Insertable<TransaksiRow> {
       totalDiskon: Value(totalDiskon),
       poinDitukar: Value(poinDitukar),
       diskonPoin: Value(diskonPoin),
+      diskonManualDisetujuiOleh:
+          diskonManualDisetujuiOleh == null && nullToAbsent
+          ? const Value.absent()
+          : Value(diskonManualDisetujuiOleh),
       totalPajak: Value(totalPajak),
       pembulatan: Value(pembulatan),
       total: Value(total),
@@ -19972,6 +20008,9 @@ class TransaksiRow extends DataClass implements Insertable<TransaksiRow> {
       totalDiskon: serializer.fromJson<int>(json['totalDiskon']),
       poinDitukar: serializer.fromJson<int>(json['poinDitukar']),
       diskonPoin: serializer.fromJson<int>(json['diskonPoin']),
+      diskonManualDisetujuiOleh: serializer.fromJson<String?>(
+        json['diskonManualDisetujuiOleh'],
+      ),
       totalPajak: serializer.fromJson<int>(json['totalPajak']),
       pembulatan: serializer.fromJson<int>(json['pembulatan']),
       total: serializer.fromJson<int>(json['total']),
@@ -20026,6 +20065,9 @@ class TransaksiRow extends DataClass implements Insertable<TransaksiRow> {
       'totalDiskon': serializer.toJson<int>(totalDiskon),
       'poinDitukar': serializer.toJson<int>(poinDitukar),
       'diskonPoin': serializer.toJson<int>(diskonPoin),
+      'diskonManualDisetujuiOleh': serializer.toJson<String?>(
+        diskonManualDisetujuiOleh,
+      ),
       'totalPajak': serializer.toJson<int>(totalPajak),
       'pembulatan': serializer.toJson<int>(pembulatan),
       'total': serializer.toJson<int>(total),
@@ -20068,6 +20110,7 @@ class TransaksiRow extends DataClass implements Insertable<TransaksiRow> {
     int? totalDiskon,
     int? poinDitukar,
     int? diskonPoin,
+    Value<String?> diskonManualDisetujuiOleh = const Value.absent(),
     int? totalPajak,
     int? pembulatan,
     int? total,
@@ -20111,6 +20154,9 @@ class TransaksiRow extends DataClass implements Insertable<TransaksiRow> {
     totalDiskon: totalDiskon ?? this.totalDiskon,
     poinDitukar: poinDitukar ?? this.poinDitukar,
     diskonPoin: diskonPoin ?? this.diskonPoin,
+    diskonManualDisetujuiOleh: diskonManualDisetujuiOleh.present
+        ? diskonManualDisetujuiOleh.value
+        : this.diskonManualDisetujuiOleh,
     totalPajak: totalPajak ?? this.totalPajak,
     pembulatan: pembulatan ?? this.pembulatan,
     total: total ?? this.total,
@@ -20180,6 +20226,9 @@ class TransaksiRow extends DataClass implements Insertable<TransaksiRow> {
       diskonPoin: data.diskonPoin.present
           ? data.diskonPoin.value
           : this.diskonPoin,
+      diskonManualDisetujuiOleh: data.diskonManualDisetujuiOleh.present
+          ? data.diskonManualDisetujuiOleh.value
+          : this.diskonManualDisetujuiOleh,
       totalPajak: data.totalPajak.present
           ? data.totalPajak.value
           : this.totalPajak,
@@ -20242,6 +20291,7 @@ class TransaksiRow extends DataClass implements Insertable<TransaksiRow> {
           ..write('totalDiskon: $totalDiskon, ')
           ..write('poinDitukar: $poinDitukar, ')
           ..write('diskonPoin: $diskonPoin, ')
+          ..write('diskonManualDisetujuiOleh: $diskonManualDisetujuiOleh, ')
           ..write('totalPajak: $totalPajak, ')
           ..write('pembulatan: $pembulatan, ')
           ..write('total: $total, ')
@@ -20284,6 +20334,7 @@ class TransaksiRow extends DataClass implements Insertable<TransaksiRow> {
     totalDiskon,
     poinDitukar,
     diskonPoin,
+    diskonManualDisetujuiOleh,
     totalPajak,
     pembulatan,
     total,
@@ -20325,6 +20376,7 @@ class TransaksiRow extends DataClass implements Insertable<TransaksiRow> {
           other.totalDiskon == this.totalDiskon &&
           other.poinDitukar == this.poinDitukar &&
           other.diskonPoin == this.diskonPoin &&
+          other.diskonManualDisetujuiOleh == this.diskonManualDisetujuiOleh &&
           other.totalPajak == this.totalPajak &&
           other.pembulatan == this.pembulatan &&
           other.total == this.total &&
@@ -20364,6 +20416,7 @@ class TransaksiCompanion extends UpdateCompanion<TransaksiRow> {
   final Value<int> totalDiskon;
   final Value<int> poinDitukar;
   final Value<int> diskonPoin;
+  final Value<String?> diskonManualDisetujuiOleh;
   final Value<int> totalPajak;
   final Value<int> pembulatan;
   final Value<int> total;
@@ -20402,6 +20455,7 @@ class TransaksiCompanion extends UpdateCompanion<TransaksiRow> {
     this.totalDiskon = const Value.absent(),
     this.poinDitukar = const Value.absent(),
     this.diskonPoin = const Value.absent(),
+    this.diskonManualDisetujuiOleh = const Value.absent(),
     this.totalPajak = const Value.absent(),
     this.pembulatan = const Value.absent(),
     this.total = const Value.absent(),
@@ -20441,6 +20495,7 @@ class TransaksiCompanion extends UpdateCompanion<TransaksiRow> {
     this.totalDiskon = const Value.absent(),
     this.poinDitukar = const Value.absent(),
     this.diskonPoin = const Value.absent(),
+    this.diskonManualDisetujuiOleh = const Value.absent(),
     this.totalPajak = const Value.absent(),
     this.pembulatan = const Value.absent(),
     this.total = const Value.absent(),
@@ -20488,6 +20543,7 @@ class TransaksiCompanion extends UpdateCompanion<TransaksiRow> {
     Expression<int>? totalDiskon,
     Expression<int>? poinDitukar,
     Expression<int>? diskonPoin,
+    Expression<String>? diskonManualDisetujuiOleh,
     Expression<int>? totalPajak,
     Expression<int>? pembulatan,
     Expression<int>? total,
@@ -20529,6 +20585,8 @@ class TransaksiCompanion extends UpdateCompanion<TransaksiRow> {
       if (totalDiskon != null) 'total_diskon': totalDiskon,
       if (poinDitukar != null) 'poin_ditukar': poinDitukar,
       if (diskonPoin != null) 'diskon_poin': diskonPoin,
+      if (diskonManualDisetujuiOleh != null)
+        'diskon_manual_disetujui_oleh': diskonManualDisetujuiOleh,
       if (totalPajak != null) 'total_pajak': totalPajak,
       if (pembulatan != null) 'pembulatan': pembulatan,
       if (total != null) 'total': total,
@@ -20570,6 +20628,7 @@ class TransaksiCompanion extends UpdateCompanion<TransaksiRow> {
     Value<int>? totalDiskon,
     Value<int>? poinDitukar,
     Value<int>? diskonPoin,
+    Value<String?>? diskonManualDisetujuiOleh,
     Value<int>? totalPajak,
     Value<int>? pembulatan,
     Value<int>? total,
@@ -20611,6 +20670,8 @@ class TransaksiCompanion extends UpdateCompanion<TransaksiRow> {
       totalDiskon: totalDiskon ?? this.totalDiskon,
       poinDitukar: poinDitukar ?? this.poinDitukar,
       diskonPoin: diskonPoin ?? this.diskonPoin,
+      diskonManualDisetujuiOleh:
+          diskonManualDisetujuiOleh ?? this.diskonManualDisetujuiOleh,
       totalPajak: totalPajak ?? this.totalPajak,
       pembulatan: pembulatan ?? this.pembulatan,
       total: total ?? this.total,
@@ -20702,6 +20763,11 @@ class TransaksiCompanion extends UpdateCompanion<TransaksiRow> {
     if (diskonPoin.present) {
       map['diskon_poin'] = Variable<int>(diskonPoin.value);
     }
+    if (diskonManualDisetujuiOleh.present) {
+      map['diskon_manual_disetujui_oleh'] = Variable<String>(
+        diskonManualDisetujuiOleh.value,
+      );
+    }
     if (totalPajak.present) {
       map['total_pajak'] = Variable<int>(totalPajak.value);
     }
@@ -20781,6 +20847,7 @@ class TransaksiCompanion extends UpdateCompanion<TransaksiRow> {
           ..write('totalDiskon: $totalDiskon, ')
           ..write('poinDitukar: $poinDitukar, ')
           ..write('diskonPoin: $diskonPoin, ')
+          ..write('diskonManualDisetujuiOleh: $diskonManualDisetujuiOleh, ')
           ..write('totalPajak: $totalPajak, ')
           ..write('pembulatan: $pembulatan, ')
           ..write('total: $total, ')
@@ -57315,6 +57382,7 @@ typedef $$TransaksiTableCreateCompanionBuilder =
       Value<int> totalDiskon,
       Value<int> poinDitukar,
       Value<int> diskonPoin,
+      Value<String?> diskonManualDisetujuiOleh,
       Value<int> totalPajak,
       Value<int> pembulatan,
       Value<int> total,
@@ -57355,6 +57423,7 @@ typedef $$TransaksiTableUpdateCompanionBuilder =
       Value<int> totalDiskon,
       Value<int> poinDitukar,
       Value<int> diskonPoin,
+      Value<String?> diskonManualDisetujuiOleh,
       Value<int> totalPajak,
       Value<int> pembulatan,
       Value<int> total,
@@ -57721,6 +57790,11 @@ class $$TransaksiTableFilterComposer
 
   ColumnFilters<int> get diskonPoin => $composableBuilder(
     column: $table.diskonPoin,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get diskonManualDisetujuiOleh => $composableBuilder(
+    column: $table.diskonManualDisetujuiOleh,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -58245,6 +58319,11 @@ class $$TransaksiTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get diskonManualDisetujuiOleh => $composableBuilder(
+    column: $table.diskonManualDisetujuiOleh,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get totalPajak => $composableBuilder(
     column: $table.totalPajak,
     builder: (column) => ColumnOrderings(column),
@@ -58549,6 +58628,11 @@ class $$TransaksiTableAnnotationComposer
 
   GeneratedColumn<int> get diskonPoin => $composableBuilder(
     column: $table.diskonPoin,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get diskonManualDisetujuiOleh => $composableBuilder(
+    column: $table.diskonManualDisetujuiOleh,
     builder: (column) => column,
   );
 
@@ -59042,6 +59126,7 @@ class $$TransaksiTableTableManager
                 Value<int> totalDiskon = const Value.absent(),
                 Value<int> poinDitukar = const Value.absent(),
                 Value<int> diskonPoin = const Value.absent(),
+                Value<String?> diskonManualDisetujuiOleh = const Value.absent(),
                 Value<int> totalPajak = const Value.absent(),
                 Value<int> pembulatan = const Value.absent(),
                 Value<int> total = const Value.absent(),
@@ -59080,6 +59165,7 @@ class $$TransaksiTableTableManager
                 totalDiskon: totalDiskon,
                 poinDitukar: poinDitukar,
                 diskonPoin: diskonPoin,
+                diskonManualDisetujuiOleh: diskonManualDisetujuiOleh,
                 totalPajak: totalPajak,
                 pembulatan: pembulatan,
                 total: total,
@@ -59120,6 +59206,7 @@ class $$TransaksiTableTableManager
                 Value<int> totalDiskon = const Value.absent(),
                 Value<int> poinDitukar = const Value.absent(),
                 Value<int> diskonPoin = const Value.absent(),
+                Value<String?> diskonManualDisetujuiOleh = const Value.absent(),
                 Value<int> totalPajak = const Value.absent(),
                 Value<int> pembulatan = const Value.absent(),
                 Value<int> total = const Value.absent(),
@@ -59158,6 +59245,7 @@ class $$TransaksiTableTableManager
                 totalDiskon: totalDiskon,
                 poinDitukar: poinDitukar,
                 diskonPoin: diskonPoin,
+                diskonManualDisetujuiOleh: diskonManualDisetujuiOleh,
                 totalPajak: totalPajak,
                 pembulatan: pembulatan,
                 total: total,

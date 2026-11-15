@@ -47,6 +47,24 @@ class KeranjangNotifier extends Notifier<List<ItemKeranjang>> {
     state = state.where((item) => item.kunciBaris != kunciBaris).toList();
   }
 
+  /// Pasang diskon manual pada satu baris (IMOGI no. 3). [persen] ATAU [nominal];
+  /// [disetujuiOleh] = id pengguna yang mengotorisasi (izin transaksi.diskon
+  /// atau PIN approver), dikirim ke server dan dicatat di audit.
+  void aturDiskon(String kunciBaris, {int? persen, int nominal = 0, required String disetujuiOleh}) {
+    state = [
+      for (final item in state)
+        if (item.kunciBaris == kunciBaris) item.denganDiskon(persen: persen, nominal: nominal) else item,
+    ];
+    ref.read(keranjangDiskonDisetujuiOlehProvider.notifier).state = disetujuiOleh;
+  }
+
+  void hapusDiskon(String kunciBaris) {
+    state = [
+      for (final item in state)
+        if (item.kunciBaris == kunciBaris) item.denganDiskon() else item,
+    ];
+  }
+
   void kosongkan() {
     state = [];
     ref.read(keranjangPelangganIdProvider.notifier).state = null;
@@ -54,6 +72,7 @@ class KeranjangNotifier extends Notifier<List<ItemKeranjang>> {
     ref.read(keranjangTipeOrderIdProvider.notifier).state = null;
     ref.read(keranjangCatatanProvider.notifier).state = null;
     ref.read(keranjangPoinDitukarProvider.notifier).state = 0;
+    ref.read(keranjangDiskonDisetujuiOlehProvider.notifier).state = null;
     ref.read(draftPesananDibukaProvider.notifier).state = null;
   }
 
@@ -77,6 +96,7 @@ class KeranjangNotifier extends Notifier<List<ItemKeranjang>> {
     ref.read(keranjangCatatanProvider.notifier).state = catatan;
     ref.read(keranjangPromoIdProvider.notifier).state = null;
     ref.read(keranjangPoinDitukarProvider.notifier).state = 0;
+    ref.read(keranjangDiskonDisetujuiOlehProvider.notifier).state = null;
     ref.read(draftPesananDibukaProvider.notifier).state = draftId;
   }
 }
@@ -139,4 +159,14 @@ final keranjangPromoProvider = Provider<Promo?>((ref) {
     }
   }
   return null;
+});
+
+/// Id pengguna yang menyetujui diskon manual di keranjang ini. Hanya dipakai
+/// bila ada baris dengan diskon manual (lihat [persetujuanDiskonKeranjangProvider]).
+final keranjangDiskonDisetujuiOlehProvider = StateProvider<String?>((ref) => null);
+
+/// Approver yang dikirim saat checkout: null bila tidak ada diskon manual sama sekali.
+final persetujuanDiskonKeranjangProvider = Provider<String?>((ref) {
+  final ada = ref.watch(keranjangProvider).any((i) => i.adaDiskonManual);
+  return ada ? ref.watch(keranjangDiskonDisetujuiOlehProvider) : null;
 });

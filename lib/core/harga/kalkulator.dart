@@ -263,7 +263,7 @@ HasilKalkulasi hitung(TransaksiInput data) {
 
     int diskonItem;
     if (item.diskonOverride != null) {
-      diskonItem = item.diskonOverride!;
+      diskonItem = item.diskonOverride!.clamp(0, garisKotor);
     } else if (data.promo != null && data.promo!.cakupan == 'produk' && data.promo!.produkIds.contains(item.produkId)) {
       diskonItem = _diskonPromoNilai(garisKotor, data.promo!);
     } else {

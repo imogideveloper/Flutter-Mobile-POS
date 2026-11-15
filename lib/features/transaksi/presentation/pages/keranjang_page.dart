@@ -24,6 +24,7 @@ import '../../../promo/data/local/tables/promo_table.dart' show PromoTipe;
 import '../../../promo/domain/promo.dart';
 import '../../../promo/presentation/providers/promo_providers.dart';
 import '../../../stok/presentation/providers/stok_providers.dart';
+import '../widgets/diskon_item_sheet.dart';
 import '../providers/harga_keranjang_provider.dart';
 import '../providers/keranjang_provider.dart';
 import '../providers/transaksi_providers.dart';
@@ -432,7 +433,27 @@ class _ItemRow extends StatelessWidget {
                     key: Key('keranjang.tambahan.${item.kunciBaris}'),
                     style: AppTypography.secondary,
                   ),
-                Text(_formatRupiah.format(item.subtotal), style: AppTypography.bodyEmphasis),
+                if (item.adaDiskonManual) ...[
+                  Text(_formatRupiah.format(item.subtotal),
+                      style: AppTypography.secondary.copyWith(decoration: TextDecoration.lineThrough)),
+                  Text(
+                    'Diskon${item.diskonPersen != null ? ' ${item.diskonPersen}%' : ''}: -${_formatRupiah.format(item.diskonManual)}',
+                    key: Key('keranjang.diskon.${item.kunciBaris}'),
+                    style: AppTypography.secondary.copyWith(color: AppColors.primaryDark),
+                  ),
+                  Text(_formatRupiah.format(item.subtotal - item.diskonManual), style: AppTypography.bodyEmphasis),
+                ] else
+                  Text(_formatRupiah.format(item.subtotal), style: AppTypography.bodyEmphasis),
+                FiturTerkunci(
+                  kode: 'diskon',
+                  child: TextButton.icon(
+                    key: Key('keranjang.diskonItem.${item.kunciBaris}'),
+                    style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(0, 28)),
+                    onPressed: () => tampilkanDiskonItem(context, item),
+                    icon: const Icon(Icons.percent, size: 16),
+                    label: Text(item.adaDiskonManual ? 'Ubah diskon' : 'Diskon'),
+                  ),
+                ),
               ],
             ),
           ),

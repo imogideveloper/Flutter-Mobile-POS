@@ -190,6 +190,7 @@ class _BayarPageState extends ConsumerState<BayarPage> {
                 .maybeWhen(data: (v) => v, orElse: () => const []),
             poinDitukar: poinDitukar,
             diskonPoin: diskonPoin,
+            diskonManualDisetujuiOleh: ref.read(persetujuanDiskonKeranjangProvider),
           );
       // Modul 10 - TransaksiRepository.checkout() TIDAK kenal PelangganDao
       // (lihat docstring di sana), jadi pemanggil (di sini) yang wajib

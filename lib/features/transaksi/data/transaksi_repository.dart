@@ -149,6 +149,9 @@ class TransaksiRepository {
     // sukses, pakai poinDitukar yang sama.
     int poinDitukar = 0,
     int diskonPoin = 0,
+    // Diskon manual per item (IMOGI no. 3): id penyetuju (izin transaksi.diskon atau PIN approver).
+    // Dicatat hanya bila ada item dengan diskon manual.
+    String? diskonManualDisetujuiOleh,
     // Pembuat nomor antrian (null = antrian mati). Dipanggil DI DALAM
     // transaction checkout supaya nomor tidak terlewat kalau checkout gagal.
     Future<String?> Function()? buatNomorAntrean,
@@ -213,6 +216,7 @@ class TransaksiRepository {
           jatuhTempo: Value(jatuhTempo),
           poinDitukar: Value(poinDitukar),
           diskonPoin: Value(diskonPoin),
+          diskonManualDisetujuiOleh: Value(items.any((i) => i.adaDiskonManual) ? diskonManualDisetujuiOleh : null),
           createdAt: now,
           updatedAt: now,
         ),
@@ -226,6 +230,7 @@ class TransaksiRepository {
               qty: items[i].qty,
               hargaSatuan: hasil.items[i].hargaSatuan,
               subtotal: hasil.items[i].subtotal,
+              diskon: Value(items[i].adaDiskonManual ? hasil.items[i].diskon : 0),
               hppSatuan: Value(hppProduk[items[i].produkId] ?? 0),
               createdAt: now,
               updatedAt: now,

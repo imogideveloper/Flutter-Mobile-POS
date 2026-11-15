@@ -28,6 +28,8 @@ class ItemKeranjang {
     required this.qty,
     required this.lacakStok,
     this.modifiers = const [],
+    this.diskonPersen,
+    this.diskonNominal = 0,
   });
 
   final String produkId;
@@ -56,6 +58,21 @@ class ItemKeranjang {
     return '$produkId|${ids.join(',')}';
   }
 
+  /// Diskon manual kasir pada baris ini (IMOGI no. 3). Dua bentuk, salah satunya:
+  /// [diskonPersen] (mengikuti qty dan harga baris) atau [diskonNominal] (Rupiah
+  /// tetap untuk seluruh baris). Keduanya kosong/0 = tanpa diskon manual.
+  final int? diskonPersen;
+  final int diskonNominal;
+
+  /// Diskon manual yang berlaku sekarang (Rupiah, seluruh baris), tidak
+  /// pernah melebihi nilai baris maupun negatif.
+  int get diskonManual {
+    final mentah = diskonPersen != null ? (subtotal * diskonPersen! / 100).round() : diskonNominal;
+    return mentah.clamp(0, subtotal);
+  }
+
+  bool get adaDiskonManual => diskonManual > 0;
+
   ItemKeranjang copyWith({double? qty}) => ItemKeranjang(
         produkId: produkId,
         namaProduk: namaProduk,
@@ -63,5 +80,20 @@ class ItemKeranjang {
         qty: qty ?? this.qty,
         lacakStok: lacakStok,
         modifiers: modifiers,
+        diskonPersen: diskonPersen,
+        diskonNominal: diskonNominal,
+      );
+
+  /// Salinan dengan diskon manual baru; [persen] ATAU [nominal] (keduanya
+  /// kosong menghapus diskon).
+  ItemKeranjang denganDiskon({int? persen, int nominal = 0}) => ItemKeranjang(
+        produkId: produkId,
+        namaProduk: namaProduk,
+        hargaSatuan: hargaSatuan,
+        qty: qty,
+        lacakStok: lacakStok,
+        modifiers: modifiers,
+        diskonPersen: persen,
+        diskonNominal: persen == null ? nominal : 0,
       );
 }

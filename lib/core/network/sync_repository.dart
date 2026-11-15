@@ -230,6 +230,10 @@ class SyncRepository {
               },
             )
             .toList(),
+        // Diskon manual (IMOGI no. 3): hanya id UUID yang dikirim - id penyetuju dari data lokal
+        // bawaan (belum sync) bukan UUID dan akan membuat seluruh push ditolak 422.
+        if (t.diskonManualDisetujuiOleh != null && _uuidValid(t.diskonManualDisetujuiOleh!))
+          'diskon_manual_disetujui_oleh': t.diskonManualDisetujuiOleh,
         if (promoAsli != null) 'promo_id': promoAsli.promoId,
         'metode_bayar_id': pembayaranList.isNotEmpty
             ? pembayaranList.first.metodeBayarId
@@ -971,3 +975,7 @@ final syncRepositoryProvider = Provider<SyncRepository>((ref) {
     baseUrl: ref.watch(baseUrlProvider),
   );
 });
+
+final _polaUuid = RegExp(r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$');
+
+bool _uuidValid(String nilai) => _polaUuid.hasMatch(nilai);

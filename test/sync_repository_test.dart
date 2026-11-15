@@ -700,6 +700,81 @@ void main() {
     },
   );
 
+  test('push: diskon manual item dan penyetujunya (UUID) ikut payload; id non-UUID tidak dikirim', () async {
+    await db.produkDao.upsertProduk(ProdukCompanion.insert(
+      id: 'kopi',
+      tokoId: 'toko-asli',
+      nama: 'Kopi Susu',
+      tipe: ProdukTipe.barang,
+      hargaJual: const Value(20000),
+      createdAt: 0,
+      updatedAt: 0,
+    ));
+    Future<void> bayar(ItemKeranjang item, String? penyetuju) {
+      final hasil = k.hitung(k.TransaksiInput(items: [
+        k.ItemInput(
+          produkId: 'kopi',
+          varianId: null,
+          namaProduk: 'Kopi Susu',
+          qty: item.qty,
+          hargaJual: 20000,
+          diskonOverride: item.adaDiskonManual ? item.diskonManual : null,
+        ),
+      ]));
+      return TransaksiRepository(db.transaksiDao, db.stokDao, db.produkDao).checkout(
+        tokoId: 'toko-asli',
+        outletId: 'outlet-asli',
+        shiftId: 'shift-uji',
+        penggunaId: 'pengguna-asli',
+        metodeBayarId: 'metode-tunai-default',
+        items: [item],
+        hasil: hasil,
+        totalBayar: hasil.total,
+        diskonManualDisetujuiOleh: penyetuju,
+      );
+    }
+
+    const penyetujuUuid = '3f2504e0-4f89-41d3-9a0c-0305e82c3301';
+    final dasar = const ItemKeranjang(produkId: 'kopi', namaProduk: 'Kopi Susu', hargaSatuan: 20000, qty: 2, lacakStok: false);
+    await bayar(dasar.denganDiskon(persen: 10), penyetujuUuid); // diskon 4.000 dari 40.000
+    await bayar(dasar.denganDiskon(nominal: 5000), 'owner-bawaan-bukan-uuid');
+    await bayar(dasar, penyetujuUuid); // tanpa diskon: penyetuju tidak boleh ikut
+
+    api.pullResponse = const SyncPullResult(
+      waktuPull: '2026-01-01T00:00:00Z',
+      produk: [],
+      kategori: [],
+      satuan: [],
+      pajak: [],
+      promo: [],
+      metodeBayar: [],
+      stok: [],
+      hargaOutlet: [],
+      hargaGrosir: [],
+      tipeOrderPajak: [],
+      pengaturanOutlet: [],
+      hasMore: {},
+      paket: null,
+      kodeFitur: [],
+      batasFitur: {},
+    );
+    await repo.jalankan();
+
+    final terkirim = api.transaksiDiterima;
+    expect(terkirim, hasLength(3));
+    Map<String, dynamic> itemDari(Map<String, dynamic> t) => (t['items'] as List).single as Map<String, dynamic>;
+    final persen = terkirim.firstWhere((t) => itemDari(t)['diskon'] == '4000');
+    expect(persen['diskon_manual_disetujui_oleh'], penyetujuUuid);
+    expect(persen['subtotal_klien'], '36000', reason: 'subtotal klien = nilai baris dikurangi diskon manual');
+
+    final nominal = terkirim.firstWhere((t) => itemDari(t)['diskon'] == '5000');
+    expect(nominal.containsKey('diskon_manual_disetujui_oleh'), isFalse,
+        reason: 'id penyetuju bukan UUID akan membuat seluruh push ditolak 422');
+
+    final tanpa = terkirim.firstWhere((t) => itemDari(t)['diskon'] == '0');
+    expect(tanpa.containsKey('diskon_manual_disetujui_oleh'), isFalse);
+  });
+
   test('push: transaksi dari checkout nyata membawa HPP produk (snapshot) ke payload sync', () async {
     await db.produkDao.upsertProduk(ProdukCompanion.insert(
       id: 'kopi',

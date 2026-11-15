@@ -201,3 +201,13 @@ Aturan baca: **Sementara** = perilaku yang sekarang dipakai di kode. **Dampak bi
 | R2 | Aturan sementara: bila wajib, no. referensi harus diisi; untuk kartu, 4 digit akhir juga wajib dan harus tepat 4 angka; untuk transfer/e-wallet hanya no. referensi | Dokumen IMOGI hanya menyebut "no. referensi/4 digit" |
 | R3 | Pengaturan wajib tidak diterapkan pada bayar campur (split), yang belum punya isian referensi per baris | Susulan |
 | R4 | Jenis kartu (debit/kredit) dan daftar mesin EDC belum dibuat | Perlu keputusan: cukup lewat nama metode (mis. "Kartu BCA") atau daftar mesin tersendiri |
+
+## Tambahan 2026-11-15 (diskon manual per item, IMOGI no. 3) dan temuan keamanan
+
+| # | Hal | Sementara |
+|---|---|---|
+| S1 | **Temuan keamanan (sudah ada sebelumnya):** seed lokal membuat pengguna "Owner (default)" ber-PIN `000000` (`lib/core/database/seed.dart`), dan baris itu **tidak dihapus setelah perangkat dipasangkan** (hanya metode bayar yang direkonsiliasi). Siapa pun yang tahu PIN itu bisa menyetujui diskon, void, refund, dan mengubah harga atas nama owner | Belum diubah; perlu keputusan: hapus/nonaktifkan pengguna default setelah pairing |
+| S2 | Aturan sementara diskon manual: hanya per item; butuh izin `transaksi.diskon` (Owner/Manajer) atau PIN approver; Kasir selalu diminta PIN. Server tetap menolak 403 bila online tanpa penyetuju sah, dan menerima push offline dengan audit | IMOGI menyebut "batas diskon dengan PIN owner" dan "izin diskon per item": batas persen untuk kasir tanpa PIN belum dibuat |
+| S3 | Tombol cepat tetap 5/10/15/20%, belum bisa diatur per usaha | Perlu konfirmasi lead |
+| S4 | Diskon manual hilang bila pesanan tersimpan (open bill) dibuka kembali, karena harga dihitung ulang dari awal | Susulan |
+| S5 | Diskon persen dihitung dari nilai baris di keranjang; bila harga grosir/outlet lebih murah, diskon dibatasi tidak melebihi nilai baris | Perlu uji dengan harga grosir di HP |
