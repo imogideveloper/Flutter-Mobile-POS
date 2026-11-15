@@ -98,6 +98,8 @@ class MetodeBayarUpdateIn(BaseModel):
     rekening_bank: str | None = None
     rekening_nomor: str | None = None
     rekening_nama: str | None = None
+    # Wajib isi no. referensi saat bayar (kartu/transfer/e-wallet).
+    wajib_referensi: bool | None = None
 
 
 class MetodeBayarOut(BaseModel):
@@ -111,5 +113,6 @@ class MetodeBayarOut(BaseModel):
     rekening_bank: str | None = None
     rekening_nomor: str | None = None
     rekening_nama: str | None = None
+    wajib_referensi: bool = False
 
     model_config = {"from_attributes": True}

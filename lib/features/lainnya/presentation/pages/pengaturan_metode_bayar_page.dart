@@ -110,6 +110,28 @@ class PengaturanMetodeBayarPage extends ConsumerWidget {
     }
   }
 
+  Future<void> _ubahWajibReferensi(WidgetRef ref, BuildContext context, MetodeBayarRow metode, bool wajib) async {
+    final sesi = await ref.read(authSessionStoreProvider).muat();
+    if (sesi == null) return;
+    try {
+      await ref.read(backendApiProvider).ubahMetodeBayar(
+            accessToken: sesi.accessToken,
+            metodeBayarId: metode.id,
+            body: {'wajib_referensi': wajib},
+          );
+      await ref.read(metodeBayarDaoProvider).ubahWajibReferensi(
+            metode.id,
+            wajib,
+            now: DateTime.now().toUtc().millisecondsSinceEpoch,
+          );
+      unawaited(ref.read(syncRepositoryProvider).jalankan());
+    } catch (e) {
+      if (context.mounted) {
+        showAppToast(context, message: 'Gagal mengubah: $e', variant: ToastVariant.danger);
+      }
+    }
+  }
+
   Future<void> _editRekening(WidgetRef ref, BuildContext context, MetodeBayarRow metode) async {
     final bankC = TextEditingController(text: metode.rekeningBank ?? '');
     final nomorC = TextEditingController(text: metode.rekeningNomor ?? '');
@@ -217,6 +239,20 @@ class PengaturanMetodeBayarPage extends ConsumerWidget {
                               '${metode.rekeningBank ?? ''} ${metode.rekeningNomor} a.n. ${metode.rekeningNama ?? '-'}',
                               key: Key('pengaturanMetodeBayar.rekening.${metode.id}'),
                               style: AppTypography.secondary,
+                            ),
+                          if (metode.tipe == MetodeBayarTipe.kartu ||
+                              metode.tipe == MetodeBayarTipe.transfer ||
+                              metode.tipe == MetodeBayarTipe.ewallet)
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text('Wajib no. referensi', style: AppTypography.secondary),
+                                Switch(
+                                  key: Key('pengaturanMetodeBayar.wajibReferensi.${metode.id}'),
+                                  value: metode.wajibReferensi,
+                                  onChanged: online ? (v) => _ubahWajibReferensi(ref, context, metode, v) : null,
+                                ),
+                              ],
                             ),
                         ],
                       ),

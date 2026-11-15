@@ -31,6 +31,7 @@ class MetodeBayar(Base, UUIDPkMixin, TimestampMixin):
     rekening_bank: Mapped[str | None] = mapped_column(String(50), nullable=True)
     rekening_nomor: Mapped[str | None] = mapped_column(String(40), nullable=True)
     rekening_nama: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    wajib_referensi: Mapped[bool] = mapped_column(Boolean, default=False)
 
 
 class Shift(Base, UUIDPkMixin, TimestampMixin):

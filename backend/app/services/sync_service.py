@@ -470,7 +470,7 @@ async def pull(
     )
     metode_bayar = await _ambil_toko_scoped(
         "metode_bayar", MetodeBayar,
-        ["id", "nama", "tipe", "butuh_gateway", "masuk_laci", "aktif", "rekening_bank", "rekening_nomor", "rekening_nama", "updated_at", "deleted_at"],
+        ["id", "nama", "tipe", "butuh_gateway", "masuk_laci", "aktif", "rekening_bank", "rekening_nomor", "rekening_nama", "wajib_referensi", "updated_at", "deleted_at"],
     )
     pelanggan = await _ambil_toko_scoped(
         "pelanggan", Pelanggan, ["id", "nama", "no_hp", "email", "tanggal_lahir", "poin", "total_belanja", "updated_at", "deleted_at"]

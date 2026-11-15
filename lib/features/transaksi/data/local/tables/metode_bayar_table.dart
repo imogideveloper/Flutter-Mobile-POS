@@ -18,6 +18,7 @@ class MetodeBayar extends Table {
   TextColumn get rekeningBank => text().nullable()();
   TextColumn get rekeningNomor => text().nullable()();
   TextColumn get rekeningNama => text().nullable()();
+  BoolColumn get wajibReferensi => boolean().withDefault(const Constant(false))();
   IntColumn get createdAt => integer()();
   IntColumn get updatedAt => integer()();
   IntColumn get deletedAt => integer().nullable()();

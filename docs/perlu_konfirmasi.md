@@ -192,3 +192,12 @@ Aturan baca: **Sementara** = perilaku yang sekarang dipakai di kode. **Dampak bi
 | Q3 | Sync latar belakang (`workmanager`) tidak mendukung Windows; saat ini tidak dipakai di kode, sync berjalan saat aplikasi terbuka | Perlu diputuskan bila sync saat aplikasi tertutup masuk Release 1 |
 | Q4 | Printer Bluetooth di Windows belum teruji | Perlu perangkat |
 | Q5 | Belum ada installer (MSIX/Inno Setup), pintasan keyboard, dan optimasi mouse | Tahap lanjutan |
+
+## Tambahan 2026-11-15 (kartu/EDC, IMOGI no. 13)
+
+| # | Hal | Sementara |
+|---|---|---|
+| R1 | "Wajib no. referensi" diterapkan di layar kasir saja (HP). Server tetap menerima transaksi tanpa referensi (push offline tidak boleh ditolak), sama seperti limit bon | Perlu konfirmasi bila server harus menolak |
+| R2 | Aturan sementara: bila wajib, no. referensi harus diisi; untuk kartu, 4 digit akhir juga wajib dan harus tepat 4 angka; untuk transfer/e-wallet hanya no. referensi | Dokumen IMOGI hanya menyebut "no. referensi/4 digit" |
+| R3 | Pengaturan wajib tidak diterapkan pada bayar campur (split), yang belum punya isian referensi per baris | Susulan |
+| R4 | Jenis kartu (debit/kredit) dan daftar mesin EDC belum dibuat | Perlu keputusan: cukup lewat nama metode (mis. "Kartu BCA") atau daftar mesin tersendiri |

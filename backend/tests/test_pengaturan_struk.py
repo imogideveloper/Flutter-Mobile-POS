@@ -335,3 +335,24 @@ async def test_rekening_transfer_tersimpan_dan_ikut_sync(client: AsyncClient, db
     baris = {m["id"]: m for m in daftar.json()}
     assert baris[str(transfer.id)]["rekening_nomor"] == "1234567890"
     assert baris[str(tunai.id)]["rekening_nomor"] is None
+
+
+async def test_wajib_referensi_hanya_untuk_kartu_transfer_ewallet(client: AsyncClient, db_session: AsyncSession) -> None:
+    """IMOGI no. 13: kasir wajib mengisi no. referensi bila diaktifkan; tidak digate paket."""
+    toko = await buat_toko_siap_pakai(db_session, nama_paket="Gratis")
+    kartu = await buat_metode_bayar(db_session, toko.toko.id, tipe="kartu")
+    tunai = await buat_metode_bayar(db_session, toko.toko.id, tipe="tunai")
+
+    resp = await client.patch(f"/metode-bayar/{kartu.id}", headers=toko.headers, json={"wajib_referensi": True})
+    assert resp.status_code == 200 and resp.json()["wajib_referensi"] is True
+
+    ditolak = await client.patch(f"/metode-bayar/{tunai.id}", headers=toko.headers, json={"wajib_referensi": True})
+    assert ditolak.status_code == 422
+
+    # Mematikan di metode apa pun tetap boleh.
+    mati = await client.patch(f"/metode-bayar/{tunai.id}", headers=toko.headers, json={"wajib_referensi": False})
+    assert mati.status_code == 200
+
+    daftar = {m["id"]: m for m in (await client.get("/metode-bayar", headers=toko.headers)).json()}
+    assert daftar[str(kartu.id)]["wajib_referensi"] is True
+    assert daftar[str(tunai.id)]["wajib_referensi"] is False

@@ -188,7 +188,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 15;
+  int get schemaVersion => 16;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -266,6 +266,10 @@ class AppDatabase extends _$AppDatabase {
           // v12 -> v13 - batas margin produk (persen, per outlet).
           if (from < 13) {
             await m.addColumn(pengaturanOutlet, pengaturanOutlet.batasMargin);
+          }
+          // v15 -> v16 - wajib no. referensi pada metode bayar (IMOGI no. 13).
+          if (from < 16) {
+            await m.addColumn(metodeBayar, metodeBayar.wajibReferensi);
           }
           // v14 -> v15 - rekening tujuan pada metode bayar (IMOGI no. 14).
           if (from < 15) {

@@ -49,7 +49,7 @@
  },
  "13": {
   "status": "sedang",
-  "catatan": "Metode kartu ada. Belum ada pengaturan jenis kartu, daftar mesin EDC, dan kewajiban isi no. referensi/4 digit."
+  "catatan": "SEBAGIAN (2026-11-15): metode kartu/transfer/e-wallet punya pengaturan Wajib no. referensi; layar bayar menolak bila no. referensi kosong dan, khusus kartu, 4 digit akhir tidak tepat 4 angka. Belum: jenis kartu (debit/kredit) dan daftar mesin EDC. Lulus tes otomatis, belum diuji di HP."
  },
  "14": {
   "status": "sedang",

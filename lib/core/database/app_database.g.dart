@@ -23233,6 +23233,21 @@ class $MetodeBayarTable extends MetodeBayar
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _wajibReferensiMeta = const VerificationMeta(
+    'wajibReferensi',
+  );
+  @override
+  late final GeneratedColumn<bool> wajibReferensi = GeneratedColumn<bool>(
+    'wajib_referensi',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("wajib_referensi" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -23279,6 +23294,7 @@ class $MetodeBayarTable extends MetodeBayar
     rekeningBank,
     rekeningNomor,
     rekeningNama,
+    wajibReferensi,
     createdAt,
     updatedAt,
     deletedAt,
@@ -23370,6 +23386,15 @@ class $MetodeBayarTable extends MetodeBayar
         ),
       );
     }
+    if (data.containsKey('wajib_referensi')) {
+      context.handle(
+        _wajibReferensiMeta,
+        wajibReferensi.isAcceptableOrUnknown(
+          data['wajib_referensi']!,
+          _wajibReferensiMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -23447,6 +23472,10 @@ class $MetodeBayarTable extends MetodeBayar
         DriftSqlType.string,
         data['${effectivePrefix}rekening_nama'],
       ),
+      wajibReferensi: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}wajib_referensi'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}created_at'],
@@ -23483,6 +23512,7 @@ class MetodeBayarRow extends DataClass implements Insertable<MetodeBayarRow> {
   final String? rekeningBank;
   final String? rekeningNomor;
   final String? rekeningNama;
+  final bool wajibReferensi;
   final int createdAt;
   final int updatedAt;
   final int? deletedAt;
@@ -23498,6 +23528,7 @@ class MetodeBayarRow extends DataClass implements Insertable<MetodeBayarRow> {
     this.rekeningBank,
     this.rekeningNomor,
     this.rekeningNama,
+    required this.wajibReferensi,
     required this.createdAt,
     required this.updatedAt,
     this.deletedAt,
@@ -23526,6 +23557,7 @@ class MetodeBayarRow extends DataClass implements Insertable<MetodeBayarRow> {
     if (!nullToAbsent || rekeningNama != null) {
       map['rekening_nama'] = Variable<String>(rekeningNama);
     }
+    map['wajib_referensi'] = Variable<bool>(wajibReferensi);
     map['created_at'] = Variable<int>(createdAt);
     map['updated_at'] = Variable<int>(updatedAt);
     if (!nullToAbsent || deletedAt != null) {
@@ -23553,6 +23585,7 @@ class MetodeBayarRow extends DataClass implements Insertable<MetodeBayarRow> {
       rekeningNama: rekeningNama == null && nullToAbsent
           ? const Value.absent()
           : Value(rekeningNama),
+      wajibReferensi: Value(wajibReferensi),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
@@ -23580,6 +23613,7 @@ class MetodeBayarRow extends DataClass implements Insertable<MetodeBayarRow> {
       rekeningBank: serializer.fromJson<String?>(json['rekeningBank']),
       rekeningNomor: serializer.fromJson<String?>(json['rekeningNomor']),
       rekeningNama: serializer.fromJson<String?>(json['rekeningNama']),
+      wajibReferensi: serializer.fromJson<bool>(json['wajibReferensi']),
       createdAt: serializer.fromJson<int>(json['createdAt']),
       updatedAt: serializer.fromJson<int>(json['updatedAt']),
       deletedAt: serializer.fromJson<int?>(json['deletedAt']),
@@ -23602,6 +23636,7 @@ class MetodeBayarRow extends DataClass implements Insertable<MetodeBayarRow> {
       'rekeningBank': serializer.toJson<String?>(rekeningBank),
       'rekeningNomor': serializer.toJson<String?>(rekeningNomor),
       'rekeningNama': serializer.toJson<String?>(rekeningNama),
+      'wajibReferensi': serializer.toJson<bool>(wajibReferensi),
       'createdAt': serializer.toJson<int>(createdAt),
       'updatedAt': serializer.toJson<int>(updatedAt),
       'deletedAt': serializer.toJson<int?>(deletedAt),
@@ -23620,6 +23655,7 @@ class MetodeBayarRow extends DataClass implements Insertable<MetodeBayarRow> {
     Value<String?> rekeningBank = const Value.absent(),
     Value<String?> rekeningNomor = const Value.absent(),
     Value<String?> rekeningNama = const Value.absent(),
+    bool? wajibReferensi,
     int? createdAt,
     int? updatedAt,
     Value<int?> deletedAt = const Value.absent(),
@@ -23637,6 +23673,7 @@ class MetodeBayarRow extends DataClass implements Insertable<MetodeBayarRow> {
         ? rekeningNomor.value
         : this.rekeningNomor,
     rekeningNama: rekeningNama.present ? rekeningNama.value : this.rekeningNama,
+    wajibReferensi: wajibReferensi ?? this.wajibReferensi,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
@@ -23662,6 +23699,9 @@ class MetodeBayarRow extends DataClass implements Insertable<MetodeBayarRow> {
       rekeningNama: data.rekeningNama.present
           ? data.rekeningNama.value
           : this.rekeningNama,
+      wajibReferensi: data.wajibReferensi.present
+          ? data.wajibReferensi.value
+          : this.wajibReferensi,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
@@ -23682,6 +23722,7 @@ class MetodeBayarRow extends DataClass implements Insertable<MetodeBayarRow> {
           ..write('rekeningBank: $rekeningBank, ')
           ..write('rekeningNomor: $rekeningNomor, ')
           ..write('rekeningNama: $rekeningNama, ')
+          ..write('wajibReferensi: $wajibReferensi, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt')
@@ -23702,6 +23743,7 @@ class MetodeBayarRow extends DataClass implements Insertable<MetodeBayarRow> {
     rekeningBank,
     rekeningNomor,
     rekeningNama,
+    wajibReferensi,
     createdAt,
     updatedAt,
     deletedAt,
@@ -23721,6 +23763,7 @@ class MetodeBayarRow extends DataClass implements Insertable<MetodeBayarRow> {
           other.rekeningBank == this.rekeningBank &&
           other.rekeningNomor == this.rekeningNomor &&
           other.rekeningNama == this.rekeningNama &&
+          other.wajibReferensi == this.wajibReferensi &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt);
@@ -23738,6 +23781,7 @@ class MetodeBayarCompanion extends UpdateCompanion<MetodeBayarRow> {
   final Value<String?> rekeningBank;
   final Value<String?> rekeningNomor;
   final Value<String?> rekeningNama;
+  final Value<bool> wajibReferensi;
   final Value<int> createdAt;
   final Value<int> updatedAt;
   final Value<int?> deletedAt;
@@ -23754,6 +23798,7 @@ class MetodeBayarCompanion extends UpdateCompanion<MetodeBayarRow> {
     this.rekeningBank = const Value.absent(),
     this.rekeningNomor = const Value.absent(),
     this.rekeningNama = const Value.absent(),
+    this.wajibReferensi = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -23771,6 +23816,7 @@ class MetodeBayarCompanion extends UpdateCompanion<MetodeBayarRow> {
     this.rekeningBank = const Value.absent(),
     this.rekeningNomor = const Value.absent(),
     this.rekeningNama = const Value.absent(),
+    this.wajibReferensi = const Value.absent(),
     required int createdAt,
     required int updatedAt,
     this.deletedAt = const Value.absent(),
@@ -23793,6 +23839,7 @@ class MetodeBayarCompanion extends UpdateCompanion<MetodeBayarRow> {
     Expression<String>? rekeningBank,
     Expression<String>? rekeningNomor,
     Expression<String>? rekeningNama,
+    Expression<bool>? wajibReferensi,
     Expression<int>? createdAt,
     Expression<int>? updatedAt,
     Expression<int>? deletedAt,
@@ -23810,6 +23857,7 @@ class MetodeBayarCompanion extends UpdateCompanion<MetodeBayarRow> {
       if (rekeningBank != null) 'rekening_bank': rekeningBank,
       if (rekeningNomor != null) 'rekening_nomor': rekeningNomor,
       if (rekeningNama != null) 'rekening_nama': rekeningNama,
+      if (wajibReferensi != null) 'wajib_referensi': wajibReferensi,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
@@ -23829,6 +23877,7 @@ class MetodeBayarCompanion extends UpdateCompanion<MetodeBayarRow> {
     Value<String?>? rekeningBank,
     Value<String?>? rekeningNomor,
     Value<String?>? rekeningNama,
+    Value<bool>? wajibReferensi,
     Value<int>? createdAt,
     Value<int>? updatedAt,
     Value<int?>? deletedAt,
@@ -23846,6 +23895,7 @@ class MetodeBayarCompanion extends UpdateCompanion<MetodeBayarRow> {
       rekeningBank: rekeningBank ?? this.rekeningBank,
       rekeningNomor: rekeningNomor ?? this.rekeningNomor,
       rekeningNama: rekeningNama ?? this.rekeningNama,
+      wajibReferensi: wajibReferensi ?? this.wajibReferensi,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
@@ -23891,6 +23941,9 @@ class MetodeBayarCompanion extends UpdateCompanion<MetodeBayarRow> {
     if (rekeningNama.present) {
       map['rekening_nama'] = Variable<String>(rekeningNama.value);
     }
+    if (wajibReferensi.present) {
+      map['wajib_referensi'] = Variable<bool>(wajibReferensi.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<int>(createdAt.value);
     }
@@ -23920,6 +23973,7 @@ class MetodeBayarCompanion extends UpdateCompanion<MetodeBayarRow> {
           ..write('rekeningBank: $rekeningBank, ')
           ..write('rekeningNomor: $rekeningNomor, ')
           ..write('rekeningNama: $rekeningNama, ')
+          ..write('wajibReferensi: $wajibReferensi, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -61230,6 +61284,7 @@ typedef $$MetodeBayarTableCreateCompanionBuilder =
       Value<String?> rekeningBank,
       Value<String?> rekeningNomor,
       Value<String?> rekeningNama,
+      Value<bool> wajibReferensi,
       required int createdAt,
       required int updatedAt,
       Value<int?> deletedAt,
@@ -61248,6 +61303,7 @@ typedef $$MetodeBayarTableUpdateCompanionBuilder =
       Value<String?> rekeningBank,
       Value<String?> rekeningNomor,
       Value<String?> rekeningNama,
+      Value<bool> wajibReferensi,
       Value<int> createdAt,
       Value<int> updatedAt,
       Value<int?> deletedAt,
@@ -61358,6 +61414,11 @@ class $$MetodeBayarTableFilterComposer
 
   ColumnFilters<String> get rekeningNama => $composableBuilder(
     column: $table.rekeningNama,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get wajibReferensi => $composableBuilder(
+    column: $table.wajibReferensi,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -61491,6 +61552,11 @@ class $$MetodeBayarTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get wajibReferensi => $composableBuilder(
+    column: $table.wajibReferensi,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -61554,6 +61620,11 @@ class $$MetodeBayarTableAnnotationComposer
 
   GeneratedColumn<String> get rekeningNama => $composableBuilder(
     column: $table.rekeningNama,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get wajibReferensi => $composableBuilder(
+    column: $table.wajibReferensi,
     builder: (column) => column,
   );
 
@@ -61656,6 +61727,7 @@ class $$MetodeBayarTableTableManager
                 Value<String?> rekeningBank = const Value.absent(),
                 Value<String?> rekeningNomor = const Value.absent(),
                 Value<String?> rekeningNama = const Value.absent(),
+                Value<bool> wajibReferensi = const Value.absent(),
                 Value<int> createdAt = const Value.absent(),
                 Value<int> updatedAt = const Value.absent(),
                 Value<int?> deletedAt = const Value.absent(),
@@ -61672,6 +61744,7 @@ class $$MetodeBayarTableTableManager
                 rekeningBank: rekeningBank,
                 rekeningNomor: rekeningNomor,
                 rekeningNama: rekeningNama,
+                wajibReferensi: wajibReferensi,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
@@ -61690,6 +61763,7 @@ class $$MetodeBayarTableTableManager
                 Value<String?> rekeningBank = const Value.absent(),
                 Value<String?> rekeningNomor = const Value.absent(),
                 Value<String?> rekeningNama = const Value.absent(),
+                Value<bool> wajibReferensi = const Value.absent(),
                 required int createdAt,
                 required int updatedAt,
                 Value<int?> deletedAt = const Value.absent(),
@@ -61706,6 +61780,7 @@ class $$MetodeBayarTableTableManager
                 rekeningBank: rekeningBank,
                 rekeningNomor: rekeningNomor,
                 rekeningNama: rekeningNama,
+                wajibReferensi: wajibReferensi,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,

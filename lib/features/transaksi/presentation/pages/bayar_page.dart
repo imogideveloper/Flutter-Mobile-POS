@@ -17,6 +17,7 @@ import '../../../promo/presentation/providers/pajak_providers.dart';
 import '../../../shift/presentation/providers/shift_providers.dart';
 import '../../data/local/tables/metode_bayar_table.dart';
 import '../../domain/split_pembayaran.dart';
+import '../../domain/referensi_pembayaran.dart';
 import '../../../dapur/presentation/providers/antrean_providers.dart';
 import '../providers/harga_keranjang_provider.dart';
 import '../providers/status_pesanan_providers.dart';
@@ -120,6 +121,16 @@ class _BayarPageState extends ConsumerState<BayarPage> {
         totalBayar = total;
         final nomorReferensi = _nomorReferensiController.text.trim();
         final empatDigit = _empatDigitController.text.trim();
+        final galatReferensi = validasiReferensiPembayaran(
+          wajibReferensi: metode.wajibReferensi,
+          kartu: metode.tipe == MetodeBayarTipe.kartu,
+          nomorReferensi: nomorReferensi,
+          empatDigit: empatDigit,
+        );
+        if (galatReferensi != null) {
+          _pesan(galatReferensi);
+          return;
+        }
         splitPembayaran = [
           SplitPembayaran(
             metodeBayarId: metode.id,
@@ -404,7 +415,7 @@ class _BayarPageState extends ConsumerState<BayarPage> {
                     TextFormField(
                       key: const Key('bayarForm.nomorReferensi'),
                       controller: _nomorReferensiController,
-                      decoration: const InputDecoration(labelText: 'Nomor referensi (opsional)'),
+                      decoration: InputDecoration(labelText: metodeTerpilih.wajibReferensi ? 'Nomor referensi (wajib)' : 'Nomor referensi (opsional)'),
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     TextFormField(
@@ -412,8 +423,10 @@ class _BayarPageState extends ConsumerState<BayarPage> {
                       controller: _empatDigitController,
                       maxLength: 4,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: '4 digit akhir kartu (opsional)',
+                      decoration: InputDecoration(
+                        labelText: metodeTerpilih.wajibReferensi && metodeTerpilih.tipe == MetodeBayarTipe.kartu
+                            ? '4 digit akhir kartu (wajib)'
+                            : '4 digit akhir kartu (opsional)',
                         counterText: '',
                         helperText: 'JANGAN masukkan nomor kartu lengkap',
                       ),

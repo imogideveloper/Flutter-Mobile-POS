@@ -27,6 +27,11 @@ class MetodeBayarDao extends DatabaseAccessor<AppDatabase> with _$MetodeBayarDao
         MetodeBayarCompanion(nama: Value(nama), urutan: Value(urutan), updatedAt: Value(now)),
       );
 
+  Future<void> ubahWajibReferensi(String id, bool wajib, {required int now}) =>
+      (update(metodeBayar)..where((t) => t.id.equals(id))).write(
+        MetodeBayarCompanion(wajibReferensi: Value(wajib), updatedAt: Value(now)),
+      );
+
   /// Rekening tujuan (IMOGI no. 14) - sama alasan dgn [ubahAktif]: update parsial.
   Future<void> ubahRekening(
     String id, {
