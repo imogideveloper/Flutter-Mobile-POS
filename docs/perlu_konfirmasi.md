@@ -229,3 +229,12 @@ Aturan baca: **Sementara** = perilaku yang sekarang dipakai di kode. **Dampak bi
 | U3 | Pelunasan hanya untuk metode manual (tunai, kartu, transfer, dst.), belum QRIS dinamis; belum ada kembalian untuk tunai (jumlah dicatat sebesar yang dibayarkan, maksimal sisa) | Susulan |
 | U4 | Penukaran poin ditolak saat Terima Order (poin hanya saat membayar) | Perlu konfirmasi |
 | U5 | "Pilihan kapan membayar" (di meja, setelah makan, nanti) dan nota order khusus belum dibuat; struk menampilkan "Order diterima, bayar nanti" dan sisa tagihan | Perlu rincian dari dokumen IMOGI |
+
+## Tambahan 2026-11-15 (biaya layanan per tipe pesanan, IMOGI no. 6)
+
+| # | Hal | Sementara |
+|---|---|---|
+| V1 | **Risiko paket:** Service Charge 5% bawaan Kafe/Restoran hanya dibatasi ke "Makan di tempat" bila fitur `service_per_tipe_order` (paket Enterprise) aktif. Selama masa trial (paket tertinggi) berlaku; setelah trial di paket lebih rendah, aturan lama berlaku: service yang aktif dikenakan pada SEMUA tipe pesanan, termasuk bawa pulang | Perlu keputusan lead: apakah bawaan tetap aktif, atau dimatikan otomatis saat fitur tidak tersedia |
+| V2 | Bawaan hanya untuk toko yang mendaftar setelah perubahan ini. Toko yang sudah ada tidak diubah (tipe pesanan lokal mereka tetap dipakai) | Perlu skrip migrasi bila ingin diterapkan ke toko lama |
+| V3 | Tipe pesanan sekarang bersumber dari server (sebelumnya hanya seed lokal HP). Pada pull pertama dari awal, bawaan lokal dinonaktifkan; transaksi lama yang merujuknya tetap utuh | Perlu diuji di HP bersih dan HP yang sudah berisi data |
+| V4 | Hanya Kafe (CAF) dan Restoran (RES) mendapat service bawaan; usaha lain (katering, roti, dst.) tidak, sesuai dokumen IMOGI | Perlu konfirmasi bila jenis lain juga perlu |

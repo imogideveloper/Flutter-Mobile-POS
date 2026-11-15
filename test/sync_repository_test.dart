@@ -702,6 +702,99 @@ void main() {
     },
   );
 
+  SyncPullResult pullTipeOrder() => SyncPullResult(
+        waktuPull: '2026-01-01T00:00:00Z',
+        produk: const [],
+        kategori: const [],
+        satuan: const [],
+        pajak: const [
+          {
+            'id': 'srv-service',
+            'nama': 'Service Charge',
+            'tipe': 'service',
+            'persen': '5.00',
+            'termasuk_harga': false,
+            'urutan': 0,
+            'aktif': true,
+            'updated_at': '2026-01-01T00:00:00Z',
+            'deleted_at': null,
+          },
+        ],
+        promo: const [],
+        metodeBayar: const [],
+        stok: const [],
+        hargaOutlet: const [],
+        hargaGrosir: const [],
+        tipeOrderPajak: const [
+          {'tipe_order_id': 'srv-makan', 'pajak_id': 'srv-service'},
+        ],
+        pengaturanOutlet: const [],
+        hasMore: const {},
+        paket: null,
+        kodeFitur: const [],
+        batasFitur: const {},
+        tipeOrder: const [
+          {
+            'id': 'srv-makan',
+            'nama': 'Makan di tempat',
+            'kanal': 'makan_di_tempat',
+            'pakai_meja': true,
+            'markup_persen': '0.00',
+            'urutan': 0,
+            'aktif': true,
+            'updated_at': '2026-01-01T00:00:00Z',
+            'deleted_at': null,
+          },
+          {
+            'id': 'srv-bawa',
+            'nama': 'Bawa pulang',
+            'kanal': 'bawa_pulang',
+            'pakai_meja': false,
+            'markup_persen': '0.00',
+            'urutan': 1,
+            'aktif': true,
+            'updated_at': '2026-01-01T00:00:00Z',
+            'deleted_at': null,
+          },
+        ],
+      );
+
+  test('pull awal: tipe pesanan dari server menggantikan bawaan lokal, termasuk tautan service 5%', () async {
+    await seedTipeOrderDefault(db);
+    // Seperti pairing sungguhan: id toko placeholder dimigrasi ke id toko asli sebelum sync.
+    await db.pairingDao.migrasikanTokoId(dari: 'toko-default', ke: 'toko-asli');
+    final lokalAwal = await db.select(db.tipeOrder).get();
+    expect(lokalAwal, hasLength(3));
+
+    api.pullResponse = pullTipeOrder();
+    await repo.jalankan();
+
+    final semua = await db.select(db.tipeOrder).get();
+    final aktif = semua.where((t) => t.aktif && t.deletedAt == null).map((t) => t.nama).toList()..sort();
+    expect(aktif, ['Bawa pulang', 'Makan di tempat'], reason: 'hanya tipe dari server yang aktif, tanpa ganda');
+    expect(semua.where((t) => t.id.startsWith('srv-')), hasLength(2));
+    // Bawaan lokal tidak dihapus (transaksi lama bisa merujuknya), hanya dinonaktifkan.
+    expect(semua.where((t) => !t.id.startsWith('srv-')).every((t) => !t.aktif && t.deletedAt != null), isTrue);
+
+    final tautan = await db.tipeOrderDao.semuaTipeOrderPajak();
+    expect(tautan.map((t) => (t.tipeOrderId, t.pajakId)), [('srv-makan', 'srv-service')]);
+    final service = (await db.select(db.pajak).get()).single;
+    expect(service.persen, 5);
+  });
+
+  test('pull lanjutan (bukan dari awal): tipe pesanan lokal tidak disentuh', () async {
+    await seedTipeOrderDefault(db);
+    // Seperti pairing sungguhan: id toko placeholder dimigrasi ke id toko asli sebelum sync.
+    await db.pairingDao.migrasikanTokoId(dari: 'toko-default', ke: 'toko-asli');
+    sessionStore.lastSyncAt = '2025-12-31T00:00:00Z';
+
+    api.pullResponse = pullTipeOrder();
+    await repo.jalankan();
+
+    final aktif = (await db.select(db.tipeOrder).get()).where((t) => t.aktif && t.deletedAt == null).toList();
+    expect(aktif, hasLength(5), reason: '3 bawaan lokal tetap + 2 dari server');
+  });
+
   test('pull: pengguna asli dari server mematikan Owner bawaan ber-PIN 000000 (temuan S1)', () async {
     await seedRoleDanOwner(db);
     final sebelum = await (db.select(db.pengguna)..where((t) => t.id.equals('pengguna-default'))).getSingle();

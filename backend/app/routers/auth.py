@@ -43,6 +43,7 @@ from app.schemas.auth import (
     RefreshOut,
     TokoOut,
 )
+from app.services.bawaan_usaha import seed_tipe_order_dan_service
 from app.services.otp_service import buat_kode_otp, get_otp_provider
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -192,6 +193,9 @@ async def _daftarkan_toko_baru(db: AsyncSession, body: OtpVerifyIn) -> tuple[Tok
         MetodeBayar(toko_id=toko.id, nama="Transfer", tipe="transfer", masuk_laci=False, urutan=3),
     ])
     await db.flush()
+
+    # Tipe pesanan bawaan + biaya layanan 5% untuk kafe/restoran (IMOGI no. 6), lihat bawaan_usaha.py.
+    await seed_tipe_order_dan_service(db, toko_id=toko.id, jenis_usaha=toko.jenis_usaha)
 
     return toko, outlet, pengguna
 

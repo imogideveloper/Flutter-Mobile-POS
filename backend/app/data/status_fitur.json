@@ -21,7 +21,7 @@
  },
  "6": {
   "status": "sedang",
-  "catatan": "Service fee per tipe pesanan ada. Bawaan 5% makan di tempat untuk kafe dan restoran belum otomatis dari jenis usaha."
+  "catatan": "SEBAGIAN (2026-11-15): toko Kafe dan Restoran yang baru mendaftar otomatis mendapat Service Charge 5% yang hanya ditautkan ke tipe Makan di tempat (jenis usaha lain mendapat tipe pesanan tanpa service). Tipe pesanan kini dibuat di server dan ikut sync pull; HP menggantikan bawaan lokalnya dengan data server pada pull pertama. Aturan service per tipe pesanan di kalkulator sudah ada sebelumnya. Belum: usaha yang sudah terdaftar tidak otomatis dapat bawaan, pengaturan bawaan lain per jenis usaha (Batch B). Lulus tes otomatis, belum diuji di HP."
  },
  "7": {
   "status": "sudah",

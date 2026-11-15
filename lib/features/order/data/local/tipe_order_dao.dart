@@ -25,6 +25,18 @@ class TipeOrderDao extends DatabaseAccessor<AppDatabase>
   Future<void> upsertTipeOrder(TipeOrderCompanion data) =>
       into(tipeOrder).insertOnConflictUpdate(data);
 
+  /// Nonaktifkan tipe pesanan lokal yang id-nya tidak ada di daftar server (bawaan seed lokal sebelum
+  /// pairing). Soft delete: transaksi lama bisa masih merujuk id-nya.
+  Future<void> nonaktifkanSelainIdServer({required String tokoId, required List<String> idDariServer}) {
+    if (idDariServer.isEmpty) return Future.value();
+    return (update(tipeOrder)
+          ..where((t) => t.tokoId.equals(tokoId) & t.id.isNotIn(idDariServer) & t.deletedAt.isNull()))
+        .write(TipeOrderCompanion(
+      aktif: const Value(false),
+      deletedAt: Value(DateTime.now().toUtc().millisecondsSinceEpoch),
+    ));
+  }
+
   /// Tahap 5 C.7 - cache lokal setelah DELETE (soft delete) sukses di
   /// backend, sama pola dgn PajakDao.nonaktifkanLokal.
   Future<void> nonaktifkanLokal(String id) => (update(tipeOrder)..where((t) => t.id.equals(id)))

@@ -9,6 +9,7 @@ import '../struk/logo_cache.dart';
 import '../../features/fitur/data/local/fitur_dao.dart';
 import 'api_config.dart';
 import '../../features/order/data/local/tipe_order_dao.dart';
+import '../../features/order/data/local/tables/tipe_order_table.dart' show TipeOrderKanal, tipeOrderKanalPostgresValue;
 import '../../features/pelanggan/data/local/pelanggan_dao.dart';
 import '../../features/produk/data/local/harga_dao.dart';
 import '../../features/produk/data/local/produk_dao.dart';
@@ -533,7 +534,11 @@ class SyncRepository {
       );
       logoUrlTerakhir = hasil.logoUrl;
 
-      await _terapkanPull(hasil, tokoId: sesi.tokoId);
+      await _terapkanPull(
+        hasil,
+        tokoId: sesi.tokoId,
+        pullAwal: DateTime.parse(since).toUtc().millisecondsSinceEpoch <= 0,
+      );
       await fiturDao.simpanStatusFitur(
         tokoId: sesi.tokoId,
         paket: hasil.paket,
@@ -617,6 +622,8 @@ class SyncRepository {
   Future<void> _terapkanPull(
     SyncPullResult hasil, {
     required String tokoId,
+    // true = pull pertama dari awal (daftar penuh dari server), dipakai menyingkirkan bawaan lokal.
+    bool pullAwal = false,
   }) async {
     for (final row in hasil.kategori) {
       await produkDao.upsertKategori(
@@ -818,6 +825,33 @@ class SyncRepository {
       );
     }
 
+    // Tipe pesanan dari server (IMOGI no. 6). Pada pull pertama dari awal daftar server lengkap, jadi
+    // tipe pesanan bawaan lokal (seed sebelum pairing, id-nya tidak ada di server) dinonaktifkan agar
+    // tidak muncul ganda; tidak dihapus karena transaksi lama bisa merujuknya.
+    for (final row in hasil.tipeOrder) {
+      await tipeOrderDao.upsertTipeOrder(
+        TipeOrderCompanion.insert(
+          id: row['id'] as String,
+          tokoId: tokoId,
+          nama: row['nama'] as String,
+          kanal: _tipeOrderKanalEnum(row['kanal'] as String),
+          pakaiMeja: Value(row['pakai_meja'] as bool),
+          markupPersen: Value(double.parse(row['markup_persen'].toString())),
+          urutan: Value(row['urutan'] as int),
+          aktif: Value(row['aktif'] as bool),
+          createdAt: epochMsDariBackend(row['updated_at'] as String),
+          updatedAt: epochMsDariBackend(row['updated_at'] as String),
+          deletedAt: Value(epochMsDariBackendNullable(row['deleted_at'] as String?)),
+        ),
+      );
+    }
+    if (pullAwal && hasil.tipeOrder.isNotEmpty && hasil.hasMore['tipe_order'] != true) {
+      await tipeOrderDao.nonaktifkanSelainIdServer(
+        tokoId: tokoId,
+        idDariServer: [for (final row in hasil.tipeOrder) row['id'] as String],
+      );
+    }
+
     // tipe_order_pajak: relasi murni tanpa updated_at - createdAt lokal
     // diisi waktu pull ini (bukan waktu baris itu sebenarnya dibuat di
     // server, tidak penting krn tabel ini cuma dibaca sbg lookup).
@@ -952,6 +986,9 @@ class SyncRepository {
 
   PromoTipe _promoTipeEnum(String backendValue) =>
       PromoTipe.values.byName(backendValue);
+
+  TipeOrderKanal _tipeOrderKanalEnum(String backendValue) =>
+      tipeOrderKanalPostgresValue.entries.firstWhere((e) => e.value == backendValue).key;
 
   MetodeBayarTipe _metodeBayarTipeEnum(String backendValue) =>
       MetodeBayarTipe.values.byName(backendValue);

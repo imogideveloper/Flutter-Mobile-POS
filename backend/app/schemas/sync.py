@@ -144,6 +144,8 @@ class SyncPullOut(BaseModel):
     # tipe_order_pajak & pengaturan_outlet TIDAK punya kolom updated_at
     # (tabel relasi murni / baris tunggal kecil) - selalu snapshot PENUH
     # tiap pull (bukan delta `since`), bukan bug.
+    # Tipe pesanan (IMOGI no. 6): delta by updated_at. Default [] supaya client lama tidak terpengaruh.
+    tipe_order: list[dict] = []
     tipe_order_pajak: list[dict]
     pengaturan_outlet: list[dict]
     # Kode fitur yang terbuka utk paket toko ini saat ini (aturan dokumen

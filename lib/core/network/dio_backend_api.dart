@@ -326,6 +326,7 @@ class DioBackendApi implements BackendApi {
         hargaOutlet: listOf('harga_outlet'),
         hargaGrosir: listOf('harga_grosir'),
         tipeOrderPajak: listOf('tipe_order_pajak'),
+        tipeOrder: listOf('tipe_order'),
         pengaturanOutlet: listOf('pengaturan_outlet'),
         hasMore: (body['has_more'] as Map<String, dynamic>).map(
           (k, v) => MapEntry(k, v as bool),

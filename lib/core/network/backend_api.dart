@@ -407,6 +407,7 @@ class SyncPullResult {
     this.logoUrl,
     required this.kodeFitur,
     required this.batasFitur,
+    this.tipeOrder = const [],
     this.pengguna = const [],
     this.role = const [],
     this.roleIzin = const [],
@@ -446,6 +447,9 @@ class SyncPullResult {
   final List<Map<String, dynamic>> hargaOutlet;
   final List<Map<String, dynamic>> hargaGrosir;
   final List<Map<String, dynamic>> tipeOrderPajak;
+
+  /// Tipe pesanan dari server (IMOGI no. 6): delta by updated_at.
+  final List<Map<String, dynamic>> tipeOrder;
   final List<Map<String, dynamic>> pengaturanOutlet;
   final Map<String, bool> hasMore;
   // Status gating paket (lihat SyncPullOut.paket/kode_fitur/batas_fitur di

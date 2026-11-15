@@ -617,6 +617,11 @@ async def pull(
         for r in grosir_rows[:limit]
     ]
 
+    tipe_order = await _ambil_toko_scoped(
+        "tipe_order", TipeOrder,
+        ["id", "nama", "kanal", "pakai_meja", "markup_persen", "urutan", "aktif", "updated_at", "deleted_at"],
+    )
+
     # tipe_order_pajak: relasi murni (CreatedAtOnlyMixin, tanpa updated_at)
     # - snapshot PENUH tiap pull, toko-scoped lewat join TipeOrder.
     tipe_order_pajak_rows = (
@@ -655,7 +660,7 @@ async def pull(
         len(x)
         for x in [
             produk, kategori, satuan, pajak, promo, metode_bayar, pelanggan, pengguna, role, role_izin, stok,
-            harga_outlet, harga_grosir, tipe_order_pajak, pengaturan_outlet, grup_modifier, modifier,
+            harga_outlet, harga_grosir, tipe_order, tipe_order_pajak, pengaturan_outlet, grup_modifier, modifier,
             produk_grup_modifier,
         ]
     )
@@ -690,6 +695,7 @@ async def pull(
         stok=stok,
         harga_outlet=harga_outlet,
         harga_grosir=harga_grosir,
+        tipe_order=tipe_order,
         tipe_order_pajak=tipe_order_pajak,
         pengaturan_outlet=pengaturan_outlet,
         paket=paket.nama,
