@@ -14,6 +14,7 @@ from app.core.deps import get_pengguna_id, get_role_id, get_toko_id
 from app.models.produk import Produk
 from app.models.promo import Pajak, Promo, PromoOutlet, PromoProduk
 from app.models.transaksi import MetodeBayar
+from app.services.label_pembayaran import TIPE_BOLEH_LABEL, normalisasi_label_tujuan
 from app.schemas.penjualan_setup import (
     IdsIn,
     MetodeBayarIn,
@@ -322,10 +323,21 @@ async def ubah_metode_bayar(
     perubahan = body.model_dump(exclude_unset=True)
     # Ganti nama/label & urutan digate 'label_pembayaran' (tahap 4 bagian
     # B.3) - aktif/nonaktif tidak pernah digate.
-    if ("nama" in perubahan or "urutan" in perubahan) and not await has_fitur(
+    if ("nama" in perubahan or "urutan" in perubahan or "label_tujuan" in perubahan) and not await has_fitur(
         db, toko_id, "label_pembayaran"
     ):
         await tolak_fitur_terkunci(db, "label_pembayaran")
+
+    if "label_tujuan" in perubahan:
+        # Label tujuan (IMOGI no. 18): hanya metode non-tunai, dirapikan dan dibatasi jumlah/panjangnya.
+        if perubahan["label_tujuan"] and metode.tipe not in TIPE_BOLEH_LABEL:
+            raise HTTPException(
+                status.HTTP_422_UNPROCESSABLE_ENTITY, "Label tujuan hanya untuk QRIS, kartu, transfer, atau e-wallet"
+            )
+        try:
+            perubahan["label_tujuan"] = normalisasi_label_tujuan(perubahan["label_tujuan"])
+        except ValueError as exc:
+            raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, str(exc)) from exc
 
     if any(k.startswith("rekening_") for k in perubahan) and metode.tipe not in ("transfer", "ewallet"):
         raise HTTPException(

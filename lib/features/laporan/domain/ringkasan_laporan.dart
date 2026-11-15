@@ -37,6 +37,7 @@ class MetodeBayarPersen {
     required this.total,
     required this.persen,
     this.labelOverride,
+    this.labelTujuan,
   });
   final String metodeBayarId;
   final int total;
@@ -46,6 +47,13 @@ class MetodeBayarPersen {
   // LaporanRepository._labelPembayaran) - null = pakai nama metode bayar
   // biasa (resolve metodeBayarId spt sebelumnya, tidak berubah).
   final String? labelOverride;
+
+  /// Label tujuan pembayaran (IMOGI no. 18, mis. GoPay) - memisahkan baris untuk rekonsiliasi.
+  final String? labelTujuan;
+
+  /// Teks baris: nama metode (atau penanda QRIS manual) diikuti label tujuan bila ada.
+  String labelTampil(String namaMetode) =>
+      labelTujuan == null ? (labelOverride ?? namaMetode) : '${labelOverride ?? namaMetode} · $labelTujuan';
 }
 
 class ProdukTerlaris {

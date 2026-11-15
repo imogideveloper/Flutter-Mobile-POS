@@ -238,3 +238,13 @@ Aturan baca: **Sementara** = perilaku yang sekarang dipakai di kode. **Dampak bi
 | V2 | Bawaan hanya untuk toko yang mendaftar setelah perubahan ini. Toko yang sudah ada tidak diubah (tipe pesanan lokal mereka tetap dipakai) | Perlu skrip migrasi bila ingin diterapkan ke toko lama |
 | V3 | Tipe pesanan sekarang bersumber dari server (sebelumnya hanya seed lokal HP). Pada pull pertama dari awal, bawaan lokal dinonaktifkan; transaksi lama yang merujuknya tetap utuh | Perlu diuji di HP bersih dan HP yang sudah berisi data |
 | V4 | Hanya Kafe (CAF) dan Restoran (RES) mendapat service bawaan; usaha lain (katering, roti, dst.) tidak, sesuai dokumen IMOGI | Perlu konfirmasi bila jenis lain juga perlu |
+
+## Tambahan 2026-11-15 (label jenis pembayaran, IMOGI no. 18)
+
+| # | Hal | Sementara |
+|---|---|---|
+| W1 | Dua konsep "label" dipisah: ubah NAMA/urutan metode bayar (sudah ada) dan LABEL TUJUAN baru (GoPay, OVO, ShopeePay, bank) untuk rekonsiliasi. Label tujuan disimpan sebagai daftar dipisah koma per metode (maks. 10 label, maks. 30 karakter) | Perlu konfirmasi bentuk yang diinginkan lead |
+| W2 | Bila metode punya label tujuan, kasir WAJIB memilih satu saat menerima pembayaran (kartu, transfer, e-wallet). Server tidak menolak pembayaran tanpa label (push offline tidak boleh ditolak) | Perlu konfirmasi: wajib atau opsional |
+| W3 | Label tidak berlaku untuk QRIS statis (halaman sendiri), bayar campur (split), maupun pelunasan order/kasbon | Susulan |
+| W4 | Baris laporan memakai bentuk "Qris · GoPay" (nama metode, titik tengah, label); sama di HP dan server. Rekonsiliasi dengan mutasi pihak ketiga (settlement, IMOGI no. 74) belum ada | Perlu konfirmasi format laporan |
+| W5 | Menyimpan label butuh paket yang memuat fitur label_pembayaran (Enterprise); paket lebih rendah ditolak 403 | Sesuai katalog IMOGI |

@@ -27,6 +27,12 @@ class MetodeBayarDao extends DatabaseAccessor<AppDatabase> with _$MetodeBayarDao
         MetodeBayarCompanion(nama: Value(nama), urutan: Value(urutan), updatedAt: Value(now)),
       );
 
+  /// Label tujuan (IMOGI no. 18) - update parsial, alasan sama dgn [ubahAktif].
+  Future<void> ubahLabelTujuan(String id, String? label, {required int now}) =>
+      (update(metodeBayar)..where((t) => t.id.equals(id))).write(
+        MetodeBayarCompanion(labelTujuan: Value(label), updatedAt: Value(now)),
+      );
+
   Future<void> ubahWajibReferensi(String id, bool wajib, {required int now}) =>
       (update(metodeBayar)..where((t) => t.id.equals(id))).write(
         MetodeBayarCompanion(wajibReferensi: Value(wajib), updatedAt: Value(now)),

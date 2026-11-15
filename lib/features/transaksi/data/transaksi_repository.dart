@@ -20,6 +20,7 @@ import '../domain/pesanan_status.dart';
 import '../domain/ringkasan_transaksi.dart';
 import '../../order/data/local/tables/tipe_order_table.dart' show TipeOrderKanal;
 import '../domain/split_pembayaran.dart';
+import '../domain/label_tujuan.dart';
 import 'local/tables/pembayaran_table.dart' show PembayaranJenis, PembayaranStatus;
 import 'local/tables/transaksi_table.dart' show StatusBayarTransaksi, StatusPesanan, TransaksiStatus;
 import 'local/transaksi_dao.dart';
@@ -261,9 +262,10 @@ class TransaksiRepository {
                 status: PembayaranStatus.berhasil,
                 refGateway: Value(baris.nomorReferensi),
                 payloadGateway: Value(
-                  baris.empatDigitAkhirKartu == null
-                      ? null
-                      : jsonEncode({'empat_digit_akhir_kartu': baris.empatDigitAkhirKartu}),
+                  payloadPembayaranManual(
+                    empatDigitAkhirKartu: baris.empatDigitAkhirKartu,
+                    labelTujuan: baris.labelTujuan,
+                  ),
                 ),
                 dibayarPada: Value(now),
                 disinkronPada: Value(now),

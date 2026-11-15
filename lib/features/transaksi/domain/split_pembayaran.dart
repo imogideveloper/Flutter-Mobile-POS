@@ -7,10 +7,14 @@ class SplitPembayaran {
     required this.jumlah,
     this.nomorReferensi,
     this.empatDigitAkhirKartu,
+    this.labelTujuan,
   });
 
   final String metodeBayarId;
   final int jumlah;
   final String? nomorReferensi;
   final String? empatDigitAkhirKartu;
+
+  /// Label tujuan terpilih (IMOGI no. 18), mis. GoPay; ikut payload_gateway dan laporan.
+  final String? labelTujuan;
 }

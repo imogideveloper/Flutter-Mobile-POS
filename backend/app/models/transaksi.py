@@ -32,6 +32,8 @@ class MetodeBayar(Base, UUIDPkMixin, TimestampMixin):
     rekening_nomor: Mapped[str | None] = mapped_column(String(40), nullable=True)
     rekening_nama: Mapped[str | None] = mapped_column(String(80), nullable=True)
     wajib_referensi: Mapped[bool] = mapped_column(Boolean, default=False)
+    # Daftar label tujuan (dipisah koma) utk rekonsiliasi, mis. "GoPay,OVO" - lihat services/label_pembayaran.py.
+    label_tujuan: Mapped[str | None] = mapped_column(String(300), nullable=True)
 
 
 class Shift(Base, UUIDPkMixin, TimestampMixin):

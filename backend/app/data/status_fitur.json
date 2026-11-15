@@ -69,7 +69,7 @@
  },
  "18": {
   "status": "sedang",
-  "catatan": "Aplikasi: ubah nama/urutan metode bayar. Imogi: label tujuan (GoPay, OVO, ShopeePay, bank) untuk rekonsiliasi. Konsepnya berbeda."
+  "catatan": "SEBAGIAN (2026-11-15): metode bayar non-tunai punya daftar label tujuan (mis. GoPay, OVO, ShopeePay, BCA) yang diatur di Pengaturan metode bayar (digerbang fitur label_pembayaran, migrasi 0025); kasir wajib memilih satu label saat menerima kartu/transfer/e-wallet, tersimpan di pembayaran, dan laporan (HP dan server) memisahkan baris per label untuk rekonsiliasi. Ubah nama/urutan metode bayar sudah ada sebelumnya. Belum: label pada QRIS statis dan bayar campur, serta rekonsiliasi terhadap mutasi/settlement (IMOGI no. 74). Lulus tes otomatis, belum diuji di HP."
  },
  "19": {
   "status": "tidak_relevan",

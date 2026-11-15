@@ -19,6 +19,8 @@ class MetodeBayar extends Table {
   TextColumn get rekeningNomor => text().nullable()();
   TextColumn get rekeningNama => text().nullable()();
   BoolColumn get wajibReferensi => boolean().withDefault(const Constant(false))();
+  // Daftar label tujuan dipisah koma (IMOGI no. 18), mis. 'GoPay,OVO'; null = tanpa label.
+  TextColumn get labelTujuan => text().nullable()();
   IntColumn get createdAt => integer()();
   IntColumn get updatedAt => integer()();
   IntColumn get deletedAt => integer().nullable()();

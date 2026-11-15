@@ -15,6 +15,7 @@ import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/fitur_terkunci.dart';
 import '../../../../core/widgets/offline_notice_banner.dart';
 import '../../../transaksi/data/local/tables/metode_bayar_table.dart';
+import '../../../transaksi/domain/label_tujuan.dart';
 import '../../../transaksi/presentation/providers/transaksi_providers.dart';
 
 final _semuaMetodeBayarProvider = StreamProvider<List<MetodeBayarRow>>((ref) {
@@ -54,6 +55,9 @@ class PengaturanMetodeBayarPage extends ConsumerWidget {
   Future<void> _editNamaUrutan(WidgetRef ref, BuildContext context, MetodeBayarRow metode) async {
     final namaController = TextEditingController(text: metode.nama);
     final urutanController = TextEditingController(text: metode.urutan.toString());
+    // Label tujuan (IMOGI no. 18) hanya bermakna untuk metode non-tunai.
+    final bisaLabel = metode.tipe != MetodeBayarTipe.tunai;
+    final labelController = TextEditingController(text: daftarLabelTujuan(metode.labelTujuan).join(', '));
     final disimpan = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -73,6 +77,18 @@ class PengaturanMetodeBayarPage extends ConsumerWidget {
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(labelText: 'Urutan'),
             ),
+            if (bisaLabel) ...[
+              const SizedBox(height: AppSpacing.sm),
+              TextField(
+                key: const Key('pengaturanMetodeBayarForm.labelTujuan'),
+                controller: labelController,
+                decoration: const InputDecoration(
+                  labelText: 'Label tujuan (pisahkan koma)',
+                  helperText: 'Mis. GoPay, OVO, ShopeePay. Kasir memilih satu saat menerima pembayaran.',
+                  helperMaxLines: 2,
+                ),
+              ),
+            ],
           ],
         ),
         actions: [
@@ -87,18 +103,34 @@ class PengaturanMetodeBayarPage extends ConsumerWidget {
     final sesi = await ref.read(authSessionStoreProvider).muat();
     if (sesi == null) return;
     final urutan = int.tryParse(urutanController.text) ?? metode.urutan;
+    final label = bisaLabel ? normalisasiLabelTujuan(labelController.text) : (hasil: metode.labelTujuan, galat: null);
+    if (label.galat != null) {
+      if (context.mounted) showAppToast(context, message: label.galat!, variant: ToastVariant.warning);
+      return;
+    }
+    final labelBerubah = bisaLabel && label.hasil != metode.labelTujuan;
     try {
       await ref.read(backendApiProvider).ubahMetodeBayar(
             accessToken: sesi.accessToken,
             metodeBayarId: metode.id,
-            body: {'nama': namaController.text.trim(), 'urutan': urutan},
+            body: {
+              'nama': namaController.text.trim(),
+              'urutan': urutan,
+              // Dikirim hanya bila berubah: label_tujuan sama-sama digate fitur label_pembayaran, dan
+              // pengiriman ulang nilai lama tidak boleh memicu penolakan.
+              if (labelBerubah) 'label_tujuan': label.hasil ?? '',
+            },
           );
+      final now = DateTime.now().toUtc().millisecondsSinceEpoch;
       await ref.read(metodeBayarDaoProvider).ubahNamaUrutan(
             metode.id,
             nama: namaController.text.trim(),
             urutan: urutan,
-            now: DateTime.now().toUtc().millisecondsSinceEpoch,
+            now: now,
           );
+      if (labelBerubah) {
+        await ref.read(metodeBayarDaoProvider).ubahLabelTujuan(metode.id, label.hasil, now: now);
+      }
       unawaited(ref.read(syncRepositoryProvider).jalankan());
       if (context.mounted) {
         showAppToast(context, message: 'Tersimpan', variant: ToastVariant.success);

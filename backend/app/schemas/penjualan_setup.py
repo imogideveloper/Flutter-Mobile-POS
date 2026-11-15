@@ -100,6 +100,8 @@ class MetodeBayarUpdateIn(BaseModel):
     rekening_nama: str | None = None
     # Wajib isi no. referensi saat bayar (kartu/transfer/e-wallet).
     wajib_referensi: bool | None = None
+    # Daftar label tujuan dipisah koma (IMOGI no. 18); digate fitur label_pembayaran.
+    label_tujuan: str | None = None
 
 
 class MetodeBayarOut(BaseModel):
@@ -114,5 +116,6 @@ class MetodeBayarOut(BaseModel):
     rekening_nomor: str | None = None
     rekening_nama: str | None = None
     wajib_referensi: bool = False
+    label_tujuan: str | None = None
 
     model_config = {"from_attributes": True}

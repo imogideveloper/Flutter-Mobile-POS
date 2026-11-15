@@ -100,9 +100,15 @@ def _label_pembayaran(nama_metode: str, payload_gateway: dict | None) -> str:
     terpisah di laporan supaya owner tahu baris ini belum benar2
     terverifikasi pihak ketiga - lihat BayarQrisPage._payloadKonfirmasiManual
     di sisi Flutter utk asal marker ini."""
+    dasar = nama_metode
     if payload_gateway and payload_gateway.get("metode") == "qris_statis_manual":
-        return "QRIS manual (belum terverifikasi)"
-    return nama_metode
+        dasar = "QRIS manual (belum terverifikasi)"
+    # Label tujuan (IMOGI no. 18, mis. GoPay/OVO/BCA): baris dipisah per tujuan supaya bisa
+    # direkonsiliasi dengan mutasi/settlement masing-masing. Dart mirror: laporan_repository.dart.
+    tujuan = payload_gateway.get("label_tujuan") if payload_gateway else None
+    if isinstance(tujuan, str) and tujuan.strip():
+        return f"{dasar} · {tujuan.strip()}"
+    return dasar
 
 
 async def _kas_diterima_periode(

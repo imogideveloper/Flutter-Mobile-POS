@@ -19,6 +19,14 @@ String? _labelOverridePembayaran(String? payloadGatewayJson) {
   return null;
 }
 
+/// Label tujuan pembayaran (IMOGI no. 18) dari payload_gateway; mirror `_label_pembayaran` di server.
+String? _labelTujuanPembayaran(String? payloadGatewayJson) {
+  if (payloadGatewayJson == null) return null;
+  final decoded = jsonDecode(payloadGatewayJson);
+  final tujuan = decoded is Map ? decoded['label_tujuan'] : null;
+  return tujuan is String && tujuan.trim().isNotEmpty ? tujuan.trim() : null;
+}
+
 /// F3.C - fitur 'laporan_dasar': null batasHari = paket tanpa batas
 /// (Bisnis), selain itu rentang (inklusif kedua ujung) tidak boleh
 /// melebihi batasHari. Dipisah dari LaporanPage supaya gatingnya bisa
@@ -85,9 +93,14 @@ class LaporanRepository {
     // QRIS manual/belum terverifikasi selalu jadi baris TERPISAH dari QRIS
     // yang sungguhan terverifikasi, walau metodeBayarId-nya sama persis
     // (sama alasan dgn backend laporan_service.py).
-    final metodeTotal = <(String, String?), int>{};
+    // Label tujuan (IMOGI no. 18) ikut kunci: GoPay dan OVO jadi baris terpisah untuk rekonsiliasi.
+    final metodeTotal = <(String, String?, String?), int>{};
     for (final p in pembayaranList) {
-      final key = (p.metodeBayarId, _labelOverridePembayaran(p.payloadGateway));
+      final key = (
+        p.metodeBayarId,
+        _labelOverridePembayaran(p.payloadGateway),
+        _labelTujuanPembayaran(p.payloadGateway),
+      );
       metodeTotal[key] = (metodeTotal[key] ?? 0) + p.jumlah;
     }
     final totalMetode = metodeTotal.values.fold<int>(0, (a, b) => a + b);
@@ -95,6 +108,7 @@ class LaporanRepository {
         .map((e) => MetodeBayarPersen(
               metodeBayarId: e.key.$1,
               labelOverride: e.key.$2,
+              labelTujuan: e.key.$3,
               total: e.value,
               persen: totalMetode == 0 ? 0 : e.value / totalMetode * 100,
             ))

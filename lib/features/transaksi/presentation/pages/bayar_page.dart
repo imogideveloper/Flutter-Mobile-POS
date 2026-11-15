@@ -18,6 +18,7 @@ import '../../../shift/presentation/providers/shift_providers.dart';
 import '../../data/local/tables/metode_bayar_table.dart';
 import '../../domain/split_pembayaran.dart';
 import '../../domain/referensi_pembayaran.dart';
+import '../../domain/label_tujuan.dart';
 import '../../../dapur/presentation/providers/antrean_providers.dart';
 import '../providers/harga_keranjang_provider.dart';
 import '../providers/status_pesanan_providers.dart';
@@ -60,6 +61,8 @@ class _BayarPageState extends ConsumerState<BayarPage> {
   final _splitJumlahBController = TextEditingController();
   bool _menyimpan = false;
   String? _metodeTerpilihId;
+  // Label tujuan terpilih (IMOGI no. 18); direset tiap ganti metode.
+  String? _labelTujuanTerpilih;
   bool _modeSplit = false;
   String? _splitMetodeAId;
   String? _splitMetodeBId;
@@ -131,12 +134,21 @@ class _BayarPageState extends ConsumerState<BayarPage> {
           _pesan(galatReferensi);
           return;
         }
+        final galatLabel = validasiLabelTujuan(
+          tersedia: daftarLabelTujuan(metode.labelTujuan),
+          pilihan: _labelTujuanTerpilih,
+        );
+        if (galatLabel != null) {
+          _pesan(galatLabel);
+          return;
+        }
         splitPembayaran = [
           SplitPembayaran(
             metodeBayarId: metode.id,
             jumlah: total,
             nomorReferensi: nomorReferensi.isEmpty ? null : nomorReferensi,
             empatDigitAkhirKartu: empatDigit.isEmpty ? null : empatDigit,
+            labelTujuan: _labelTujuanTerpilih,
           ),
         ];
       }
@@ -283,6 +295,7 @@ class _BayarPageState extends ConsumerState<BayarPage> {
                                 setState(() {
                                   _modeSplit = false;
                                   _metodeTerpilihId = metode.id;
+                                  _labelTujuanTerpilih = null;
                                 });
                               },
                             ),
@@ -413,6 +426,24 @@ class _BayarPageState extends ConsumerState<BayarPage> {
                     // Kartu/Transfer manual - bayar pas, tidak ada kembalian.
                     Text('Konfirmasi ${metodeTerpilih.nama}', style: AppTypography.cardTitle.copyWith(fontSize: 15)),
                     const SizedBox(height: AppSpacing.sm),
+                    if (daftarLabelTujuan(metodeTerpilih.labelTujuan).isNotEmpty) ...[
+                      Text('Tujuan pembayaran', style: AppTypography.secondary),
+                      const SizedBox(height: AppSpacing.xs),
+                      Wrap(
+                        key: const Key('bayarForm.labelTujuan'),
+                        spacing: AppSpacing.sm,
+                        children: [
+                          for (final label in daftarLabelTujuan(metodeTerpilih.labelTujuan))
+                            ChoiceChip(
+                              key: Key('bayarForm.labelTujuan.$label'),
+                              label: Text(label),
+                              selected: _labelTujuanTerpilih == label,
+                              onSelected: (_) => setState(() => _labelTujuanTerpilih = label),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                    ],
                     TextFormField(
                       key: const Key('bayarForm.nomorReferensi'),
                       controller: _nomorReferensiController,

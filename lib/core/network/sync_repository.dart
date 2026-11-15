@@ -741,6 +741,7 @@ class SyncRepository {
           rekeningNomor: Value(row['rekening_nomor'] as String?),
           rekeningNama: Value(row['rekening_nama'] as String?),
           wajibReferensi: Value((row['wajib_referensi'] as bool?) ?? false),
+          labelTujuan: Value(row['label_tujuan'] as String?),
           createdAt: epochMsDariBackend(row['updated_at'] as String),
           updatedAt: epochMsDariBackend(row['updated_at'] as String),
           deletedAt: Value(

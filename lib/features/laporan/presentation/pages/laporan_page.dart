@@ -343,7 +343,7 @@ class _IsiLaporan extends StatelessWidget {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        '${ringkasan.metodeBayar[i].labelOverride ?? labelMetodeBayar(ringkasan.metodeBayar[i].metodeBayarId, nama: namaMetode)} '
+                        '${ringkasan.metodeBayar[i].labelTampil(labelMetodeBayar(ringkasan.metodeBayar[i].metodeBayarId, nama: namaMetode))} '
                         '${ringkasan.metodeBayar[i].persen.round()}%',
                         style: AppTypography.secondary,
                       ),
