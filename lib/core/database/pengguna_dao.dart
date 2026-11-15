@@ -129,4 +129,30 @@ class PenggunaDao extends DatabaseAccessor<AppDatabase> with _$PenggunaDaoMixin 
   /// lockout PIN (murni lokal) tidak ketiban nilai server tiap sync.
   Future<void> upsertPenggunaDariSync(PenggunaCompanion data) =>
       into(pengguna).insertOnConflictUpdate(data);
+
+  /// Id pengguna Owner bawaan yang dibuat seed lokal (PIN 000000) sebelum perangkat dipasangkan.
+  static const idOwnerBawaan = 'pengguna-default';
+
+  /// Nonaktifkan Owner bawaan dan hapus PIN-nya begitu perangkat punya pengguna asli dari server
+  /// yang aktif DAN ber-PIN (temuan S1: PIN 000000 bisa dipakai menyetujui diskon/void/refund).
+  /// Tanpa pengguna server ber-PIN, Owner bawaan dibiarkan agar perangkat tidak terkunci.
+  /// Baris tidak dihapus karena transaksi lama bisa merujuknya. Mengembalikan true bila dinonaktifkan.
+  Future<bool> nonaktifkanOwnerBawaanBilaAdaPenggunaServer() async {
+    final asli = await (select(pengguna)
+          ..where((t) =>
+              t.serverPenggunaId.isNotNull() &
+              t.aktif.equals(true) &
+              t.deletedAt.isNull() &
+              t.pinHash.isNotNull()))
+        .get();
+    if (asli.isEmpty) return false;
+    final jumlah = await (update(pengguna)..where((t) => t.id.equals(idOwnerBawaan) & t.aktif.equals(true))).write(
+      PenggunaCompanion(
+        aktif: const Value(false),
+        pinHash: const Value(null),
+        updatedAt: Value(DateTime.now().toUtc().millisecondsSinceEpoch),
+      ),
+    );
+    return jumlah > 0;
+  }
 }

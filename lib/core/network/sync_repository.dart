@@ -939,6 +939,8 @@ class SyncRepository {
         ),
       );
     }
+    // Owner bawaan seed lokal (PIN 000000) tidak boleh hidup berdampingan dengan pengguna asli.
+    await penggunaDao.nonaktifkanOwnerBawaanBilaAdaPenggunaServer();
   }
 
   ProdukTipe _produkTipeEnum(String backendValue) =>

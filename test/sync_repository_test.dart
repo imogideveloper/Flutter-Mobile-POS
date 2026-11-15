@@ -1,3 +1,5 @@
+import 'package:apps_pos/core/auth/pin_hash.dart';
+import 'package:apps_pos/core/database/seed.dart';
 import 'package:apps_pos/core/database/app_database.dart';
 import 'package:apps_pos/core/harga/kalkulator.dart' as k;
 import 'package:apps_pos/features/transaksi/data/transaksi_repository.dart';
@@ -699,6 +701,50 @@ void main() {
       expect(sisa, isEmpty, reason: 'harus ditandai sudah sync setelah diterima server');
     },
   );
+
+  test('pull: pengguna asli dari server mematikan Owner bawaan ber-PIN 000000 (temuan S1)', () async {
+    await seedRoleDanOwner(db);
+    final sebelum = await (db.select(db.pengguna)..where((t) => t.id.equals('pengguna-default'))).getSingle();
+    expect(sebelum.aktif, isTrue);
+
+    api.pullResponse = SyncPullResult(
+      waktuPull: '2026-01-01T00:00:00Z',
+      produk: const [],
+      kategori: const [],
+      satuan: const [],
+      pajak: const [],
+      promo: const [],
+      metodeBayar: const [],
+      stok: const [],
+      hargaOutlet: const [],
+      hargaGrosir: const [],
+      tipeOrderPajak: const [],
+      pengaturanOutlet: const [],
+      hasMore: const {},
+      paket: null,
+      kodeFitur: const [],
+      batasFitur: const {},
+      pengguna: [
+        {
+          'id': '3f2504e0-4f89-41d3-9a0c-0305e82c3301',
+          'role_id': 'role-owner',
+          'nama': 'Pemilik Asli',
+          'no_hp': null,
+          'pin_hash': hashPin('482913'),
+          'aktif': true,
+          'updated_at': '2026-01-01T00:00:00Z',
+          'deleted_at': null,
+        },
+      ],
+    );
+    await repo.jalankan();
+
+    final sesudah = await (db.select(db.pengguna)..where((t) => t.id.equals('pengguna-default'))).getSingle();
+    expect(sesudah.aktif, isFalse);
+    expect(sesudah.pinHash, isNull);
+    final asli = await (db.select(db.pengguna)..where((t) => t.id.equals('3f2504e0-4f89-41d3-9a0c-0305e82c3301'))).getSingle();
+    expect(asli.aktif, isTrue);
+  });
 
   test('push: diskon manual item dan penyetujunya (UUID) ikut payload; id non-UUID tidak dikirim', () async {
     await db.produkDao.upsertProduk(ProdukCompanion.insert(
