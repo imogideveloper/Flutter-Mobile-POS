@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../../../core/network/auth_session_store.dart';
@@ -351,6 +352,13 @@ class _OtpLoginPageState extends ConsumerState<OtpLoginPage> {
                           ? 'Belum punya toko? Daftar gratis'
                           : 'Sudah punya toko? Masuk',
                     ),
+                  ),
+                ),
+                Center(
+                  child: TextButton(
+                    key: const Key('otpLogin.masukAdmin'),
+                    onPressed: () => context.push('/admin/login'),
+                    child: const Text('Masuk sebagai Administrator'),
                   ),
                 ),
               ],

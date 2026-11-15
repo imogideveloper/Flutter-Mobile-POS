@@ -1,3 +1,6 @@
+import logging
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
@@ -7,6 +10,7 @@ from app.routers import (
     admin_langganan,
     absensi,
     admin_auth,
+    admin_dashboard,
     admin_platform,
     audit,
     auth,
@@ -37,7 +41,22 @@ from app.routers import (
 
 settings = get_settings()
 
-app = FastAPI(title=settings.app_name)
+@asynccontextmanager
+async def _lifespan(_app: FastAPI):
+    # Status pengembangan fitur (dashboard admin) mengikuti berkas di repo
+    # setiap server menyala. Gagal di sini TIDAK boleh menjatuhkan server.
+    try:
+        from app.core.db import SessionLocal
+        from app.services.status_fitur_service import sinkron_status_fitur
+
+        async with SessionLocal() as db:
+            await sinkron_status_fitur(db)
+    except Exception:  # noqa: BLE001
+        logging.getLogger(__name__).exception("Sinkron status fitur gagal; server tetap jalan")
+    yield
+
+
+app = FastAPI(title=settings.app_name, lifespan=_lifespan)
 
 # Logo toko (tahap 4 bagian B.2) saat S3_BUCKET kosong (development) -
 # disajikan dari folder lokal `storage/` (lihat storage_service.py).
@@ -76,6 +95,7 @@ app.include_router(audit.router)
 app.include_router(langganan.router)
 app.include_router(admin_langganan.router)
 app.include_router(admin_auth.router)
+app.include_router(admin_dashboard.router)
 app.include_router(admin_platform.router)
 app.include_router(payment_xendit.router)
 

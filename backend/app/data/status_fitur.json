@@ -1,0 +1,350 @@
+{
+ "1": {
+  "status": "sudah",
+  "catatan": "Kasir, keranjang, bayar, riwayat. Printer belum teruji."
+ },
+ "2": {
+  "status": "sudah",
+  "catatan": "Scan kamera (mobile_scanner)."
+ },
+ "3": {
+  "status": "sedang",
+  "catatan": "Promo dan diskon ada. Belum ada pengaturan tombol cepat diskon manual, izin diskon item oleh kasir, dan batas diskon dengan PIN owner."
+ },
+ "4": {
+  "status": "sedang",
+  "catatan": "Pajak per produk ada. Belum ada pengaturan status pajak usaha (kena/tidak kena), nama pajak (PB1/PPN), dan cara hitung (termasuk/ditambahkan) dengan bawaan per jenis usaha."
+ },
+ "5": {
+  "status": "sudah",
+  "catatan": "Tipe pesanan dan meja (pengaturan) ada."
+ },
+ "6": {
+  "status": "sedang",
+  "catatan": "Service fee per tipe pesanan ada. Bawaan 5% makan di tempat untuk kafe dan restoran belum otomatis dari jenis usaha."
+ },
+ "7": {
+  "status": "sudah",
+  "catatan": "Simpan pesanan (open bill) ada. Belum terhubung ke meja."
+ },
+ "8": {
+  "status": "tidak_relevan",
+  "catatan": "Tidak relevan untuk Makanan & Minuman."
+ },
+ "9": {
+  "status": "tidak_relevan",
+  "catatan": "Tidak relevan untuk Makanan & Minuman."
+ },
+ "10": {
+  "status": "sedang",
+  "catatan": "QRIS dinamis Xendit belum teruji (kunci kosong). Imogi memakai QRIS statis dari gambar yang diunggah usaha; pengaturan unggah gambar QRIS belum ditemukan."
+ },
+ "11": {
+  "status": "tidak_relevan",
+  "catatan": "Tidak relevan untuk Makanan & Minuman."
+ },
+ "12": {
+  "status": "tidak_relevan",
+  "catatan": "Tidak relevan untuk Makanan & Minuman."
+ },
+ "13": {
+  "status": "sedang",
+  "catatan": "Metode kartu ada. Belum ada pengaturan jenis kartu, daftar mesin EDC, dan kewajiban isi no. referensi/4 digit."
+ },
+ "14": {
+  "status": "sedang",
+  "catatan": "Metode transfer ada. SEBAGIAN (2026-11-14): Pengaturan metode bayar kini punya rekening tujuan (bank, nomor, atas nama) untuk metode transfer/e-wallet; ikut sync ke HP (migrasi 0019, schema lokal 15) dan tampil di layar bayar saat metode dipilih. Belum diuji di HP."
+ },
+ "15": {
+  "status": "sedang",
+  "catatan": "SEBAGIAN (2026-11-14): tombol bayar campur kini digerbang fitur split_payment di layar kasir (tes ikut diperbarui). Belum diuji di HP."
+ },
+ "16": {
+  "status": "sedang",
+  "catatan": "Kasbon, jatuh tempo, dan pelunasan ada. SEBAGIAN (2026-11-14): limit bon kini juga dicek di HP sebelum bon disimpan (batas_kasbon dikurangi utang berjalan; ditolak dengan sisa kuota), selain di server (lihat batas_kasbon.dart, 4 tes). Belum diuji di HP."
+ },
+ "17": {
+  "status": "sudah",
+  "catatan": "DP untuk kasbon ada (DP minimal persen belum diperiksa)."
+ },
+ "18": {
+  "status": "sedang",
+  "catatan": "Aplikasi: ubah nama/urutan metode bayar. Imogi: label tujuan (GoPay, OVO, ShopeePay, bank) untuk rekonsiliasi. Konsepnya berbeda."
+ },
+ "19": {
+  "status": "tidak_relevan",
+  "catatan": "Tidak relevan untuk Makanan & Minuman."
+ },
+ "20": {
+  "status": "tidak_relevan",
+  "catatan": "Tidak relevan untuk Makanan & Minuman."
+ },
+ "21": {
+  "status": "tidak_relevan",
+  "catatan": "Tidak relevan untuk Makanan & Minuman."
+ },
+ "22": {
+  "status": "sudah",
+  "catatan": "Cetak ESC/POS Bluetooth. Belum teruji (tidak ada printer). Pengaturan cetak otomatis setelah bayar belum ditemukan."
+ },
+ "23": {
+  "status": "sudah",
+  "catatan": "Struk ringkas ada."
+ },
+ "24": {
+  "status": "sedang",
+  "catatan": "Logo ada (unggah). Imogi juga menyediakan gaya logo siap pakai (lingkaran, cincin, inisial) dan tanpa logo. BUG-012 menghalangi simpan pengaturan di paket Gratis."
+ },
+ "25": {
+  "status": "sedang",
+  "catatan": "Catatan pesanan tercetak. Footer struk toko sudah ada dan kini dibatasi maks. 300 karakter di Pengaturan struk. Belum diuji di HP."
+ },
+ "26": {
+  "status": "sedang",
+  "catatan": "SELESAI sebagian (2026-11-08): status awal Baru dibuat saat checkout, halaman Status Pesanan (menu Lainnya) memajukan tahap Baru, Diproses, Siap, Selesai (katering: Dipesan, Dimasak, Siap kirim, Dikirim, Selesai), tersimpan offline dan dikirim lewat sync (migrasi 0011). KEMAJUAN 2026-11-10: pesanan bertipe antar otomatis memuat tahap Diantar. Belum ada estimasi selesai, pesan WhatsApp saat siap, d"
+ },
+ "27": {
+  "status": "sedang",
+  "catatan": "Open bill dan kasbon ada. Tombol Terima Order dan pilihan kapan pelanggan membayar belum ada."
+ },
+ "28": {
+  "status": "tidak_relevan",
+  "catatan": "Tidak relevan untuk Makanan & Minuman."
+ },
+ "29": {
+  "status": "tidak_relevan",
+  "catatan": "Tidak relevan untuk Makanan & Minuman."
+ },
+ "30": {
+  "status": "tidak_relevan",
+  "catatan": "Tidak relevan untuk Makanan & Minuman."
+ },
+ "31": {
+  "status": "tidak_relevan",
+  "catatan": "Tidak relevan untuk Makanan & Minuman."
+ },
+ "32": {
+  "status": "tidak_relevan",
+  "catatan": "Tidak relevan untuk Makanan & Minuman."
+ },
+ "33": {
+  "status": "tidak_relevan",
+  "catatan": "Tidak relevan untuk Makanan & Minuman."
+ },
+ "34": {
+  "status": "sedang",
+  "catatan": "SELESAI sebagian (2026-11-08): HP membuat nomor A-001 sendiri saat offline (per hari, outlet, perangkat), tersimpan di transaksi, tampil di struk dan halaman sukses, dikirim lewat sync. KEMAJUAN 2026-11-10: awalan dan angka awal bisa diatur per outlet di Pengaturan struk (migrasi 0012). Belum ada panggilan suara, layar antrian, dan nama di layar antrian. Belum diuji di HP."
+ },
+ "35": {
+  "status": "sedang",
+  "catatan": "SELESAI sebagian (2026-11-08): tiket dapur tanpa harga (nomor antrian, waktu, menu dan jumlah) dicetak otomatis setelah pembayaran dan bisa dicetak ulang dari halaman sukses; lulus tes susunan tiket. KEMAJUAN 2026-11-10: kategori bisa dikeluarkan dari tiket (saklar \"Masuk tiket dapur\" di form kategori, migrasi 0013) dan tiket bisa dicetak ulang dari detail riwayat. Belum ada tombol auto-print terp"
+ },
+ "36": {
+  "status": "sedang",
+  "catatan": "SEBAGIAN (2026-11-14): CRUD produk, kategori, dan harga ada; kini kasir punya tab kategori (Semua + kategori yang berisi produk, urut menurut pengaturan kategori) yang digabung dengan pencarian. Belum: urutan tab khusus kasir terpisah dari urutan kategori. Lulus tes otomatis, belum diuji di HP."
+ },
+ "37": {
+  "status": "sedang",
+  "catatan": "SEBAGIAN (2026-11-13): penanda margin rendah di form dan daftar produk (lencana, filter \"Margin rendah\", peringatan di form) dengan batas per outlet di Pengaturan struk (bawaan 50% untuk F&B, migrasi 0016); HPP kosong ditandai tersendiri. Hak akses lihat harga beli mengikuti izin produk.kelola (belum ada izin khusus). Lulus tes otomatis, belum diuji di HP."
+ },
+ "38": {
+  "status": "sedang",
+  "catatan": "SEBAGIAN (2026-11-12): Lainnya > Impor & ekspor produk: template CSV, pratinjau, simulasi dan impor (maks 500 baris) lewat `POST /produk/impor`. Belum: .xlsx, memperbarui produk lama, varian, stok awal, gambar. Plugin `file_picker` baru, belum diuji di HP."
+ },
+ "39": {
+  "status": "sedang",
+  "catatan": "SEBAGIAN (2026-11-12): ekspor seluruh produk HP ke CSV lewat menu bagikan (Lainnya > Impor & ekspor produk). Belum diuji di HP."
+ },
+ "40": {
+  "status": "sudah",
+  "catatan": "Bundling produk ada."
+ },
+ "41": {
+  "status": "sudah",
+  "catatan": "Harga grosir ada."
+ },
+ "42": {
+  "status": "sedang",
+  "catatan": "SELESAI sebagian (2026-11-08): halaman Varian & tambahan (menu Lainnya) untuk membuat grup (ukuran, level gula, topping) beserta opsi berharga dan aturan wajib/maksimal pilih, memasangnya ke banyak produk; katalog turun ke HP lewat sync. Kasir membuka pemilih saat produk punya tambahan (juga lewat scan), harga ikut dihitung, baris keranjang terpisah per pilihan, tersimpan di pesanan tersimpan dan "
+ },
+ "43": {
+  "status": "belum",
+  "catatan": "Tidak ada konsep jual per kemasan (pcs, dus, pak)."
+ },
+ "44": {
+  "status": "tidak_relevan",
+  "catatan": "Tidak relevan untuk Makanan & Minuman."
+ },
+ "45": {
+  "status": "tidak_relevan",
+  "catatan": "Tidak relevan untuk Makanan & Minuman."
+ },
+ "46": {
+  "status": "tidak_relevan",
+  "catatan": "Tidak relevan untuk Makanan & Minuman."
+ },
+ "47": {
+  "status": "tidak_relevan",
+  "catatan": "Tidak relevan untuk Makanan & Minuman."
+ },
+ "48": {
+  "status": "tidak_relevan",
+  "catatan": "Tidak relevan untuk Makanan & Minuman."
+ },
+ "49": {
+  "status": "sedang",
+  "catatan": "SEBAGIAN (2026-11-14): kini ada riwayat mutasi lengkap per produk (ketuk baris stok): jenis, tanggal dan jam, jumlah, saldo setelah, catatan, total masuk/keluar, filter Masuk/Keluar, sampai 300 mutasi terbaru. Belum: filter tanggal, ekspor riwayat, riwayat per varian. Pengaturan saat stok habis sempat terblokir BUG-012 (diperbaiki di kode, menunggu uji HP). Lulus tes otomatis, belum diuji di HP."
+ },
+ "50": {
+  "status": "belum",
+  "catatan": "Backend punya kolom/batch kedaluwarsa; tanpa UI atau job."
+ },
+ "51": {
+  "status": "sudah",
+  "catatan": "Resep per produk; stok bahan terpotong saat jual. Perilaku offline belum diverifikasi."
+ },
+ "52": {
+  "status": "sudah",
+  "catatan": "CRUD pelanggan dan piutang."
+ },
+ "53": {
+  "status": "sedang",
+  "catatan": "SEBAGIAN (2026-11-13): Lainnya > Impor pelanggan: template CSV, pratinjau, simulasi dan impor lewat `POST /pelanggan/impor`; nomor HP dinormalkan. Belum: memperbarui pelanggan lama, poin/level. Belum diuji di HP."
+ },
+ "54": {
+  "status": "sudah",
+  "catatan": "Poin dan aturan poin ada. Poin hangus per bulan belum diperiksa."
+ },
+ "55": {
+  "status": "sudah",
+  "catatan": "Level member dan diskon member ada."
+ },
+ "56": {
+  "status": "sedang",
+  "catatan": "SEBAGIAN (2026-11-13): promo bisa ditandai Khusus ulang tahun (gerbang paket birthday_promo, migrasi 0017); tanggal lahir pelanggan bisa diisi di form, ikut impor CSV, dan kini ikut sync ke HP; di keranjang promo itu hanya bisa dipilih bila pelanggan berulang tahun hari ini dan dicabut bila pelanggan diganti; daftar pelanggan menandai yang berulang tahun hari ini. Belum: pemberitahuan ke pelanggan"
+ },
+ "57": {
+  "status": "belum",
+  "catatan": "Hanya kirim struk lewat WhatsApp; belum ada kirim pesan massal ke pelanggan."
+ },
+ "58": {
+  "status": "tidak_relevan",
+  "catatan": "Tidak relevan untuk Makanan & Minuman."
+ },
+ "59": {
+  "status": "belum",
+  "catatan": "Hanya tabel lokal."
+ },
+ "60": {
+  "status": "tidak_relevan",
+  "catatan": "Tidak relevan untuk Makanan & Minuman."
+ },
+ "61": {
+  "status": "sedang",
+  "catatan": "CRUD pengguna dan peran ada. Daftar hak akses Imogi (jualan, bon/DP, status pesanan, lihat margin, pengeluaran, dst.) dan peran bawaan Barista & Dapur belum dicocokkan."
+ },
+ "62": {
+  "status": "sedang",
+  "catatan": "SEBAGIAN (2026-11-12): Lainnya > Absensi: absen masuk/keluar, rekap jam kerja, endpoint `/absensi` (waktu server, batas hari mengikuti zona perangkat). Belum: foto, lokasi, jadwal, terlambat, koreksi, offline. Belum diuji di HP."
+ },
+ "63": {
+  "status": "sedang",
+  "catatan": "SEBAGIAN (2026-11-14): Lainnya > Jadwal & cuti: pengelola mengatur shift mingguan tiap karyawan (libur/pagi/siang), karyawan melihat jadwal dan mengajukan cuti/sakit/izin, pengelola menyetujui atau menolak (tidak bisa memutuskan milik sendiri); absen masuk menjadi Terlambat bila lewat jam mulai + 10 menit (migrasi 0018, /jadwal dan /cuti, fitur staff_schedule). Belum: tukar jadwal, jam shift kusto"
+ },
+ "64": {
+  "status": "sudah",
+  "catatan": "Laporan penjualan dengan batas hari per paket."
+ },
+ "65": {
+  "status": "sedang",
+  "catatan": "Tanpa grafik tren."
+ },
+ "66": {
+  "status": "tidak_relevan",
+  "catatan": "Tidak relevan untuk Makanan & Minuman."
+ },
+ "67": {
+  "status": "sedang",
+  "catatan": "SEBAGIAN (2026-11-12): menu Lainnya > Pengeluaran (Owner/Manajer), 9 kategori F&B, rentang hari/7 hari/bulan, total dan rincian per kategori, catat dan hapus; server `/pengeluaran` (migrasi 0015, digerbang fitur `expenses`). Belum: offline (butuh internet), edit, foto nota, berulang. Lulus tes otomatis, belum diuji di HP."
+ },
+ "68": {
+  "status": "sudah",
+  "catatan": "Buka/tutup shift dan kas ada. Modal awal disarankan (Rp 300.000 untuk F&B) belum diperiksa."
+ },
+ "69": {
+  "status": "sedang",
+  "catatan": "SEBAGIAN (2026-11-12): Lainnya > Laba rugi: penjualan kotor, diskon, HPP, laba kotor, biaya operasional, laba bersih; server `/laporan/laba-rugi`. Rumus adalah keputusan sementara (belanja bahan tidak dikurangkan lagi, refund belum dihitung); perlu validasi akuntan. Butuh internet, belum diuji di HP."
+ },
+ "70": {
+  "status": "sedang",
+  "catatan": "SEBAGIAN (2026-11-12): tab PPh Final di Lainnya > Rekap pajak: estimasi tarif 0,5% x peredaran bruto per bulan; server `/laporan/pph-final`. Ambang bebas pajak dan status wajib pajak belum dihitung, hanya estimasi. Belum diuji di HP."
+ },
+ "71": {
+  "status": "sedang",
+  "catatan": "Piutang pelanggan (kasbon) ada. Hutang usaha ke supplier belum dicocokkan (backend punya modul pembelian)."
+ },
+ "72": {
+  "status": "sedang",
+  "catatan": "SEBAGIAN (2026-11-14): kartu HPP & margin per produk di tab Laporan (qty, HPP, laba, margin %, penanda di bawah batas margin outlet, HPP kosong ditandai), dihitung offline dari data lokal, terkunci paket Professional. DIPERBAIKI: HPP sebelumnya tidak pernah disimpan saat checkout (selalu 0); kini disimpan sebagai snapshot HPP produk saat transaksi. Transaksi lama tetap HPP 0. Belum: ekspor dan lap"
+ },
+ "73": {
+  "status": "sedang",
+  "catatan": "SEBAGIAN (2026-11-12): tab PPN/PB1 di Lainnya > Rekap pajak: pajak dan service dipungut per nama dan tarif; server `/laporan/rekap-pajak`. Belum: ekspor, PPN masukan/keluaran, pelaporan SPT. Belum diuji di HP."
+ },
+ "74": {
+  "status": "belum",
+  "catatan": "Tidak ada settlement atau rekonsiliasi QRIS dan e-wallet."
+ },
+ "75": {
+  "status": "tidak_relevan",
+  "catatan": "Tidak relevan untuk Makanan & Minuman."
+ },
+ "76": {
+  "status": "belum",
+  "catatan": "Tidak ada penggajian dan kasbon karyawan."
+ },
+ "77": {
+  "status": "belum",
+  "catatan": "Tidak ada BPJS dan PPh 21."
+ },
+ "78": {
+  "status": "belum",
+  "catatan": "Tidak ada tutup buku akhir tahun."
+ },
+ "79": {
+  "status": "belum",
+  "catatan": "Tidak ada pendapatan diterima di muka."
+ },
+ "80": {
+  "status": "belum",
+  "catatan": "Tidak ada chart of accounts dan jurnal umum."
+ },
+ "81": {
+  "status": "belum",
+  "catatan": "Tidak ada buku besar, neraca, dan arus kas."
+ },
+ "82": {
+  "status": "belum",
+  "catatan": "Tidak ada anggaran dan proyeksi arus kas."
+ },
+ "83": {
+  "status": "belum",
+  "catatan": "Tidak ada aset tetap dan penyusutan."
+ },
+ "84": {
+  "status": "belum",
+  "catatan": "Tidak ada laporan keuangan konsolidasi."
+ },
+ "85": {
+  "status": "belum",
+  "catatan": "Tidak ada ekspor ke software akuntansi."
+ },
+ "86": {
+  "status": "tidak_relevan",
+  "catatan": "Tidak relevan untuk Makanan & Minuman."
+ },
+ "87": {
+  "status": "sedang",
+  "catatan": "Backend ada; di aplikasi tidak ada UI ganti outlet."
+ }
+}

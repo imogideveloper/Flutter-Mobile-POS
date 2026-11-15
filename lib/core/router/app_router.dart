@@ -5,6 +5,8 @@ import '../../features/absensi/presentation/pages/absensi_page.dart';
 import '../../features/jadwal/presentation/pages/jadwal_cuti_page.dart';
 import '../../features/auth/presentation/pages/auth_gate_page.dart';
 import '../../features/auth/presentation/pages/pengguna_form_page.dart';
+import '../../features/admin/presentation/pages/admin_dashboard_page.dart';
+import '../../features/admin/presentation/pages/admin_login_page.dart';
 import '../../features/auth/presentation/pages/pengguna_list_page.dart';
 import '../../features/laporan/presentation/pages/laporan_page.dart';
 import '../../features/pelanggan/presentation/pages/pelanggan_list_page.dart';
@@ -67,6 +69,8 @@ GoRouter _buildRouter() => GoRouter(
   initialLocation: '/',
   routes: [
     GoRoute(path: '/', builder: (context, state) => const AuthGatePage()),
+    GoRoute(path: '/admin/login', builder: (context, state) => const AdminLoginPage()),
+    GoRoute(path: '/admin', builder: (context, state) => const AdminDashboardPage()),
 
     // Bottom-nav shell: 5 tab. Sengaja TIDAK pakai StatefulShellRoute.indexedStack
     // bawaan - implementasi defaultnya membungkus tiap branch tidak aktif dengan

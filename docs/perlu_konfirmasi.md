@@ -170,3 +170,15 @@ Aturan baca: **Sementara** = perilaku yang sekarang dipakai di kode. **Dampak bi
 | O4 | Pencabutan di server: perangkat dinonaktifkan sehingga refresh token dan login PIN perangkat itu ditolak; access token yang beredar kedaluwarsa sendiri. Bila HP offline saat logout, pencabutan server dilewati (best-effort) | Token lama baru mati setelah kedaluwarsa |
 | O5 | Akun Administrator: tabel `akun_admin` (email, password bcrypt), login `POST /admin/auth/login`, token bertipe `admin` yang tidak berlaku di endpoint toko. **API key statis tetap berlaku** sebagai jalur peralihan dan satu-satunya cara membuat admin pertama (`POST /admin/akun`) | Perlu diputuskan kapan API key dimatikan; kata sandi admin pertama dibuat operator, tidak disimpan di repo |
 | O6 | Belum ada: ganti/lupa kata sandi admin, batas percobaan login, peran admin berjenjang, dan layar login admin (dashboard) | Tahap 2 |
+
+## Tambahan 2026-11-15 (dashboard Administrator di Flutter, permintaan lead)
+
+| # | Hal | Sementara |
+|---|---|---|
+| P1 | Dashboard dibangun di **Flutter** (bukan React): login admin dari layar OTP ("Masuk sebagai Administrator") lalu 3 tab: Ringkasan, Usaha, Fitur; filter 7 jenis usaha F&B. Sesi admin hanya di memori (tutup aplikasi = login lagi) | Halaman web terpisah (React atau Flutter Web) ditunda sesuai arahan "cukup Flutter dulu" |
+| P2 | **Cara memperbarui status fitur:** ubah `backend/app/data/status_fitur.json` (kunci = nomor IMOGI) bersamaan dengan `docs/gap_imogi.md` setiap fitur selesai; status tersalin ke database tiap server menyala. Nilai: belum, sedang, sudah, tidak_relevan | Tes `test_berkas_status_nyata_valid_dan_cocok_dengan_gap_imogi` mengunci jumlah 15/34/15/23, ubah angkanya bersama berkas |
+| P3 | "Sudah" = kode selesai dan lulus tes otomatis. `uji_hp` selalu false sampai ada bukti uji di HP; dashboard menampilkan "Lulus uji di HP: 0" | Jangan diisi true tanpa bukti |
+| P4 | Pada filter jenis usaha, fitur dengan kebutuhan `na` untuk jenis itu ditampilkan **Tidak relevan** walau kodenya ada (mis. kafe: 26, katering: 29), sedangkan tanpa filter angkanya 23 (tidak relevan untuk semua 7 jenis) | Perlu dikonfirmasi lead: apakah hitungan ini yang diinginkan |
+| P5 | Paket yang dipakai usaha dihitung **paket efektif** (selama trial = paket tertinggi), dan paket langganan sebenarnya tampil terpisah di daftar usaha | Di dev, satu-satunya usaha tampil "Enterprise" karena trial 4 bulan |
+| P6 | Pengguna dihitung = karyawan aktif per usaha. "Akun yang download" belum ada hitungan unduhan (butuh data Play Store); yang ada baru usaha terdaftar dan pengguna | Perlu didefinisikan bersama lead |
+| P7 | **Cacat yang ditemukan lewat uji ke Postgres:** migrasi 0020 (akun_admin) tidak punya kolom `deleted_at` sehingga membuat akun admin gagal di Postgres walau tes SQLite lulus; diperbaiki migrasi 0022. Tes backend memakai SQLite dari model, jadi selisih model dan migrasi tidak tertangkap | Perlu uji migrasi ke Postgres sungguhan di CI |
