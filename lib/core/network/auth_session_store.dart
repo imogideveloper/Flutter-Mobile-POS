@@ -88,6 +88,21 @@ class AuthSessionStore {
   Future<String> ambilLastSyncAt() async =>
       await _storage.read(key: _kLastSyncAtKey) ?? DateTime.utc(1970).toIso8601String();
 
+  /// Hapus seluruh sesi usaha di perangkat ini (logout usaha).
+  Future<void> hapus() async {
+    for (final kunci in const [
+      _kAccessTokenKey,
+      _kRefreshTokenKey,
+      _kTokoIdKey,
+      _kOutletIdKey,
+      _kPenggunaIdKey,
+      _kPerangkatIdKey,
+      _kLastSyncAtKey,
+    ]) {
+      await _storage.delete(key: kunci);
+    }
+  }
+
   Future<void> simpanLastSyncAt(String iso8601) async {
     await _storage.write(key: _kLastSyncAtKey, value: iso8601);
   }

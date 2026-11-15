@@ -171,6 +171,22 @@ part 'app_database.g.dart';
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
+  /// Hapus SEMUA baris di semua tabel (logout usaha) - dipanggil hanya
+  /// setelah dipastikan tidak ada data belum tersinkron. FK dimatikan
+  /// sementara agar urutan hapus tidak penting.
+  Future<void> hapusSemuaDataLokal() async {
+    await customStatement('PRAGMA foreign_keys = OFF');
+    try {
+      await transaction(() async {
+        for (final tabel in allTables) {
+          await delete(tabel).go();
+        }
+      });
+    } finally {
+      await customStatement('PRAGMA foreign_keys = ON');
+    }
+  }
+
   @override
   int get schemaVersion => 15;
 

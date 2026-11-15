@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.admin_auth import verifikasi_admin_api_key
+from app.core.admin_auth import verifikasi_admin
 from app.core.db import get_db
 from app.services.platform_service import (
     DEFAULT_TRIAL_NOTIFIKASI_HARI,
@@ -17,7 +17,7 @@ from app.services.platform_service import (
 )
 
 router = APIRouter(
-    prefix="/admin/pengaturan-platform", tags=["admin"], dependencies=[Depends(verifikasi_admin_api_key)]
+    prefix="/admin/pengaturan-platform", tags=["admin"], dependencies=[Depends(verifikasi_admin)]
 )
 
 

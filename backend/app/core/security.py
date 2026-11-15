@@ -125,3 +125,29 @@ def decode_token(token: str, *, expected_type: TokenType) -> TokenClaims:
         )
     except (KeyError, ValueError) as exc:
         raise InvalidTokenError("Klaim token tidak lengkap/tidak valid") from exc
+
+
+def create_admin_token(*, admin_id: uuid.UUID) -> str:
+    """Token akun Administrator platform (BUKAN karyawan toko) - tidak punya
+    toko_id/role_id, tipe 'admin' supaya tidak bisa dipakai di endpoint toko
+    (decode_token menolak tipe selain access/refresh)."""
+    settings = get_settings()
+    now = datetime.now(UTC)
+    payload: dict[str, Any] = {
+        "sub": str(admin_id),
+        "type": "admin",
+        "iat": now,
+        "exp": now + timedelta(minutes=settings.access_token_expire_minutes),
+    }
+    return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
+
+
+def decode_admin_token(token: str) -> uuid.UUID:
+    settings = get_settings()
+    try:
+        payload = jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
+        if payload.get("type") != "admin":
+            raise InvalidTokenError("Bukan token administrator")
+        return uuid.UUID(payload["sub"])
+    except (JWTError, KeyError, ValueError) as exc:
+        raise InvalidTokenError(str(exc)) from exc

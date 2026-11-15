@@ -40,3 +40,10 @@ Future<String> ambilDeviceUid(WidgetRef ref) async {
   await storage.write(key: _kDeviceUidKey, value: baru);
   return baru;
 }
+
+/// Lawan [tandaiDeviceSudahPaired] - dipakai logout usaha.
+Future<void> hapusTandaPaired(WidgetRef ref) async {
+  final storage = ref.read(secureStorageProvider);
+  await storage.delete(key: _kDevicePairedKey);
+  ref.invalidate(devicePairedProvider);
+}

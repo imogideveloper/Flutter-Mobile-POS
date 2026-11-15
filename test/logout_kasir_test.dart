@@ -61,6 +61,7 @@ void main() {
     await tester.tap(find.text('Lainnya'));
     await tester.pumpAndSettle();
     expect(find.text('Keluar / ganti kasir'), findsOneWidget);
+    expect(find.text('Keluar dari usaha'), findsNothing, reason: 'hanya Owner');
     expect(find.text('Budi Kasir'), findsWidgets);
     await tester.tap(find.text('Keluar / ganti kasir'));
     await tester.pump();

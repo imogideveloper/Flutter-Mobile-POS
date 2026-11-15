@@ -17,9 +17,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.db import get_db
 from app.core.jenis_usaha import normalisasi_jenis_usaha
 from app.core.otp_store import OtpStore, get_otp_store
-from app.core.deps import require_outlet_access
+from app.core.deps import get_current_claims, require_outlet_access
 from app.core.security import (
     InvalidTokenError,
+    TokenClaims,
     create_access_token,
     create_refresh_token,
     decode_token,
@@ -234,11 +235,16 @@ async def _upsert_perangkat(
 
 
 @router.post("/refresh", response_model=RefreshOut)
-async def refresh_token(body: RefreshIn) -> RefreshOut:
+async def refresh_token(body: RefreshIn, db: AsyncSession = Depends(get_db)) -> RefreshOut:
     try:
         claims = decode_token(body.refresh_token, expected_type="refresh")
     except InvalidTokenError as exc:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, f"Refresh token tidak valid: {exc}") from exc
+
+    if claims.perangkat_id is not None:
+        perangkat = await db.get(Perangkat, claims.perangkat_id)
+        if perangkat is None or not perangkat.aktif:
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Perangkat sudah keluar dari usaha - pairing ulang")
 
     access = create_access_token(
         pengguna_id=claims.pengguna_id,
@@ -258,7 +264,7 @@ async def pin_login(body: PinLoginIn, db: AsyncSession = Depends(get_db)) -> Pin
     SENDIRI yang menghasilkan identitas - sama pola dgn /auth/otp/verify."""
 
     perangkat = await db.get(Perangkat, body.perangkat_id)
-    if perangkat is None:
+    if perangkat is None or not perangkat.aktif:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Perangkat tidak dikenal - pairing device dulu")
 
     pengguna = await db.get(Pengguna, body.pengguna_id)
@@ -292,3 +298,24 @@ async def pin_login(body: PinLoginIn, db: AsyncSession = Depends(get_db)) -> Pin
         pengguna=PenggunaOut(id=pengguna.id, nama=pengguna.nama, role_id=pengguna.role_id),
         perangkat_id=perangkat.id,
     )
+
+
+@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
+async def logout_usaha(
+    claims: TokenClaims = Depends(get_current_claims), db: AsyncSession = Depends(get_db)
+) -> None:
+    """Logout USAHA dari perangkat ini - hanya Owner. Perangkat dinonaktifkan
+    sehingga refresh token & PIN-login perangkat itu ditolak; pairing ulang
+    lewat OTP mengaktifkannya lagi (_upsert_perangkat). Access token yang
+    masih beredar kedaluwarsa sendiri (menit). Data transaksi di server
+    tidak disentuh."""
+    role = await db.get(Role, claims.role_id)
+    if role is None or not (role.is_system and role.nama == "Owner"):
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Hanya Owner yang boleh keluar dari usaha")
+    if claims.perangkat_id is None:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Token tidak terikat ke perangkat")
+    perangkat = await db.get(Perangkat, claims.perangkat_id)
+    if perangkat is None or perangkat.toko_id != claims.toko_id:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Perangkat tidak ditemukan")
+    perangkat.aktif = False
+    await db.commit()

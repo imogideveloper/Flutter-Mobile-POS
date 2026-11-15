@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../widgets/dialog_logout_usaha.dart';
 import '../../../../core/network/backend_exception.dart';
 import '../../../../core/network/sync_repository.dart';
 import '../../../../core/providers/izin_provider.dart';
@@ -457,8 +458,15 @@ class LainnyaPage extends ConsumerWidget {
                       ref.read(currentPenggunaIdProvider.notifier).logout();
                       context.go('/');
                     },
-                    showDivider: false,
+                    showDivider: roleSaatIni?.nama == 'Owner',
                   ),
+                  if (roleSaatIni?.nama == 'Owner')
+                    SettingsMenuRow(
+                      label: 'Keluar dari usaha',
+                      value: namaToko,
+                      onTap: () => tampilkanLogoutUsaha(context, ref),
+                      showDivider: false,
+                    ),
                 ],
               ),
             ),

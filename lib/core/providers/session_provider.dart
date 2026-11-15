@@ -8,9 +8,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// satu per satu - makanya provider ini TETAP `Provider<String>`-shaped
 /// (dibaca sinkron) walau sekarang di-backing oleh Notifier yang bisa
 /// diubah, bukan literal konstan seperti sebelumnya.
-const _tokoIdPlaceholder = 'toko-default';
-const _outletIdPlaceholder = 'outlet-default';
-const _perangkatIdPlaceholder = 'perangkat-default';
+const tokoIdPlaceholder = 'toko-default';
+const outletIdPlaceholder = 'outlet-default';
+const perangkatIdPlaceholder = 'perangkat-default';
 // Belum ada pull-sync metode_bayar yang dipakai utk pilih metode bayar di
 // UI (baru dipakai di sisi push - lihat sync_repository.dart) - kasir utk
 // sekarang cuma mendukung tunai & QRIS (keduanya di-mock, belum ada
@@ -30,11 +30,11 @@ class _IdSessionNotifier extends Notifier<String> {
 }
 
 final currentTokoIdProvider =
-    NotifierProvider<_IdSessionNotifier, String>(() => _IdSessionNotifier(_tokoIdPlaceholder));
+    NotifierProvider<_IdSessionNotifier, String>(() => _IdSessionNotifier(tokoIdPlaceholder));
 final currentOutletIdProvider =
-    NotifierProvider<_IdSessionNotifier, String>(() => _IdSessionNotifier(_outletIdPlaceholder));
+    NotifierProvider<_IdSessionNotifier, String>(() => _IdSessionNotifier(outletIdPlaceholder));
 final currentPerangkatIdProvider =
-    NotifierProvider<_IdSessionNotifier, String>(() => _IdSessionNotifier(_perangkatIdPlaceholder));
+    NotifierProvider<_IdSessionNotifier, String>(() => _IdSessionNotifier(perangkatIdPlaceholder));
 
 final metodeBayarTunaiIdProvider = Provider<String>((ref) => _metodeBayarTunaiIdPlaceholder);
 final metodeBayarQrisIdProvider = Provider<String>((ref) => _metodeBayarQrisIdPlaceholder);

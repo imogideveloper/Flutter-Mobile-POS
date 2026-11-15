@@ -5,13 +5,13 @@ tercatat di audit_log (F3.F.3)."""
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.admin_auth import verifikasi_admin_api_key
+from app.core.admin_auth import verifikasi_admin
 from app.core.db import get_db
 from app.schemas.langganan import AdminAktivasiLangganan
 from app.services.audit_service import catat_audit
 from app.services.langganan_service import admin_aktivasi_langganan
 
-router = APIRouter(prefix="/admin/langganan", tags=["admin"], dependencies=[Depends(verifikasi_admin_api_key)])
+router = APIRouter(prefix="/admin/langganan", tags=["admin"], dependencies=[Depends(verifikasi_admin)])
 
 
 @router.post("/aktivasi", status_code=201)

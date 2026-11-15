@@ -6,6 +6,7 @@ from app.core.config import get_settings
 from app.routers import (
     admin_langganan,
     absensi,
+    admin_auth,
     admin_platform,
     audit,
     auth,
@@ -74,6 +75,7 @@ app.include_router(transfer_stok.router)
 app.include_router(audit.router)
 app.include_router(langganan.router)
 app.include_router(admin_langganan.router)
+app.include_router(admin_auth.router)
 app.include_router(admin_platform.router)
 app.include_router(payment_xendit.router)
 

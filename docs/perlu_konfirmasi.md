@@ -159,3 +159,14 @@ Aturan baca: **Sementara** = perilaku yang sekarang dipakai di kode. **Dampak bi
 | N3 | Jadwal dan persetujuan cuti memakai izin `laporan.lihat` (Owner/Manajer); pengajuan sendiri tidak boleh diputuskan sendiri | Perlu izin khusus bila Manajer tidak boleh menyetujui cuti |
 | N4 | Cuti yang disetujui hanya ditampilkan di Jadwal; belum menghalangi absen atau menandai Izin/Sakit pada rekap absensi | Perlu aturan hubungan cuti dan absensi |
 | N5 | Tukar jadwal (IMOGI no. 63) belum ada | Tahap berikutnya |
+
+## Tambahan 2026-11-15 (logout usaha dan akun Administrator, permintaan lead)
+
+| # | Hal | Sementara |
+|---|---|---|
+| O1 | Logout usaha hanya untuk peran **Owner** (menu Lainnya > "Keluar dari usaha"), baik di layar maupun di server (`POST /auth/logout` menolak 403 selain Owner sistem) | Perlu konfirmasi: apakah Manajer boleh juga |
+| O2 | Logout ditahan bila masih ada transaksi/pembayaran/pembatalan/status pesanan yang belum terkirim ke server (setelah mencoba sync); tidak ada opsi "paksa keluar" | Bila lead menginginkan paksa keluar, data belum terkirim akan hilang |
+| O3 | Logout menghapus SELURUH data lokal usaha dan token di HP (data di server tetap). Pengaturan di penyimpanan lain (mis. profil toko di penyimpanan aman) belum ikut dibersihkan | Perlu dicek di HP sungguhan |
+| O4 | Pencabutan di server: perangkat dinonaktifkan sehingga refresh token dan login PIN perangkat itu ditolak; access token yang beredar kedaluwarsa sendiri. Bila HP offline saat logout, pencabutan server dilewati (best-effort) | Token lama baru mati setelah kedaluwarsa |
+| O5 | Akun Administrator: tabel `akun_admin` (email, password bcrypt), login `POST /admin/auth/login`, token bertipe `admin` yang tidak berlaku di endpoint toko. **API key statis tetap berlaku** sebagai jalur peralihan dan satu-satunya cara membuat admin pertama (`POST /admin/akun`) | Perlu diputuskan kapan API key dimatikan; kata sandi admin pertama dibuat operator, tidak disimpan di repo |
+| O6 | Belum ada: ganti/lupa kata sandi admin, batas percobaan login, peran admin berjenjang, dan layar login admin (dashboard) | Tahap 2 |
