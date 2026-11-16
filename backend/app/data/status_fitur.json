@@ -101,7 +101,7 @@
  },
  "26": {
   "status": "sedang",
-  "catatan": "SELESAI sebagian (2026-11-08): status awal Baru dibuat saat checkout, halaman Status Pesanan (menu Lainnya) memajukan tahap Baru, Diproses, Siap, Selesai (katering: Dipesan, Dimasak, Siap kirim, Dikirim, Selesai), tersimpan offline dan dikirim lewat sync (migrasi 0011). KEMAJUAN 2026-11-10: pesanan bertipe antar otomatis memuat tahap Diantar. Belum ada estimasi selesai, pesan WhatsApp saat siap, d"
+  "catatan": "SELESAI sebagian (2026-11-08): status awal Baru dibuat saat checkout, halaman Status Pesanan (menu Lainnya) memajukan tahap Baru, Diproses, Siap, Selesai (katering: Dipesan, Dimasak, Siap kirim, Dikirim, Selesai), tersimpan offline dan dikirim lewat sync (migrasi 0011). KEMAJUAN 2026-11-10: pesanan bertipe antar otomatis memuat tahap Diantar. Belum ada estimasi selesai, pesan WhatsApp saat siap, dan uji di HP."
  },
  "27": {
   "status": "sedang",
@@ -165,7 +165,7 @@
  },
  "42": {
   "status": "sedang",
-  "catatan": "SELESAI sebagian (2026-11-08): halaman Varian & tambahan (menu Lainnya) untuk membuat grup (ukuran, level gula, topping) beserta opsi berharga dan aturan wajib/maksimal pilih, memasangnya ke banyak produk; katalog turun ke HP lewat sync. Kasir membuka pemilih saat produk punya tambahan (juga lewat scan), harga ikut dihitung, baris keranjang terpisah per pilihan, tersimpan di pesanan tersimpan dan "
+  "catatan": "SELESAI sebagian (2026-11-08): halaman Varian & tambahan (menu Lainnya) untuk membuat grup (ukuran, level gula, topping) beserta opsi berharga dan aturan wajib/maksimal pilih, memasangnya ke banyak produk; katalog turun ke HP lewat sync. Kasir membuka pemilih saat produk punya tambahan (juga lewat scan), harga ikut dihitung, baris keranjang terpisah per pilihan, tersimpan di pesanan tersimpan dan riwayat, tampil di struk dan tiket dapur, terkirim saat sync. Lulus 22 tes Flutter dan tes backend. Belum diuji di HP. Belum ada: urutan opsi yang bisa digeser, tambahan khusus per produk (hanya grup bersama), izin kelola terpisah di sisi aplikasi."
  },
  "43": {
   "status": "belum",
@@ -221,7 +221,7 @@
  },
  "56": {
   "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-13): promo bisa ditandai Khusus ulang tahun (gerbang paket birthday_promo, migrasi 0017); tanggal lahir pelanggan bisa diisi di form, ikut impor CSV, dan kini ikut sync ke HP; di keranjang promo itu hanya bisa dipilih bila pelanggan berulang tahun hari ini dan dicabut bila pelanggan diganti; daftar pelanggan menandai yang berulang tahun hari ini. Belum: pemberitahuan ke pelanggan"
+  "catatan": "SEBAGIAN (2026-11-13): promo bisa ditandai Khusus ulang tahun (gerbang paket birthday_promo, migrasi 0017); tanggal lahir pelanggan bisa diisi di form, ikut impor CSV, dan kini ikut sync ke HP; di keranjang promo itu hanya bisa dipilih bila pelanggan berulang tahun hari ini dan dicabut bila pelanggan diganti; daftar pelanggan menandai yang berulang tahun hari ini. Penerapan otomatis sudah ada (2026-11-17): memilih pelanggan yang berulang tahun hari ini di keranjang otomatis memasang promo ulang tahun bila kasir belum memilih promo. Belum: pemberitahuan ke pelanggan, validasi server saat checkout. Belum diuji di HP."
  },
  "57": {
   "status": "belum",
@@ -249,7 +249,7 @@
  },
  "63": {
   "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-14): Lainnya > Jadwal & cuti: pengelola mengatur shift mingguan tiap karyawan (libur/pagi/siang), karyawan melihat jadwal dan mengajukan cuti/sakit/izin, pengelola menyetujui atau menolak (tidak bisa memutuskan milik sendiri); absen masuk menjadi Terlambat bila lewat jam mulai + 10 menit (migrasi 0018, /jadwal dan /cuti, fitur staff_schedule). Belum: tukar jadwal, jam shift kusto"
+  "catatan": "SEBAGIAN (2026-11-14): Lainnya > Jadwal & cuti: pengelola mengatur shift mingguan tiap karyawan (libur/pagi/siang), karyawan melihat jadwal dan mengajukan cuti/sakit/izin, pengelola menyetujui atau menolak (tidak bisa memutuskan milik sendiri); absen masuk menjadi Terlambat bila lewat jam mulai + 10 menit (migrasi 0018, /jadwal dan /cuti, fitur staff_schedule). Belum: tukar jadwal, jam shift kustom di layar, shift lintas tengah malam, pemberitahuan. Belum diuji di HP."
  },
  "64": {
   "status": "sudah",
@@ -285,7 +285,7 @@
  },
  "72": {
   "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-14): kartu HPP & margin per produk di tab Laporan (qty, HPP, laba, margin %, penanda di bawah batas margin outlet, HPP kosong ditandai), dihitung offline dari data lokal, terkunci paket Professional. DIPERBAIKI: HPP sebelumnya tidak pernah disimpan saat checkout (selalu 0); kini disimpan sebagai snapshot HPP produk saat transaksi. Transaksi lama tetap HPP 0. Belum: ekspor dan lap"
+  "catatan": "SEBAGIAN (2026-11-14): kartu HPP & margin per produk di tab Laporan (qty, HPP, laba, margin %, penanda di bawah batas margin outlet, HPP kosong ditandai), dihitung offline dari data lokal, terkunci paket Professional. DIPERBAIKI: HPP sebelumnya tidak pernah disimpan saat checkout (selalu 0); kini disimpan sebagai snapshot HPP produk saat transaksi. Transaksi lama tetap HPP 0. Belum: ekspor dan laporan per kategori. Belum diuji di HP."
  },
  "73": {
   "status": "sedang",

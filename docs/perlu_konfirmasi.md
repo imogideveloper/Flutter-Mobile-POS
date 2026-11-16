@@ -309,3 +309,11 @@ Aturan baca: **Sementara** = perilaku yang sekarang dipakai di kode. **Dampak bi
 | AB2 | Stasiun terikat ke outlet, sedangkan kategori terikat ke toko. Kategori yang ditautkan ke stasiun outlet A dan dipakai di outlet B akan mencetak sebagai tiket umum di B | Perlu konfirmasi bila usaha multi-outlet memakai stasiun berbeda |
 | AB3 | Membuat, mengubah, dan menghapus stasiun butuh koneksi dan izin pengaturan.kelola (menu Lainnya). Menautkan kategori digerbang fitur tiket_dapur | Sama seperti batch kedaluwarsa (AA2) |
 | AB4 | Menghapus stasiun melepas semua kategori yang memakainya (kembali ke tiket umum) | Sementara |
+
+## Tambahan 2026-11-17 (penerapan otomatis promo ulang tahun, IMOGI no. 56)
+
+| # | Hal | Sementara |
+|---|---|---|
+| AC1 | Memilih pelanggan yang berulang tahun hari ini di keranjang otomatis memasang promo ulang tahun pertama yang aktif, hanya bila kasir belum memilih promo lain. Kasir bisa mengganti atau melepasnya | Perlu konfirmasi: otomatis atau tetap manual |
+| AC2 | Penerapan otomatis hanya terjadi saat memilih pelanggan; membuka kembali pesanan tersimpan tidak memasangnya lagi | Susulan |
+| AC3 | Server belum memeriksa ulang tanggal lahir saat checkout (transaksi offline tidak boleh ditolak) | Sementara |

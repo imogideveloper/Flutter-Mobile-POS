@@ -22,6 +22,8 @@ import '../../../pelanggan/presentation/providers/pelanggan_providers.dart';
 import '../../../pelanggan/presentation/widgets/pelanggan_picker_sheet.dart';
 import '../../../promo/data/local/tables/promo_table.dart' show PromoTipe;
 import '../../../promo/domain/promo.dart';
+import '../../../promo/domain/promo_ulang_tahun.dart';
+import '../../../pelanggan/domain/ulang_tahun.dart';
 import '../../../promo/presentation/providers/promo_providers.dart';
 import '../../../stok/presentation/providers/stok_providers.dart';
 import '../../data/local/tables/metode_bayar_table.dart' show MetodeBayarTipe;
@@ -347,6 +349,22 @@ class KeranjangPage extends ConsumerWidget {
     // valid lagi (beda pelanggan = beda saldo poin), reset supaya tidak
     // ada diskon "nyangkut" dari pelanggan sebelumnya.
     ref.read(keranjangPoinDitukarProvider.notifier).state = 0;
+    if (!context.mounted) return;
+    _terapkanPromoUlangTahun(context, ref, dipilih);
+  }
+
+  /// Pelanggan yang berulang tahun hari ini otomatis mendapat promo ulang tahun (bila ada dan kasir belum
+  /// memilih promo lain). Kasir tetap bisa menggantinya atau melepasnya.
+  void _terapkanPromoUlangTahun(BuildContext context, WidgetRef ref, Pelanggan? pelanggan) {
+    if (pelanggan == null) return;
+    final promo = promoUlangTahunOtomatis(
+      promoAktif: ref.read(promoAktifProvider).maybeWhen(data: (v) => v, orElse: () => const <Promo>[]),
+      pelangganUlangTahun: ulangTahunHariIni(pelanggan.tanggalLahir, DateTime.now()),
+      promoTerpilihId: ref.read(keranjangPromoIdProvider),
+    );
+    if (promo == null) return;
+    ref.read(keranjangPromoIdProvider.notifier).state = promo.id;
+    showAppToast(context, message: 'Promo ulang tahun "${promo.nama}" diterapkan', variant: ToastVariant.success);
   }
 
   Future<void> _pilihPromo(BuildContext context, WidgetRef ref) async {

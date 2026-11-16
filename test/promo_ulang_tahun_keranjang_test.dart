@@ -2,6 +2,7 @@ import 'package:apps_pos/features/pelanggan/domain/pelanggan.dart';
 import 'package:apps_pos/features/pelanggan/presentation/providers/pelanggan_providers.dart';
 import 'package:apps_pos/features/promo/data/local/tables/promo_table.dart' show PromoCakupan, PromoTipe;
 import 'package:apps_pos/features/promo/domain/promo.dart';
+import 'package:apps_pos/features/promo/domain/promo_ulang_tahun.dart';
 import 'package:apps_pos/features/promo/presentation/providers/promo_providers.dart';
 import 'package:apps_pos/features/transaksi/presentation/providers/keranjang_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -90,5 +91,36 @@ void main() {
 
     c.read(keranjangPromoIdProvider.notifier).state = 'biasa';
     expect(c.read(keranjangPromoProvider)?.id, 'biasa');
+  });
+
+  group('penerapan otomatis promo ulang tahun', () {
+    const nonaktif = Promo(
+      id: 'mati', tokoId: 't', nama: 'Ultah Lama', tipe: PromoTipe.persen, nilai: 50,
+      cakupan: PromoCakupan.transaksi, minBelanja: 0, aktif: false, khususUlangTahun: true,
+    );
+
+    test('diterapkan hanya bila berulang tahun dan kasir belum memilih promo', () {
+      Promo? coba({required bool ultah, String? terpilih, List<Promo>? daftar}) => promoUlangTahunOtomatis(
+            promoAktif: daftar ?? [promoBiasa, promoUlangTahun],
+            pelangganUlangTahun: ultah,
+            promoTerpilihId: terpilih,
+          );
+      expect(coba(ultah: true)?.id, 'bday');
+      expect(coba(ultah: false), isNull);
+      expect(coba(ultah: true, terpilih: 'biasa'), isNull, reason: 'pilihan kasir tidak ditimpa');
+    });
+
+    test('tanpa promo ulang tahun aktif tidak ada yang diterapkan; yang pertama dipilih bila ada beberapa', () {
+      expect(promoUlangTahunOtomatis(promoAktif: [promoBiasa], pelangganUlangTahun: true, promoTerpilihId: null), isNull);
+      expect(promoUlangTahunOtomatis(promoAktif: [nonaktif], pelangganUlangTahun: true, promoTerpilihId: null), isNull);
+      expect(
+        promoUlangTahunOtomatis(
+          promoAktif: [promoBiasa, promoUlangTahun, nonaktif],
+          pelangganUlangTahun: true,
+          promoTerpilihId: null,
+        )?.id,
+        'bday',
+      );
+    });
   });
 }
