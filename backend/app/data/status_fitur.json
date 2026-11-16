@@ -137,7 +137,7 @@
  },
  "35": {
   "status": "sedang",
-  "catatan": "SELESAI sebagian (2026-11-08): tiket dapur tanpa harga (nomor antrian, waktu, menu dan jumlah) dicetak otomatis setelah pembayaran dan bisa dicetak ulang dari halaman sukses; lulus tes susunan tiket. KEMAJUAN 2026-11-10: kategori bisa dikeluarkan dari tiket (saklar \"Masuk tiket dapur\" di form kategori, migrasi 0013) dan tiket bisa dicetak ulang dari detail riwayat. Belum ada tombol auto-print terp"
+  "catatan": "SELESAI sebagian (2026-11-08): tiket dapur tanpa harga (nomor antrian, waktu, menu dan jumlah) dicetak otomatis setelah pembayaran dan bisa dicetak ulang dari halaman sukses; lulus tes susunan tiket. KEMAJUAN 2026-11-10: kategori bisa dikeluarkan dari tiket (saklar \"Masuk tiket dapur\" di form kategori, migrasi 0013) dan tiket bisa dicetak ulang dari detail riwayat. KEMAJUAN 2026-11-16: stasiun dapur (Bar, Dapur) bisa dibuat di menu Lainnya, kategori ditautkan ke satu stasiun, dan satu pesanan mencetak satu tiket per stasiun. Belum: printer terpisah per stasiun, auto-print terpisah, uji di printer (belum ada perangkat)."
  },
  "36": {
   "status": "sedang",
