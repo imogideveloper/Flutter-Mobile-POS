@@ -10,12 +10,36 @@ import uuid
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.outlet import PengaturanOutlet
 from app.models.order import TipeOrder, TipeOrderPajak
 from app.models.promo import Pajak
 
 # Jenis usaha F&B yang melayani makan di tempat dan memungut biaya layanan bawaan.
 JENIS_USAHA_SERVICE_BAWAAN = frozenset({"CAF", "RES"})
 SERVICE_BAWAAN_PERSEN = 5
+
+
+# Panduan IMOGI: pajak (PB1) ditambahkan di atas harga untuk jenis usaha ini. Bahan segar/beku (FRZ)
+# tidak dikenai bawaan karena lebih mirip ritel bahan baku.
+JENIS_USAHA_PB1_BAWAAN = frozenset({"CAF", "RES", "CAT", "BRD", "BEV", "STL"})
+PB1_BAWAAN_PERSEN = 10
+FOOTER_STRUK_BAWAAN = "Terima kasih, selamat menikmati!"
+
+
+async def seed_pengaturan_bawaan(
+    db: AsyncSession, *, toko_id: uuid.UUID, outlet_id: uuid.UUID, jenis_usaha: str | None
+) -> None:
+    """Nilai awal pengaturan toko baru menurut jenis usaha. Hanya nilai yang TIDAK terkunci paket
+    (pesan penutup struk, pajak PB1); struk ringkas dan nomor antrean tetap mengikuti paket."""
+    kode = (jenis_usaha or "").upper()
+    db.add(PengaturanOutlet(outlet_id=outlet_id, footer_struk=FOOTER_STRUK_BAWAAN))
+    if kode in JENIS_USAHA_PB1_BAWAAN:
+        db.add(
+            Pajak(
+                toko_id=toko_id, nama="PB1", tipe="pajak", persen=PB1_BAWAAN_PERSEN, termasuk_harga=False, urutan=1, aktif=True
+            )
+        )
+    await db.flush()
 
 
 async def seed_tipe_order_dan_service(db: AsyncSession, *, toko_id: uuid.UUID, jenis_usaha: str | None) -> None:

@@ -27,7 +27,7 @@ Hanya fitur yang punya kontrol di aplikasi dan ditandai tidak relevan dalam data
 ## Yang belum
 
 - Penanda untuk fitur **opsional** (mis. lencana "opsional") belum ada; saat ini opsional tampil sama dengan inti.
-- Nilai bawaan pengaturan per jenis usaha: baru service 5% Kafe/Restoran (IMOGI no. 6). Pajak, struk ringkas, nomor antrean, tiket dapur, dan modal awal shift belum.
+- Nilai bawaan pengaturan per jenis usaha: sudah service 5% Kafe/Restoran dan, sejak tahap 2, pajak PB1 10% serta pesan penutup struk (lihat Z5-Z7). Struk ringkas, nomor antrean, tiket dapur, dan modal awal shift belum.
 - Menu Pengaturan versi IMOGI (11 tab, simpan otomatis, "Kembalikan ke rekomendasi") belum ada.
 - Peran bawaan dan 18 hak akses IMOGI (Barista, Dapur) belum ada.
 - Klasifikasi baru hanya diterima HP lewat sync; HP yang tidak sync tidak berubah.

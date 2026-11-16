@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.otp_store import InMemoryOtpStore
 from app.models.akun import Pengguna
 from app.models.order import TipeOrder, TipeOrderPajak
+from app.models.outlet import PengaturanOutlet
 from app.models.promo import Pajak
 from tests.conftest import buat_toko_siap_pakai
 
@@ -51,7 +52,9 @@ async def test_kafe_dan_restoran_mendapat_service_5_persen_hanya_untuk_makan_di_
     assert tipe["Bawa pulang"].kanal == "bawa_pulang"
     assert tipe["Delivery"].kanal == "antar"
 
-    service = (await db_session.execute(select(Pajak).where(Pajak.toko_id == toko_id))).scalar_one()
+    service = (
+        await db_session.execute(select(Pajak).where(Pajak.toko_id == toko_id, Pajak.tipe == "service"))
+    ).scalar_one()
     assert service.tipe == "service" and float(service.persen) == 5 and service.aktif is True
     assert service.termasuk_harga is False
 
@@ -71,7 +74,34 @@ async def test_jenis_usaha_lain_dapat_tipe_pesanan_tanpa_service_bawaan(
 
     jumlah_tipe = len((await db_session.execute(select(TipeOrder).where(TipeOrder.toko_id == toko_id))).scalars().all())
     assert jumlah_tipe == 3
-    assert (await db_session.execute(select(Pajak).where(Pajak.toko_id == toko_id))).scalars().all() == []
+    semua = (await db_session.execute(select(Pajak).where(Pajak.toko_id == toko_id))).scalars().all()
+    assert [p for p in semua if p.tipe == "service"] == []
+
+
+@pytest.mark.parametrize(
+    ("jenis", "angka", "ada_pb1"),
+    [("CAF", "1", True), ("RES", "2", True), ("CAT", "3", True), ("BRD", "4", True), ("FRZ", "5", False),
+     ("BEV", "6", True), ("STL", "7", True)],
+)
+async def test_pb1_dan_pesan_penutup_struk_bawaan_per_jenis_usaha(
+    client: AsyncClient, db_session: AsyncSession, otp_store: InMemoryOtpStore, jenis: str, angka: str, ada_pb1: bool
+) -> None:
+    body = await _daftar(client, otp_store, "0814" + angka * 8, jenis)
+    toko_id = uuid.UUID(body["toko"]["id"])
+
+    pb1 = (
+        await db_session.execute(select(Pajak).where(Pajak.toko_id == toko_id, Pajak.nama == "PB1"))
+    ).scalars().all()
+    if ada_pb1:
+        assert len(pb1) == 1
+        assert pb1[0].tipe == "pajak" and float(pb1[0].persen) == 10 and pb1[0].termasuk_harga is False
+    else:
+        assert pb1 == []
+
+    pengaturan = (await db_session.execute(select(PengaturanOutlet))).scalars().all()
+    assert any(p.footer_struk == "Terima kasih, selamat menikmati!" for p in pengaturan)
+    # Nilai yang dikunci paket tidak dinyalakan otomatis.
+    assert all(p.struk_ringkas is False and p.pakai_nomor_antrean is False for p in pengaturan)
 
 
 async def test_tipe_pesanan_ikut_sync_pull(
@@ -90,7 +120,7 @@ async def test_tipe_pesanan_ikut_sync_pull(
     assert {t["nama"] for t in hasil["tipe_order"]} == {"Makan di tempat", "Bawa pulang", "Delivery"}
     makan = next(t for t in hasil["tipe_order"] if t["nama"] == "Makan di tempat")
     assert makan["kanal"] == "makan_di_tempat" and makan["pakai_meja"] is True and makan["aktif"] is True
-    assert {p["nama"] for p in hasil["pajak"]} == {"Service Charge"}
+    assert {p["nama"] for p in hasil["pajak"]} == {"Service Charge", "PB1"}
     assert [t["tipe_order_id"] for t in hasil["tipe_order_pajak"]] == [makan["id"]]
 
 

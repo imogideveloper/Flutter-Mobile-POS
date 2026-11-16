@@ -276,3 +276,11 @@ Aturan baca: **Sementara** = perilaku yang sekarang dipakai di kode. **Dampak bi
 | Z2 | Penyembunyian hanya berlaku untuk kontrol yang dibungkus `FiturTerkunci`. Fitur tanpa klasifikasi, atau tanpa kontrol berfitur (mis. layar penuh yang dibuka lewat rute), tidak berubah | Perlu dicek kontrol mana lagi yang harus ikut disembunyikan |
 | Z3 | Data lama menandai Kafe `dp_kasbon` tidak relevan, padahal DP hutang bisa dipakai kafe langganan; dan Restoran `nomor_antrean` tidak relevan padahal restoran cepat saji memakainya | Perlu konfirmasi: koreksi matriks IMOGI atau ikuti apa adanya |
 | Z4 | Server hanya menyembunyikan di UI; server tetap menerima transaksi yang memakai fitur itu (push offline tidak boleh ditolak) | Sesuai prinsip offline-first |
+
+## Tambahan 2026-11-16 (bawaan pengaturan per jenis usaha, Batch B tahap 2)
+
+| # | Hal | Sementara |
+|---|---|---|
+| Z5 | Toko baru mendapat pesan penutup struk "Terima kasih, selamat menikmati!" dan pajak PB1 10% (ditambahkan di atas harga) untuk Kafe, Restoran, Katering, Roti, Minuman, Kios/Food Court. Bahan Segar/Beku tidak diberi PB1 | Mengikuti panduan IMOGI; perlu konfirmasi lead untuk FRZ dan besaran 10%. Pemilik bisa mematikan lewat saklar "Usaha kena pajak" |
+| Z6 | Struk ringkas dan nomor antrean TIDAK dinyalakan otomatis walau panduan menyarankannya, karena keduanya terkunci paket (Pro) dan nilainya akan tersisa tanpa fitur setelah trial | Perlu keputusan lead: nyalakan selama trial atau tetap manual |
+| Z7 | Bawaan hanya untuk toko yang mendaftar sesudah ini; toko lama tidak diubah. Modal awal shift Rp 300.000 dan tiket dapur otomatis belum dibuat | Susulan |
