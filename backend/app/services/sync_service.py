@@ -53,7 +53,12 @@ from app.schemas.sync import (
 )
 from app.core.deps import require_outlet_access
 from app.services.checkout_service import checkout as checkout_service
-from app.services.fitur_service import kode_fitur_toko, paket_efektif, semua_batas_fitur_toko
+from app.services.fitur_service import (
+    kebutuhan_fitur_toko,
+    kode_fitur_toko,
+    paket_efektif,
+    semua_batas_fitur_toko,
+)
 from app.services.identitas_service import validasi_dan_tandai
 from app.services.kepemilikan import get_outlet_milik_toko
 from app.services.pembayaran_service import catat_pembayaran
@@ -654,6 +659,7 @@ async def pull(
     paket = await paket_efektif(db, toko_id)
     kode_fitur = sorted(await kode_fitur_toko(db, toko_id))
     batas_fitur = await semua_batas_fitur_toko(db, toko_id)
+    kebutuhan_fitur = await kebutuhan_fitur_toko(db, toko_id)
     toko = await db.get(Toko, toko_id)
 
     jumlah_record = sum(
@@ -703,5 +709,6 @@ async def pull(
         qris_url=toko.qris_url if toko is not None else None,
         kode_fitur=kode_fitur,
         batas_fitur=batas_fitur,
+        kebutuhan_fitur=kebutuhan_fitur,
         has_more=has_more,
     )

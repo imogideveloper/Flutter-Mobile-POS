@@ -803,6 +803,36 @@ void main() {
     expect(aktif, hasLength(5), reason: '3 bawaan lokal tetap + 2 dari server');
   });
 
+  test('pull: klasifikasi fitur per jenis usaha tersimpan, dan diganti total pada pull berikutnya', () async {
+    SyncPullResult dengan(Map<String, String> kebutuhan) => SyncPullResult(
+          waktuPull: '2026-01-01T00:00:00Z',
+          produk: const [],
+          kategori: const [],
+          satuan: const [],
+          pajak: const [],
+          promo: const [],
+          metodeBayar: const [],
+          stok: const [],
+          hargaOutlet: const [],
+          hargaGrosir: const [],
+          tipeOrderPajak: const [],
+          pengaturanOutlet: const [],
+          hasMore: const {},
+          paket: null,
+          kodeFitur: const [],
+          batasFitur: const {},
+          kebutuhanFitur: kebutuhan,
+        );
+
+    api.pullResponse = dengan({'pay_later': 'na', 'diskon': 'inti'});
+    await repo.jalankan();
+    expect(await db.fiturDao.semuaKebutuhan('toko-asli'), {'pay_later': 'na', 'diskon': 'inti'});
+
+    api.pullResponse = dengan({'diskon': 'opsional'});
+    await repo.jalankan();
+    expect(await db.fiturDao.semuaKebutuhan('toko-asli'), {'diskon': 'opsional'});
+  });
+
   test('pull: pengguna asli dari server mematikan Owner bawaan ber-PIN 000000 (temuan S1)', () async {
     await seedRoleDanOwner(db);
     final sebelum = await (db.select(db.pengguna)..where((t) => t.id.equals('pengguna-default'))).getSingle();

@@ -267,3 +267,12 @@ Aturan baca: **Sementara** = perilaku yang sekarang dipakai di kode. **Dampak bi
 | Y3 | Hanya peran dengan izin `pengaturan.kelola` (Owner) yang bisa mengunggah atau menghapus gambar; menghapus tidak digate paket. Satu gambar per usaha (bukan per outlet) | Perlu konfirmasi: per outlet? |
 | Y4 | Hitung mundur 5 menit "kode kedaluwarsa" pada layar ini tidak bermakna untuk QRIS statis; belum dihapus | Perlu konfirmasi |
 | Y5 | Gambar tidak diperiksa apakah benar QRIS (hanya format dan ukuran) | Susulan |
+
+## Tambahan 2026-11-16 (pemisahan fitur per jenis usaha, Batch B tahap 1)
+
+| # | Hal | Sementara |
+|---|---|---|
+| Z1 | Menjawab M3 sementara: fitur "tidak relevan" **disembunyikan** (sesuai dokumen IMOGI), bukan hanya ditandai. Tabel dampak per jenis usaha ada di `docs/pemisahan_per_jenis_usaha.md` | Perlu konfirmasi lead: disembunyikan atau cukup ditandai |
+| Z2 | Penyembunyian hanya berlaku untuk kontrol yang dibungkus `FiturTerkunci`. Fitur tanpa klasifikasi, atau tanpa kontrol berfitur (mis. layar penuh yang dibuka lewat rute), tidak berubah | Perlu dicek kontrol mana lagi yang harus ikut disembunyikan |
+| Z3 | Data lama menandai Kafe `dp_kasbon` tidak relevan, padahal DP hutang bisa dipakai kafe langganan; dan Restoran `nomor_antrean` tidak relevan padahal restoran cepat saji memakainya | Perlu konfirmasi: koreksi matriks IMOGI atau ikuti apa adanya |
+| Z4 | Server hanya menyembunyikan di UI; server tetap menerima transaksi yang memakai fitur itu (push offline tidak boleh ditolak) | Sesuai prinsip offline-first |

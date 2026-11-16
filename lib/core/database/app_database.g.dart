@@ -31673,6 +31673,272 @@ class BatasFiturCompanion extends UpdateCompanion<BatasFiturRow> {
   }
 }
 
+class $KebutuhanFiturTable extends KebutuhanFitur
+    with TableInfo<$KebutuhanFiturTable, KebutuhanFiturRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $KebutuhanFiturTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _tokoIdMeta = const VerificationMeta('tokoId');
+  @override
+  late final GeneratedColumn<String> tokoId = GeneratedColumn<String>(
+    'toko_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _kodeMeta = const VerificationMeta('kode');
+  @override
+  late final GeneratedColumn<String> kode = GeneratedColumn<String>(
+    'kode',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _kebutuhanMeta = const VerificationMeta(
+    'kebutuhan',
+  );
+  @override
+  late final GeneratedColumn<String> kebutuhan = GeneratedColumn<String>(
+    'kebutuhan',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [tokoId, kode, kebutuhan];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'kebutuhan_fitur';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<KebutuhanFiturRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('toko_id')) {
+      context.handle(
+        _tokoIdMeta,
+        tokoId.isAcceptableOrUnknown(data['toko_id']!, _tokoIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_tokoIdMeta);
+    }
+    if (data.containsKey('kode')) {
+      context.handle(
+        _kodeMeta,
+        kode.isAcceptableOrUnknown(data['kode']!, _kodeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_kodeMeta);
+    }
+    if (data.containsKey('kebutuhan')) {
+      context.handle(
+        _kebutuhanMeta,
+        kebutuhan.isAcceptableOrUnknown(data['kebutuhan']!, _kebutuhanMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_kebutuhanMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {tokoId, kode};
+  @override
+  KebutuhanFiturRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return KebutuhanFiturRow(
+      tokoId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}toko_id'],
+      )!,
+      kode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}kode'],
+      )!,
+      kebutuhan: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}kebutuhan'],
+      )!,
+    );
+  }
+
+  @override
+  $KebutuhanFiturTable createAlias(String alias) {
+    return $KebutuhanFiturTable(attachedDatabase, alias);
+  }
+}
+
+class KebutuhanFiturRow extends DataClass
+    implements Insertable<KebutuhanFiturRow> {
+  final String tokoId;
+  final String kode;
+  final String kebutuhan;
+  const KebutuhanFiturRow({
+    required this.tokoId,
+    required this.kode,
+    required this.kebutuhan,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['toko_id'] = Variable<String>(tokoId);
+    map['kode'] = Variable<String>(kode);
+    map['kebutuhan'] = Variable<String>(kebutuhan);
+    return map;
+  }
+
+  KebutuhanFiturCompanion toCompanion(bool nullToAbsent) {
+    return KebutuhanFiturCompanion(
+      tokoId: Value(tokoId),
+      kode: Value(kode),
+      kebutuhan: Value(kebutuhan),
+    );
+  }
+
+  factory KebutuhanFiturRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return KebutuhanFiturRow(
+      tokoId: serializer.fromJson<String>(json['tokoId']),
+      kode: serializer.fromJson<String>(json['kode']),
+      kebutuhan: serializer.fromJson<String>(json['kebutuhan']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'tokoId': serializer.toJson<String>(tokoId),
+      'kode': serializer.toJson<String>(kode),
+      'kebutuhan': serializer.toJson<String>(kebutuhan),
+    };
+  }
+
+  KebutuhanFiturRow copyWith({
+    String? tokoId,
+    String? kode,
+    String? kebutuhan,
+  }) => KebutuhanFiturRow(
+    tokoId: tokoId ?? this.tokoId,
+    kode: kode ?? this.kode,
+    kebutuhan: kebutuhan ?? this.kebutuhan,
+  );
+  KebutuhanFiturRow copyWithCompanion(KebutuhanFiturCompanion data) {
+    return KebutuhanFiturRow(
+      tokoId: data.tokoId.present ? data.tokoId.value : this.tokoId,
+      kode: data.kode.present ? data.kode.value : this.kode,
+      kebutuhan: data.kebutuhan.present ? data.kebutuhan.value : this.kebutuhan,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('KebutuhanFiturRow(')
+          ..write('tokoId: $tokoId, ')
+          ..write('kode: $kode, ')
+          ..write('kebutuhan: $kebutuhan')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(tokoId, kode, kebutuhan);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is KebutuhanFiturRow &&
+          other.tokoId == this.tokoId &&
+          other.kode == this.kode &&
+          other.kebutuhan == this.kebutuhan);
+}
+
+class KebutuhanFiturCompanion extends UpdateCompanion<KebutuhanFiturRow> {
+  final Value<String> tokoId;
+  final Value<String> kode;
+  final Value<String> kebutuhan;
+  final Value<int> rowid;
+  const KebutuhanFiturCompanion({
+    this.tokoId = const Value.absent(),
+    this.kode = const Value.absent(),
+    this.kebutuhan = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  KebutuhanFiturCompanion.insert({
+    required String tokoId,
+    required String kode,
+    required String kebutuhan,
+    this.rowid = const Value.absent(),
+  }) : tokoId = Value(tokoId),
+       kode = Value(kode),
+       kebutuhan = Value(kebutuhan);
+  static Insertable<KebutuhanFiturRow> custom({
+    Expression<String>? tokoId,
+    Expression<String>? kode,
+    Expression<String>? kebutuhan,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (tokoId != null) 'toko_id': tokoId,
+      if (kode != null) 'kode': kode,
+      if (kebutuhan != null) 'kebutuhan': kebutuhan,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  KebutuhanFiturCompanion copyWith({
+    Value<String>? tokoId,
+    Value<String>? kode,
+    Value<String>? kebutuhan,
+    Value<int>? rowid,
+  }) {
+    return KebutuhanFiturCompanion(
+      tokoId: tokoId ?? this.tokoId,
+      kode: kode ?? this.kode,
+      kebutuhan: kebutuhan ?? this.kebutuhan,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (tokoId.present) {
+      map['toko_id'] = Variable<String>(tokoId.value);
+    }
+    if (kode.present) {
+      map['kode'] = Variable<String>(kode.value);
+    }
+    if (kebutuhan.present) {
+      map['kebutuhan'] = Variable<String>(kebutuhan.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('KebutuhanFiturCompanion(')
+          ..write('tokoId: $tokoId, ')
+          ..write('kode: $kode, ')
+          ..write('kebutuhan: $kebutuhan, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $TipeOrderPajakTable extends TipeOrderPajak
     with TableInfo<$TipeOrderPajakTable, TipeOrderPajakRow> {
   @override
@@ -37133,6 +37399,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $FiturAktifTable fiturAktif = $FiturAktifTable(this);
   late final $BatasFiturTable batasFitur = $BatasFiturTable(this);
+  late final $KebutuhanFiturTable kebutuhanFitur = $KebutuhanFiturTable(this);
   late final $TipeOrderPajakTable tipeOrderPajak = $TipeOrderPajakTable(this);
   late final $PesananDapurTable pesananDapur = $PesananDapurTable(this);
   late final $ItemPesananDapurTable itemPesananDapur = $ItemPesananDapurTable(
@@ -37225,6 +37492,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     statusFiturToko,
     fiturAktif,
     batasFitur,
+    kebutuhanFitur,
     tipeOrderPajak,
     pesananDapur,
     itemPesananDapur,
@@ -68754,6 +69022,183 @@ typedef $$BatasFiturTableProcessedTableManager =
       BatasFiturRow,
       PrefetchHooks Function()
     >;
+typedef $$KebutuhanFiturTableCreateCompanionBuilder =
+    KebutuhanFiturCompanion Function({
+      required String tokoId,
+      required String kode,
+      required String kebutuhan,
+      Value<int> rowid,
+    });
+typedef $$KebutuhanFiturTableUpdateCompanionBuilder =
+    KebutuhanFiturCompanion Function({
+      Value<String> tokoId,
+      Value<String> kode,
+      Value<String> kebutuhan,
+      Value<int> rowid,
+    });
+
+class $$KebutuhanFiturTableFilterComposer
+    extends Composer<_$AppDatabase, $KebutuhanFiturTable> {
+  $$KebutuhanFiturTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get tokoId => $composableBuilder(
+    column: $table.tokoId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get kode => $composableBuilder(
+    column: $table.kode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get kebutuhan => $composableBuilder(
+    column: $table.kebutuhan,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$KebutuhanFiturTableOrderingComposer
+    extends Composer<_$AppDatabase, $KebutuhanFiturTable> {
+  $$KebutuhanFiturTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get tokoId => $composableBuilder(
+    column: $table.tokoId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get kode => $composableBuilder(
+    column: $table.kode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get kebutuhan => $composableBuilder(
+    column: $table.kebutuhan,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$KebutuhanFiturTableAnnotationComposer
+    extends Composer<_$AppDatabase, $KebutuhanFiturTable> {
+  $$KebutuhanFiturTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get tokoId =>
+      $composableBuilder(column: $table.tokoId, builder: (column) => column);
+
+  GeneratedColumn<String> get kode =>
+      $composableBuilder(column: $table.kode, builder: (column) => column);
+
+  GeneratedColumn<String> get kebutuhan =>
+      $composableBuilder(column: $table.kebutuhan, builder: (column) => column);
+}
+
+class $$KebutuhanFiturTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $KebutuhanFiturTable,
+          KebutuhanFiturRow,
+          $$KebutuhanFiturTableFilterComposer,
+          $$KebutuhanFiturTableOrderingComposer,
+          $$KebutuhanFiturTableAnnotationComposer,
+          $$KebutuhanFiturTableCreateCompanionBuilder,
+          $$KebutuhanFiturTableUpdateCompanionBuilder,
+          (
+            KebutuhanFiturRow,
+            BaseReferences<
+              _$AppDatabase,
+              $KebutuhanFiturTable,
+              KebutuhanFiturRow
+            >,
+          ),
+          KebutuhanFiturRow,
+          PrefetchHooks Function()
+        > {
+  $$KebutuhanFiturTableTableManager(
+    _$AppDatabase db,
+    $KebutuhanFiturTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$KebutuhanFiturTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$KebutuhanFiturTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$KebutuhanFiturTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> tokoId = const Value.absent(),
+                Value<String> kode = const Value.absent(),
+                Value<String> kebutuhan = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => KebutuhanFiturCompanion(
+                tokoId: tokoId,
+                kode: kode,
+                kebutuhan: kebutuhan,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String tokoId,
+                required String kode,
+                required String kebutuhan,
+                Value<int> rowid = const Value.absent(),
+              }) => KebutuhanFiturCompanion.insert(
+                tokoId: tokoId,
+                kode: kode,
+                kebutuhan: kebutuhan,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$KebutuhanFiturTable, KebutuhanFiturRow>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $KebutuhanFiturTable,
+                    KebutuhanFiturRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$KebutuhanFiturTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $KebutuhanFiturTable,
+      KebutuhanFiturRow,
+      $$KebutuhanFiturTableFilterComposer,
+      $$KebutuhanFiturTableOrderingComposer,
+      $$KebutuhanFiturTableAnnotationComposer,
+      $$KebutuhanFiturTableCreateCompanionBuilder,
+      $$KebutuhanFiturTableUpdateCompanionBuilder,
+      (
+        KebutuhanFiturRow,
+        BaseReferences<_$AppDatabase, $KebutuhanFiturTable, KebutuhanFiturRow>,
+      ),
+      KebutuhanFiturRow,
+      PrefetchHooks Function()
+    >;
 typedef $$TipeOrderPajakTableCreateCompanionBuilder =
     TipeOrderPajakCompanion Function({
       required String tipeOrderId,
@@ -73859,6 +74304,8 @@ class $AppDatabaseManager {
       $$FiturAktifTableTableManager(_db, _db.fiturAktif);
   $$BatasFiturTableTableManager get batasFitur =>
       $$BatasFiturTableTableManager(_db, _db.batasFitur);
+  $$KebutuhanFiturTableTableManager get kebutuhanFitur =>
+      $$KebutuhanFiturTableTableManager(_db, _db.kebutuhanFitur);
   $$TipeOrderPajakTableTableManager get tipeOrderPajak =>
       $$TipeOrderPajakTableTableManager(_db, _db.tipeOrderPajak);
   $$PesananDapurTableTableManager get pesananDapur =>

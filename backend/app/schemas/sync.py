@@ -166,6 +166,9 @@ class SyncPullOut(BaseModel):
     # tahu "fitur X terbuka tapi dibatasi N" (lihat FeatureGate.batas() di
     # sisi Flutter), bukan cuma terbuka/tertutup.
     batas_fitur: dict[str, int]
+    # Klasifikasi fitur untuk jenis usaha toko (IMOGI, Batch B): kode -> inti|opsional|na. Default {} supaya
+    # client lama tidak terpengaruh.
+    kebutuhan_fitur: dict[str, str] = {}
     # Per tabel (bukan gabungan) - True kalau masih ada sisa data yang
     # belum terkirim krn kena `limit`. Client pull ulang dgn `since` =
     # updated_at baris TERAKHIR yang diterima utk tabel yang masih True.

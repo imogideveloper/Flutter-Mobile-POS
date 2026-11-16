@@ -338,6 +338,9 @@ class DioBackendApi implements BackendApi {
         batasFitur: (body['batas_fitur'] as Map<String, dynamic>).map(
           (k, v) => MapEntry(k, v as int),
         ),
+        kebutuhanFitur: ((body['kebutuhan_fitur'] as Map<String, dynamic>?) ?? const {}).map(
+          (k, v) => MapEntry(k, v as String),
+        ),
         pengguna: listOf('pengguna'),
         role: listOf('role'),
         roleIzin: listOf('role_izin'),

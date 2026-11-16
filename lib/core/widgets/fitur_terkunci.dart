@@ -30,6 +30,9 @@ class FiturTerkunci extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final gateAsync = ref.watch(featureGateProvider);
     final gate = gateAsync is AsyncData<FeatureGate> ? gateAsync.value : null;
+    // Batch B: fitur yang tidak relevan untuk jenis usaha toko (mis. order bayar nanti untuk toko
+    // minuman) disembunyikan sama sekali, bukan dikunci. Tanpa klasifikasi, fitur dianggap relevan.
+    if (gate != null && !gate.relevan(kode)) return const SizedBox.shrink();
     // Belum ada cache sama sekali (belum pernah sync) - jangan kunci
     // duluan, biarkan server yang jadi penentu akhir saat dicoba.
     final terbuka = gate == null || gate.has(kode);

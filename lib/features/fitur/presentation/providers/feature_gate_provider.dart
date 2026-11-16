@@ -14,11 +14,23 @@ final fiturDaoProvider = Provider<FiturDao>((ref) {
 /// TANPA pernah dipercaya sbg satu-satunya penjaga (server tetap menolak
 /// 403 lewat require_fitur - lihat catatan di FiturTerkunci).
 class FeatureGate {
-  const FeatureGate({required this.paket, required this.kodeAktif, required this.batas});
+  const FeatureGate({
+    required this.paket,
+    required this.kodeAktif,
+    required this.batas,
+    this.kebutuhan = const {},
+  });
 
   final String? paket;
   final Set<String> kodeAktif;
   final Map<String, int> batas;
+
+  /// Klasifikasi fitur untuk jenis usaha toko (Batch B): kode -> inti | opsional | na.
+  final Map<String, String> kebutuhan;
+
+  /// false hanya bila fitur ini ditandai tidak relevan (na) untuk jenis usaha toko. Kode yang tidak
+  /// ada di klasifikasi (cache kosong, fitur lama) dianggap relevan agar tidak ada kontrol yang hilang diam-diam.
+  bool relevan(String kode) => kebutuhan[kode] != 'na';
 
   bool has(String kode) => kodeAktif.contains(kode);
 
@@ -41,5 +53,6 @@ final featureGateProvider = FutureProvider<FeatureGate>((ref) async {
   final kodeAktif = await dao.kodeFiturAktif(tokoId);
   final paket = await dao.paketSaatIni(tokoId);
   final batas = await dao.semuaBatas(tokoId);
-  return FeatureGate(paket: paket, kodeAktif: kodeAktif, batas: batas);
+  final kebutuhan = await dao.semuaKebutuhan(tokoId);
+  return FeatureGate(paket: paket, kodeAktif: kodeAktif, batas: batas, kebutuhan: kebutuhan);
 });

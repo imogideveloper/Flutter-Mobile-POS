@@ -413,6 +413,7 @@ class SyncPullResult {
     required this.paket,
     this.logoUrl,
     this.qrisUrl,
+    this.kebutuhanFitur = const {},
     required this.kodeFitur,
     required this.batasFitur,
     this.tipeOrder = const [],
@@ -470,6 +471,9 @@ class SyncPullResult {
 
   /// Gambar QRIS statis usaha (IMOGI no. 10); null = belum diunggah.
   final String? qrisUrl;
+
+  /// Klasifikasi fitur untuk jenis usaha toko (Batch B): kode -> inti | opsional | na.
+  final Map<String, String> kebutuhanFitur;
   final List<String> kodeFitur;
   final Map<String, int> batasFitur;
 }

@@ -14,6 +14,7 @@ import '../../features/dapur/data/local/tables/pesanan_dapur_table.dart';
 import '../../features/dapur/data/local/tables/stasiun_dapur_table.dart';
 import '../../features/fitur/data/local/fitur_dao.dart';
 import '../../features/fitur/data/local/tables/batas_fitur_table.dart';
+import '../../features/fitur/data/local/tables/kebutuhan_fitur_table.dart';
 import '../../features/fitur/data/local/tables/fitur_aktif_table.dart';
 import '../../features/fitur/data/local/tables/fitur_table.dart';
 import '../../features/fitur/data/local/tables/paket_fitur_table.dart';
@@ -135,6 +136,7 @@ part 'app_database.g.dart';
     StatusFiturToko,
     FiturAktif,
     BatasFitur,
+    KebutuhanFitur,
     TipeOrder,
     TipeOrderPajak,
     Meja,
@@ -188,7 +190,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 20;
+  int get schemaVersion => 21;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -266,6 +268,10 @@ class AppDatabase extends _$AppDatabase {
           // v12 -> v13 - batas margin produk (persen, per outlet).
           if (from < 13) {
             await m.addColumn(pengaturanOutlet, pengaturanOutlet.batasMargin);
+          }
+          // v20 -> v21 - klasifikasi fitur per jenis usaha (Batch B).
+          if (from < 21) {
+            await m.createTable(kebutuhanFitur);
           }
           // v19 -> v20 - gaya logo struk pada pengaturan outlet (IMOGI no. 24).
           if (from < 20) {

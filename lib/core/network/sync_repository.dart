@@ -549,6 +549,7 @@ class SyncRepository {
         batasPerKode: hasil.batasFitur,
         updatedAt: DateTime.now().toUtc().millisecondsSinceEpoch,
       );
+      await fiturDao.simpanKebutuhan(sesi.tokoId, hasil.kebutuhanFitur);
       totalDiterima +=
           hasil.produk.length +
           hasil.kategori.length +

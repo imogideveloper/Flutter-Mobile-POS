@@ -3,11 +3,12 @@ import 'package:drift/drift.dart';
 import '../../../../core/database/app_database.dart';
 import 'tables/batas_fitur_table.dart';
 import 'tables/fitur_aktif_table.dart';
+import 'tables/kebutuhan_fitur_table.dart';
 import 'tables/status_fitur_toko_table.dart';
 
 part 'fitur_dao.g.dart';
 
-@DriftAccessor(tables: [StatusFiturToko, FiturAktif, BatasFitur])
+@DriftAccessor(tables: [StatusFiturToko, FiturAktif, BatasFitur, KebutuhanFitur])
 class FiturDao extends DatabaseAccessor<AppDatabase> with _$FiturDaoMixin {
   FiturDao(super.db);
 
@@ -71,5 +72,23 @@ class FiturDao extends DatabaseAccessor<AppDatabase> with _$FiturDaoMixin {
   Future<Map<String, int>> semuaBatas(String tokoId) async {
     final rows = await (select(batasFitur)..where((t) => t.tokoId.equals(tokoId))).get();
     return {for (final r in rows) r.kode: r.batas};
+  }
+
+  /// Ganti TOTAL klasifikasi fitur toko (inti/opsional/na) dari `/sync/pull.kebutuhan_fitur`.
+  /// Peta kosong (server lama atau jenis usaha tanpa data) menghapus klasifikasi lama.
+  Future<void> simpanKebutuhan(String tokoId, Map<String, String> kebutuhanPerKode) {
+    return transaction(() async {
+      await (delete(kebutuhanFitur)..where((t) => t.tokoId.equals(tokoId))).go();
+      for (final e in kebutuhanPerKode.entries) {
+        await into(kebutuhanFitur).insert(
+          KebutuhanFiturCompanion.insert(tokoId: tokoId, kode: e.key, kebutuhan: e.value),
+        );
+      }
+    });
+  }
+
+  Future<Map<String, String>> semuaKebutuhan(String tokoId) async {
+    final rows = await (select(kebutuhanFitur)..where((t) => t.tokoId.equals(tokoId))).get();
+    return {for (final r in rows) r.kode: r.kebutuhan};
   }
 }

@@ -7,6 +7,7 @@ mixin _$FiturDaoMixin on DatabaseAccessor<AppDatabase> {
   $StatusFiturTokoTable get statusFiturToko => attachedDatabase.statusFiturToko;
   $FiturAktifTable get fiturAktif => attachedDatabase.fiturAktif;
   $BatasFiturTable get batasFitur => attachedDatabase.batasFitur;
+  $KebutuhanFiturTable get kebutuhanFitur => attachedDatabase.kebutuhanFitur;
   FiturDaoManager get managers => FiturDaoManager(this);
 }
 
@@ -22,4 +23,9 @@ class FiturDaoManager {
       $$FiturAktifTableTableManager(_db.attachedDatabase, _db.fiturAktif);
   $$BatasFiturTableTableManager get batasFitur =>
       $$BatasFiturTableTableManager(_db.attachedDatabase, _db.batasFitur);
+  $$KebutuhanFiturTableTableManager get kebutuhanFitur =>
+      $$KebutuhanFiturTableTableManager(
+        _db.attachedDatabase,
+        _db.kebutuhanFitur,
+      );
 }

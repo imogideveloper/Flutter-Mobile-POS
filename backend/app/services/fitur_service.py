@@ -246,3 +246,25 @@ def require_fitur(kode: str):
             await tolak_fitur_terkunci(db, kode)
 
     return _dep
+
+
+async def kebutuhan_fitur_toko(db: AsyncSession, toko_id: uuid.UUID) -> dict[str, str]:
+    """{kode_fitur: inti|opsional|na} untuk jenis usaha toko (dokumen IMOGI, tabel fitur_kebutuhan).
+
+    Dipakai HP untuk menyembunyikan kontrol fitur yang tidak relevan bagi jenis usahanya (Batch B).
+    Toko tanpa jenis usaha dianggap Kafe (sama dengan normalisasi saat daftar). Fitur yang tidak ada
+    di tabel (mis. fitur lama di luar katalog IMOGI) tidak muncul, dan dianggap relevan oleh HP."""
+
+    from app.core.jenis_usaha import normalisasi_jenis_usaha
+    from app.models.fitur import FiturKebutuhan
+
+    toko = await db.get(Toko, toko_id)
+    jenis = normalisasi_jenis_usaha(toko.jenis_usaha if toko is not None else None)
+    baris = (
+        await db.execute(
+            select(Fitur.kode, FiturKebutuhan.kebutuhan)
+            .join(FiturKebutuhan, FiturKebutuhan.fitur_id == Fitur.id)
+            .where(FiturKebutuhan.jenis_usaha == jenis)
+        )
+    ).all()
+    return {kode: kebutuhan for kode, kebutuhan in baris}
