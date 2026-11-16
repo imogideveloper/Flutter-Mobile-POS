@@ -9,6 +9,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/empty_state.dart';
+import '../../../../core/widgets/fitur_terkunci.dart';
 import '../../../../core/widgets/section_header.dart';
 import '../../data/local/tables/mutasi_stok_table.dart' show MutasiJenis;
 import '../../domain/mutasi_item.dart';
@@ -30,7 +31,20 @@ class StokListPage extends ConsumerWidget {
     final mutasiTerakhir = ref.watch(mutasiTerakhirProvider(outletId));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Stok')),
+      appBar: AppBar(
+        title: const Text('Stok'),
+        actions: [
+          FiturTerkunci(
+            kode: 'pengingat_kedaluwarsa',
+            child: IconButton(
+              key: const Key('stok.kedaluwarsa'),
+              icon: const Icon(Icons.event_busy_outlined),
+              tooltip: 'Kedaluwarsa produk',
+              onPressed: () => context.push('/stok/kedaluwarsa'),
+            ),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push('/stok/catat'),
         tooltip: 'Catat mutasi stok',

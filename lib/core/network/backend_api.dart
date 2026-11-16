@@ -194,6 +194,15 @@ abstract class BackendApi {
     required String namaFile,
   });
 
+  /// Batch kedaluwarsa (IMOGI no. 50). Digerbang fitur `pengingat_kedaluwarsa`; perlu koneksi,
+  /// hasilnya sampai ke HP lewat sync pull.
+  Future<void> tambahBatchStok({
+    required String accessToken,
+    required Map<String, dynamic> body,
+  });
+
+  Future<void> hapusBatchStok({required String accessToken, required String batchId});
+
   Future<Map<String, dynamic>> ubahMetodeBayar({
     required String accessToken,
     required String metodeBayarId,
@@ -417,6 +426,7 @@ class SyncPullResult {
     required this.kodeFitur,
     required this.batasFitur,
     this.tipeOrder = const [],
+    this.batchStok = const [],
     this.pengguna = const [],
     this.role = const [],
     this.roleIzin = const [],
@@ -459,6 +469,9 @@ class SyncPullResult {
 
   /// Tipe pesanan dari server (IMOGI no. 6): delta by updated_at.
   final List<Map<String, dynamic>> tipeOrder;
+
+  /// Batch kedaluwarsa produk (IMOGI no. 50): delta by updated_at.
+  final List<Map<String, dynamic>> batchStok;
   final List<Map<String, dynamic>> pengaturanOutlet;
   final Map<String, bool> hasMore;
   // Status gating paket (lihat SyncPullOut.paket/kode_fitur/batas_fitur di

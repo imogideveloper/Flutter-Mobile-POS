@@ -43,6 +43,7 @@ from app.models.produk import (
     ProdukVarian,
     Resep,
 )
+from app.models.stok import BatchStok
 from app.models.promo import Pajak, Promo
 from tests.conftest import buat_metode_bayar, buat_perangkat, buat_produk, buat_toko_siap_pakai
 
@@ -232,6 +233,18 @@ async def _siapkan_satu_toko(client: AsyncClient, db: AsyncSession, toko, label:
     )
     assert opname_resp.status_code == 201
     ids["opname_id"] = uuid.UUID(opname_resp.json()["id"])
+
+    batch = BatchStok(
+        outlet_id=toko.outlet.id,
+        produk_id=produk.id,
+        nomor_batch=f"SWEEP-B-{label}",
+        tanggal_kedaluwarsa=date.today(),
+        qty_awal=Decimal("1"),
+        qty_sisa=Decimal("1"),
+    )
+    db.add(batch)
+    await db.commit()
+    ids["batch_id"] = batch.id
 
     pesanan_resp = await client.post(
         "/transaksi/pesanan-tersimpan",

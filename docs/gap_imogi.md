@@ -18,9 +18,9 @@ Tanggal: 2026-11-08. Menggantikan `docs/gap_fnb.md` sebagai acuan utama. Daftar 
 | Relevan untuk Makanan & Minuman (inti atau opsional untuk minimal 1 dari 7 jenis usaha) | 64 |
 | Tidak relevan untuk Makanan & Minuman (disembunyikan) | 23 |
 | ✅ Lengkap | 15 (tidak berubah: belum ada fitur yang diuji di HP, jadi tidak ada yang dinaikkan) |
-| 🟡 Sebagian | 34 (awal audit 24; +10 sejak 2026-11-12/14) |
+| 🟡 Sebagian | 35 (awal audit 24; +11 sejak 2026-11-12/16) |
 
-| ❌ Belum ada | 15 (awal audit 25) |
+| ❌ Belum ada | 14 (awal audit 25) |
 
 | Fitur inti untuk Kafe & Kedai Kopi | 46 (✅ 11, 🟡 26, ❌ 9); awal audit ✅ 11, 🟡 18, ❌ 17 |
 
@@ -104,7 +104,7 @@ Diurutkan: inti untuk Kafe & Kedai Kopi lebih dulu. ❌ = belum ada, 🟡 = seba
 | 71 | Akuntansi | Piutang & hutang usaha (AR/AP) | Professional | 5 inti, 2 opsional, Kafe: Opsional | 🟡 | Piutang pelanggan (kasbon) ada. Hutang usaha ke supplier belum dicocokkan (backend punya modul pembelian). |
 | 16 | Pembayaran | Pembayaran hutang (bon) | Starter | 3 inti, 4 opsional, Kafe: Opsional | 🟡 | Kasbon, jatuh tempo, dan pelunasan ada. SEBAGIAN (2026-11-14): limit bon kini juga dicek di HP sebelum bon disimpan (batas_kasbon dikurangi utang berjalan; ditolak dengan sisa kuota), selain di server (lihat batas_kasbon.dart, 4 tes). Belum diuji di HP. |
 | 49 | Stok | Kelola stok produk | Free | 3 inti, 4 opsional, Kafe: Opsional | 🟡 | SEBAGIAN (2026-11-14): kini ada riwayat mutasi lengkap per produk (ketuk baris stok): jenis, tanggal dan jam, jumlah, saldo setelah, catatan, total masuk/keluar, filter Masuk/Keluar, sampai 300 mutasi terbaru. Filter rentang tanggal sudah ada (2026-11-16, chip "Semua tanggal", totalnya ikut rentang). Belum: ekspor riwayat, riwayat per varian. Pengaturan saat stok habis sempat terblokir BUG-012 (diperbaiki di kode, menunggu uji HP). Lulus tes otomatis, belum diuji di HP. |
-| 50 | Stok | Pengingat kedaluwarsa produk | Enterprise | 2 inti, 5 opsional, Kafe: Opsional | ❌ | Backend punya kolom/batch kedaluwarsa; tanpa UI atau job. |
+| 50 | Stok | Pengingat kedaluwarsa produk | Enterprise | 2 inti, 5 opsional, Kafe: Opsional | 🟡 | SEBAGIAN (2026-11-16): catat batch (produk, nomor batch, jumlah, tanggal kedaluwarsa, ingatkan N hari) lewat menu ikon di halaman Stok, digerbang fitur pengingat_kedaluwarsa dan izin stok.kelola; daftar menandai Sudah lewat / Segera dan ikut sync ke HP (bisa dilihat offline). Pencatatan dan penghapusan butuh koneksi. Belum: pemberitahuan terjadwal, batch dikurangi otomatis saat penjualan (FIFO), batch dari pembelian. Lulus tes otomatis, belum diuji di HP. |
 | 14 | Pembayaran | Pembayaran transfer bank | Free | 1 inti, 6 opsional, Kafe: Opsional | 🟡 | Metode transfer ada. SEBAGIAN (2026-11-14): Pengaturan metode bayar kini punya rekening tujuan (bank, nomor, atas nama) untuk metode transfer/e-wallet; ikut sync ke HP (migrasi 0019, schema lokal 15) dan tampil di layar bayar saat metode dipilih. Belum diuji di HP. |
 | 39 | Produk | Ekspor produk | Starter | 1 inti, 6 opsional, Kafe: Opsional | 🟡 | SEBAGIAN (2026-11-12): ekspor seluruh produk HP ke CSV lewat menu bagikan (Lainnya > Impor & ekspor produk). Belum diuji di HP. |
 | 43 | Produk | Jual per kemasan (pcs, dus, pak) | Starter | 1 inti, 1 opsional | ❌ | Tidak ada konsep jual per kemasan (pcs, dus, pak). |

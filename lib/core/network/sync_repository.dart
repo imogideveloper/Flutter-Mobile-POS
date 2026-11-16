@@ -558,6 +558,7 @@ class SyncRepository {
           hasil.promo.length +
           hasil.metodeBayar.length +
           hasil.stok.length +
+          hasil.batchStok.length +
           hasil.hargaOutlet.length +
           hasil.hargaGrosir.length +
           hasil.tipeOrderPajak.length +
@@ -626,6 +627,7 @@ class SyncRepository {
       hasil.promo,
       hasil.metodeBayar,
       hasil.stok,
+      hasil.batchStok,
       hasil.hargaOutlet,
       hasil.hargaGrosir,
       hasil.pengaturanOutlet,
@@ -782,6 +784,23 @@ class SyncRepository {
         jumlah: realDariBackend(row['jumlah'] as String),
         batasMinimum: realDariBackend(row['batas_minimum'] as String),
         hppRataRata: uangDariBackend(row['hpp_rata_rata'] as String),
+        updatedAt: epochMsDariBackend(row['updated_at'] as String),
+        deletedAt: epochMsDariBackendNullable(row['deleted_at'] as String?),
+      );
+    }
+
+    for (final row in hasil.batchStok) {
+      await stokDao.upsertBatchDariSync(
+        id: row['id'] as String,
+        outletId: row['outlet_id'] as String,
+        produkId: row['produk_id'] as String,
+        varianId: row['varian_id'] as String?,
+        nomorBatch: row['nomor_batch'] as String?,
+        // `date` server ("2026-12-31") disimpan sebagai epoch ms UTC tengah malam.
+        tanggalKedaluwarsa: DateTime.parse('${row['tanggal_kedaluwarsa']}T00:00:00Z').millisecondsSinceEpoch,
+        qtyAwal: realDariBackend(row['qty_awal'].toString()),
+        qtySisa: realDariBackend(row['qty_sisa'].toString()),
+        ingatkanHari: (row['ingatkan_hari'] as num).toInt(),
         updatedAt: epochMsDariBackend(row['updated_at'] as String),
         deletedAt: epochMsDariBackendNullable(row['deleted_at'] as String?),
       );

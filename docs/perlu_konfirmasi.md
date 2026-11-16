@@ -291,3 +291,12 @@ Aturan baca: **Sementara** = perilaku yang sekarang dipakai di kode. **Dampak bi
 |---|---|---|
 | Z8 | Peran sistem baru "Barista & Dapur" (hanya `transaksi.buat`) dan "Gudang" (`stok.kelola`, `pembelian.kelola`), migrasi 0028. Daftar 18 hak akses IMOGI belum dicocokkan: izin kini 15 kode dan tidak ada izin khusus seperti lihat margin, status pesanan, atau pengeluaran | Perlu daftar 18 hak akses dan matriks peran dari lead sebelum diperluas |
 | Z9 | Peran ini global (semua jenis usaha), belum dipasang otomatis hanya untuk jenis usaha tertentu. Peran sistem baru ikut sync pull ke HP, tampil di pilihan peran karyawan | Perlu konfirmasi |
+
+## Tambahan 2026-11-16 (pengingat kedaluwarsa, IMOGI no. 50)
+
+| # | Hal | Sementara |
+|---|---|---|
+| AA1 | Batch kedaluwarsa hanya PENGINGAT: penjualan belum mengurangi `qty_sisa` batch (FIFO) dan batch belum otomatis dibuat dari pembelian | Perlu keputusan lead: apakah FIFO per batch dibutuhkan |
+| AA2 | Pencatatan dan penghapusan batch butuh koneksi (lewat API); hasilnya sampai ke HP lewat sync. Tidak ada antrean offline untuk batch | Perlu konfirmasi: apakah harus bisa dicatat offline |
+| AA3 | Pengingat hanya berupa penanda di daftar (Sudah lewat, Segera); belum ada pemberitahuan terjadwal atau lencana di menu | Susulan |
+| AA4 | Pilihan produk di formulir batch diambil dari produk yang punya baris stok di outlet | Perlu dicek untuk produk tanpa lacak stok |

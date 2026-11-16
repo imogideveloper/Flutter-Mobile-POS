@@ -51,7 +51,7 @@ FITUR_MAP: list[PemetaanFitur] = [
     PemetaanFitur("label_pembayaran", 2, None, "Tahap 4: PATCH /metode-bayar/{id} menolak 403 fitur_terkunci kalau body mengisi nama/urutan tanpa fitur ini (aktif/nonaktif TIDAK digate) - inline per-field di routers/penjualan_setup.py, dites manual di tests/test_pengaturan_struk.py."),
     PemetaanFitur("logo_struk", 2, None, "Tahap 4: POST /toko/logo (routers/toko.py) digate require_fitur langsung - endpoint=None di sini BUKAN krn belum ada endpoint (sekarang ADA), tapi krn endpoint ini butuh multipart file upload yang harness test_gating_fitur.py (client.request json=/params= saja) tidak dukung. Dites manual di tests/test_pengaturan_struk.py."),
     PemetaanFitur("bundling", 2, ("POST", "/produk/{produk_id}/bundling"), "GET juga digate; endpoint ini JUGA menolak 400 kalau isinya produk bundling lain (lihat docs/aturan_harga.md). Tahap 3a: checkout_service SEKARANG expand bundling_item utk potong stok komponen (+ resep komponen itu kalau ada) - lihat _potong_stok_item."),
-    PemetaanFitur("pengingat_kedaluwarsa", 2, None, "batch_stok 100% tidak terpakai di backend (audit tahap 1)."),
+    PemetaanFitur("pengingat_kedaluwarsa", 2, None, "POST /stok/batch (routers/batch_stok.py) digate require_fitur langsung; GET/DELETE tidak digate. Dites di tests/test_batch_stok.py. Batch hanya pengingat: penjualan belum memotong qty_sisa."),
     PemetaanFitur("harga_grosir", 2, ("POST", "/produk/{produk_id}/harga-grosir"), "GET juga digate. Tahap 3a: tier harga_grosir dipakai mesin hitung harga (harga/kalkulator.py) - tapi di checkout server harga_satuan sudah dibakukan HP, jadi gating aktual terjadi di sisi HP (keranjang) + fixture, bukan di endpoint checkout ini."),
 ]
 

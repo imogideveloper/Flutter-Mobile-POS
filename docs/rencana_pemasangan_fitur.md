@@ -14,8 +14,8 @@ Sebuah fitur dihitung **terpasang** bila: (a) bisa dibuka dan dipakai di aplikas
 | Relevan untuk Makanan & Minuman (7 jenis usaha) | 64 |
 | Tidak relevan untuk semua jenis usaha F&B (alat bantu retail, jasa, dst.) | 23 |
 | Dari 64 itu: lengkap (belum uji HP) | 15 |
-| Dari 64 itu: sebagian | 34 |
-| Dari 64 itu: belum ada | 15 |
+| Dari 64 itu: sebagian | 35 |
+| Dari 64 itu: belum ada | 14 |
 
 **Asumsi yang perlu dikonfirmasi:** 23 fitur non-F&B tidak dibangun, sesuai arahan lead 2026-11-08 ("aplikasi hanya modul Makanan & Minuman"). Bila seluruh 87 harus terpasang, tambahan 23 fitur itu masuk rencana tersendiri (lihat bagian 6).
 

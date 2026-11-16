@@ -42,9 +42,9 @@ import '../../features/shift/presentation/pages/buka_shift_form_page.dart';
 import '../../features/shift/presentation/pages/catat_kas_form_page.dart';
 import '../../features/shift/presentation/pages/shift_page.dart';
 import '../../features/shift/presentation/pages/tutup_shift_form_page.dart';
+import '../../features/stok/presentation/pages/kedaluwarsa_page.dart';
 import '../../features/stok/presentation/pages/riwayat_mutasi_stok_page.dart';
 import '../../features/stok/presentation/pages/stok_list_page.dart';
-import '../../features/stok/presentation/pages/riwayat_mutasi_stok_page.dart';
 import '../../features/stok/presentation/pages/stok_mutasi_form_page.dart';
 import '../../features/transaksi/domain/hasil_transaksi.dart';
 import '../../features/transaksi/presentation/pages/bayar_kasbon_page.dart';
@@ -250,6 +250,10 @@ GoRouter _buildRouter() => GoRouter(
             kodeIzin: 'stok.kelola',
             child: const StokMutasiFormPage(),
           ),
+        ),
+        GoRoute(
+          path: 'kedaluwarsa',
+          builder: (context, state) => IzinGuard(kodeIzin: 'stok.kelola', child: const KedaluwarsaPage()),
         ),
         GoRoute(
           path: 'riwayat',

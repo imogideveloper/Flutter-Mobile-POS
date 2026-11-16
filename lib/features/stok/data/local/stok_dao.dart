@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../../../core/utils/id_generator.dart';
+import 'tables/batch_stok_table.dart';
 import 'tables/mutasi_stok_table.dart';
 import 'tables/stok_table.dart';
 
@@ -16,6 +17,14 @@ class StokDenganProduk {
   final ProdukRow produk;
 }
 
+/// Batch kedaluwarsa + nama produknya.
+class BatchDenganProduk {
+  const BatchDenganProduk({required this.batch, required this.produk});
+
+  final BatchStokRow batch;
+  final ProdukRow produk;
+}
+
 /// Sama seperti StokDenganProduk, tapi untuk baris mutasi_stok.
 class MutasiDenganProduk {
   const MutasiDenganProduk({required this.mutasi, required this.produk});
@@ -24,9 +33,51 @@ class MutasiDenganProduk {
   final ProdukRow produk;
 }
 
-@DriftAccessor(tables: [Stok, MutasiStok])
+@DriftAccessor(tables: [Stok, MutasiStok, BatchStok])
 class StokDao extends DatabaseAccessor<AppDatabase> with _$StokDaoMixin {
   StokDao(super.db);
+
+  /// Batch kedaluwarsa yang belum dihapus di outlet ini, paling dekat kedaluwarsa lebih dulu.
+  Stream<List<BatchDenganProduk>> watchBatchKedaluwarsa(String outletId) {
+    final query = select(batchStok).join([
+      innerJoin(produk, produk.id.equalsExp(batchStok.produkId)),
+    ])
+      ..where(batchStok.outletId.equals(outletId) & batchStok.deletedAt.isNull())
+      ..orderBy([OrderingTerm.asc(batchStok.tanggalKedaluwarsa)]);
+    return query
+        .watch()
+        .map((rows) => [for (final r in rows) BatchDenganProduk(batch: r.readTable(batchStok), produk: r.readTable(produk))]);
+  }
+
+  /// Dipanggil sync pull. Batch yang dihapus di server (deletedAt terisi) ikut ditandai.
+  Future<void> upsertBatchDariSync({
+    required String id,
+    required String outletId,
+    required String produkId,
+    String? varianId,
+    String? nomorBatch,
+    required int tanggalKedaluwarsa,
+    required double qtyAwal,
+    required double qtySisa,
+    required int ingatkanHari,
+    required int updatedAt,
+    int? deletedAt,
+  }) {
+    return into(batchStok).insertOnConflictUpdate(BatchStokCompanion.insert(
+      id: id,
+      outletId: outletId,
+      produkId: produkId,
+      varianId: Value(varianId),
+      nomorBatch: Value(nomorBatch),
+      tanggalKedaluwarsa: tanggalKedaluwarsa,
+      qtyAwal: qtyAwal,
+      qtySisa: qtySisa,
+      ingatkanHari: Value(ingatkanHari),
+      createdAt: updatedAt,
+      updatedAt: updatedAt,
+      deletedAt: Value(deletedAt),
+    ));
+  }
 
   Stream<List<StokRow>> watchStokOutlet(String outletId) =>
       (select(stok)..where((t) => t.outletId.equals(outletId) & t.deletedAt.isNull()))

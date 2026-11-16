@@ -193,11 +193,11 @@
  },
  "49": {
   "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-14): kini ada riwayat mutasi lengkap per produk (ketuk baris stok): jenis, tanggal dan jam, jumlah, saldo setelah, catatan, total masuk/keluar, filter Masuk/Keluar, sampai 300 mutasi terbaru. Belum: filter tanggal, ekspor riwayat, riwayat per varian. Pengaturan saat stok habis sempat terblokir BUG-012 (diperbaiki di kode, menunggu uji HP). Lulus tes otomatis, belum diuji di HP."
+  "catatan": "SEBAGIAN (2026-11-14): kini ada riwayat mutasi lengkap per produk (ketuk baris stok): jenis, tanggal dan jam, jumlah, saldo setelah, catatan, total masuk/keluar, filter Masuk/Keluar, sampai 300 mutasi terbaru. Filter rentang tanggal sudah ada (2026-11-16). Belum: ekspor riwayat, riwayat per varian. Pengaturan saat stok habis sempat terblokir BUG-012 (diperbaiki di kode, menunggu uji HP). Lulus tes otomatis, belum diuji di HP."
  },
  "50": {
-  "status": "belum",
-  "catatan": "Backend punya kolom/batch kedaluwarsa; tanpa UI atau job."
+  "status": "sedang",
+  "catatan": "SEBAGIAN (2026-11-16): catat batch (produk, nomor batch, jumlah, tanggal kedaluwarsa, ingatkan N hari) lewat ikon di halaman Stok, digerbang paket dan izin stok.kelola; daftar menandai Sudah lewat dan Segera, ikut sync ke HP. Pencatatan butuh koneksi. Belum: pemberitahuan terjadwal, pengurangan batch saat penjualan (FIFO), batch dari pembelian. Lulus tes otomatis, belum diuji di HP."
  },
  "51": {
   "status": "sudah",

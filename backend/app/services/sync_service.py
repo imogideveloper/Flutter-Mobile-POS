@@ -37,7 +37,7 @@ from app.models.produk import (
     Satuan,
 )
 from app.models.promo import Pajak, Promo
-from app.models.stok import Stok
+from app.models.stok import BatchStok, Stok
 from app.models.transaksi import KasShift, MetodeBayar, Pembayaran, Shift, Transaksi
 from app.schemas.pembayaran import PembayaranIn
 from app.schemas.sync import (
@@ -583,6 +583,31 @@ async def pull(
             for r in stok_rows[:limit]
         ]
 
+    # Batch kedaluwarsa (IMOGI no. 50): delta by updated_at per outlet device ini, termasuk yang dihapus
+    # (deleted_at) supaya HP ikut membuangnya.
+    batch_stok: list[dict] = []
+    has_more["batch_stok"] = False
+    if outlet_id is not None:
+        batch_rows = (
+            await db.execute(
+                select(BatchStok)
+                .where(BatchStok.outlet_id == outlet_id, BatchStok.updated_at > since)
+                .order_by(BatchStok.updated_at.asc())
+                .limit(limit + 1)
+            )
+        ).scalars().all()
+        has_more["batch_stok"] = len(batch_rows) > limit
+        batch_stok = [
+            _ke_dict(
+                r,
+                [
+                    "id", "outlet_id", "produk_id", "varian_id", "nomor_batch", "tanggal_kedaluwarsa",
+                    "qty_awal", "qty_sisa", "ingatkan_hari", "updated_at", "deleted_at",
+                ],
+            )
+            for r in batch_rows[:limit]
+        ]
+
     harga_outlet: list[dict] = []
     has_more["harga_outlet"] = False
     if outlet_id is not None:
@@ -699,6 +724,7 @@ async def pull(
         modifier=modifier,
         produk_grup_modifier=produk_grup_modifier,
         stok=stok,
+        batch_stok=batch_stok,
         harga_outlet=harga_outlet,
         harga_grosir=harga_grosir,
         tipe_order=tipe_order,

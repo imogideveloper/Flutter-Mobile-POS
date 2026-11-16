@@ -251,6 +251,14 @@ class _FakeBackendApi implements BackendApi {
       throw UnimplementedError();
 
   @override
+  Future<void> tambahBatchStok({required String accessToken, required Map<String, dynamic> body}) =>
+      throw UnimplementedError();
+
+  @override
+  Future<void> hapusBatchStok({required String accessToken, required String batchId}) =>
+      throw UnimplementedError();
+
+  @override
   Future<Map<String, dynamic>> ubahMetodeBayar({
     required String accessToken,
     required String metodeBayarId,
@@ -831,6 +839,56 @@ void main() {
     api.pullResponse = dengan({'diskon': 'opsional'});
     await repo.jalankan();
     expect(await db.fiturDao.semuaKebutuhan('toko-asli'), {'diskon': 'opsional'});
+  });
+
+  test('pull: batch kedaluwarsa dari server tersimpan (tanggal date -> epoch UTC) dan penghapusan ikut', () async {
+    await db.produkDao.upsertProduk(ProdukCompanion.insert(
+      id: 'susu', tokoId: 'toko-asli', nama: 'Susu', tipe: ProdukTipe.barang, createdAt: 0, updatedAt: 0,
+    ));
+    SyncPullResult dengan(List<Map<String, dynamic>> batch) => SyncPullResult(
+          waktuPull: '2026-01-01T00:00:00Z',
+          produk: const [],
+          kategori: const [],
+          satuan: const [],
+          pajak: const [],
+          promo: const [],
+          metodeBayar: const [],
+          stok: const [],
+          hargaOutlet: const [],
+          hargaGrosir: const [],
+          tipeOrderPajak: const [],
+          pengaturanOutlet: const [],
+          hasMore: const {},
+          paket: null,
+          kodeFitur: const [],
+          batasFitur: const {},
+          batchStok: batch,
+        );
+    Map<String, dynamic> baris({String? deletedAt}) => {
+          'id': 'b1',
+          'outlet_id': 'outlet-asli',
+          'produk_id': 'susu',
+          'varian_id': null,
+          'nomor_batch': 'B-1',
+          'tanggal_kedaluwarsa': '2026-12-31',
+          'qty_awal': '12.000',
+          'qty_sisa': '12.000',
+          'ingatkan_hari': 30,
+          'updated_at': '2026-01-01T00:00:00Z',
+          'deleted_at': deletedAt,
+        };
+
+    api.pullResponse = dengan([baris()]);
+    await repo.jalankan();
+    var rows = await db.select(db.batchStok).get();
+    expect(rows.single.tanggalKedaluwarsa, DateTime.utc(2026, 12, 31).millisecondsSinceEpoch);
+    expect(rows.single.qtySisa, 12.0);
+    expect(rows.single.deletedAt, isNull);
+
+    api.pullResponse = dengan([baris(deletedAt: '2026-01-02T00:00:00Z')]);
+    await repo.jalankan();
+    rows = await db.select(db.batchStok).get();
+    expect(rows.single.deletedAt, isNotNull);
   });
 
   test('pull: pengguna asli dari server mematikan Owner bawaan ber-PIN 000000 (temuan S1)', () async {

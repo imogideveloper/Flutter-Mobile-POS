@@ -29,3 +29,8 @@ final riwayatMutasiProdukProvider =
     StreamProvider.family<List<MutasiItem>, (String, String)>((ref, kunci) {
   return ref.watch(stokRepositoryProvider).watchMutasiProduk(kunci.$1, kunci.$2);
 });
+
+/// Batch kedaluwarsa di outlet ini (IMOGI no. 50), paling dekat kedaluwarsa lebih dulu.
+final batchKedaluwarsaProvider = StreamProvider.family<List<BatchDenganProduk>, String>((ref, outletId) {
+  return ref.watch(stokDaoProvider).watchBatchKedaluwarsa(outletId);
+});

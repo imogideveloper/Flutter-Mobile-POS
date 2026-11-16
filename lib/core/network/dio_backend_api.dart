@@ -327,6 +327,7 @@ class DioBackendApi implements BackendApi {
         hargaGrosir: listOf('harga_grosir'),
         tipeOrderPajak: listOf('tipe_order_pajak'),
         tipeOrder: listOf('tipe_order'),
+        batchStok: listOf('batch_stok'),
         pengaturanOutlet: listOf('pengaturan_outlet'),
         hasMore: (body['has_more'] as Map<String, dynamic>).map(
           (k, v) => MapEntry(k, v as bool),
@@ -728,6 +729,24 @@ class DioBackendApi implements BackendApi {
         options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
       );
       return (resp.data as Map<String, dynamic>)['qris_url'] as String;
+    } on DioException catch (e) {
+      _lempar(e);
+    }
+  }
+
+  @override
+  Future<void> tambahBatchStok({required String accessToken, required Map<String, dynamic> body}) async {
+    try {
+      await _dio.post('/stok/batch', data: body, options: Options(headers: {'Authorization': 'Bearer $accessToken'}));
+    } on DioException catch (e) {
+      _lempar(e);
+    }
+  }
+
+  @override
+  Future<void> hapusBatchStok({required String accessToken, required String batchId}) async {
+    try {
+      await _dio.delete('/stok/batch/$batchId', options: Options(headers: {'Authorization': 'Bearer $accessToken'}));
     } on DioException catch (e) {
       _lempar(e);
     }
