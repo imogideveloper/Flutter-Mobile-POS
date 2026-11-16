@@ -187,6 +187,13 @@ abstract class BackendApi {
     required String namaFile,
   });
 
+  /// Gambar QRIS statis usaha (IMOGI no. 10); mengembalikan `qris_url`. Digerbang fitur `qris`.
+  Future<String> uploadQrisToko({
+    required String accessToken,
+    required List<int> bytes,
+    required String namaFile,
+  });
+
   Future<Map<String, dynamic>> ubahMetodeBayar({
     required String accessToken,
     required String metodeBayarId,
@@ -405,6 +412,7 @@ class SyncPullResult {
     required this.hasMore,
     required this.paket,
     this.logoUrl,
+    this.qrisUrl,
     required this.kodeFitur,
     required this.batasFitur,
     this.tipeOrder = const [],
@@ -459,6 +467,9 @@ class SyncPullResult {
   // Tahap 4 bagian B.4 - lihat LogoCache utk cara dicache lokal supaya
   // tetap bisa dicetak saat offline.
   final String? logoUrl;
+
+  /// Gambar QRIS statis usaha (IMOGI no. 10); null = belum diunggah.
+  final String? qrisUrl;
   final List<String> kodeFitur;
   final Map<String, int> batasFitur;
 }

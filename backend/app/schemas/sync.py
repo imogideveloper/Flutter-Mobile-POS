@@ -157,6 +157,8 @@ class SyncPullOut(BaseModel):
     # baris `toko` tidak punya watermark per-field yang bisa dibandingkan
     # `since`, jadi dikirim snapshot tiap pull, bukan delta.
     logo_url: str | None
+    # Gambar QRIS statis usaha (IMOGI no. 10); default None supaya client lama tidak terpengaruh.
+    qris_url: str | None = None
     kode_fitur: list[str]
     # Batas (mis. hari utk laporan_dasar) per kode fitur YANG PUNYA batas
     # di paket toko ini saat ini - fitur tanpa batas (termasuk yang tidak

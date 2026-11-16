@@ -6,6 +6,7 @@ import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../struk/logo_cache.dart';
+import '../struk/qris_cache.dart';
 import '../../features/fitur/data/local/fitur_dao.dart';
 import 'api_config.dart';
 import '../../features/order/data/local/tipe_order_dao.dart';
@@ -524,6 +525,7 @@ class SyncRepository {
     var since = await sessionStore.ambilLastSyncAt();
     var totalDiterima = 0;
     String? logoUrlTerakhir;
+    String? qrisUrlTerakhir;
 
     for (var iterasi = 0; iterasi < 50; iterasi++) {
       final hasil = await api.syncPull(
@@ -533,6 +535,7 @@ class SyncRepository {
         outletId: outletId ?? sesi.outletId,
       );
       logoUrlTerakhir = hasil.logoUrl;
+      qrisUrlTerakhir = hasil.qrisUrl;
 
       await _terapkanPull(
         hasil,
@@ -570,6 +573,7 @@ class SyncRepository {
 
     await sessionStore.simpanLastSyncAt(since);
     if (logoUrlTerakhir != null) await _cacheLogo(logoUrlTerakhir);
+    await _cacheQris(qrisUrlTerakhir);
     return totalDiterima;
   }
 
@@ -591,6 +595,23 @@ class SyncRepository {
       }
     } catch (_) {
       // Diam2 dilewati - lihat komentar di atas.
+    }
+  }
+
+  /// Samakan cache gambar QRIS statis (IMOGI no. 10) dengan server: unduh bila ada, hapus bila usaha
+  /// sudah menghapusnya. Seperti logo, kegagalan di sini tidak boleh menggagalkan sync lainnya.
+  Future<void> _cacheQris(String? qrisUrl) async {
+    try {
+      if (qrisUrl == null) {
+        await QrisCache.hapus();
+        return;
+      }
+      final urlPenuh = qrisUrl.startsWith('http') ? qrisUrl : '$baseUrl$qrisUrl';
+      final resp = await Dio().get<List<int>>(urlPenuh, options: Options(responseType: ResponseType.bytes));
+      final bytes = resp.data;
+      if (bytes != null && bytes.isNotEmpty) await QrisCache.simpan(bytes);
+    } catch (_) {
+      // Dilewati - gambar lama (bila ada) tetap dipakai.
     }
   }
 

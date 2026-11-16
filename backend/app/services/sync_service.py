@@ -700,6 +700,7 @@ async def pull(
         pengaturan_outlet=pengaturan_outlet,
         paket=paket.nama,
         logo_url=toko.logo_url if toko is not None else None,
+        qris_url=toko.qris_url if toko is not None else None,
         kode_fitur=kode_fitur,
         batas_fitur=batas_fitur,
         has_more=has_more,

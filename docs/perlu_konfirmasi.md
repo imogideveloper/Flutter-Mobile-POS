@@ -257,3 +257,13 @@ Aturan baca: **Sementara** = perilaku yang sekarang dipakai di kode. **Dampak bi
 | X2 | Gaya otomatis digerbang fitur `logo_struk` (Enterprise) seperti saklar logo; bawaan tetap logo unggahan sehingga paket Gratis bisa menyimpan pengaturan lain (BUG-012 tetap aman). Gaya ditolak 403 hanya bila diubah ke gaya otomatis tanpa fitur | Sesuai katalog |
 | X3 | Cetak ulang dari riwayat memakai gaya logo pada pengaturan SAAT INI, bukan gaya saat transaksi (hanya tampil/tidaknya logo yang dibekukan di snapshot struk) | Perlu konfirmasi |
 | X4 | Belum diuji di printer Bluetooth sungguhan (tidak ada perangkat): ukuran 240 px dan ambang hitam-putih bisa perlu disesuaikan untuk kertas 58 mm | Terblokir perangkat |
+
+## Tambahan 2026-11-16 (QRIS statis dari gambar usaha, IMOGI no. 10)
+
+| # | Hal | Sementara |
+|---|---|---|
+| Y1 | **Cacat yang ditemukan:** layar bayar QRIS sebelumnya menampilkan QR tiruan (`POS-MOCK|total=...`) yang tidak bisa dibayar siapa pun. Diganti gambar QRIS usaha; tanpa gambar, layar menampilkan petunjuk (QR tiruan dihapus) | Perlu diuji di HP: apakah pemindai bank membaca gambar yang diunggah |
+| Y2 | QRIS statis tidak memuat nominal: pelanggan mengetik jumlah sendiri, dan kasir wajib mengecek dana masuk (alur konfirmasi manual yang sudah ada). Pembayaran tetap ditandai "QRIS manual (belum terverifikasi)" di laporan | Sesuai dokumen IMOGI (QRIS statis) |
+| Y3 | Hanya peran dengan izin `pengaturan.kelola` (Owner) yang bisa mengunggah atau menghapus gambar; menghapus tidak digate paket. Satu gambar per usaha (bukan per outlet) | Perlu konfirmasi: per outlet? |
+| Y4 | Hitung mundur 5 menit "kode kedaluwarsa" pada layar ini tidak bermakna untuk QRIS statis; belum dihapus | Perlu konfirmasi |
+| Y5 | Gambar tidak diperiksa apakah benar QRIS (hanya format dan ukuran) | Susulan |

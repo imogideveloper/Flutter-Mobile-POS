@@ -333,6 +333,7 @@ class DioBackendApi implements BackendApi {
         ),
         paket: body['paket'] as String?,
         logoUrl: body['logo_url'] as String?,
+        qrisUrl: body['qris_url'] as String?,
         kodeFitur: (body['kode_fitur'] as List).cast<String>(),
         batasFitur: (body['batas_fitur'] as Map<String, dynamic>).map(
           (k, v) => MapEntry(k, v as int),
@@ -703,6 +704,27 @@ class DioBackendApi implements BackendApi {
       );
       final body = resp.data as Map<String, dynamic>;
       return body['logo_url'] as String;
+    } on DioException catch (e) {
+      _lempar(e);
+    }
+  }
+
+  @override
+  Future<String> uploadQrisToko({
+    required String accessToken,
+    required List<int> bytes,
+    required String namaFile,
+  }) async {
+    try {
+      final formData = FormData.fromMap({
+        'file': MultipartFile.fromBytes(bytes, filename: namaFile),
+      });
+      final resp = await _dio.post(
+        '/toko/qris',
+        data: formData,
+        options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
+      );
+      return (resp.data as Map<String, dynamic>)['qris_url'] as String;
     } on DioException catch (e) {
       _lempar(e);
     }

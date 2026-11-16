@@ -37,7 +37,7 @@
  },
  "10": {
   "status": "sedang",
-  "catatan": "QRIS dinamis Xendit belum teruji (kunci kosong). Imogi memakai QRIS statis dari gambar yang diunggah usaha; pengaturan unggah gambar QRIS belum ditemukan."
+  "catatan": "SEBAGIAN (2026-11-16): layar bayar QRIS menampilkan gambar QRIS statis milik usaha (sebelumnya QR tiruan yang tidak bisa dibayar). Pemilik mengunggah gambar (PNG/JPG maks. 1 MB) di Pengaturan metode bayar pada metode QRIS (digerbang fitur qris, migrasi 0027, ikut sync dan di-cache untuk offline), bisa diganti atau dihapus; tanpa gambar layar memberi petunjuk. Kasir tetap wajib mengecek dana masuk manual. QRIS dinamis Xendit tetap terblokir (kunci kosong). Lulus tes otomatis, belum diuji di HP."
  },
  "11": {
   "status": "tidak_relevan",

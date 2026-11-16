@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../../../core/providers/session_provider.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -21,6 +20,7 @@ import '../providers/harga_keranjang_provider.dart';
 import '../providers/status_pesanan_providers.dart';
 import '../providers/keranjang_provider.dart';
 import '../providers/transaksi_providers.dart';
+import '../providers/qris_providers.dart';
 
 final _formatRupiah = NumberFormat.currency(
   locale: 'id_ID',
@@ -166,8 +166,9 @@ class _BayarQrisPageState extends ConsumerState<BayarQrisPage> {
   @override
   Widget build(BuildContext context) {
     final total = ref.watch(totalSetelahPoinProvider);
-    final qrData =
-        'POS-MOCK|total=$total|ts=${DateTime.now().millisecondsSinceEpoch}';
+    // Gambar QRIS statis milik usaha (IMOGI no. 10). Sebelumnya layar ini menampilkan QR tiruan
+    // ("POS-MOCK") yang tidak bisa dibayar siapa pun.
+    final qris = ref.watch(qrisTokoProvider).value;
 
     return Scaffold(
       appBar: AppBar(title: const Text('QRIS statis (cek manual)')),
@@ -194,16 +195,38 @@ class _BayarQrisPageState extends ConsumerState<BayarQrisPage> {
                       ),
                     ),
                     const SizedBox(height: AppSpacing.md),
-                    QrImageView(
-                      data: qrData,
-                      size: 220,
-                      backgroundColor: Colors.white,
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    Text(
-                      'Bisa dibayar dari semua e-wallet dan m-banking',
-                      style: AppTypography.secondary,
-                    ),
+                    if (qris != null) ...[
+                      Container(
+                        color: Colors.white,
+                        child: Image.memory(
+                          qris,
+                          key: const Key('bayarQrisPage.gambarQris'),
+                          width: 260,
+                          height: 260,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      Text(
+                        'Bisa dibayar dari semua e-wallet dan m-banking',
+                        style: AppTypography.secondary,
+                      ),
+                    ] else
+                      Container(
+                        key: const Key('bayarQrisPage.belumAdaQris'),
+                        padding: const EdgeInsets.all(AppSpacing.lg),
+                        decoration: BoxDecoration(
+                          color: AppColors.warningBg,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          'Gambar QRIS usaha belum diunggah. Unggah di Lainnya > Pengaturan metode bayar '
+                          '(ikon gambar pada metode QRIS), atau tunjukkan QRIS usaha dari sumber lain, '
+                          'lalu cek dana masuk seperti biasa.',
+                          textAlign: TextAlign.center,
+                          style: AppTypography.secondary.copyWith(color: AppColors.warningTextStrong),
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -243,9 +266,9 @@ class _BayarQrisPageState extends ConsumerState<BayarQrisPage> {
               ),
               const SizedBox(height: AppSpacing.md),
               Text(
-                'QR di atas statis (sama utk semua transaksi) - belum terhubung '
-                'payment gateway sungguhan. Buka aplikasi bank/e-wallet Anda '
-                'sendiri utk memastikan dana sudah masuk sebelum lanjut.',
+                'QRIS usaha bersifat statis (sama untuk semua transaksi) dan belum terhubung '
+                'payment gateway. Buka aplikasi bank/e-wallet usaha Anda sendiri untuk '
+                'memastikan dana sudah masuk sebelum lanjut.',
                 textAlign: TextAlign.center,
                 style: AppTypography.secondary,
               ),

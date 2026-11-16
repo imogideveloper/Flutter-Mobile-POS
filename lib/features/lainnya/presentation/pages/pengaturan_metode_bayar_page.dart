@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../../../core/network/auth_session_store.dart';
@@ -17,6 +18,8 @@ import '../../../../core/widgets/offline_notice_banner.dart';
 import '../../../transaksi/data/local/tables/metode_bayar_table.dart';
 import '../../../transaksi/domain/label_tujuan.dart';
 import '../../../transaksi/presentation/providers/transaksi_providers.dart';
+import '../../../transaksi/presentation/providers/qris_providers.dart';
+import '../../../../core/struk/qris_cache.dart';
 
 final _semuaMetodeBayarProvider = StreamProvider<List<MetodeBayarRow>>((ref) {
   return ref.watch(metodeBayarDaoProvider).watchSemuaMetodeBayar();
@@ -289,6 +292,16 @@ class PengaturanMetodeBayarPage extends ConsumerWidget {
                         ],
                       ),
                     ),
+                    if (metode.tipe == MetodeBayarTipe.qris)
+                      FiturTerkunci(
+                        kode: 'qris',
+                        child: IconButton(
+                          key: Key('pengaturanMetodeBayar.gambarQris.${metode.id}'),
+                          icon: const Icon(Icons.qr_code_2),
+                          tooltip: 'Gambar QRIS usaha',
+                          onPressed: online ? () => showDialog<void>(context: context, builder: (_) => const _DialogGambarQris()) : null,
+                        ),
+                      ),
                     if (metode.tipe == MetodeBayarTipe.transfer || metode.tipe == MetodeBayarTipe.ewallet)
                       IconButton(
                         key: Key('pengaturanMetodeBayar.rekeningEdit.${metode.id}'),
@@ -318,6 +331,87 @@ class PengaturanMetodeBayarPage extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => Center(child: Text('Gagal memuat: $error')),
       ),
+    );
+  }
+}
+
+/// Kelola gambar QRIS statis usaha (IMOGI no. 10): lihat, unggah/ganti, atau hapus. Gambar disimpan di
+/// server (digerbang fitur `qris`) dan di-cache lokal agar tetap tampil di layar bayar saat offline.
+class _DialogGambarQris extends ConsumerStatefulWidget {
+  const _DialogGambarQris();
+
+  @override
+  ConsumerState<_DialogGambarQris> createState() => _DialogGambarQrisState();
+}
+
+class _DialogGambarQrisState extends ConsumerState<_DialogGambarQris> {
+  bool _sibuk = false;
+
+  Future<void> _unggah() async {
+    final sesi = await ref.read(authSessionStoreProvider).muat();
+    if (sesi == null) return;
+    final file = await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 95);
+    if (file == null) return;
+    setState(() => _sibuk = true);
+    try {
+      final bytes = await file.readAsBytes();
+      await ref.read(backendApiProvider).uploadQrisToko(accessToken: sesi.accessToken, bytes: bytes, namaFile: file.name);
+      await QrisCache.simpan(bytes);
+      ref.invalidate(qrisTokoProvider);
+      if (mounted) showAppToast(context, message: 'Gambar QRIS tersimpan', variant: ToastVariant.success);
+    } catch (e) {
+      if (mounted) showAppToast(context, message: 'Gagal mengunggah: $e', variant: ToastVariant.danger);
+    } finally {
+      if (mounted) setState(() => _sibuk = false);
+    }
+  }
+
+  Future<void> _hapus() async {
+    final sesi = await ref.read(authSessionStoreProvider).muat();
+    if (sesi == null) return;
+    setState(() => _sibuk = true);
+    try {
+      await ref.read(backendApiProvider).deleteJson(accessToken: sesi.accessToken, path: '/toko/qris');
+      await QrisCache.hapus();
+      ref.invalidate(qrisTokoProvider);
+      if (mounted) showAppToast(context, message: 'Gambar QRIS dihapus', variant: ToastVariant.success);
+    } catch (e) {
+      if (mounted) showAppToast(context, message: 'Gagal menghapus: $e', variant: ToastVariant.danger);
+    } finally {
+      if (mounted) setState(() => _sibuk = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final qris = ref.watch(qrisTokoProvider).value;
+    return AlertDialog(
+      key: const Key('gambarQris.dialog'),
+      title: const Text('Gambar QRIS usaha'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (qris != null)
+            Image.memory(qris, key: const Key('gambarQris.pratinjau'), width: 220, height: 220, fit: BoxFit.contain)
+          else
+            Text(
+              'Belum ada gambar. Unggah gambar QRIS usaha (PNG/JPG, maks. 1 MB) yang diberikan bank atau penyedia '
+              'QRIS Anda; kasir menampilkannya di layar bayar.',
+              key: const Key('gambarQris.kosong'),
+              style: AppTypography.secondary,
+            ),
+        ],
+      ),
+      actions: [
+        if (qris != null)
+          TextButton(key: const Key('gambarQris.hapus'), onPressed: _sibuk ? null : _hapus, child: const Text('Hapus')),
+        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Tutup')),
+        FilledButton(
+          key: const Key('gambarQris.unggah'),
+          onPressed: _sibuk ? null : _unggah,
+          child: Text(_sibuk ? 'Memproses...' : (qris == null ? 'Unggah' : 'Ganti')),
+        ),
+      ],
     );
   }
 }

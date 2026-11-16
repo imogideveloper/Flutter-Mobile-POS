@@ -34,6 +34,8 @@ class Toko(Base, UUIDPkMixin, TimestampMixin):
     no_hp: Mapped[str | None] = mapped_column(String(20), nullable=True)
     alamat: Mapped[str | None] = mapped_column(Text, nullable=True)
     logo_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Gambar QRIS statis usaha (IMOGI no. 10); null = belum diunggah.
+    qris_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     zona_waktu: Mapped[str] = mapped_column(String(50), default="Asia/Jakarta")
     mata_uang: Mapped[str] = mapped_column(String(3), default="IDR")
     pengaturan_fitur: Mapped[dict] = mapped_column(JSONB_PORTABLE, default=dict)

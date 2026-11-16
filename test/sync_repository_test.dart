@@ -243,6 +243,14 @@ class _FakeBackendApi implements BackendApi {
       throw UnimplementedError();
 
   @override
+  Future<String> uploadQrisToko({
+    required String accessToken,
+    required List<int> bytes,
+    required String namaFile,
+  }) =>
+      throw UnimplementedError();
+
+  @override
   Future<Map<String, dynamic>> ubahMetodeBayar({
     required String accessToken,
     required String metodeBayarId,

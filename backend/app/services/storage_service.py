@@ -36,7 +36,7 @@ def _deteksi_ekstensi(konten: bytes) -> str:
     raise HTTPException(status.HTTP_400_BAD_REQUEST, "File harus berupa PNG atau JPG")
 
 
-async def simpan_logo_toko(toko_id: uuid.UUID, file: UploadFile) -> str:
+async def _simpan_gambar(toko_id: uuid.UUID, file: UploadFile, folder: str) -> str:
     konten = await file.read()
     if len(konten) > _MAKS_UKURAN_BYTES:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Ukuran file maksimal 1 MB")
@@ -48,11 +48,20 @@ async def simpan_logo_toko(toko_id: uuid.UUID, file: UploadFile) -> str:
 
     settings = get_settings()
     if settings.s3_bucket:
-        return await asyncio.to_thread(_simpan_ke_s3, nama_file, konten, ekstensi)
-    return _simpan_lokal(nama_file, konten)
+        return await asyncio.to_thread(_simpan_ke_s3, nama_file, konten, ekstensi, folder)
+    return _simpan_lokal(nama_file, konten, folder)
 
 
-def _simpan_ke_s3(nama_file: str, konten: bytes, ekstensi: str) -> str:
+async def simpan_logo_toko(toko_id: uuid.UUID, file: UploadFile) -> str:
+    return await _simpan_gambar(toko_id, file, "logo")
+
+
+async def simpan_qris_toko(toko_id: uuid.UUID, file: UploadFile) -> str:
+    """Gambar QRIS statis milik usaha (IMOGI no. 10) - ditampilkan kasir di layar bayar."""
+    return await _simpan_gambar(toko_id, file, "qris")
+
+
+def _simpan_ke_s3(nama_file: str, konten: bytes, ekstensi: str, folder: str = "logo") -> str:
     import boto3  # import lokal - supaya modul ini tetap bisa diimpor di test tanpa boto3 dipanggil sama sekali saat S3_BUCKET kosong
 
     settings = get_settings()
@@ -60,7 +69,7 @@ def _simpan_ke_s3(nama_file: str, konten: bytes, ekstensi: str) -> str:
     client = boto3.client(
         "s3", region_name=settings.s3_region, endpoint_url=settings.s3_endpoint_url
     )
-    key = f"logo/{nama_file}"
+    key = f"{folder}/{nama_file}"
     client.put_object(
         Bucket=settings.s3_bucket, Key=key, Body=konten, ContentType=content_type, ACL="public-read"
     )
@@ -69,8 +78,8 @@ def _simpan_ke_s3(nama_file: str, konten: bytes, ekstensi: str) -> str:
     return f"https://{settings.s3_bucket}.s3.{settings.s3_region}.amazonaws.com/{key}"
 
 
-def _simpan_lokal(nama_file: str, konten: bytes) -> str:
-    folder = LOCAL_STORAGE_DIR / "logo"
-    folder.mkdir(parents=True, exist_ok=True)
-    (folder / nama_file).write_bytes(konten)
-    return f"/static/logo/{nama_file}"
+def _simpan_lokal(nama_file: str, konten: bytes, folder: str = "logo") -> str:
+    tujuan = LOCAL_STORAGE_DIR / folder
+    tujuan.mkdir(parents=True, exist_ok=True)
+    (tujuan / nama_file).write_bytes(konten)
+    return f"/static/{folder}/{nama_file}"

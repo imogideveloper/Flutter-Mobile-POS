@@ -27,7 +27,7 @@ class PemetaanFitur:
 
 
 FITUR_MAP: list[PemetaanFitur] = [
-    PemetaanFitur("qris", 1, None, "Belum ada endpoint gateway QRIS sama sekali (audit tahap 1) - tidak dibangun di tahap ini."),
+    PemetaanFitur("qris", 1, None, "Belum ada endpoint gateway QRIS dinamis (audit tahap 1). QRIS STATIS: POST /toko/qris (routers/toko.py) digate require_fitur(qris) langsung, diuji di tests/test_qris_toko.py."),
     PemetaanFitur("kasbon", 1, None, "Tahap 3b-1: checkout_service menolak 403 fitur_terkunci kalau total_bayar < total (kasbon) tapi fitur ini belum terbuka (lihat _siapkan_pembayaran_awal) - inline di /transaksi (bukan endpoint terpisah), sama pola dgn catatan_struk. Dites manual di tests/test_kasbon.py, bukan lewat endpoint_tergate() generik."),
     PemetaanFitur("tren_penjualan", 1, None, "Tidak ada endpoint tren terpisah dari laporan_dasar (audit tahap 1)."),
     PemetaanFitur("multi_outlet", 1, ("POST", "/outlets"), "Digate utk outlet KE-2 dan seterusnya (outlet pertama toko selalu boleh) - lihat routers/outlet.py. Kuota jumlah outlet dicek terpisah lewat langganan.jumlah_outlet (lihat B.5)."),
