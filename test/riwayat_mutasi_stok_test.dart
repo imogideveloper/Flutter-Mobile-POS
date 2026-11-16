@@ -38,6 +38,23 @@ void main() {
       expect(ringkasMutasi(const []), (masuk: 0.0, keluar: 0.0));
     });
 
+    test('saringRentangTanggal inklusif per hari lokal dan terbuka bila batas kosong', () {
+      MutasiItem pada(String id, DateTime t) => MutasiItem(
+          id: id, produkNama: 'Kopi', jenis: MutasiJenis.penjualan, qty: -1, catatan: null,
+          createdAt: t.millisecondsSinceEpoch, saldoSetelah: null);
+      final items = [
+        pada('a', DateTime(2026, 11, 9, 23, 59)),
+        pada('b', DateTime(2026, 11, 10, 0, 0)),
+        pada('c', DateTime(2026, 11, 12, 23, 59)),
+        pada('d', DateTime(2026, 11, 13, 0, 0)),
+      ];
+      expect(saringRentangTanggal(items).length, 4);
+      expect(saringRentangTanggal(items, dari: DateTime(2026, 11, 10), sampai: DateTime(2026, 11, 12)).map((m) => m.id),
+          ['b', 'c']);
+      expect(saringRentangTanggal(items, dari: DateTime(2026, 11, 12)).map((m) => m.id), ['c', 'd']);
+      expect(saringRentangTanggal(items, sampai: DateTime(2026, 11, 9)).map((m) => m.id), ['a']);
+    });
+
     test('labelMutasi memberi nama untuk setiap jenis', () {
       for (final j in MutasiJenis.values) {
         expect(labelMutasi(j), isNotEmpty);

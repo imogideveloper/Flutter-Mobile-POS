@@ -15,6 +15,8 @@ import '../providers/stok_providers.dart';
 final _formatQty = NumberFormat.decimalPattern('id_ID');
 final _formatWaktu = DateFormat('d MMM yyyy HH:mm', 'id_ID');
 
+final _formatTanggal = DateFormat('d MMM yyyy', 'id_ID');
+
 /// Argumen rute riwayat mutasi satu produk.
 class RiwayatMutasiArgs {
   const RiwayatMutasiArgs({required this.produkId, required this.produkNama});
@@ -37,6 +39,18 @@ class RiwayatMutasiStokPage extends ConsumerStatefulWidget {
 
 class _RiwayatMutasiStokPageState extends ConsumerState<RiwayatMutasiStokPage> {
   FilterMutasi _filter = FilterMutasi.semua;
+  DateTimeRange? _rentang;
+
+  Future<void> _pilihRentang() async {
+    final sekarang = DateTime.now();
+    final hasil = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(sekarang.year, sekarang.month, sekarang.day),
+      initialDateRange: _rentang,
+    );
+    if (hasil != null && mounted) setState(() => _rentang = hasil);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,8 +71,9 @@ class _RiwayatMutasiStokPageState extends ConsumerState<RiwayatMutasiStokPage> {
           if (semua.isEmpty) {
             return const EmptyState(icon: Icons.history, message: 'Belum ada mutasi untuk produk ini');
           }
-          final tampil = saringMutasi(semua, _filter);
-          final ringkas = ringkasMutasi(semua);
+          final dalamRentang = saringRentangTanggal(semua, dari: _rentang?.start, sampai: _rentang?.end);
+          final tampil = saringMutasi(dalamRentang, _filter);
+          final ringkas = ringkasMutasi(dalamRentang);
           return ListView(
             padding: const EdgeInsets.all(AppSpacing.xl),
             children: [
@@ -89,6 +104,20 @@ class _RiwayatMutasiStokPageState extends ConsumerState<RiwayatMutasiStokPage> {
                       }),
                       selected: _filter == f,
                       onSelected: (_) => setState(() => _filter = f),
+                    ),
+                  ActionChip(
+                    key: const Key('riwayatStok.rentang'),
+                    avatar: const Icon(Icons.date_range, size: 18),
+                    label: Text(_rentang == null
+                        ? 'Semua tanggal'
+                        : '${_formatTanggal.format(_rentang!.start)} - ${_formatTanggal.format(_rentang!.end)}'),
+                    onPressed: _pilihRentang,
+                  ),
+                  if (_rentang != null)
+                    ActionChip(
+                      key: const Key('riwayatStok.rentang.hapus'),
+                      label: const Text('Hapus tanggal'),
+                      onPressed: () => setState(() => _rentang = null),
                     ),
                 ],
               ),

@@ -25,6 +25,19 @@ List<MutasiItem> saringMutasi(List<MutasiItem> items, FilterMutasi filter) => sw
       FilterMutasi.keluar => [for (final m in items) if (m.qty < 0) m],
     };
 
+/// Mutasi yang terjadi pada rentang tanggal [dari]..[sampai] (keduanya INKLUSIF, menurut hari di zona waktu
+/// perangkat). Keduanya null = tanpa batas; salah satu null = terbuka di sisi itu.
+List<MutasiItem> saringRentangTanggal(List<MutasiItem> items, {DateTime? dari, DateTime? sampai}) {
+  if (dari == null && sampai == null) return items;
+  final awal = dari == null ? null : DateTime(dari.year, dari.month, dari.day).millisecondsSinceEpoch;
+  final akhirEksklusif =
+      sampai == null ? null : DateTime(sampai.year, sampai.month, sampai.day + 1).millisecondsSinceEpoch;
+  return [
+    for (final m in items)
+      if ((awal == null || m.createdAt >= awal) && (akhirEksklusif == null || m.createdAt < akhirEksklusif)) m,
+  ];
+}
+
 /// Total barang masuk (positif) dan keluar (dikembalikan sebagai angka positif) dari [items].
 ({double masuk, double keluar}) ringkasMutasi(List<MutasiItem> items) {
   var masuk = 0.0, keluar = 0.0;
