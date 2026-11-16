@@ -284,3 +284,10 @@ Aturan baca: **Sementara** = perilaku yang sekarang dipakai di kode. **Dampak bi
 | Z5 | Toko baru mendapat pesan penutup struk "Terima kasih, selamat menikmati!" dan pajak PB1 10% (ditambahkan di atas harga) untuk Kafe, Restoran, Katering, Roti, Minuman, Kios/Food Court. Bahan Segar/Beku tidak diberi PB1 | Mengikuti panduan IMOGI; perlu konfirmasi lead untuk FRZ dan besaran 10%. Pemilik bisa mematikan lewat saklar "Usaha kena pajak" |
 | Z6 | Struk ringkas dan nomor antrean TIDAK dinyalakan otomatis walau panduan menyarankannya, karena keduanya terkunci paket (Pro) dan nilainya akan tersisa tanpa fitur setelah trial | Perlu keputusan lead: nyalakan selama trial atau tetap manual |
 | Z7 | Bawaan hanya untuk toko yang mendaftar sesudah ini; toko lama tidak diubah. Modal awal shift Rp 300.000 dan tiket dapur otomatis belum dibuat | Susulan |
+
+## Tambahan 2026-11-16 (peran bawaan kru, Batch B tahap 3)
+
+| # | Hal | Sementara |
+|---|---|---|
+| Z8 | Peran sistem baru "Barista & Dapur" (hanya `transaksi.buat`) dan "Gudang" (`stok.kelola`, `pembelian.kelola`), migrasi 0028. Daftar 18 hak akses IMOGI belum dicocokkan: izin kini 15 kode dan tidak ada izin khusus seperti lihat margin, status pesanan, atau pengeluaran | Perlu daftar 18 hak akses dan matriks peran dari lead sebelum diperluas |
+| Z9 | Peran ini global (semua jenis usaha), belum dipasang otomatis hanya untuk jenis usaha tertentu. Peran sistem baru ikut sync pull ke HP, tampil di pilihan peran karyawan | Perlu konfirmasi |

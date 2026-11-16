@@ -30,6 +30,8 @@ _IZIN = [
 ]
 
 _KASIR_IZIN = {"transaksi.buat", "shift.buka_tutup", "kas.keluar_masuk", "pelanggan.kelola"}
+_BARISTA_IZIN = {"transaksi.buat"}
+_GUDANG_IZIN = {"stok.kelola", "pembelian.kelola"}
 _MANAJER_KECUALI = {"pengguna.kelola", "pengaturan.kelola"}
 
 
@@ -41,7 +43,9 @@ async def seed_role_izin(db: AsyncSession) -> None:
     owner = Role(nama="Owner", is_system=True)
     manajer = Role(nama="Manajer", is_system=True)
     kasir = Role(nama="Kasir", is_system=True)
-    db.add_all([owner, manajer, kasir])
+    barista = Role(nama="Barista & Dapur", is_system=True)
+    gudang = Role(nama="Gudang", is_system=True)
+    db.add_all([owner, manajer, kasir, barista, gudang])
     await db.flush()
 
     for kode, izin in izin_rows.items():
@@ -50,6 +54,10 @@ async def seed_role_izin(db: AsyncSession) -> None:
             db.add(RoleIzin(role_id=manajer.id, izin_id=izin.id))
         if kode in _KASIR_IZIN:
             db.add(RoleIzin(role_id=kasir.id, izin_id=izin.id))
+        if kode in _BARISTA_IZIN:
+            db.add(RoleIzin(role_id=barista.id, izin_id=izin.id))
+        if kode in _GUDANG_IZIN:
+            db.add(RoleIzin(role_id=gudang.id, izin_id=izin.id))
 
     await db.commit()
 

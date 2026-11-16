@@ -129,3 +129,18 @@ async def test_toko_lama_tanpa_bawaan_tidak_terpengaruh(client: AsyncClient, db_
     toko = await buat_toko_siap_pakai(db_session)
     assert (await db_session.execute(select(TipeOrder).where(TipeOrder.toko_id == toko.toko.id))).scalars().all() == []
     assert (await db_session.execute(select(Pengguna).where(Pengguna.toko_id == toko.toko.id))).scalars().all()
+
+
+async def test_peran_bawaan_kru_ada_dengan_izin_sempit(db_session: AsyncSession) -> None:
+    """Peran sistem "Barista & Dapur" dan "Gudang" tersedia untuk semua toko (seed sama dengan migrasi 0028)."""
+    from app.models.akun import Izin, Role, RoleIzin
+
+    async def izin(nama: str) -> set[str]:
+        role = (await db_session.execute(select(Role).where(Role.nama == nama, Role.is_system.is_(True)))).scalar_one()
+        rows = await db_session.execute(
+            select(Izin.kode).join(RoleIzin, RoleIzin.izin_id == Izin.id).where(RoleIzin.role_id == role.id)
+        )
+        return set(rows.scalars().all())
+
+    assert await izin("Barista & Dapur") == {"transaksi.buat"}
+    assert await izin("Gudang") == {"stok.kelola", "pembelian.kelola"}
