@@ -300,3 +300,12 @@ Aturan baca: **Sementara** = perilaku yang sekarang dipakai di kode. **Dampak bi
 | AA2 | Pencatatan dan penghapusan batch butuh koneksi (lewat API); hasilnya sampai ke HP lewat sync. Tidak ada antrean offline untuk batch | Perlu konfirmasi: apakah harus bisa dicatat offline |
 | AA3 | Pengingat hanya berupa penanda di daftar (Sudah lewat, Segera); belum ada pemberitahuan terjadwal atau lencana di menu | Susulan |
 | AA4 | Pilihan produk di formulir batch diambil dari produk yang punya baris stok di outlet | Perlu dicek untuk produk tanpa lacak stok |
+
+## Tambahan 2026-11-16 (tiket dapur per stasiun, IMOGI no. 35)
+
+| # | Hal | Sementara |
+|---|---|---|
+| AB1 | Satu pesanan mencetak satu tiket per stasiun, berurutan lewat SATU printer yang terhubung ke HP. Kolom alamat printer per stasiun sudah ada di server tetapi belum dipakai | Perlu keputusan lead: printer terpisah per stasiun (Bar dan Dapur) atau cukup satu printer. Tidak bisa diuji tanpa perangkat |
+| AB2 | Stasiun terikat ke outlet, sedangkan kategori terikat ke toko. Kategori yang ditautkan ke stasiun outlet A dan dipakai di outlet B akan mencetak sebagai tiket umum di B | Perlu konfirmasi bila usaha multi-outlet memakai stasiun berbeda |
+| AB3 | Membuat, mengubah, dan menghapus stasiun butuh koneksi dan izin pengaturan.kelola (menu Lainnya). Menautkan kategori digerbang fitur tiket_dapur | Sama seperti batch kedaluwarsa (AA2) |
+| AB4 | Menghapus stasiun melepas semua kategori yang memakainya (kembali ke tiket umum) | Sementara |

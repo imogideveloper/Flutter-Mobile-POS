@@ -427,6 +427,7 @@ class SyncPullResult {
     required this.batasFitur,
     this.tipeOrder = const [],
     this.batchStok = const [],
+    this.stasiunDapur = const [],
     this.pengguna = const [],
     this.role = const [],
     this.roleIzin = const [],
@@ -472,6 +473,9 @@ class SyncPullResult {
 
   /// Batch kedaluwarsa produk (IMOGI no. 50): delta by updated_at.
   final List<Map<String, dynamic>> batchStok;
+
+  /// Stasiun dapur (IMOGI no. 35): delta by updated_at.
+  final List<Map<String, dynamic>> stasiunDapur;
   final List<Map<String, dynamic>> pengaturanOutlet;
   final Map<String, bool> hasMore;
   // Status gating paket (lihat SyncPullOut.paket/kode_fitur/batas_fitur di

@@ -23,7 +23,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.akun import AksesOutlet, Izin, Pengguna, Role, RoleIzin
 from app.models.audit import SyncLog
-from app.models.order import TipeOrder, TipeOrderPajak
+from app.models.order import StasiunDapur, TipeOrder, TipeOrderPajak
 from app.models.outlet import PengaturanOutlet, Perangkat, Toko
 from app.models.pelanggan import Pelanggan
 from app.models.produk import (
@@ -462,7 +462,7 @@ async def pull(
         ],
     )
     kategori = await _ambil_toko_scoped(
-        "kategori", Kategori, ["id", "nama", "warna", "urutan", "masuk_tiket_dapur", "updated_at", "deleted_at"]
+        "kategori", Kategori, ["id", "nama", "warna", "urutan", "masuk_tiket_dapur", "stasiun_dapur_id", "updated_at", "deleted_at"]
     )
     satuan = await _ambil_toko_scoped("satuan", Satuan, ["id", "nama", "singkatan", "updated_at", "deleted_at"])
     pajak = await _ambil_toko_scoped(
@@ -581,6 +581,27 @@ async def pull(
                 ],
             )
             for r in stok_rows[:limit]
+        ]
+
+    # Stasiun dapur (IMOGI no. 35): delta by updated_at per outlet device ini, termasuk yang dihapus.
+    stasiun_dapur: list[dict] = []
+    has_more["stasiun_dapur"] = False
+    if outlet_id is not None:
+        stasiun_rows = (
+            await db.execute(
+                select(StasiunDapur)
+                .where(StasiunDapur.outlet_id == outlet_id, StasiunDapur.updated_at > since)
+                .order_by(StasiunDapur.updated_at.asc())
+                .limit(limit + 1)
+            )
+        ).scalars().all()
+        has_more["stasiun_dapur"] = len(stasiun_rows) > limit
+        stasiun_dapur = [
+            _ke_dict(
+                r,
+                ["id", "outlet_id", "nama", "printer_alamat", "lebar_kertas_mm", "aktif", "updated_at", "deleted_at"],
+            )
+            for r in stasiun_rows[:limit]
         ]
 
     # Batch kedaluwarsa (IMOGI no. 50): delta by updated_at per outlet device ini, termasuk yang dihapus
@@ -725,6 +746,7 @@ async def pull(
         produk_grup_modifier=produk_grup_modifier,
         stok=stok,
         batch_stok=batch_stok,
+        stasiun_dapur=stasiun_dapur,
         harga_outlet=harga_outlet,
         harga_grosir=harga_grosir,
         tipe_order=tipe_order,

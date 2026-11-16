@@ -559,6 +559,7 @@ class SyncRepository {
           hasil.metodeBayar.length +
           hasil.stok.length +
           hasil.batchStok.length +
+          hasil.stasiunDapur.length +
           hasil.hargaOutlet.length +
           hasil.hargaGrosir.length +
           hasil.tipeOrderPajak.length +
@@ -628,6 +629,7 @@ class SyncRepository {
       hasil.metodeBayar,
       hasil.stok,
       hasil.batchStok,
+      hasil.stasiunDapur,
       hasil.hargaOutlet,
       hasil.hargaGrosir,
       hasil.pengaturanOutlet,
@@ -658,6 +660,7 @@ class SyncRepository {
           warna: Value(row['warna'] as String?),
           urutan: Value(row['urutan'] as int? ?? 0),
           masukTiketDapur: Value(row['masuk_tiket_dapur'] as bool? ?? true),
+          stasiunDapurId: Value(row['stasiun_dapur_id'] as String?),
           createdAt: epochMsDariBackend(row['updated_at'] as String),
           updatedAt: epochMsDariBackend(row['updated_at'] as String),
           deletedAt: Value(
@@ -786,6 +789,22 @@ class SyncRepository {
         hppRataRata: uangDariBackend(row['hpp_rata_rata'] as String),
         updatedAt: epochMsDariBackend(row['updated_at'] as String),
         deletedAt: epochMsDariBackendNullable(row['deleted_at'] as String?),
+      );
+    }
+
+    for (final row in hasil.stasiunDapur) {
+      await produkDao.upsertStasiunDapur(
+        StasiunDapurCompanion.insert(
+          id: row['id'] as String,
+          outletId: row['outlet_id'] as String,
+          nama: row['nama'] as String,
+          printerAlamat: Value(row['printer_alamat'] as String?),
+          lebarKertasMm: Value((row['lebar_kertas_mm'] as num?)?.toInt() ?? 58),
+          aktif: Value(row['aktif'] as bool? ?? true),
+          createdAt: epochMsDariBackend(row['updated_at'] as String),
+          updatedAt: epochMsDariBackend(row['updated_at'] as String),
+          deletedAt: Value(epochMsDariBackendNullable(row['deleted_at'] as String?)),
+        ),
       );
     }
 

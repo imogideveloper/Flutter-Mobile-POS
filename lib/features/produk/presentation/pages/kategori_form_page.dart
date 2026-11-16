@@ -14,7 +14,8 @@ import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/offline_notice_banner.dart';
 import '../../domain/kategori.dart';
-import '../providers/produk_providers.dart' show produkDaoProvider;
+import '../../../../core/widgets/fitur_terkunci.dart';
+import '../providers/produk_providers.dart' show produkDaoProvider, stasiunDapurProvider;
 
 /// Tambah/ubah kategori produk - online-direct (pola sama dgn
 /// pajak_form_page.dart): simpan LANGSUNG ke backend, cache lokal
@@ -46,6 +47,7 @@ class _KategoriFormPageState extends ConsumerState<KategoriFormPage> {
       TextEditingController(text: (widget.kategoriEdit?.urutan ?? 0).toString());
   late String _warna = widget.kategoriEdit?.warna ?? _paletWarna.first;
   late bool _masukTiketDapur = widget.kategoriEdit?.masukTiketDapur ?? true;
+  late String? _stasiunDapurId = widget.kategoriEdit?.stasiunDapurId;
   bool _menyimpan = false;
   bool _menghapus = false;
   String? _errorServer;
@@ -76,6 +78,7 @@ class _KategoriFormPageState extends ConsumerState<KategoriFormPage> {
         'nama': _namaController.text.trim(),
         'warna': _warna,
         'masuk_tiket_dapur': _masukTiketDapur,
+        'stasiun_dapur_id': _stasiunDapurId,
         'urutan': int.tryParse(_urutanController.text) ?? 0,
       };
       final Map<String, dynamic> hasil;
@@ -102,6 +105,7 @@ class _KategoriFormPageState extends ConsumerState<KategoriFormPage> {
             warna: Value(hasil['warna'] as String?),
             urutan: Value(hasil['urutan'] as int),
             masukTiketDapur: Value((hasil['masuk_tiket_dapur'] as bool?) ?? _masukTiketDapur),
+            stasiunDapurId: Value(hasil['stasiun_dapur_id'] as String?),
             createdAt: now,
             updatedAt: now,
           ));
@@ -224,6 +228,29 @@ class _KategoriFormPageState extends ConsumerState<KategoriFormPage> {
                   value: _masukTiketDapur,
                   onChanged: (v) => setState(() => _masukTiketDapur = v),
                 ),
+                if (_masukTiketDapur)
+                  FiturTerkunci(
+                    kode: 'tiket_dapur',
+                    child: Consumer(
+                      builder: (context, ref, _) {
+                        final stasiun =
+                            ref.watch(stasiunDapurProvider(ref.watch(currentOutletIdProvider))).value ?? const [];
+                        if (stasiun.isEmpty) return const SizedBox.shrink();
+                        // Stasiun yang dihapus tidak tampil; nilai lama yang tidak ada lagi dianggap kosong.
+                        final nilai = stasiun.any((s) => s.id == _stasiunDapurId) ? _stasiunDapurId : null;
+                        return DropdownButtonFormField<String?>(
+                          key: const Key('kategoriForm.stasiun'),
+                          initialValue: nilai,
+                          decoration: const InputDecoration(labelText: 'Stasiun dapur (tiket terpisah)'),
+                          items: [
+                            const DropdownMenuItem<String?>(value: null, child: Text('Tiket umum')),
+                            for (final s in stasiun) DropdownMenuItem<String?>(value: s.id, child: Text(s.nama)),
+                          ],
+                          onChanged: (v) => setState(() => _stasiunDapurId = v),
+                        );
+                      },
+                    ),
+                  ),
                 const SizedBox(height: AppSpacing.xxxl),
                 AppPrimaryButton(
                   key: const Key('kategoriForm.simpan'),

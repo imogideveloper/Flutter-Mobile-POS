@@ -891,6 +891,64 @@ void main() {
     expect(rows.single.deletedAt, isNotNull);
   });
 
+  test('pull: stasiun dapur dan tautan kategori ke stasiun tersimpan; penghapusan melepas tautan', () async {
+    SyncPullResult dengan({required List<Map<String, dynamic>> stasiun, required String? stasiunId}) => SyncPullResult(
+          waktuPull: '2026-01-01T00:00:00Z',
+          produk: const [],
+          kategori: [
+            {
+              'id': 'kat1',
+              'nama': 'Kopi',
+              'warna': null,
+              'urutan': 0,
+              'masuk_tiket_dapur': true,
+              'stasiun_dapur_id': stasiunId,
+              'updated_at': '2026-01-01T00:00:00Z',
+              'deleted_at': null,
+            },
+          ],
+          satuan: const [],
+          pajak: const [],
+          promo: const [],
+          metodeBayar: const [],
+          stok: const [],
+          hargaOutlet: const [],
+          hargaGrosir: const [],
+          tipeOrderPajak: const [],
+          pengaturanOutlet: const [],
+          hasMore: const {},
+          paket: null,
+          kodeFitur: const [],
+          batasFitur: const {},
+          stasiunDapur: stasiun,
+        );
+    Map<String, dynamic> bar({String? deletedAt}) => {
+          'id': 'st1',
+          'outlet_id': 'outlet-asli',
+          'nama': 'Bar',
+          'printer_alamat': null,
+          'lebar_kertas_mm': 80,
+          'aktif': true,
+          'updated_at': '2026-01-01T00:00:00Z',
+          'deleted_at': deletedAt,
+        };
+
+    api.pullResponse = dengan(stasiun: [bar()], stasiunId: 'st1');
+    await repo.jalankan();
+    expect(await db.produkDao.namaStasiunPerProduk(const []), isEmpty);
+    final stasiun = await db.select(db.stasiunDapur).get();
+    expect(stasiun.single.nama, 'Bar');
+    expect(stasiun.single.lebarKertasMm, 80);
+    var kategori = await db.select(db.kategori).get();
+    expect(kategori.firstWhere((k) => k.id == 'kat1').stasiunDapurId, 'st1');
+
+    api.pullResponse = dengan(stasiun: [bar(deletedAt: '2026-01-02T00:00:00Z')], stasiunId: null);
+    await repo.jalankan();
+    expect((await db.select(db.stasiunDapur).get()).single.deletedAt, isNotNull);
+    kategori = await db.select(db.kategori).get();
+    expect(kategori.firstWhere((k) => k.id == 'kat1').stasiunDapurId, isNull);
+  });
+
   test('pull: pengguna asli dari server mematikan Owner bawaan ber-PIN 000000 (temuan S1)', () async {
     await seedRoleDanOwner(db);
     final sebelum = await (db.select(db.pengguna)..where((t) => t.id.equals('pengguna-default'))).getSingle();

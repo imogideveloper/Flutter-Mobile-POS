@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/database/app_database.dart' show StasiunDapurRow;
 
 import '../../../../core/providers/database_provider.dart';
 import '../../data/local/produk_dao.dart';
@@ -26,4 +27,9 @@ final produkSemuaProvider = StreamProvider<List<Produk>>((ref) {
 /// produk tidak punya tambahan - kasir lalu menambah langsung tanpa pemilih.
 final grupTambahanProdukProvider = FutureProvider.autoDispose.family<List<GrupTambahan>, String>((ref, produkId) {
   return ref.watch(produkDaoProvider).grupUntukProduk(produkId);
+});
+
+/// Stasiun dapur aktif di outlet ini (IMOGI no. 35), urut nama.
+final stasiunDapurProvider = StreamProvider.family<List<StasiunDapurRow>, String>((ref, outletId) {
+  return ref.watch(produkDaoProvider).watchStasiunDapur(outletId);
 });

@@ -6,6 +6,7 @@ class Kategori {
     required this.warna,
     required this.urutan,
     this.masukTiketDapur = true,
+    this.stasiunDapurId,
   });
 
   final String id;
@@ -14,4 +15,7 @@ class Kategori {
   final String? warna;
   final int urutan;
   final bool masukTiketDapur;
+
+  /// Stasiun dapur tujuan tiket kategori ini (IMOGI no. 35); null = tiket umum.
+  final String? stasiunDapurId;
 }

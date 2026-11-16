@@ -246,6 +246,12 @@ async def _siapkan_satu_toko(client: AsyncClient, db: AsyncSession, toko, label:
     await db.commit()
     ids["batch_id"] = batch.id
 
+    stasiun_resp = await client.post(
+        f"/outlets/{toko.outlet.id}/stasiun-dapur", headers=toko.headers, json={"nama": f"Stasiun {label}"}
+    )
+    assert stasiun_resp.status_code == 201
+    ids["stasiun_id"] = uuid.UUID(stasiun_resp.json()["id"])
+
     pesanan_resp = await client.post(
         "/transaksi/pesanan-tersimpan",
         headers=toko.headers,
@@ -319,6 +325,8 @@ def _body_untuk(method: str, path: str, ids: dict[str, uuid.UUID]) -> dict | Non
         return {}  # OutletUpdateIn - semua field opsional
     if path == "/outlets/{outlet_id}/pengaturan":
         return {}  # PengaturanOutletIn - semua field opsional
+    if path == "/stasiun-dapur/{stasiun_id}":
+        return {}  # StasiunDapurUpdateIn - semua field opsional
     if path == "/metode-bayar/{metode_bayar_id}":
         return {}  # MetodeBayarUpdateIn - semua field opsional
     if path == "/produk/{produk_id}":

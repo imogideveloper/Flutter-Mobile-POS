@@ -402,6 +402,17 @@ class LainnyaPage extends ConsumerWidget {
                   ),
                   bila(
                     'pengaturan.kelola',
+                    FiturTerkunci(
+                      kode: 'tiket_dapur',
+                      child: SettingsMenuRow(
+                        label: 'Stasiun dapur',
+                        value: 'Bar, Dapur',
+                        onTap: () => context.push('/stasiun-dapur'),
+                      ),
+                    ),
+                  ),
+                  bila(
+                    'pengaturan.kelola',
                     SettingsMenuRow(
                       label: 'Tipe pesanan & meja',
                       value: 'Atur',

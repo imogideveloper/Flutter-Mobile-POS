@@ -137,6 +137,8 @@ class SyncPullOut(BaseModel):
     stok: list[dict]
     # Batch kedaluwarsa (IMOGI no. 50): delta by updated_at; default [] supaya client lama tidak terpengaruh.
     batch_stok: list[dict] = []
+    # Stasiun dapur (IMOGI no. 35): delta by updated_at; default [] supaya client lama tidak terpengaruh.
+    stasiun_dapur: list[dict] = []
     # Tahap 3a Part B - data yang dibutuhkan lib/core/harga/kalkulator.dart
     # di HP supaya keranjang bisa hitung grosir/harga per-outlet/service
     # per tipe pesanan/pembulatan SENDIRI (bukan harga datar), sama

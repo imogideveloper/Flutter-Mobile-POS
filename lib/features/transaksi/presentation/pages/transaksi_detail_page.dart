@@ -105,27 +105,34 @@ class _TransaksiDetailPageState extends ConsumerState<TransaksiDetailPage> {
       final outletId = ref.read(currentOutletIdProvider);
       final pengaturanOutlet = await ref.read(pengaturanOutletProvider(outletId).future);
       final lebar = (pengaturanOutlet?.lebarKertasMm ?? 58) == 80 ? 48 : 32;
-      final items = await itemUntukTiketDapur(ref, detail.items);
-      if (items.isEmpty) {
+      final tiket = await tiketUntukDicetak(ref, detail.items);
+      if (tiket.isEmpty) {
         if (mounted) {
           showAppToast(context, message: 'Tidak ada item yang masuk tiket dapur', variant: ToastVariant.info);
         }
         return;
       }
-      final baris = susunTiketDapur(
-        lebar: lebar,
-        data: TiketDapurData(
-          nomorStruk: detail.nomorStruk,
-          nomorAntrean: detail.nomorAntrean,
-          tanggalEpochMs: detail.tanggal,
-          items: items,
-        ),
-      );
-      final status = await cetakStruk(ref, baris);
+      var status = StatusCetak.berhasil;
+      for (final t in tiket) {
+        final baris = susunTiketDapur(
+          lebar: lebar,
+          data: TiketDapurData(
+            nomorStruk: detail.nomorStruk,
+            nomorAntrean: detail.nomorAntrean,
+            tanggalEpochMs: detail.tanggal,
+            namaStasiun: t.stasiun,
+            items: t.items,
+          ),
+        );
+        status = await cetakStruk(ref, baris);
+        if (status != StatusCetak.berhasil) break;
+      }
       if (mounted) {
         showAppToast(
           context,
-          message: status == StatusCetak.berhasil ? 'Tiket dapur tercetak' : labelStatusCetak(status),
+          message: status == StatusCetak.berhasil
+              ? (tiket.length > 1 ? '${tiket.length} tiket dapur tercetak' : 'Tiket dapur tercetak')
+              : labelStatusCetak(status),
           variant: variantStatusCetak(status),
         );
       }

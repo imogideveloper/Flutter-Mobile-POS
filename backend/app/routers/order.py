@@ -12,6 +12,7 @@ from app.core.db import get_db
 from app.core.deps import get_pengguna_id, get_role_id, get_toko_id, require_outlet_access
 from app.models.order import ItemPesananDapur, Meja, PesananDapur, StasiunDapur, TipeOrder, TipeOrderPajak
 from app.models.outlet import Outlet, Perangkat
+from app.models.produk import Kategori
 from app.models.promo import Pajak
 from app.models.transaksi import ItemTransaksi, Transaksi
 from app.schemas.order import (
@@ -23,6 +24,7 @@ from app.schemas.order import (
     PesananDapurOut,
     StasiunDapurIn,
     StasiunDapurOut,
+    StasiunDapurUpdateIn,
     TipeOrderIn,
     TipeOrderOut,
     TipeOrderPajakOut,
@@ -332,6 +334,56 @@ async def tambah_stasiun_dapur(
     await db.commit()
     await db.refresh(stasiun)
     return stasiun
+
+
+async def _ambil_stasiun_milik_toko(db: AsyncSession, stasiun_id: uuid.UUID, toko_id: uuid.UUID) -> StasiunDapur:
+    stasiun = await db.get(StasiunDapur, stasiun_id)
+    if stasiun is None or stasiun.deleted_at is not None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Stasiun dapur tidak ditemukan")
+    await _pastikan_outlet_milik_toko(db, stasiun.outlet_id, toko_id)
+    return stasiun
+
+
+@router.patch("/stasiun-dapur/{stasiun_id}", response_model=StasiunDapurOut)
+async def ubah_stasiun_dapur(
+    stasiun_id: uuid.UUID,
+    body: StasiunDapurUpdateIn,
+    toko_id: uuid.UUID = Depends(get_toko_id),
+    pengguna_id: uuid.UUID = Depends(get_pengguna_id),
+    role_id: uuid.UUID = Depends(get_role_id),
+    db: AsyncSession = Depends(get_db),
+) -> StasiunDapur:
+    stasiun = await _ambil_stasiun_milik_toko(db, stasiun_id, toko_id)
+    await require_outlet_access(db, pengguna_id=pengguna_id, role_id=role_id, outlet_id=stasiun.outlet_id)
+    perubahan = body.model_dump(exclude_unset=True)
+    if "lebar_kertas_mm" in perubahan and perubahan["lebar_kertas_mm"] not in (58, 80):
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "lebar_kertas_mm harus 58 atau 80")
+    if "nama" in perubahan and not (perubahan["nama"] or "").strip():
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Nama stasiun wajib diisi")
+    for field, value in perubahan.items():
+        setattr(stasiun, field, value.strip() if field == "nama" else value)
+    await db.commit()
+    await db.refresh(stasiun)
+    return stasiun
+
+
+@router.delete("/stasiun-dapur/{stasiun_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def hapus_stasiun_dapur(
+    stasiun_id: uuid.UUID,
+    toko_id: uuid.UUID = Depends(get_toko_id),
+    pengguna_id: uuid.UUID = Depends(get_pengguna_id),
+    role_id: uuid.UUID = Depends(get_role_id),
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    """Hapus lunak. Kategori yang menautinya dilepas (kembali ke tiket umum) supaya tidak menggantung."""
+    stasiun = await _ambil_stasiun_milik_toko(db, stasiun_id, toko_id)
+    await require_outlet_access(db, pengguna_id=pengguna_id, role_id=role_id, outlet_id=stasiun.outlet_id)
+    stasiun.deleted_at = datetime.now(UTC)
+    for kategori in (
+        await db.execute(select(Kategori).where(Kategori.toko_id == toko_id, Kategori.stasiun_dapur_id == stasiun.id))
+    ).scalars():
+        kategori.stasiun_dapur_id = None
+    await db.commit()
 
 
 async def _pesanan_dapur_ke_out(db: AsyncSession, pesanan: PesananDapur) -> PesananDapurOut:

@@ -73,6 +73,13 @@ class StasiunDapurIn(BaseModel):
     lebar_kertas_mm: int = 58
 
 
+class StasiunDapurUpdateIn(BaseModel):
+    nama: str | None = None
+    printer_alamat: str | None = None
+    lebar_kertas_mm: int | None = None
+    aktif: bool | None = None
+
+
 class StasiunDapurOut(BaseModel):
     id: uuid.UUID
     outlet_id: uuid.UUID

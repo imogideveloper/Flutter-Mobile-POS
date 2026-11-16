@@ -12,6 +12,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_db
 from app.core.deps import get_toko_id
+from app.models.order import StasiunDapur
+from app.models.outlet import Outlet
 from app.models.produk import Kategori, Produk, Satuan
 from app.schemas.produk import (
     KategoriIn,
@@ -23,9 +25,25 @@ from app.schemas.produk import (
     SatuanIn,
     SatuanOut,
 )
-from app.services.fitur_service import paket_efektif
+from app.services.fitur_service import has_fitur, paket_efektif, tolak_fitur_terkunci
 
 router = APIRouter(tags=["produk"])
+
+
+async def _cek_stasiun_dapur(
+    db: AsyncSession, stasiun_id: uuid.UUID | None, toko_id: uuid.UUID, *, kategori: Kategori | None = None
+) -> None:
+    """Stasiun dapur (IMOGI no. 35) harus milik toko ini. Menautkan kategori ke stasiun bagian fitur
+    `tiket_dapur`; digate hanya saat nilainya benar-benar berubah (klien mengirim ulang seluruh field)."""
+    if stasiun_id is None:
+        return
+    stasiun = await db.get(StasiunDapur, stasiun_id)
+    outlet = await db.get(Outlet, stasiun.outlet_id) if stasiun is not None else None
+    if stasiun is None or stasiun.deleted_at is not None or outlet is None or outlet.toko_id != toko_id:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Stasiun dapur tidak ditemukan")
+    berubah = kategori is None or kategori.stasiun_dapur_id != stasiun_id
+    if berubah and not await has_fitur(db, toko_id, "tiket_dapur"):
+        await tolak_fitur_terkunci(db, "tiket_dapur")
 
 
 @router.get("/kategori", response_model=list[KategoriOut])
@@ -44,6 +62,7 @@ async def daftar_kategori(
 async def tambah_kategori(
     body: KategoriIn, toko_id: uuid.UUID = Depends(get_toko_id), db: AsyncSession = Depends(get_db)
 ) -> Kategori:
+    await _cek_stasiun_dapur(db, body.stasiun_dapur_id, toko_id)
     kategori = Kategori(toko_id=toko_id, **body.model_dump())
     db.add(kategori)
     await db.commit()
@@ -66,6 +85,8 @@ async def ubah_kategori(
     db: AsyncSession = Depends(get_db),
 ) -> Kategori:
     kategori = await _ambil_kategori_milik_toko(db, kategori_id, toko_id)
+    if "stasiun_dapur_id" in body.model_fields_set:
+        await _cek_stasiun_dapur(db, body.stasiun_dapur_id, toko_id, kategori=kategori)
     for field, value in body.model_dump(exclude_unset=True).items():
         setattr(kategori, field, value)
     await db.commit()

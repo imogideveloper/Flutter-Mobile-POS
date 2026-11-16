@@ -9,6 +9,7 @@ class KategoriIn(BaseModel):
     warna: str | None = None
     urutan: int = 0
     masuk_tiket_dapur: bool = True
+    stasiun_dapur_id: uuid.UUID | None = None
 
 
 class KategoriUpdateIn(BaseModel):
@@ -16,6 +17,7 @@ class KategoriUpdateIn(BaseModel):
     warna: str | None = None
     urutan: int | None = None
     masuk_tiket_dapur: bool | None = None
+    stasiun_dapur_id: uuid.UUID | None = None
 
 
 class KategoriOut(BaseModel):
@@ -24,6 +26,7 @@ class KategoriOut(BaseModel):
     warna: str | None
     urutan: int
     masuk_tiket_dapur: bool
+    stasiun_dapur_id: uuid.UUID | None = None
 
     model_config = {"from_attributes": True}
 

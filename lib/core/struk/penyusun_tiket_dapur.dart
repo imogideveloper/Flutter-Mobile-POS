@@ -29,6 +29,7 @@ class TiketDapurData {
     required this.items,
     this.nomorAntrean,
     this.namaTipeOrder,
+    this.namaStasiun,
     this.catatan,
     this.salinan = false,
   });
@@ -38,6 +39,9 @@ class TiketDapurData {
   final List<ItemTiketDapur> items;
   final String? nomorAntrean;
   final String? namaTipeOrder;
+
+  /// Stasiun tujuan tiket (mis. "Bar", "Dapur"); null = tiket umum tanpa nama stasiun.
+  final String? namaStasiun;
   final String? catatan;
 
   /// true = cetak ulang; diberi tanda supaya dapur tidak menyiapkan dua kali.
@@ -54,7 +58,12 @@ List<BarisStruk> susunTiketDapur({
   final baris = <BarisStruk>[];
   final garis = '-' * lebar;
 
-  baris.add(const BarisStruk('TIKET DAPUR', rata: RataStruk.tengah, tebal: true));
+  final stasiun = data.namaStasiun?.trim();
+  baris.add(BarisStruk(
+    stasiun == null || stasiun.isEmpty ? 'TIKET DAPUR' : 'TIKET ${keAscii(stasiun).toUpperCase()}',
+    rata: RataStruk.tengah,
+    tebal: true,
+  ));
   if (data.salinan) {
     baris.add(const BarisStruk('** CETAK ULANG **', rata: RataStruk.tengah, tebal: true));
   }

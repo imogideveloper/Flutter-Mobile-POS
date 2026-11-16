@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../domain/grup_tambahan.dart';
+import '../../../dapur/data/local/tables/stasiun_dapur_table.dart';
 import 'tables/grup_modifier_table.dart';
 import 'tables/kategori_table.dart';
 import 'tables/modifier_table.dart';
@@ -11,7 +12,7 @@ import 'tables/produk_varian_table.dart';
 
 part 'produk_dao.g.dart';
 
-@DriftAccessor(tables: [Produk, ProdukVarian, Kategori, GrupModifier, Modifier, ProdukGrupModifier])
+@DriftAccessor(tables: [Produk, ProdukVarian, Kategori, GrupModifier, Modifier, ProdukGrupModifier, StasiunDapur])
 class ProdukDao extends DatabaseAccessor<AppDatabase> with _$ProdukDaoMixin {
   ProdukDao(super.db);
 
@@ -79,6 +80,31 @@ class ProdukDao extends DatabaseAccessor<AppDatabase> with _$ProdukDaoMixin {
         .map((r) => r.read(produk.id)!)
         .get();
     return rows.toSet();
+  }
+
+  // ---- Stasiun dapur (IMOGI no. 35) ----
+
+  /// Stasiun aktif (belum dihapus) di outlet ini, urut nama.
+  Stream<List<StasiunDapurRow>> watchStasiunDapur(String outletId) =>
+      (select(stasiunDapur)
+            ..where((t) => t.outletId.equals(outletId) & t.deletedAt.isNull())
+            ..orderBy([(t) => OrderingTerm.asc(t.nama)]))
+          .watch();
+
+  Future<void> upsertStasiunDapur(StasiunDapurCompanion data) => into(stasiunDapur).insertOnConflictUpdate(data);
+
+  /// Nama stasiun tujuan tiket tiap produk (dari [produkIds]) lewat kategorinya. Produk tanpa kategori,
+  /// kategori tanpa stasiun, atau stasiun yang sudah dihapus/nonaktif TIDAK ada di hasil (= tiket umum).
+  Future<Map<String, String>> namaStasiunPerProduk(Iterable<String> produkIds) async {
+    final ids = produkIds.toSet();
+    if (ids.isEmpty) return {};
+    final rows = await (select(produk).join([
+      innerJoin(kategori, kategori.id.equalsExp(produk.kategoriId)),
+      innerJoin(stasiunDapur, stasiunDapur.id.equalsExp(kategori.stasiunDapurId)),
+    ])
+          ..where(produk.id.isIn(ids) & stasiunDapur.deletedAt.isNull() & stasiunDapur.aktif.equals(true)))
+        .get();
+    return {for (final r in rows) r.read(produk.id)!: r.read(stasiunDapur.nama)!};
   }
 
   // ---- Varian/tambahan produk (IMOGI no. 42) ----

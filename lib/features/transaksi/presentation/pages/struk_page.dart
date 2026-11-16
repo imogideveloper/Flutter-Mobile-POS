@@ -150,43 +150,52 @@ class _StrukPageState extends ConsumerState<StrukPage> {
     return gate.has('tiket_dapur');
   }
 
-  /// Tiket untuk dapur/bar: hanya menu dan jumlahnya (tanpa harga).
-  /// Semua item ikut tercetak; pilihan kategori yang masuk tiket belum ada.
-  Future<List<struk.BarisStruk>?> _bangunBarisTiket() async {
+  /// Tiket untuk dapur/bar: hanya menu dan jumlahnya (tanpa harga), satu tiket per stasiun dapur
+  /// (IMOGI no. 35). Kategori yang dimatikan dari tiket tidak ikut.
+  Future<List<List<struk.BarisStruk>>> _bangunBarisTiket() async {
     final hasil = widget.hasil;
     final outletId = ref.read(currentOutletIdProvider);
     final pengaturanOutlet = await ref.read(pengaturanOutletProvider(outletId).future);
     final lebar = (pengaturanOutlet?.lebarKertasMm ?? 58) == 80 ? 48 : 32;
-    final items = await itemUntukTiketDapur(ref, hasil.items);
-    if (items.isEmpty) return null; // semua kategori dimatikan dari tiket dapur
-    return susunTiketDapur(
-      lebar: lebar,
-      data: TiketDapurData(
-        nomorStruk: hasil.nomorStruk,
-        nomorAntrean: hasil.nomorAntrean,
-        tanggalEpochMs: hasil.tanggal,
-        items: items,
-      ),
-    );
+    final tiket = await tiketUntukDicetak(ref, hasil.items);
+    return [
+      for (final t in tiket)
+        susunTiketDapur(
+          lebar: lebar,
+          data: TiketDapurData(
+            nomorStruk: hasil.nomorStruk,
+            nomorAntrean: hasil.nomorAntrean,
+            tanggalEpochMs: hasil.tanggal,
+            namaStasiun: t.stasiun,
+            items: t.items,
+          ),
+        ),
+    ];
   }
 
   Future<void> _cetakTiketDapur({bool diam = false}) async {
     if (_mencetak) return;
     setState(() => _mencetak = true);
     try {
-      final baris = await _bangunBarisTiket();
-      if (baris == null) {
+      final semua = await _bangunBarisTiket();
+      if (semua.isEmpty) {
         if (mounted && !diam) {
           showAppToast(context, message: 'Tidak ada item yang masuk tiket dapur', variant: ToastVariant.info);
         }
         return;
       }
-      final status = await cetakStruk(ref, baris);
+      var status = StatusCetak.berhasil;
+      for (final baris in semua) {
+        status = await cetakStruk(ref, baris);
+        if (status != StatusCetak.berhasil) break;
+      }
       if (!mounted) return;
       if (diam && status == StatusCetak.printerBelumDiatur) return;
       showAppToast(
         context,
-        message: status == StatusCetak.berhasil ? 'Tiket dapur tercetak' : labelStatusCetak(status),
+        message: status == StatusCetak.berhasil
+            ? (semua.length > 1 ? '${semua.length} tiket dapur tercetak' : 'Tiket dapur tercetak')
+            : labelStatusCetak(status),
         variant: variantStatusCetak(status),
       );
     } finally {
