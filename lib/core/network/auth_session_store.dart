@@ -103,6 +103,14 @@ class AuthSessionStore {
     }
   }
 
+  /// Ganti outlet aktif (IMOGI no. 87). Watermark sync dikembalikan ke epoch supaya data outlet
+  /// tujuan ditarik penuh: watermark hanya satu untuk semua outlet, tanpa reset data outlet baru
+  /// yang lebih lama dari watermark tidak akan pernah terunduh.
+  Future<void> simpanOutletAktif(String outletId) async {
+    await _storage.write(key: _kOutletIdKey, value: outletId);
+    await _storage.delete(key: _kLastSyncAtKey);
+  }
+
   Future<void> simpanLastSyncAt(String iso8601) async {
     await _storage.write(key: _kLastSyncAtKey, value: iso8601);
   }

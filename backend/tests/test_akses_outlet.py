@@ -231,3 +231,28 @@ async def test_kasir_meja_outlet_lain_ditolak_403(client: AsyncClient, db_sessio
 
     resp = await client.post(f"/outlets/{outlet_b.id}/meja", headers=kasir.headers, json={"nama": "Meja 1"})
     assert resp.status_code == 403
+
+
+async def test_daftar_outlet_saya_owner_semua_kasir_hanya_miliknya(
+    client: AsyncClient, db_session: AsyncSession
+) -> None:
+    toko, outlet_a, outlet_b, kasir, owner = await _siapkan(db_session)
+
+    resp_owner = await client.get("/outlets/saya", headers=owner.headers)
+    assert resp_owner.status_code == 200
+    assert {o["id"] for o in resp_owner.json()} == {str(outlet_a.id), str(outlet_b.id)}
+
+    resp_kasir = await client.get("/outlets/saya", headers=kasir.headers)
+    assert resp_kasir.status_code == 200
+    assert [o["id"] for o in resp_kasir.json()] == [str(outlet_a.id)]
+
+
+async def test_daftar_outlet_saya_tidak_memuat_outlet_nonaktif(
+    client: AsyncClient, db_session: AsyncSession
+) -> None:
+    toko, outlet_a, outlet_b, kasir, owner = await _siapkan(db_session)
+    outlet_b.aktif = False
+    await db_session.commit()
+
+    resp = await client.get("/outlets/saya", headers=owner.headers)
+    assert [o["id"] for o in resp.json()] == [str(outlet_a.id)]

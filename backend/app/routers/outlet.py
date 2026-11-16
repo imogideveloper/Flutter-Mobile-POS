@@ -5,7 +5,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_db
-from app.core.deps import get_role_id, get_toko_id
+from app.core.deps import get_accessible_outlet_ids, get_pengguna_id, get_role_id, get_toko_id
 from app.models.outlet import Outlet, PengaturanOutlet
 from app.schemas.outlet import (
     OutletIn,
@@ -30,6 +30,28 @@ async def daftar_outlet(
     rows = await db.execute(
         select(Outlet).where(Outlet.toko_id == toko_id, Outlet.deleted_at.is_(None))
     )
+    return list(rows.scalars().all())
+
+
+@router.get("/saya", response_model=list[OutletOut])
+async def daftar_outlet_saya(
+    toko_id: uuid.UUID = Depends(get_toko_id),
+    pengguna_id: uuid.UUID = Depends(get_pengguna_id),
+    role_id: uuid.UUID = Depends(get_role_id),
+    db: AsyncSession = Depends(get_db),
+) -> list[Outlet]:
+    """Outlet yang boleh dipakai pengguna ini (IMOGI no. 87, pemilih outlet di aplikasi): Owner/Manajer
+    semua outlet aktif tokonya, peran lain hanya outlet di akses_outlet miliknya."""
+    from app.models.akun import Role  # import lokal - hindari circular import
+
+    kueri = select(Outlet).where(
+        Outlet.toko_id == toko_id, Outlet.deleted_at.is_(None), Outlet.aktif.is_(True)
+    )
+    role = await db.get(Role, role_id)
+    if not (role is not None and role.is_system and role.nama in ("Owner", "Manajer")):
+        boleh = await get_accessible_outlet_ids(pengguna_id=pengguna_id, db=db)
+        kueri = kueri.where(Outlet.id.in_(list(boleh)))
+    rows = await db.execute(kueri.order_by(Outlet.created_at))
     return list(rows.scalars().all())
 
 

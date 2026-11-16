@@ -43,6 +43,7 @@ import '../../features/shift/presentation/pages/catat_kas_form_page.dart';
 import '../../features/shift/presentation/pages/shift_page.dart';
 import '../../features/shift/presentation/pages/tutup_shift_form_page.dart';
 import '../../features/dapur/presentation/pages/stasiun_dapur_page.dart';
+import '../../features/outlet/presentation/pages/ganti_outlet_page.dart';
 import '../../features/stok/presentation/pages/kedaluwarsa_page.dart';
 import '../../features/stok/presentation/pages/riwayat_mutasi_stok_page.dart';
 import '../../features/stok/presentation/pages/stok_list_page.dart';
@@ -334,6 +335,10 @@ GoRouter _buildRouter() => GoRouter(
     GoRoute(
       path: '/impor-produk',
       builder: (context, state) => const IzinGuard(kodeIzin: 'produk.kelola', child: ImporEksporProdukPage()),
+    ),
+    GoRoute(
+      path: '/ganti-outlet',
+      builder: (context, state) => const GantiOutletPage(),
     ),
     GoRoute(
       path: '/stasiun-dapur',

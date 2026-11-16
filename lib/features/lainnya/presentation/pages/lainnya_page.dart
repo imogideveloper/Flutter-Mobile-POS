@@ -400,6 +400,14 @@ class LainnyaPage extends ConsumerWidget {
                       onTap: () => context.push('/grup-tambahan'),
                     ),
                   ),
+                  FiturTerkunci(
+                    kode: 'multi_outlet',
+                    child: SettingsMenuRow(
+                      label: 'Ganti outlet',
+                      value: 'Pilih outlet aktif',
+                      onTap: () => context.push('/ganti-outlet'),
+                    ),
+                  ),
                   bila(
                     'pengaturan.kelola',
                     FiturTerkunci(
