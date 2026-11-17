@@ -55,6 +55,7 @@ FITUR_MAP: list[PemetaanFitur] = [
     PemetaanFitur("consolidation", 3, None, "GET /laporan/laba-rugi-konsolidasi (routers/laporan.py) digate require_fitur langsung; hanya Owner/Manajer. Dites di tests/test_laba_rugi_konsolidasi.py."),
     PemetaanFitur("settlement", 2, ("POST", "/settlement"), "IMOGI no. 74: seluruh router /settlement digate (catat, daftar, hapus, rekonsiliasi). Dites di tests/test_settlement.py."),
     PemetaanFitur("fixed_assets", 3, ("POST", "/aset-tetap"), "IMOGI no. 83: seluruh router /aset-tetap digate (tambah, daftar, ubah, hapus). Dites di tests/test_aset_tetap.py."),
+    PemetaanFitur("budget", 3, ("PUT", "/anggaran"), "IMOGI no. 82: seluruh router /anggaran digate (tetapkan, ringkasan). Dites di tests/test_anggaran.py."),
     PemetaanFitur("pengingat_kedaluwarsa", 2, None, "POST /stok/batch (routers/batch_stok.py) digate require_fitur langsung; GET/DELETE tidak digate. Dites di tests/test_batch_stok.py. Batch hanya pengingat: penjualan belum memotong qty_sisa."),
     PemetaanFitur("harga_grosir", 2, ("POST", "/produk/{produk_id}/harga-grosir"), "GET juga digate. Tahap 3a: tier harga_grosir dipakai mesin hitung harga (harga/kalkulator.py) - tapi di checkout server harga_satuan sudah dibakukan HP, jadi gating aktual terjadi di sisi HP (keranjang) + fixture, bukan di endpoint checkout ini."),
 ]

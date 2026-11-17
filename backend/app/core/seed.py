@@ -111,6 +111,7 @@ _FITUR = [
     ("consolidation", "Laporan keuangan konsolidasi multi-outlet", "akuntansi", 2),
     ("settlement", "Settlement & rekonsiliasi QRIS/e-wallet", "akuntansi", 2),
     ("fixed_assets", "Aset tetap & penyusutan", "akuntansi", 2),
+    ("budget", "Anggaran & proyeksi arus kas", "akuntansi", 2),
 ]
 
 _PAKET = [("Gratis", 0), ("Pro", 1), ("Bisnis", 2)]

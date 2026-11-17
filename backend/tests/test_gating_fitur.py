@@ -103,7 +103,15 @@ async def _setup_fixed_assets(db: AsyncSession, toko) -> dict:
     }
 
 
+async def _setup_budget(db: AsyncSession, toko) -> dict:
+    return {
+        "method": "PUT", "url": "/anggaran",
+        "json": {"bulan": "2026-11", "kategori": "sewa", "jumlah": "1000"},
+    }
+
+
 _SETUP: dict[str, _SetupFn] = {
+    "budget": _setup_budget,
     "fixed_assets": _setup_fixed_assets,
     "settlement": _setup_settlement,
     "survei": _setup_survei,

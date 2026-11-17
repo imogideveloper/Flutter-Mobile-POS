@@ -346,6 +346,17 @@ class LainnyaPage extends ConsumerWidget {
                   bila(
                     'laporan.lihat',
                     FiturTerkunci(
+                      kode: 'budget',
+                      child: SettingsMenuRow(
+                        label: 'Anggaran & proyeksi',
+                        value: 'Biaya per kategori',
+                        onTap: () => context.push('/anggaran'),
+                      ),
+                    ),
+                  ),
+                  bila(
+                    'laporan.lihat',
+                    FiturTerkunci(
                       kode: 'fixed_assets',
                       child: SettingsMenuRow(
                         label: 'Aset tetap & penyusutan',

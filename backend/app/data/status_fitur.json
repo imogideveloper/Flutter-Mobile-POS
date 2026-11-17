@@ -324,8 +324,8 @@
   "catatan": "Tidak ada buku besar, neraca, dan arus kas."
  },
  "82": {
-  "status": "belum",
-  "catatan": "Tidak ada anggaran dan proyeksi arus kas."
+  "status": "sedang",
+  "catatan": "SEBAGIAN (2026-11-17): Lainnya > Anggaran & proyeksi: anggaran biaya per kategori per bulan, realisasi dari pengeluaran, status aman/hampir habis/melebihi, proyeksi akhir bulan linear untuk biaya dan penjualan serta selisih kasar. Butuh internet. Belum: proyeksi arus kas akuntansi sungguhan (piutang/utang, jadwal bayar), anggaran per outlet, salin anggaran antarbulan, belum diuji di HP."
  },
  "83": {
   "status": "sedang",
