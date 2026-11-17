@@ -56,7 +56,7 @@ String tanggalIso(DateTime t) =>
     '${t.year.toString().padLeft(4, '0')}-${t.month.toString().padLeft(2, '0')}-${t.day.toString().padLeft(2, '0')}';
 
 /// Settlement & rekonsiliasi QRIS/e-wallet (IMOGI no. 74). Butuh internet. Pemilik mencatat dana yang masuk
-/// rekening, lalu membandingkannya dengan penjualan non-tunai di POS (7 hari terakhir).
+/// rekening, lalu membandingkannya dengan penjualan non-tunai di POS (7, 30, atau 90 hari terakhir).
 class SettlementPage extends ConsumerStatefulWidget {
   const SettlementPage({super.key});
 
@@ -68,6 +68,7 @@ class _SettlementPageState extends ConsumerState<SettlementPage> {
   List<BarisRekonsiliasi> _baris = const [];
   String? _error;
   bool _memuat = true;
+  int _hari = 7;
 
   @override
   void initState() {
@@ -91,7 +92,7 @@ class _SettlementPageState extends ConsumerState<SettlementPage> {
       final json = await ref.read(backendApiProvider).getJson(
         accessToken: await _token(),
         path: '/settlement/rekonsiliasi',
-        query: {'dari': tanggalIso(sekarang.subtract(const Duration(days: 6))), 'sampai': tanggalIso(sekarang)},
+        query: {'dari': tanggalIso(sekarang.subtract(Duration(days: _hari - 1))), 'sampai': tanggalIso(sekarang)},
       );
       _baris = [
         for (final b in (json as Map)['baris'] as List) BarisRekonsiliasi.dariJson(Map<String, dynamic>.from(b as Map)),
@@ -149,19 +150,43 @@ class _SettlementPageState extends ConsumerState<SettlementPage> {
         icon: const Icon(Icons.add),
         label: const Text('Catat dana masuk'),
       ),
-      body: _memuat
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-              ? EmptyState(icon: Icons.cloud_off_outlined, message: _error!)
-              : _baris.isEmpty
-                  ? const EmptyState(
-                      icon: Icons.account_balance_outlined,
-                      message: 'Belum ada penjualan non-tunai dalam 7 hari terakhir',
-                    )
-                  : ListView(
-                      padding: const EdgeInsets.all(AppSpacing.xl),
-                      children: [for (final b in _baris) _kartu(b)],
-                    ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.md, AppSpacing.xl, 0),
+            child: Wrap(
+              spacing: AppSpacing.sm,
+              children: [
+                for (final h in const [7, 30, 90])
+                  ChoiceChip(
+                    key: Key('settlement.hari.$h'),
+                    label: Text('$h hari'),
+                    selected: _hari == h,
+                    onSelected: (_) {
+                      _hari = h;
+                      _muat();
+                    },
+                  ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: _memuat
+                ? const Center(child: CircularProgressIndicator())
+                : _error != null
+                    ? EmptyState(icon: Icons.cloud_off_outlined, message: _error!)
+                    : _baris.isEmpty
+                        ? EmptyState(
+                            icon: Icons.account_balance_outlined,
+                            message: 'Belum ada penjualan non-tunai dalam $_hari hari terakhir',
+                          )
+                        : ListView(
+                            padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.md, AppSpacing.xl, 96),
+                            children: [for (final b in _baris) _kartu(b)],
+                          ),
+          ),
+        ],
+      ),
     );
   }
 

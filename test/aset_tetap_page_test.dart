@@ -23,6 +23,7 @@ class _Sesi extends AuthSessionStore {
 
 class _Api implements BackendApi {
   final List<Map<String, dynamic>> kiriman = [];
+  final List<Map<String, dynamic>> perubahan = [];
 
   @override
   Future<dynamic> getJson({required String accessToken, required String path, Map<String, dynamic>? query}) async {
@@ -34,6 +35,7 @@ class _Api implements BackendApi {
           'id': 'a1',
           'nama': 'Mesin kopi',
           'harga_perolehan': '24000000.00',
+          'tanggal_perolehan': '2026-01-10',
           'nilai_residu': '0.00',
           'umur_bulan': 24,
           'bulan_berjalan': 3,
@@ -50,6 +52,13 @@ class _Api implements BackendApi {
   @override
   Future<dynamic> postJson({required String accessToken, required String path, Map<String, dynamic>? body}) async {
     kiriman.add(body!);
+    return {};
+  }
+
+  @override
+  Future<dynamic> patchJson({required String accessToken, required String path, required Map<String, dynamic> body}) async {
+    expect(path, '/aset-tetap/a1');
+    perubahan.add(body);
     return {};
   }
 
@@ -93,6 +102,15 @@ void main() {
     expect(api.kiriman.single['harga_perolehan'], '6000000');
     expect(api.kiriman.single['nilai_residu'], '600000');
     expect(api.kiriman.single['umur_bulan'], 48);
+
+    await tester.tap(find.byKey(const Key('aset.ubah.a1')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('aset.umur')), '36');
+    await tester.tap(find.byKey(const Key('aset.simpan')));
+    await tester.pumpAndSettle();
+    expect(api.perubahan.single['umur_bulan'], 36);
+    expect(api.perubahan.single['harga_perolehan'], '24000000', reason: 'nilai awal terisi dari aset');
+    expect(api.perubahan.single['tanggal_perolehan'], '2026-01-10');
 
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(milliseconds: 1));

@@ -17,6 +17,7 @@ from app.core.deps import get_role_id, get_toko_id
 from app.models.aset_tetap import AsetTetap
 from app.services.fitur_service import require_fitur
 from app.services.izin_service import has_izin
+from app.services.tutup_buku_service import pastikan_periode_terbuka
 
 router = APIRouter(prefix="/aset-tetap", tags=["aset-tetap"], dependencies=[Depends(require_fitur("fixed_assets"))])
 
@@ -34,6 +35,10 @@ class AsetIn(BaseModel):
 
 class AsetUpdateIn(BaseModel):
     nama: str | None = Field(default=None, min_length=1, max_length=150)
+    tanggal_perolehan: date | None = None
+    harga_perolehan: Decimal | None = Field(default=None, gt=0, le=Decimal("999999999999"))
+    nilai_residu: Decimal | None = Field(default=None, ge=0)
+    umur_bulan: int | None = Field(default=None, gt=0, le=600)
     catatan: str | None = Field(default=None, max_length=500)
 
 
@@ -111,6 +116,7 @@ async def tambah_aset(
     db: AsyncSession = Depends(get_db),
 ) -> AsetOut:
     await _wajib_izin(db, role_id)
+    await pastikan_periode_terbuka(db, toko_id, body.tanggal_perolehan)
     if body.nilai_residu >= body.harga_perolehan:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "Nilai residu harus lebih kecil dari harga perolehan")
     aset = AsetTetap(
@@ -167,6 +173,19 @@ async def ubah_aset(
 ) -> AsetOut:
     await _wajib_izin(db, role_id)
     aset = await _aset_milik_toko(db, aset_id, toko_id)
+    await pastikan_periode_terbuka(db, toko_id, aset.tanggal_perolehan)
+    if body.tanggal_perolehan is not None:
+        await pastikan_periode_terbuka(db, toko_id, body.tanggal_perolehan)
+        aset.tanggal_perolehan = body.tanggal_perolehan
+    if body.harga_perolehan is not None:
+        aset.harga_perolehan = body.harga_perolehan
+    if body.nilai_residu is not None:
+        aset.nilai_residu = body.nilai_residu
+    if body.umur_bulan is not None:
+        aset.umur_bulan = body.umur_bulan
+    if Decimal(aset.nilai_residu) >= Decimal(aset.harga_perolehan):
+        await db.rollback()
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "Nilai residu harus lebih kecil dari harga perolehan")
     if body.nama is not None:
         aset.nama = body.nama.strip()
     if body.catatan is not None:
@@ -185,5 +204,6 @@ async def hapus_aset(
 ) -> None:
     await _wajib_izin(db, role_id)
     aset = await _aset_milik_toko(db, aset_id, toko_id)
+    await pastikan_periode_terbuka(db, toko_id, aset.tanggal_perolehan)
     aset.deleted_at = datetime.now(UTC)
     await db.commit()

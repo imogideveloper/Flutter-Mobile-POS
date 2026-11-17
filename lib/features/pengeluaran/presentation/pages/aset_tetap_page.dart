@@ -20,6 +20,8 @@ class AsetTetapItem {
     required this.nama,
     required this.hargaPerolehan,
     required this.umurBulan,
+    required this.tanggalPerolehan,
+    required this.nilaiResidu,
     required this.bulanBerjalan,
     required this.akumulasi,
     required this.nilaiBuku,
@@ -31,6 +33,8 @@ class AsetTetapItem {
         nama: j['nama'] as String,
         hargaPerolehan: _int(j['harga_perolehan']),
         umurBulan: j['umur_bulan'] as int,
+        tanggalPerolehan: j['tanggal_perolehan'] as String,
+        nilaiResidu: _int(j['nilai_residu']),
         bulanBerjalan: j['bulan_berjalan'] as int,
         akumulasi: _int(j['akumulasi_penyusutan']),
         nilaiBuku: _int(j['nilai_buku']),
@@ -41,6 +45,8 @@ class AsetTetapItem {
   final String nama;
   final int hargaPerolehan;
   final int umurBulan;
+  final String tanggalPerolehan;
+  final int nilaiResidu;
   final int bulanBerjalan;
   final int akumulasi;
   final int nilaiBuku;
@@ -105,6 +111,19 @@ class _AsetTetapPageState extends ConsumerState<AsetTetapPage> {
       await ref.read(backendApiProvider).postJson(accessToken: await _token(), path: '/aset-tetap', body: body);
       if (!mounted) return;
       showAppToast(context, message: 'Aset ditambahkan', variant: ToastVariant.success);
+      await _muat();
+    } on BackendException catch (e) {
+      if (mounted) showAppToast(context, message: e.message, variant: ToastVariant.danger);
+    }
+  }
+
+  Future<void> _ubah(AsetTetapItem a) async {
+    final body = await showDialog<Map<String, dynamic>>(context: context, builder: (_) => _TambahAsetDialog(awal: a));
+    if (body == null || !mounted) return;
+    try {
+      await ref.read(backendApiProvider).patchJson(accessToken: await _token(), path: '/aset-tetap/${a.id}', body: body);
+      if (!mounted) return;
+      showAppToast(context, message: 'Aset diperbarui', variant: ToastVariant.success);
       await _muat();
     } on BackendException catch (e) {
       if (mounted) showAppToast(context, message: e.message, variant: ToastVariant.danger);
@@ -176,6 +195,12 @@ class _AsetTetapPageState extends ConsumerState<AsetTetapPage> {
                                     children: [
                                       Expanded(child: Text(a.nama, style: AppTypography.cardTitle)),
                                       IconButton(
+                                        key: Key('aset.ubah.${a.id}'),
+                                        tooltip: 'Ubah',
+                                        onPressed: () => _ubah(a),
+                                        icon: const Icon(Icons.edit_outlined),
+                                      ),
+                                      IconButton(
                                         tooltip: 'Hapus',
                                         onPressed: () => _hapus(a),
                                         icon: const Icon(Icons.delete_outline),
@@ -196,18 +221,24 @@ class _AsetTetapPageState extends ConsumerState<AsetTetapPage> {
 }
 
 class _TambahAsetDialog extends StatefulWidget {
-  const _TambahAsetDialog();
+  const _TambahAsetDialog({this.awal});
+
+  final AsetTetapItem? awal;
 
   @override
   State<_TambahAsetDialog> createState() => _TambahAsetDialogState();
 }
 
 class _TambahAsetDialogState extends State<_TambahAsetDialog> {
-  final _nama = TextEditingController();
-  final _harga = TextEditingController();
-  final _residu = TextEditingController();
-  final _umur = TextEditingController(text: '48');
-  DateTime _tanggal = DateTime.now();
+  late final _nama = TextEditingController(text: widget.awal?.nama ?? '');
+  late final _harga = TextEditingController(
+    text: widget.awal == null ? '' : formatRupiahDigits(widget.awal!.hargaPerolehan),
+  );
+  late final _residu = TextEditingController(
+    text: (widget.awal?.nilaiResidu ?? 0) > 0 ? formatRupiahDigits(widget.awal!.nilaiResidu) : '',
+  );
+  late final _umur = TextEditingController(text: '${widget.awal?.umurBulan ?? 48}');
+  late DateTime _tanggal = widget.awal == null ? DateTime.now() : DateTime.parse(widget.awal!.tanggalPerolehan);
   String? _salah;
 
   @override
@@ -249,7 +280,7 @@ class _TambahAsetDialogState extends State<_TambahAsetDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Tambah aset tetap'),
+      title: Text(widget.awal == null ? 'Tambah aset tetap' : 'Ubah aset tetap'),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,

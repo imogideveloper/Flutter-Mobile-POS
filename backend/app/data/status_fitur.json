@@ -293,7 +293,7 @@
  },
  "74": {
   "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-17): Lainnya > Settlement QRIS & e-wallet: catat dana yang masuk rekening (per tanggal penjualan dan metode, dengan biaya/MDR) dan bandingkan dengan penjualan non-tunai di POS (cocok, selisih, belum dicatat). Butuh internet. Belum: impor otomatis dari penyedia/gateway, cakupan 7 hari tetap, jurnal akuntansi, belum diuji di HP."
+  "catatan": "SEBAGIAN (2026-11-17): Lainnya > Settlement QRIS & e-wallet: catat dana yang masuk rekening (per tanggal penjualan dan metode, dengan biaya/MDR) dan bandingkan dengan penjualan non-tunai di POS (cocok, selisih, belum dicatat). Butuh internet. Belum: impor otomatis dari penyedia/gateway, rentang 7/30/90 hari, jurnal akuntansi, belum diuji di HP."
  },
  "75": {
   "status": "tidak_relevan",
@@ -309,7 +309,7 @@
  },
  "78": {
   "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-17): Lainnya > Tutup buku (hanya Owner): kunci pembukuan sampai tanggal tertentu; pengeluaran, settlement, dan anggaran bertanggal terkunci ditolak (409), bisa dibuka kembali (tercatat di audit). Butuh internet. Belum: jurnal penutup/saldo awal tahun baru, penguncian transaksi penjualan, penguncian aset, belum diuji di HP."
+  "catatan": "SEBAGIAN (2026-11-17): Lainnya > Tutup buku (hanya Owner): kunci pembukuan sampai tanggal tertentu; pengeluaran, settlement, dan anggaran bertanggal terkunci ditolak (409), bisa dibuka kembali (tercatat di audit). Butuh internet. Belum: jurnal penutup/saldo awal tahun baru, penguncian transaksi penjualan, belum diuji di HP (aset tetap kini ikut terkunci)."
  },
  "79": {
   "status": "sedang",
@@ -329,7 +329,7 @@
  },
  "83": {
   "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-17): Lainnya > Aset tetap & penyusutan: daftar aset (harga perolehan, nilai residu, umur bulan), penyusutan garis lurus per bulan dihitung server, akumulasi dan nilai buku per hari ini. Butuh internet. Belum: jurnal penyusutan, metode saldo menurun, pelepasan/penjualan aset, ubah angka aset, belum diuji di HP."
+  "catatan": "SEBAGIAN (2026-11-17): Lainnya > Aset tetap & penyusutan: daftar aset (harga perolehan, nilai residu, umur bulan), penyusutan garis lurus per bulan dihitung server, akumulasi dan nilai buku per hari ini. Butuh internet. Angka aset bisa diubah (penyusutan dihitung ulang) dan ikut terkunci tutup buku. Belum: jurnal penyusutan, metode saldo menurun, pelepasan/penjualan aset, belum diuji di HP."
  },
  "84": {
   "status": "sedang",

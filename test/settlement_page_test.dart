@@ -26,10 +26,12 @@ class _Sesi extends AuthSessionStore {
 
 class _Api implements BackendApi {
   final List<Map<String, dynamic>> kiriman = [];
+  final List<String> dari = [];
 
   @override
   Future<dynamic> getJson({required String accessToken, required String path, Map<String, dynamic>? query}) async {
     expect(path, '/settlement/rekonsiliasi');
+    dari.add(query!['dari'] as String);
     return {
       'baris': [
         {
@@ -121,6 +123,10 @@ void main() {
     expect(find.text('Cocok'), findsOneWidget);
     expect(find.text('Belum dicatat'), findsOneWidget);
     expect(find.text('Tercatat di POS: Rp 60.000'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('settlement.hari.30')));
+    await tester.pumpAndSettle();
+    expect(DateTime.parse(api.dari.last).isBefore(DateTime.parse(api.dari.first)), isTrue, reason: 'rentang 30 hari lebih awal');
 
     await tester.tap(find.byKey(const Key('settlement.catat')));
     await tester.pumpAndSettle();

@@ -87,3 +87,35 @@ async def test_validasi_isolasi_dan_paket(client: AsyncClient, db_session: Async
     assert (await client.delete(f"/aset-tetap/{dibuat['id']}", headers=lain.headers)).status_code == 404
     gratis = await buat_toko_siap_pakai(db_session, nama_paket="Gratis")
     assert (await client.get("/aset-tetap", headers=gratis.headers)).status_code == 403
+
+
+async def test_ubah_angka_aset_menghitung_ulang_dan_menjaga_residu(client: AsyncClient, db_session: AsyncSession) -> None:
+    toko = await buat_toko_siap_pakai(db_session, nama_paket="Bisnis")
+    body = {"nama": "Oven", "tanggal_perolehan": "2026-01-10", "harga_perolehan": "12000000", "umur_bulan": 12}
+    aset_id = (await client.post("/aset-tetap", headers=toko.headers, json=body)).json()["id"]
+
+    ok = await client.patch(
+        f"/aset-tetap/{aset_id}", headers=toko.headers, json={"harga_perolehan": "24000000", "umur_bulan": 24}
+    )
+    assert ok.status_code == 200, ok.text
+    assert Decimal(ok.json()["penyusutan_per_bulan"]) == 1000000
+    salah = await client.patch(f"/aset-tetap/{aset_id}", headers=toko.headers, json={"nilai_residu": "24000000"})
+    assert salah.status_code == 422
+    ringkas = (await client.get("/aset-tetap", headers=toko.headers, params={"per": "2026-01-31"})).json()
+    assert Decimal(ringkas["aset"][0]["harga_perolehan"]) == 24000000, "angka tidak berubah oleh patch yang ditolak"
+
+
+async def test_aset_ikut_terkunci_tutup_buku(client: AsyncClient, db_session: AsyncSession) -> None:
+    from datetime import UTC, datetime, timedelta
+
+    toko = await buat_toko_siap_pakai(db_session, nama_paket="Bisnis")
+    lama = str((datetime.now(UTC) - timedelta(days=20)).date())
+    baru = str((datetime.now(UTC) - timedelta(days=1)).date())
+    body = {"nama": "Blender", "tanggal_perolehan": lama, "harga_perolehan": "1000", "umur_bulan": 12}
+    aset_id = (await client.post("/aset-tetap", headers=toko.headers, json=body)).json()["id"]
+    await client.post("/tutup-buku", headers=toko.headers, json={"sampai": str((datetime.now(UTC) - timedelta(days=5)).date())})
+
+    assert (await client.post("/aset-tetap", headers=toko.headers, json=body)).status_code == 409
+    assert (await client.patch(f"/aset-tetap/{aset_id}", headers=toko.headers, json={"nama": "X"})).status_code == 409
+    assert (await client.delete(f"/aset-tetap/{aset_id}", headers=toko.headers)).status_code == 409
+    assert (await client.post("/aset-tetap", headers=toko.headers, json={**body, "tanggal_perolehan": baru})).status_code == 201
