@@ -328,8 +328,8 @@
   "catatan": "Tidak ada anggaran dan proyeksi arus kas."
  },
  "83": {
-  "status": "belum",
-  "catatan": "Tidak ada aset tetap dan penyusutan."
+  "status": "sedang",
+  "catatan": "SEBAGIAN (2026-11-17): Lainnya > Aset tetap & penyusutan: daftar aset (harga perolehan, nilai residu, umur bulan), penyusutan garis lurus per bulan dihitung server, akumulasi dan nilai buku per hari ini. Butuh internet. Belum: jurnal penyusutan, metode saldo menurun, pelepasan/penjualan aset, ubah angka aset, belum diuji di HP."
  },
  "84": {
   "status": "sedang",

@@ -4,6 +4,7 @@
 
 from . import (  # noqa: F401
     akun,
+    aset_tetap,
     audit,
     fitur,
     jadwal,

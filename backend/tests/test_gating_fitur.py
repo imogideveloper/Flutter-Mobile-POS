@@ -96,7 +96,15 @@ async def _setup_settlement(db: AsyncSession, toko) -> dict:
     }
 
 
+async def _setup_fixed_assets(db: AsyncSession, toko) -> dict:
+    return {
+        "method": "POST", "url": "/aset-tetap",
+        "json": {"nama": "Mesin", "tanggal_perolehan": "2026-01-01", "harga_perolehan": "1000", "umur_bulan": 12},
+    }
+
+
 _SETUP: dict[str, _SetupFn] = {
+    "fixed_assets": _setup_fixed_assets,
     "settlement": _setup_settlement,
     "survei": _setup_survei,
     "resep": _setup_resep,

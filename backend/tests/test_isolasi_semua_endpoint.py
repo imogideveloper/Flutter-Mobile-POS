@@ -31,6 +31,7 @@ from app.main import app
 from app.models.jadwal import PengajuanCuti
 from app.models.pengeluaran import Pengeluaran
 from app.models.settlement import Settlement
+from app.models.aset_tetap import AsetTetap
 from app.models.pelanggan import PertanyaanSurvei, Survei
 from app.models.order import Meja, TipeOrder
 from app.models.outlet import Outlet, Paket, PermintaanUpgrade
@@ -268,6 +269,17 @@ async def _siapkan_satu_toko(client: AsyncClient, db: AsyncSession, toko, label:
     await db.commit()
     ids["settlement_id"] = settlement.id
 
+    aset = AsetTetap(
+        toko_id=toko.toko.id,
+        nama=f"Aset {label}",
+        tanggal_perolehan=date(2026, 1, 1),
+        harga_perolehan=Decimal("1000"),
+        umur_bulan=12,
+    )
+    db.add(aset)
+    await db.commit()
+    ids["aset_id"] = aset.id
+
     stasiun_resp = await client.post(
         f"/outlets/{toko.outlet.id}/stasiun-dapur", headers=toko.headers, json={"nama": f"Stasiun {label}"}
     )
@@ -347,6 +359,8 @@ def _body_untuk(method: str, path: str, ids: dict[str, uuid.UUID]) -> dict | Non
         return {}  # OutletUpdateIn - semua field opsional
     if path == "/outlets/{outlet_id}/pengaturan":
         return {}  # PengaturanOutletIn - semua field opsional
+    if path == "/aset-tetap/{aset_id}":
+        return {}  # AsetUpdateIn - semua field opsional
     if path == "/survei/{survei_id}":
         return {}  # SurveiUpdateIn - semua field opsional
     if path == "/survei/{survei_id}/jawaban":

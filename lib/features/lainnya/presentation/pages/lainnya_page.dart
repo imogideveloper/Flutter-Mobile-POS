@@ -346,6 +346,17 @@ class LainnyaPage extends ConsumerWidget {
                   bila(
                     'laporan.lihat',
                     FiturTerkunci(
+                      kode: 'fixed_assets',
+                      child: SettingsMenuRow(
+                        label: 'Aset tetap & penyusutan',
+                        value: 'Nilai buku',
+                        onTap: () => context.push('/aset-tetap'),
+                      ),
+                    ),
+                  ),
+                  bila(
+                    'laporan.lihat',
+                    FiturTerkunci(
                       kode: 'settlement',
                       child: SettingsMenuRow(
                         label: 'Settlement QRIS & e-wallet',
