@@ -336,8 +336,8 @@
   "catatan": "SEBAGIAN (2026-11-17): Lainnya > Laba rugi konsolidasi (Owner/Manajer, digerbang fitur consolidation): laba rugi tiap outlet aktif dan total toko dalam satu layar, rentang hari/7 hari/bulan; server GET /laporan/laba-rugi-konsolidasi memakai rumus laba rugi no. 69 yang sama (keputusan sementara, perlu validasi akuntan). Total memuat biaya tanpa outlet. Belum: neraca, arus kas, ekspor, eliminasi transaksi antar outlet, mata uang. Butuh internet, lulus tes otomatis, belum diuji di HP."
  },
  "85": {
-  "status": "belum",
-  "catatan": "Tidak ada ekspor ke software akuntansi."
+  "status": "sedang",
+  "catatan": "SEBAGIAN (2026-11-17): Lainnya > Ekspor ke software akuntansi: CSV netral ringkasan harian (penjualan bersih, pajak dipungut, HPP, penerimaan per metode bayar, biaya per kategori) dibagikan lewat menu bagikan. Butuh internet. Belum: format khusus Jurnal/Accurate/Zahir, pemetaan kode akun, jurnal berpasangan debit-kredit, belum diuji di HP."
  },
  "86": {
   "status": "tidak_relevan",

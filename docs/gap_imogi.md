@@ -18,9 +18,9 @@ Tanggal: 2026-11-08. Menggantikan `docs/gap_fnb.md` sebagai acuan utama. Daftar 
 | Relevan untuk Makanan & Minuman (inti atau opsional untuk minimal 1 dari 7 jenis usaha) | 64 |
 | Tidak relevan untuk Makanan & Minuman (disembunyikan) | 23 |
 | ✅ Lengkap | 15 (tidak berubah: belum ada fitur yang diuji di HP, jadi tidak ada yang dinaikkan) |
-| 🟡 Sebagian | 42 (awal audit 24; +18 sejak 2026-11-12/17) |
+| 🟡 Sebagian | 43 (awal audit 24; +19 sejak 2026-11-12/17) |
 
-| ❌ Belum ada | 7 (awal audit 25) |
+| ❌ Belum ada | 6 (awal audit 25) |
 
 | Fitur inti untuk Kafe & Kedai Kopi | 46 (✅ 11, 🟡 26, ❌ 9); awal audit ✅ 11, 🟡 18, ❌ 17 |
 
@@ -91,7 +91,7 @@ Diurutkan: inti untuk Kafe & Kedai Kopi lebih dulu. ❌ = belum ada, 🟡 = seba
 | 80 | Akuntansi | Chart of Accounts & jurnal umum | Enterprise | 3 inti, 4 opsional, Kafe: Inti | ❌ | Tidak ada chart of accounts dan jurnal umum. |
 | 81 | Akuntansi | Buku besar, neraca & arus kas | Enterprise | 3 inti, 4 opsional, Kafe: Inti | ❌ | Tidak ada buku besar, neraca, dan arus kas. |
 | 82 | Akuntansi | Anggaran & proyeksi arus kas | Enterprise | 3 inti, 3 opsional, Kafe: Inti | 🟡 | SEBAGIAN (2026-11-17): Lainnya > Anggaran & proyeksi (digerbang `budget`, izin `laporan.lihat`): anggaran biaya per kategori per bulan, realisasi dari pengeluaran, status (aman/waspada >=80%/lewat), proyeksi akhir bulan linear untuk biaya dan penjualan, selisih kasar. Server: `/anggaran` (migrasi 0032). Butuh internet. Belum: arus kas akuntansi, anggaran per outlet, salin antarbulan, belum diuji di HP. |
-| 85 | Akuntansi | Ekspor ke software akuntansi (Jurnal, Accurate, Zahir) | Enterprise | 3 inti, 4 opsional, Kafe: Inti | ❌ | Tidak ada ekspor ke software akuntansi. |
+| 85 | Akuntansi | Ekspor ke software akuntansi (Jurnal, Accurate, Zahir) | Enterprise | 3 inti, 4 opsional, Kafe: Inti | 🟡 | SEBAGIAN (2026-11-17): Lainnya > Ekspor ke software akuntansi (digerbang `accounting_export`, izin `laporan.lihat`): CSV netral ringkasan harian (penjualan bersih, pajak, HPP, penerimaan per metode, biaya per kategori), maks 93 hari, dibagikan lewat menu bagikan. Server: `GET /ekspor-akuntansi`. Belum: format spesifik Jurnal/Accurate/Zahir, pemetaan akun, jurnal debit-kredit, belum diuji di HP. |
 | 4 | Kasir | Pajak per produk | Starter | 2 inti, 5 opsional, Kafe: Inti | 🟡 | SEBAGIAN (2026-11-15): daftar Pajak dan Service kini punya saklar Usaha kena pajak (mematikan/menyalakan semua pajak sekaligus, service charge tidak ikut) dan menampilkan pajak nonaktif; form tambah punya pilihan cepat PB1 10%, PPN 11%, dan Service 5% (nilai bisa diubah). Cara hitung termasuk/ditambahkan dan pajak per produk sudah ada sebelumnya. Belum: nilai bawaan per jenis usaha (menunggu Batch B). Lulus tes otomatis, belum diuji di HP. |
 | 6 | Kasir | Biaya layanan per tipe pesanan | Enterprise | 2 inti, 3 opsional, Kafe: Inti | 🟡 | SEBAGIAN (2026-11-15): toko Kafe dan Restoran yang baru mendaftar otomatis mendapat Service Charge 5% yang hanya ditautkan ke tipe Makan di tempat (jenis usaha lain mendapat tipe pesanan tanpa service). Tipe pesanan kini dibuat di server dan ikut sync pull; HP menggantikan bawaan lokalnya dengan data server pada pull pertama. Aturan service per tipe pesanan di kalkulator sudah ada sebelumnya. Belum: usaha yang sudah terdaftar tidak otomatis dapat bawaan, pengaturan bawaan lain per jenis usaha (Batch B). Lulus tes otomatis, belum diuji di HP. |
 | 24 | Struk | Logo usaha di struk | Enterprise | 2 inti, 5 opsional, Kafe: Inti | 🟡 | SEBAGIAN (2026-11-15): Pengaturan struk punya pilihan Gaya logo: logo unggahan, atau logo otomatis dari inisial nama usaha (lingkaran, cincin, inisial), dengan pratinjau; struk cetak memakai gaya terpilih; tanpa logo = saklar Tampilkan logo dimatikan. Gaya otomatis digerbang fitur logo_struk di server (migrasi 0026) dan ikut sync. BUG-012 (simpan pengaturan paket Gratis) sudah diperbaiki sebelumnya. Belum: logo otomatis tidak tampil di pratinjau struk teks dan belum ada pilihan warna atau font. Lulus tes otomatis (termasuk render gambar), belum diuji di printer dan HP. |

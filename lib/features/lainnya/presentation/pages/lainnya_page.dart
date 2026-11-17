@@ -346,6 +346,17 @@ class LainnyaPage extends ConsumerWidget {
                   bila(
                     'laporan.lihat',
                     FiturTerkunci(
+                      kode: 'accounting_export',
+                      child: SettingsMenuRow(
+                        label: 'Ekspor ke software akuntansi',
+                        value: 'CSV harian',
+                        onTap: () => context.push('/ekspor-akuntansi'),
+                      ),
+                    ),
+                  ),
+                  bila(
+                    'laporan.lihat',
+                    FiturTerkunci(
                       kode: 'budget',
                       child: SettingsMenuRow(
                         label: 'Anggaran & proyeksi',

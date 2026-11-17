@@ -38,6 +38,7 @@ from app.routers import (
     survei,
     anggaran,
     aset_tetap,
+    ekspor_akuntansi,
     settlement,
     sync,
     toko,
@@ -102,6 +103,7 @@ app.include_router(survei.router)
 app.include_router(settlement.router)
 app.include_router(aset_tetap.router)
 app.include_router(anggaran.router)
+app.include_router(ekspor_akuntansi.router)
 app.include_router(transfer_stok.router)
 app.include_router(audit.router)
 app.include_router(langganan.router)

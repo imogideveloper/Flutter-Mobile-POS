@@ -110,7 +110,15 @@ async def _setup_budget(db: AsyncSession, toko) -> dict:
     }
 
 
+async def _setup_accounting_export(db: AsyncSession, toko) -> dict:
+    return {
+        "method": "GET", "url": "/ekspor-akuntansi", "json": None,
+        "params": {"dari": "2026-11-01", "sampai": "2026-11-30"},
+    }
+
+
 _SETUP: dict[str, _SetupFn] = {
+    "accounting_export": _setup_accounting_export,
     "budget": _setup_budget,
     "fixed_assets": _setup_fixed_assets,
     "settlement": _setup_settlement,
