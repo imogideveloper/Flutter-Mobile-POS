@@ -18,9 +18,9 @@ Tanggal: 2026-11-08. Menggantikan `docs/gap_fnb.md` sebagai acuan utama. Daftar 
 | Relevan untuk Makanan & Minuman (inti atau opsional untuk minimal 1 dari 7 jenis usaha) | 64 |
 | Tidak relevan untuk Makanan & Minuman (disembunyikan) | 23 |
 | ✅ Lengkap | 15 (tidak berubah: belum ada fitur yang diuji di HP, jadi tidak ada yang dinaikkan) |
-| 🟡 Sebagian | 44 (awal audit 24; +20 sejak 2026-11-12/17) |
+| 🟡 Sebagian | 45 (awal audit 24; +21 sejak 2026-11-12/17) |
 
-| ❌ Belum ada | 5 (awal audit 25) |
+| ❌ Belum ada | 4 (awal audit 25) |
 
 | Fitur inti untuk Kafe & Kedai Kopi | 46 (✅ 11, 🟡 26, ❌ 9); awal audit ✅ 11, 🟡 18, ❌ 17 |
 
@@ -108,7 +108,7 @@ Diurutkan: inti untuk Kafe & Kedai Kopi lebih dulu. ❌ = belum ada, 🟡 = seba
 | 14 | Pembayaran | Pembayaran transfer bank | Free | 1 inti, 6 opsional, Kafe: Opsional | 🟡 | Metode transfer ada. SEBAGIAN (2026-11-14): Pengaturan metode bayar kini punya rekening tujuan (bank, nomor, atas nama) untuk metode transfer/e-wallet; ikut sync ke HP (migrasi 0019, schema lokal 15) dan tampil di layar bayar saat metode dipilih. Belum diuji di HP. |
 | 39 | Produk | Ekspor produk | Starter | 1 inti, 6 opsional, Kafe: Opsional | 🟡 | SEBAGIAN (2026-11-12): ekspor seluruh produk HP ke CSV lewat menu bagikan (Lainnya > Impor & ekspor produk). Belum diuji di HP. |
 | 43 | Produk | Jual per kemasan (pcs, dus, pak) | Starter | 1 inti, 1 opsional | 🟡 | SEBAGIAN (2026-11-17): produk bisa punya kemasan jual (nama, isi, harga) di form produk (digerbang pack_units, perlu internet untuk mengubah); kasir memilih satuan dasar atau kemasan, baris kemasan terpisah dengan harga kemasan; stok tetap di satuan dasar dan berkurang qty x isi (checkout, void, refund); HPP per kemasan; ikut sync (migrasi 0029, schema lokal 22). Belum: harga grosir/harga outlet per kemasan, laporan stok per kemasan, kemasan per varian, checkout online server (menolak kemasan). Lulus tes otomatis, belum diuji di HP. |
-| 79 | Akuntansi | Pendapatan diterima di muka (deposit/membership) | Enterprise | 1 inti, 3 opsional, Kafe: Opsional | ❌ | Tidak ada pendapatan diterima di muka. |
+| 79 | Akuntansi | Pendapatan diterima di muka (deposit/membership) | Enterprise | 1 inti, 3 opsional, Kafe: Opsional | 🟡 | SEBAGIAN (2026-11-17): Lainnya > Deposit pelanggan (digerbang `prepaid_revenue`, izin `pelanggan.kelola`): top-up, pakai (dicatat kasir manual), dan koreksi per pelanggan; saldo tidak boleh minus; ringkasan total saldo = pendapatan diterima di muka. Server: `/deposit` (migrasi 0034). Belum: jadi metode bayar di kasir, jurnal, membership berjangka, belum diuji di HP. |
 | 25 | Struk | Catatan tambahan di struk | Enterprise | 0 inti, 7 opsional, Kafe: Opsional | 🟡 | Catatan pesanan tercetak. Footer struk toko sudah ada dan kini dibatasi maks. 300 karakter di Pengaturan struk. Belum diuji di HP. |
 | 27 | Dapur | Terima order, bayar belakangan (nota order) | Free | 0 inti, 3 opsional, Kafe: Opsional | 🟡 | SEBAGIAN (2026-11-15): tombol Terima Order (bayar nanti) di keranjang mencatat pesanan sebagai transaksi belum dibayar tanpa pelanggan (nomor antrean, status pesanan, tiket dapur ikut berjalan; bukan kasbon, paket Gratis boleh); layar Order belum dibayar (Lainnya) mencatat pelunasan penuh atau sebagian per metode bayar; server menerima lewat bayar_belakangan (migrasi 0024). Belum: pilihan jatuh tempo/kapan membayar, cetak nota order khusus, penukaran poin dan metode QRIS saat pelunasan. Lulus tes otomatis, belum diuji di HP. |
 | 53 | Pelanggan | Upload pelanggan via template | Professional | 0 inti, 6 opsional, Kafe: Opsional | 🟡 | SEBAGIAN (2026-11-13): Lainnya > Impor pelanggan: template CSV, pratinjau, simulasi dan impor lewat `POST /pelanggan/impor`; nomor HP dinormalkan. Belum: memperbarui pelanggan lama, poin/level. Belum diuji di HP. |

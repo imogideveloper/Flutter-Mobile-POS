@@ -4,6 +4,7 @@
 
 from . import (  # noqa: F401
     akun,
+    deposit,
     tutup_buku,
     anggaran,
     aset_tetap,

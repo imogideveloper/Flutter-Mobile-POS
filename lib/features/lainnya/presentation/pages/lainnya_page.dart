@@ -256,6 +256,17 @@ class LainnyaPage extends ConsumerWidget {
                   bila(
                     'pelanggan.kelola',
                     FiturTerkunci(
+                      kode: 'prepaid_revenue',
+                      child: SettingsMenuRow(
+                        label: 'Deposit pelanggan',
+                        value: 'Saldo di muka',
+                        onTap: () => context.push('/deposit'),
+                      ),
+                    ),
+                  ),
+                  bila(
+                    'pelanggan.kelola',
+                    FiturTerkunci(
                       kode: 'survei',
                       child: SettingsMenuRow(
                         label: 'Survei pelanggan',

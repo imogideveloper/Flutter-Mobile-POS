@@ -312,8 +312,8 @@
   "catatan": "SEBAGIAN (2026-11-17): Lainnya > Tutup buku (hanya Owner): kunci pembukuan sampai tanggal tertentu; pengeluaran, settlement, dan anggaran bertanggal terkunci ditolak (409), bisa dibuka kembali (tercatat di audit). Butuh internet. Belum: jurnal penutup/saldo awal tahun baru, penguncian transaksi penjualan, penguncian aset, belum diuji di HP."
  },
  "79": {
-  "status": "belum",
-  "catatan": "Tidak ada pendapatan diterima di muka."
+  "status": "sedang",
+  "catatan": "SEBAGIAN (2026-11-17): Lainnya > Deposit pelanggan: buku mutasi saldo per pelanggan (top-up, pakai, koreksi), saldo tidak boleh minus, ringkasan total pendapatan diterima di muka. Butuh internet. Belum: deposit sebagai metode bayar otomatis di kasir (pemakaian dicatat manual), jurnal/pengakuan pendapatan, membership berjangka, belum diuji di HP."
  },
  "80": {
   "status": "belum",

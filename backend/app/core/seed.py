@@ -114,6 +114,7 @@ _FITUR = [
     ("budget", "Anggaran & proyeksi arus kas", "akuntansi", 2),
     ("accounting_export", "Ekspor ke software akuntansi", "akuntansi", 2),
     ("year_end_closing", "Tutup buku akhir tahun", "akuntansi", 2),
+    ("prepaid_revenue", "Pendapatan diterima di muka (deposit)", "akuntansi", 2),
 ]
 
 _PAKET = [("Gratis", 0), ("Pro", 1), ("Bisnis", 2)]

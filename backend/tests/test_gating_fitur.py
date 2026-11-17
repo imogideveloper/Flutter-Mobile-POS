@@ -121,7 +121,21 @@ async def _setup_year_end_closing(db: AsyncSession, toko) -> dict:
     return {"method": "GET", "url": "/tutup-buku", "json": None}
 
 
+async def _setup_prepaid_revenue(db: AsyncSession, toko) -> dict:
+    from app.models.pelanggan import Pelanggan
+
+    p = Pelanggan(toko_id=toko.toko.id, nama="Budi")
+    db.add(p)
+    await db.commit()
+    await db.refresh(p)
+    return {
+        "method": "POST", "url": "/deposit",
+        "json": {"pelanggan_id": str(p.id), "jenis": "topup", "jumlah": "1000"},
+    }
+
+
 _SETUP: dict[str, _SetupFn] = {
+    "prepaid_revenue": _setup_prepaid_revenue,
     "year_end_closing": _setup_year_end_closing,
     "accounting_export": _setup_accounting_export,
     "budget": _setup_budget,

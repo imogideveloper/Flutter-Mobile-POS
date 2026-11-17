@@ -12,6 +12,7 @@ import '../../features/laporan/presentation/pages/laporan_page.dart';
 import '../../features/pelanggan/presentation/pages/pelanggan_list_page.dart';
 import '../../features/pelanggan/presentation/pages/impor_pelanggan_page.dart';
 import '../../features/pelanggan/presentation/pages/kirim_massal_page.dart';
+import '../../features/pelanggan/presentation/pages/deposit_page.dart';
 import '../../features/survei/presentation/pages/survei_page.dart';
 import '../../features/pengeluaran/presentation/pages/laba_rugi_page.dart';
 import '../../features/pengeluaran/presentation/pages/laba_rugi_konsolidasi_page.dart';
@@ -444,6 +445,10 @@ GoRouter _buildRouter() => GoRouter(
     GoRoute(
       path: '/survei',
       builder: (context, state) => const IzinGuard(kodeIzin: 'pelanggan.kelola', child: SurveiPage()),
+    ),
+    GoRoute(
+      path: '/deposit',
+      builder: (context, state) => const IzinGuard(kodeIzin: 'pelanggan.kelola', child: DepositPage()),
     ),
     GoRoute(
       path: '/kirim-massal',
