@@ -96,6 +96,53 @@ class _DepositPageState extends ConsumerState<DepositPage> {
     }
   }
 
+  Future<void> _riwayat(SaldoDeposit s) async {
+    try {
+      final json = await ref.read(backendApiProvider).getJson(
+            accessToken: await _token(),
+            path: '/deposit/pelanggan/${s.pelangganId}',
+          );
+      final mutasi = [for (final m in (json as Map)['riwayat'] as List) Map<String, dynamic>.from(m as Map)];
+      if (!mounted) return;
+      await showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        builder: (_) => SafeArea(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.7),
+            child: ListView(
+              shrinkWrap: true,
+              padding: const EdgeInsets.all(AppSpacing.xl),
+              children: [
+                Text('Riwayat deposit ${s.nama}', style: AppTypography.cardTitle),
+                const SizedBox(height: AppSpacing.sm),
+                for (final m in mutasi)
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(switch (m['jenis']) {
+                      'topup' => 'Top-up',
+                      'pakai' => 'Pakai',
+                      _ => 'Koreksi',
+                    }),
+                    subtitle: Text([
+                      (m['dibuat'] as String).substring(0, 10),
+                      if ((m['catatan'] as String?) != null) m['catatan'] as String,
+                    ].join(' - ')),
+                    trailing: Text(
+                      '${m['jenis'] == 'topup' ? '+' : '-'}${_rp(double.parse('${m['jumlah']}').round())}',
+                      key: Key('deposit.mutasi.${m['id']}'),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      );
+    } on BackendException catch (e) {
+      if (mounted) showAppToast(context, message: e.message, variant: ToastVariant.danger);
+    }
+  }
+
   String _rp(int n) => 'Rp ${formatRupiahDigits(n)}';
 
   @override
@@ -136,7 +183,18 @@ class _DepositPageState extends ConsumerState<DepositPage> {
                       ListTile(
                         key: Key('deposit.baris.${s.pelangganId}'),
                         title: Text(s.nama),
-                        trailing: Text(_rp(s.saldo), style: AppTypography.cardTitle),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(_rp(s.saldo), style: AppTypography.cardTitle),
+                            IconButton(
+                              key: Key('deposit.riwayat.${s.pelangganId}'),
+                              tooltip: 'Riwayat',
+                              onPressed: () => _riwayat(s),
+                              icon: const Icon(Icons.history),
+                            ),
+                          ],
+                        ),
                         onTap: () => _catat(pelangganId: s.pelangganId),
                       ),
                   ],

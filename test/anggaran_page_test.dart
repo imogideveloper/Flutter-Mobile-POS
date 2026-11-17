@@ -24,6 +24,7 @@ class _Sesi extends AuthSessionStore {
 class _Api implements BackendApi {
   final List<String> bulanDiminta = [];
   final List<Map<String, dynamic>> kiriman = [];
+  final List<Map<String, dynamic>> salinan = [];
 
   @override
   Future<dynamic> getJson({required String accessToken, required String path, Map<String, dynamic>? query}) async {
@@ -60,6 +61,13 @@ class _Api implements BackendApi {
       'penjualan_proyeksi': '600000.00',
       'arus_kas_proyeksi': '180000.00',
     };
+  }
+
+  @override
+  Future<dynamic> postJson({required String accessToken, required String path, Map<String, dynamic>? body}) async {
+    expect(path, '/anggaran/salin');
+    salinan.add(body!);
+    return {'disalin': 2};
   }
 
   @override
@@ -110,6 +118,11 @@ void main() {
     expect(api.kiriman.single['kategori'], 'belanja_bahan');
     expect(api.kiriman.single['jumlah'], '750000');
     expect(api.kiriman.single['bulan'], api.bulanDiminta.first);
+
+    await tester.tap(find.byKey(const Key('anggaran.salin')));
+    await tester.pumpAndSettle();
+    expect(api.salinan.single['ke'], api.bulanDiminta.first);
+    expect(api.salinan.single['dari'], isNot(api.salinan.single['ke']));
 
     await tester.tap(find.byKey(const Key('anggaran.sebelumnya')));
     await tester.pumpAndSettle();

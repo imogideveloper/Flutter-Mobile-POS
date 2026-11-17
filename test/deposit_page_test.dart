@@ -28,6 +28,17 @@ class _Api implements BackendApi {
 
   @override
   Future<dynamic> getJson({required String accessToken, required String path, Map<String, dynamic>? query}) async {
+    if (path == '/deposit/pelanggan/p2') {
+      return {
+        'pelanggan_id': 'p2',
+        'nama': 'Budi',
+        'saldo': '700000.00',
+        'riwayat': [
+          {'id': 'm2', 'jenis': 'pakai', 'jumlah': '50000.00', 'catatan': 'Ngopi', 'dibuat': '2026-11-17T10:00:00+00:00'},
+          {'id': 'm1', 'jenis': 'topup', 'jumlah': '750000.00', 'catatan': null, 'dibuat': '2026-11-16T09:00:00+00:00'},
+        ],
+      };
+    }
     expect(path, '/deposit/ringkasan');
     return {
       'total_saldo': '1000000.00',
@@ -71,6 +82,14 @@ void main() {
 
     expect(find.text('Rp 1.000.000'), findsOneWidget);
     expect(find.text('Rp 700.000'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('deposit.riwayat.p2')));
+    await tester.pumpAndSettle();
+    expect(find.text('+Rp 750.000'), findsOneWidget);
+    expect(find.text('-Rp 50.000'), findsOneWidget);
+    expect(find.text('2026-11-17 - Ngopi'), findsOneWidget);
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
 
     await tester.tap(find.byKey(const Key('deposit.baris.p2')));
     await tester.pumpAndSettle();

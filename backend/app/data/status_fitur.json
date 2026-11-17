@@ -313,7 +313,7 @@
  },
  "79": {
   "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-17): Lainnya > Deposit pelanggan: buku mutasi saldo per pelanggan (top-up, pakai, koreksi), saldo tidak boleh minus, ringkasan total pendapatan diterima di muka. Butuh internet. Belum: deposit sebagai metode bayar otomatis di kasir (pemakaian dicatat manual), jurnal/pengakuan pendapatan, membership berjangka, belum diuji di HP."
+  "catatan": "SEBAGIAN (2026-11-17): Lainnya > Deposit pelanggan: buku mutasi saldo per pelanggan (top-up, pakai, koreksi), saldo tidak boleh minus, ringkasan total pendapatan diterima di muka. Butuh internet. Riwayat mutasi per pelanggan bisa dilihat. Belum: deposit sebagai metode bayar otomatis di kasir (pemakaian dicatat manual), jurnal/pengakuan pendapatan, membership berjangka, belum diuji di HP."
  },
  "80": {
   "status": "belum",
@@ -325,7 +325,7 @@
  },
  "82": {
   "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-17): Lainnya > Anggaran & proyeksi: anggaran biaya per kategori per bulan, realisasi dari pengeluaran, status aman/hampir habis/melebihi, proyeksi akhir bulan linear untuk biaya dan penjualan serta selisih kasar. Butuh internet. Belum: proyeksi arus kas akuntansi sungguhan (piutang/utang, jadwal bayar), anggaran per outlet, salin anggaran antarbulan, belum diuji di HP."
+  "catatan": "SEBAGIAN (2026-11-17): Lainnya > Anggaran & proyeksi: anggaran biaya per kategori per bulan, realisasi dari pengeluaran, status aman/hampir habis/melebihi, proyeksi akhir bulan linear untuk biaya dan penjualan serta selisih kasar. Butuh internet. Ada tombol salin anggaran dari bulan lalu. Belum: proyeksi arus kas akuntansi sungguhan (piutang/utang, jadwal bayar), anggaran per outlet, belum diuji di HP."
  },
  "83": {
   "status": "sedang",

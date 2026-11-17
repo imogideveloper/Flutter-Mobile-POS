@@ -193,3 +193,53 @@ async def ringkasan_anggaran(
         penjualan_proyeksi=penjualan_proyeksi,
         arus_kas_proyeksi=penjualan_proyeksi - total_proyeksi,
     )
+
+
+class SalinIn(BaseModel):
+    dari: str = Field(pattern=r"^\d{4}-(0[1-9]|1[0-2])$")
+    ke: str = Field(pattern=r"^\d{4}-(0[1-9]|1[0-2])$")
+
+
+class SalinOut(BaseModel):
+    disalin: int
+
+
+@router.post("/salin", response_model=SalinOut, status_code=status.HTTP_201_CREATED)
+async def salin_anggaran(
+    body: SalinIn,
+    toko_id: uuid.UUID = Depends(get_toko_id),
+    role_id: uuid.UUID = Depends(get_role_id),
+    db: AsyncSession = Depends(get_db),
+) -> SalinOut:
+    """Menyalin anggaran satu bulan ke bulan lain. Kategori yang sudah dianggarkan di bulan tujuan tidak ditimpa."""
+    await _wajib_izin(db, role_id)
+    if body.dari == body.ke:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "Bulan asal dan tujuan harus berbeda")
+    asal, tujuan = _awal_bulan(body.dari), _awal_bulan(body.ke)
+    await pastikan_periode_terbuka(db, toko_id, tujuan)
+    sumber = (
+        await db.execute(
+            select(Anggaran).where(Anggaran.toko_id == toko_id, Anggaran.bulan == asal, Anggaran.deleted_at.is_(None))
+        )
+    ).scalars().all()
+    if not sumber:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Bulan asal belum punya anggaran")
+    ada = {
+        a.kategori: a
+        for a in (
+            await db.execute(select(Anggaran).where(Anggaran.toko_id == toko_id, Anggaran.bulan == tujuan))
+        ).scalars()
+    }
+    disalin = 0
+    for s in sumber:
+        sudah = ada.get(s.kategori)
+        if sudah is not None and sudah.deleted_at is None:
+            continue
+        if sudah is not None:
+            sudah.jumlah = s.jumlah
+            sudah.deleted_at = None
+        else:
+            db.add(Anggaran(toko_id=toko_id, bulan=tujuan, kategori=s.kategori, jumlah=s.jumlah))
+        disalin += 1
+    await db.commit()
+    return SalinOut(disalin=disalin)

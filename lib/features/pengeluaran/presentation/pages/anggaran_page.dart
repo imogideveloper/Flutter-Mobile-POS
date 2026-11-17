@@ -122,6 +122,27 @@ class _AnggaranPageState extends ConsumerState<AnggaranPage> {
     }
   }
 
+  Future<void> _salin() async {
+    final asal = DateTime(_bulan.year, _bulan.month - 1);
+    try {
+      final json = await ref.read(backendApiProvider).postJson(
+        accessToken: await _token(),
+        path: '/anggaran/salin',
+        body: {'dari': bulanIso(asal), 'ke': bulanIso(_bulan)},
+      );
+      if (!mounted) return;
+      final n = (json as Map)['disalin'] as int;
+      showAppToast(
+        context,
+        message: n == 0 ? 'Semua kategori sudah punya anggaran' : '$n anggaran disalin dari ${bulanIso(asal)}',
+        variant: ToastVariant.success,
+      );
+      await _muat();
+    } on BackendException catch (e) {
+      if (mounted) showAppToast(context, message: e.message, variant: ToastVariant.danger);
+    }
+  }
+
   String _fmt(int n) => '${n < 0 ? '-' : ''}Rp ${formatRupiahDigits(n.abs())}';
 
   @override
@@ -151,6 +172,12 @@ class _AnggaranPageState extends ConsumerState<AnggaranPage> {
                 icon: const Icon(Icons.chevron_right),
               ),
             ],
+          ),
+          TextButton.icon(
+            key: const Key('anggaran.salin'),
+            onPressed: _salin,
+            icon: const Icon(Icons.copy_all_outlined, size: 18),
+            label: const Text('Salin anggaran dari bulan lalu'),
           ),
           Expanded(
             child: _memuat

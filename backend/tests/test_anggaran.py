@@ -88,3 +88,18 @@ async def test_validasi_isolasi_dan_paket(client: AsyncClient, db_session: Async
     assert data["baris"] == [], "anggaran toko lain tidak terlihat"
     gratis = await buat_toko_siap_pakai(db_session, nama_paket="Gratis")
     assert (await client.get("/anggaran", headers=gratis.headers, params={"bulan": "2026-11"})).status_code == 403
+
+
+async def test_salin_anggaran_tidak_menimpa_yang_sudah_ada(client: AsyncClient, db_session: AsyncSession) -> None:
+    toko = await buat_toko_siap_pakai(db_session, nama_paket="Bisnis")
+    for bulan, kategori, jumlah in [("2026-10", "sewa", "1000"), ("2026-10", "gas_lpg", "200"), ("2026-11", "sewa", "5000")]:
+        await client.put("/anggaran", headers=toko.headers, json={"bulan": bulan, "kategori": kategori, "jumlah": jumlah})
+    r = await client.post("/anggaran/salin", headers=toko.headers, json={"dari": "2026-10", "ke": "2026-11"})
+    assert r.status_code == 201 and r.json()["disalin"] == 1, "hanya gas_lpg yang belum ada"
+    per = {
+        b["kategori"]: Decimal(b["anggaran"])
+        for b in (await client.get("/anggaran", headers=toko.headers, params={"bulan": "2026-11"})).json()["baris"]
+    }
+    assert per == {"sewa": 5000, "gas_lpg": 200}, "anggaran lama tidak ditimpa"
+    assert (await client.post("/anggaran/salin", headers=toko.headers, json={"dari": "2026-11", "ke": "2026-11"})).status_code == 422
+    assert (await client.post("/anggaran/salin", headers=toko.headers, json={"dari": "2025-01", "ke": "2026-11"})).status_code == 404
