@@ -26,6 +26,10 @@ class ItemTransaksi extends Table {
   IntColumn get diskon => integer().withDefault(const Constant(0))();
   IntColumn get subtotal => integer()();
   TextColumn get catatan => text().nullable()();
+  // Jual per kemasan (IMOGI no. 43): qty/hargaSatuan/hppSatuan di atas dalam satuan KEMASAN; stok
+  // berkurang qty x isiKemasan. Baris biasa: isiKemasan 1, namaKemasan kosong.
+  RealColumn get isiKemasan => real().withDefault(const Constant(1.0))();
+  TextColumn get namaKemasan => text().nullable()();
   IntColumn get createdAt => integer()();
   IntColumn get updatedAt => integer()();
   IntColumn get deletedAt => integer().nullable()();

@@ -33,7 +33,16 @@ from app.models.audit import AuditLog, Notifikasi
 from app.models.order import Meja, ProdukPajak, TipeOrder, TipeOrderPajak
 from app.models.outlet import PengaturanOutlet
 from app.models.pelanggan import LevelMember, Pelanggan
-from app.models.produk import BundlingItem, HargaGrosir, HargaOutlet, Modifier, Produk, ProdukVarian, Resep
+from app.models.produk import (
+    BundlingItem,
+    HargaGrosir,
+    HargaOutlet,
+    Modifier,
+    Produk,
+    ProdukKemasan,
+    ProdukVarian,
+    Resep,
+)
 from app.models.promo import Pajak, Promo, PromoProduk
 from app.models.stok import MutasiStok  # noqa: F401 - registrasi tabel
 from app.models.transaksi import (
@@ -95,6 +104,13 @@ async def _validasi_kepemilikan(
 
     await get_outlet_milik_toko(db, body.outlet_id, toko_id)
     await require_outlet_access(db, pengguna_id=pengguna_id, role_id=role_id, outlet_id=body.outlet_id)
+
+    if body.id is None and any(item.isi_kemasan != 1 for item in body.items):
+        # Harga checkout online dihitung server dari harga dasar produk; harga kemasan hanya dibakukan HP.
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_CONTENT,
+            "Penjualan per kemasan hanya lewat aplikasi kasir (sinkron offline)",
+        )
 
     if body.shift_id is not None:
         # Transaksi push offline (body.id terisi) sah walau shiftnya sudah ditutup
@@ -221,6 +237,12 @@ async def _bangun_item_dasar(
             for m in (await db.execute(select(Modifier).where(Modifier.id.in_(modifier_ids)))).scalars().all()
         }
 
+    kemasan_rows = (
+        await db.execute(
+            select(ProdukKemasan).where(ProdukKemasan.produk_id.in_(produk_ids), ProdukKemasan.deleted_at.is_(None))
+        )
+    ).scalars().all()
+
     items: list[k.ItemInput] = []
     for item in body.items:
         produk = produk_by_id.get(item.produk_id)
@@ -232,6 +254,16 @@ async def _bangun_item_dasar(
             for row in grosir_rows
             if row.produk_id == item.produk_id and (row.varian_id is None or row.varian_id == item.varian_id)
         )
+        if item.isi_kemasan > 1:
+            # Jual per kemasan (IMOGI no. 43): harga dasar = harga kemasan di katalog (isi sama); harga
+            # outlet dan grosir (per satuan dasar) tidak berlaku. Tanpa kecocokan katalog, percaya harga HP.
+            cocok = next(
+                (r for r in kemasan_rows if r.produk_id == item.produk_id and Decimal(str(r.isi)) == item.isi_kemasan),
+                None,
+            )
+            harga_jual = Decimal(str(cocok.harga)) if cocok is not None else item.harga_satuan
+            harga_outlet = None
+            tiers = ()
         # modifier_id tidak dikenal (ad-hoc, tidak ada di katalog) ->
         # terpaksa percaya harga dari body (tidak ada sumber lain utk
         # divalidasi) - gap yang disengaja, didokumentasikan di laporan.
@@ -781,6 +813,8 @@ async def checkout(
                 hpp_satuan=item.hpp_satuan,
                 diskon=diskon_item_simpan,
                 subtotal=(item.qty * harga_satuan_simpan) - diskon_item_simpan,
+                isi_kemasan=item.isi_kemasan,
+                nama_kemasan=(item.nama_kemasan or None) if item.isi_kemasan > 1 else None,
             )
         )
         for j, modifier in enumerate(item.modifiers):
@@ -804,7 +838,7 @@ async def checkout(
             await _potong_stok_item(
                 db, toko_id=toko_id, outlet_id=body.outlet_id, transaksi_id=transaksi.id,
                 pengguna_id=pengguna_id, produk=produk, varian_id=item.varian_id,
-                qty_terjual=item.qty, hpp_satuan=item.hpp_satuan,
+                qty_terjual=item.qty * item.isi_kemasan, hpp_satuan=item.hpp_satuan / item.isi_kemasan,
             )
 
     if body.total_bayar > 0 and body.split_pembayaran:

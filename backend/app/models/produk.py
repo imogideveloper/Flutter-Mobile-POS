@@ -134,3 +134,16 @@ class HargaGrosir(Base, UUIDPkMixin, TimestampMixin):
     outlet_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("outlet.id"), nullable=True)
     min_qty: Mapped[float] = mapped_column(Qty)
     harga: Mapped[float] = mapped_column(Money)
+
+
+class ProdukKemasan(Base, UUIDPkMixin, TimestampMixin):
+    """Kemasan jual sebuah produk (IMOGI no. 43): mis. 1 dus = 12 pcs dengan harga sendiri.
+    Stok tetap di satuan dasar produk; `isi` = jumlah satuan dasar per kemasan."""
+
+    __tablename__ = "produk_kemasan"
+
+    toko_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("toko.id"))
+    produk_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("produk.id"))
+    nama: Mapped[str] = mapped_column(String(50))
+    isi: Mapped[float] = mapped_column(Qty)
+    harga: Mapped[float] = mapped_column(Money, default=0)

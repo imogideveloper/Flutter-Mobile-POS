@@ -218,11 +218,8 @@ void main() {
     expect(find.byKey(const Key('produkForm.batasMinimum')), findsOneWidget);
 
     await tester.enterText(find.byKey(const Key('produkForm.batasMinimum')), '10');
-    for (var i = 0; i < 5; i++) {
-      await tester.drag(find.byKey(const Key('produkForm.scrollView')), const Offset(0, -300));
-      await tester.pump();
-    }
-    await tester.pumpAndSettle();
+    // Mode edit memuat seksi lanjutan dan kemasan, jadi tombol simpan jauh di bawah: gulir sampai terlihat.
+    await tester.ensureVisible(find.text('Simpan produk'));
     await tester.tap(find.text('Simpan produk'));
     await tester.pumpAndSettle();
 

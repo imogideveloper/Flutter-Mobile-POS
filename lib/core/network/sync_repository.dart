@@ -220,6 +220,10 @@ class SyncRepository {
                 'harga_satuan': i.hargaSatuan.toString(),
                 'hpp_satuan': i.hppSatuan.toString(),
                 'diskon': i.diskon.toString(),
+                if (i.isiKemasan > 1) ...{
+                  'isi_kemasan': i.isiKemasan.toString(),
+                  if (i.namaKemasan != null) 'nama_kemasan': i.namaKemasan,
+                },
                 'modifiers': [
                   for (final m in modifierRows)
                     if (m.itemTransaksiId == i.id)
@@ -560,6 +564,7 @@ class SyncRepository {
           hasil.stok.length +
           hasil.batchStok.length +
           hasil.stasiunDapur.length +
+          hasil.produkKemasan.length +
           hasil.hargaOutlet.length +
           hasil.hargaGrosir.length +
           hasil.tipeOrderPajak.length +
@@ -630,6 +635,7 @@ class SyncRepository {
       hasil.stok,
       hasil.batchStok,
       hasil.stasiunDapur,
+      hasil.produkKemasan,
       hasil.hargaOutlet,
       hasil.hargaGrosir,
       hasil.pengaturanOutlet,
@@ -666,6 +672,22 @@ class SyncRepository {
           deletedAt: Value(
             epochMsDariBackendNullable(row['deleted_at'] as String?),
           ),
+        ),
+      );
+    }
+
+    for (final row in hasil.produkKemasan) {
+      await produkDao.upsertKemasan(
+        ProdukKemasanCompanion.insert(
+          id: row['id'] as String,
+          tokoId: tokoId,
+          produkId: row['produk_id'] as String,
+          nama: row['nama'] as String,
+          isi: double.parse('${row['isi']}'),
+          harga: double.parse('${row['harga']}').round(),
+          createdAt: epochMsDariBackend(row['updated_at'] as String),
+          updatedAt: epochMsDariBackend(row['updated_at'] as String),
+          deletedAt: Value(epochMsDariBackendNullable(row['deleted_at'] as String?)),
         ),
       );
     }

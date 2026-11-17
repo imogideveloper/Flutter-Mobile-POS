@@ -8,11 +8,12 @@ import 'tables/kategori_table.dart';
 import 'tables/modifier_table.dart';
 import 'tables/produk_grup_modifier_table.dart';
 import 'tables/produk_table.dart';
+import 'tables/produk_kemasan_table.dart';
 import 'tables/produk_varian_table.dart';
 
 part 'produk_dao.g.dart';
 
-@DriftAccessor(tables: [Produk, ProdukVarian, Kategori, GrupModifier, Modifier, ProdukGrupModifier, StasiunDapur])
+@DriftAccessor(tables: [Produk, ProdukVarian, Kategori, GrupModifier, Modifier, ProdukGrupModifier, StasiunDapur, ProdukKemasan])
 class ProdukDao extends DatabaseAccessor<AppDatabase> with _$ProdukDaoMixin {
   ProdukDao(super.db);
 
@@ -81,6 +82,17 @@ class ProdukDao extends DatabaseAccessor<AppDatabase> with _$ProdukDaoMixin {
         .get();
     return rows.toSet();
   }
+
+  // ---- Kemasan jual (IMOGI no. 43) ----
+
+  /// Semua kemasan aktif (belum dihapus) satu toko, urut isi terkecil; dikelompokkan per produk oleh pemanggil.
+  Stream<List<ProdukKemasanRow>> watchSemuaKemasan(String tokoId) =>
+      (select(produkKemasan)
+            ..where((k) => k.tokoId.equals(tokoId) & k.deletedAt.isNull())
+            ..orderBy([(k) => OrderingTerm.asc(k.isi)]))
+          .watch();
+
+  Future<void> upsertKemasan(ProdukKemasanCompanion data) => into(produkKemasan).insertOnConflictUpdate(data);
 
   // ---- Stasiun dapur (IMOGI no. 35) ----
 

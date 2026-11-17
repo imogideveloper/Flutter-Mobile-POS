@@ -168,8 +168,8 @@
   "catatan": "SELESAI sebagian (2026-11-08): halaman Varian & tambahan (menu Lainnya) untuk membuat grup (ukuran, level gula, topping) beserta opsi berharga dan aturan wajib/maksimal pilih, memasangnya ke banyak produk; katalog turun ke HP lewat sync. Kasir membuka pemilih saat produk punya tambahan (juga lewat scan), harga ikut dihitung, baris keranjang terpisah per pilihan, tersimpan di pesanan tersimpan dan riwayat, tampil di struk dan tiket dapur, terkirim saat sync. Lulus 22 tes Flutter dan tes backend. Belum diuji di HP. Belum ada: urutan opsi yang bisa digeser, tambahan khusus per produk (hanya grup bersama), izin kelola terpisah di sisi aplikasi."
  },
  "43": {
-  "status": "belum",
-  "catatan": "Tidak ada konsep jual per kemasan (pcs, dus, pak)."
+  "status": "sedang",
+  "catatan": "SEBAGIAN (2026-11-17): produk bisa punya kemasan jual (nama, isi, harga) di form produk (digerbang pack_units, perlu internet untuk mengubah); kasir memilih satuan dasar atau kemasan, baris kemasan terpisah dengan harga kemasan; stok tetap di satuan dasar dan berkurang qty x isi (checkout, void, refund); HPP per kemasan; ikut sync (migrasi 0029, schema lokal 22). Belum: harga grosir/harga outlet per kemasan, laporan stok per kemasan, kemasan per varian, checkout online server (menolak kemasan). Lulus tes otomatis, belum diuji di HP."
  },
  "44": {
   "status": "tidak_relevan",

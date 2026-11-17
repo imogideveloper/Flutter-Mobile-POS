@@ -26,6 +26,8 @@ import '../../../stok/presentation/providers/stok_providers.dart';
 import '../../domain/item_keranjang.dart';
 import '../providers/harga_keranjang_provider.dart' show pengaturanOutletProvider;
 import '../widgets/pilih_tambahan_sheet.dart';
+import '../widgets/pilih_kemasan_sheet.dart';
+import '../../../fitur/presentation/providers/feature_gate_provider.dart';
 import '../providers/keranjang_provider.dart';
 import '../providers/transaksi_providers.dart';
 
@@ -105,18 +107,54 @@ class _KasirGridState extends ConsumerState<_KasirGrid> {
     await _tambahDenganPilihan(match);
   }
 
-  /// Produk yang punya varian/tambahan (IMOGI no. 42) membuka pemilih dulu;
-  /// kasir yang membatalkan pemilih tidak menambah apa pun.
+  /// Kemasan jual aktif produk ini (IMOGI no. 43); kosong bila fitur pack_units belum terbuka.
+  List<KemasanPilihan> _kemasanProduk(String produkId) {
+    final gate = ref.read(featureGateProvider).value;
+    if (gate == null || !gate.kodeAktif.contains('pack_units')) return const [];
+    final peta = ref.read(kemasanPerProdukProvider(ref.read(currentTokoIdProvider)));
+    return [for (final k in peta[produkId] ?? const []) KemasanPilihan(nama: k.nama, isi: k.isi, harga: k.harga)];
+  }
+
+  /// Produk yang punya kemasan (IMOGI no. 43) menanyakan satuan jual dulu; produk yang punya
+  /// varian/tambahan (IMOGI no. 42) membuka pemilih tambahan. Kasir yang membatalkan tidak menambah apa pun.
   Future<void> _tambahDenganPilihan(Produk produk) async {
     final grup = await ref.read(grupTambahanProdukProvider(produk.id).future);
     if (!mounted) return;
+    KemasanPilihan? kemasan;
+    final daftarKemasan = _kemasanProduk(produk.id);
+    if (daftarKemasan.isNotEmpty) {
+      final pilih = await tampilkanPilihKemasan(context, produk: produk, kemasan: daftarKemasan);
+      if (pilih == null || !mounted) return;
+      kemasan = pilih.kemasan;
+      if (kemasan != null && _stokKemasanKurang(produk, kemasan)) return;
+    }
     if (grup.isEmpty) {
-      ref.read(keranjangProvider.notifier).tambah(produk);
+      ref.read(keranjangProvider.notifier).tambah(produk, kemasan: kemasan);
       return;
     }
     final pilihan = await tampilkanPilihTambahan(context, produk: produk, grup: grup);
     if (pilihan == null || !mounted) return;
-    ref.read(keranjangProvider.notifier).tambah(produk, modifiers: pilihan);
+    ref.read(keranjangProvider.notifier).tambah(produk, modifiers: pilihan, kemasan: kemasan);
+  }
+
+  /// Stok satuan dasar tidak cukup untuk menambah satu [kemasan] (hanya bila outlet melarang stok minus).
+  bool _stokKemasanKurang(Produk produk, KemasanPilihan kemasan) {
+    if (!produk.lacakStok) return false;
+    final outletId = ref.read(currentOutletIdProvider);
+    final izinkanMinus = ref.read(pengaturanOutletProvider(outletId)).value?.izinkanStokMinus ?? true;
+    if (izinkanMinus) return false;
+    final tersedia =
+        ref.read(stokOutletProvider(outletId)).value?.firstWhereOrNull((s) => s.produkId == produk.id)?.jumlah ?? 0;
+    final dipakai = _baris(produk.id).fold<double>(0, (a, i) => a + i.qtyDasar);
+    if (dipakai + kemasan.isi <= tersedia) return false;
+    showAppToast(
+      context,
+      message: tersedia <= 0
+          ? 'Stok "${produk.nama}" habis'
+          : 'Stok "${produk.nama}" tidak cukup untuk 1 ${kemasan.nama} - sisa ${tersedia.toStringAsFixed(0)}',
+      variant: ToastVariant.warning,
+    );
+    return true;
   }
 
   /// Kuncinya adanya SATU titik cek ini - sebelumnya `tambah()` di
@@ -166,7 +204,10 @@ class _KasirGridState extends ConsumerState<_KasirGrid> {
     if (hasil == null || !mounted) return;
     final tersedia = hasil > 0
         ? _stokTersediaJikaMentok(
-            produk: produk, stok: stok, qtyDimintaSetelahnya: hasil, izinkanStokMinus: izinkanStokMinus)
+            produk: produk,
+            stok: stok,
+            qtyDimintaSetelahnya: hasil * baris.single.isiKemasan,
+            izinkanStokMinus: izinkanStokMinus)
         : null;
     if (tersedia != null) {
       showAppToast(
@@ -304,6 +345,7 @@ class _KasirGridState extends ConsumerState<_KasirGrid> {
                   // Satu produk bisa punya beberapa baris (pilihan tambahan berbeda).
                   final barisProduk = keranjang.where((item) => item.produkId == produk.id).toList();
                   final qtyProduk = barisProduk.isEmpty ? null : barisProduk.fold<double>(0, (a, i) => a + i.qty);
+                  final qtyDasarProduk = barisProduk.fold<double>(0, (a, i) => a + i.qtyDasar);
                   final stok = stokByProdukId[produk.id];
                   return _ProdukGridTile(
                     produk: produk,
@@ -312,7 +354,7 @@ class _KasirGridState extends ConsumerState<_KasirGrid> {
                     onTap: () => _tambahKeKeranjang(
                       produk: produk,
                       stok: stok,
-                      qtySaatIni: qtyProduk ?? 0,
+                      qtySaatIni: qtyDasarProduk,
                       izinkanStokMinus: izinkanStokMinus,
                     ),
                     onKurang: () => _kurangi(produk),

@@ -14,14 +14,17 @@ class KeranjangNotifier extends Notifier<List<ItemKeranjang>> {
 
   /// Menambah satu unit [produk]. [modifiers] = pilihan tambahan (varian/topping);
   /// pilihan berbeda menjadi baris terpisah, pilihan sama menambah qty barisnya.
-  void tambah(Produk produk, {List<ModifierPilihan> modifiers = const []}) {
+  /// [kemasan] (IMOGI no. 43): jual per kemasan; barisnya terpisah dari satuan dasar, harganya harga kemasan.
+  void tambah(Produk produk, {List<ModifierPilihan> modifiers = const [], KemasanPilihan? kemasan}) {
     final baru = ItemKeranjang(
       produkId: produk.id,
-      namaProduk: produk.nama,
-      hargaSatuan: produk.hargaJual,
+      namaProduk: kemasan == null ? produk.nama : '${produk.nama} (${kemasan.nama})',
+      hargaSatuan: kemasan?.harga ?? produk.hargaJual,
       qty: 1,
       lacakStok: produk.lacakStok,
       modifiers: modifiers,
+      isiKemasan: kemasan?.isi ?? 1,
+      namaKemasan: kemasan?.nama,
     );
     final index = state.indexWhere((item) => item.kunciBaris == baru.kunciBaris);
     if (index == -1) {

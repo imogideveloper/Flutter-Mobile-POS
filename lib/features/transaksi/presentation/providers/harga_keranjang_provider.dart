@@ -205,8 +205,9 @@ final hasilHargaKeranjangProvider = Provider<k.HasilKalkulasi>((ref) {
       hargaJual: item.hargaSatuan,
       diskonOverride: item.adaDiskonManual ? item.diskonManual : null,
       modifiers: [for (final m in item.modifiers) k.ModifierInput(nama: m.nama, harga: m.harga)],
-      hargaOutlet: hargaOutletMap[(item.produkId, null)],
-      hargaGrosirTiers: tiers,
+      // Jual per kemasan (IMOGI no. 43): harga kemasan tetap; harga outlet dan grosir per satuan dasar tidak berlaku.
+      hargaOutlet: item.kemasan ? null : hargaOutletMap[(item.produkId, null)],
+      hargaGrosirTiers: item.kemasan ? const [] : tiers,
       pajakProduk: pajakProdukRows
           ?.map(
             (p) => k.PajakInput(

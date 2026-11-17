@@ -33,6 +33,7 @@ from app.routers import (
     produk_lanjutan,
     shift,
     batch_stok,
+    produk_kemasan,
     stok_opname,
     sync,
     toko,
@@ -92,6 +93,7 @@ app.include_router(absensi.router)
 app.include_router(jadwal.router)
 app.include_router(stok_opname.router)
 app.include_router(batch_stok.router)
+app.include_router(produk_kemasan.router)
 app.include_router(transfer_stok.router)
 app.include_router(audit.router)
 app.include_router(langganan.router)

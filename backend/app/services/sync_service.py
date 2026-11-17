@@ -34,6 +34,7 @@ from app.models.produk import (
     Modifier,
     Produk,
     ProdukGrupModifier,
+    ProdukKemasan,
     Satuan,
 )
 from app.models.promo import Pajak, Promo
@@ -465,6 +466,9 @@ async def pull(
         "kategori", Kategori, ["id", "nama", "warna", "urutan", "masuk_tiket_dapur", "stasiun_dapur_id", "updated_at", "deleted_at"]
     )
     satuan = await _ambil_toko_scoped("satuan", Satuan, ["id", "nama", "singkatan", "updated_at", "deleted_at"])
+    produk_kemasan = await _ambil_toko_scoped(
+        "produk_kemasan", ProdukKemasan, ["id", "produk_id", "nama", "isi", "harga", "updated_at", "deleted_at"]
+    )
     pajak = await _ambil_toko_scoped(
         "pajak", Pajak,
         ["id", "nama", "tipe", "persen", "termasuk_harga", "urutan", "aktif", "updated_at", "deleted_at"],
@@ -747,6 +751,7 @@ async def pull(
         stok=stok,
         batch_stok=batch_stok,
         stasiun_dapur=stasiun_dapur,
+        produk_kemasan=produk_kemasan,
         harga_outlet=harga_outlet,
         harga_grosir=harga_grosir,
         tipe_order=tipe_order,

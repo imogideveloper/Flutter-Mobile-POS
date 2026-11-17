@@ -428,6 +428,7 @@ class SyncPullResult {
     this.tipeOrder = const [],
     this.batchStok = const [],
     this.stasiunDapur = const [],
+    this.produkKemasan = const [],
     this.pengguna = const [],
     this.role = const [],
     this.roleIzin = const [],
@@ -476,6 +477,9 @@ class SyncPullResult {
 
   /// Stasiun dapur (IMOGI no. 35): delta by updated_at.
   final List<Map<String, dynamic>> stasiunDapur;
+
+  /// Kemasan jual produk (IMOGI no. 43): delta by updated_at.
+  final List<Map<String, dynamic>> produkKemasan;
   final List<Map<String, dynamic>> pengaturanOutlet;
   final Map<String, bool> hasMore;
   // Status gating paket (lihat SyncPullOut.paket/kode_fitur/batas_fitur di

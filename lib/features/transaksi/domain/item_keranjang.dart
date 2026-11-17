@@ -30,6 +30,8 @@ class ItemKeranjang {
     this.modifiers = const [],
     this.diskonPersen,
     this.diskonNominal = 0,
+    this.isiKemasan = 1,
+    this.namaKemasan,
   });
 
   final String produkId;
@@ -42,6 +44,16 @@ class ItemKeranjang {
   final bool lacakStok;
   final List<ModifierPilihan> modifiers;
 
+  /// Jual per kemasan (IMOGI no. 43): bila [isiKemasan] > 1, [qty] dan [hargaSatuan] dalam satuan
+  /// KEMASAN (mis. dus), dan stok berkurang [qty] x [isiKemasan]. Baris biasa: isiKemasan 1.
+  final double isiKemasan;
+  final String? namaKemasan;
+
+  bool get kemasan => isiKemasan > 1;
+
+  /// Jumlah dalam satuan dasar produk (dasar pemotongan stok).
+  double get qtyDasar => qty * isiKemasan;
+
   int get tambahanModifier => modifiers.fold<int>(0, (sum, m) => sum + m.harga);
 
   /// Harga per unit termasuk semua tambahan.
@@ -53,9 +65,10 @@ class ItemKeranjang {
   /// berbeda (mis. Es Kopi Large vs Regular) adalah DUA baris terpisah.
   /// Produk tanpa tambahan memakai produkId apa adanya (perilaku lama).
   String get kunciBaris {
-    if (modifiers.isEmpty) return produkId;
+    final dasar = kemasan ? '$produkId#${namaKemasan ?? isiKemasan}' : produkId;
+    if (modifiers.isEmpty) return dasar;
     final ids = [for (final m in modifiers) m.modifierId ?? m.nama]..sort();
-    return '$produkId|${ids.join(',')}';
+    return '$dasar|${ids.join(',')}';
   }
 
   /// Diskon manual kasir pada baris ini (IMOGI no. 3). Dua bentuk, salah satunya:
@@ -82,6 +95,8 @@ class ItemKeranjang {
         modifiers: modifiers,
         diskonPersen: diskonPersen,
         diskonNominal: diskonNominal,
+        isiKemasan: isiKemasan,
+        namaKemasan: namaKemasan,
       );
 
   /// Salinan dengan diskon manual baru; [persen] ATAU [nominal] (keduanya
@@ -95,5 +110,17 @@ class ItemKeranjang {
         modifiers: modifiers,
         diskonPersen: persen,
         diskonNominal: persen == null ? nominal : 0,
+        isiKemasan: isiKemasan,
+        namaKemasan: namaKemasan,
       );
+}
+
+/// Kemasan jual yang dipilih kasir untuk satu produk (IMOGI no. 43): nama, isi (satuan dasar per kemasan),
+/// dan harga per kemasan.
+class KemasanPilihan {
+  const KemasanPilihan({required this.nama, required this.isi, required this.harga});
+
+  final String nama;
+  final double isi;
+  final int harga;
 }

@@ -32,6 +32,11 @@ class ItemTransaksiIn(BaseModel):
     diskon: Decimal = Decimal("0")
     lacak_stok: bool = True
     modifiers: list[ModifierPilihIn] = []
+    # Jual per kemasan (IMOGI no. 43): bila isi_kemasan > 1, qty/harga_satuan/hpp_satuan di atas dalam
+    # satuan KEMASAN dan stok berkurang qty x isi_kemasan. Hanya untuk push offline (harga kemasan
+    # dibakukan HP); checkout online menolak kemasan karena harga online dihitung dari harga dasar produk.
+    isi_kemasan: Decimal = Field(default=Decimal("1"), ge=1, le=Decimal("1000000"))
+    nama_kemasan: str | None = Field(default=None, max_length=50)
 
 
 class RincianPajakKlienIn(BaseModel):

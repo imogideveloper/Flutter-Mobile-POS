@@ -53,8 +53,8 @@ async def void_transaksi(
             produk_id=item.produk_id,
             varian_id=item.varian_id,
             jenis="void",
-            qty=item.qty,  # positif - mengembalikan stok yang terdebet saat checkout
-            hpp_satuan=item.hpp_satuan,
+            qty=item.qty * item.isi_kemasan,  # positif - mengembalikan stok yang terdebet saat checkout (kemasan: x isi)
+            hpp_satuan=item.hpp_satuan / item.isi_kemasan,
             ref_tipe="transaksi",
             ref_id=transaksi.id,
             dibuat_oleh=disetujui_oleh,

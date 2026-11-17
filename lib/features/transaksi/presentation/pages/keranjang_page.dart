@@ -575,7 +575,7 @@ class _ItemRow extends StatelessWidget {
                 onIncrement: () {
                   if (item.lacakStok && !izinkanStokMinus) {
                     final tersedia = stok?.jumlah ?? 0;
-                    if (item.qty + 1 > tersedia) {
+                    if ((item.qty + 1) * item.isiKemasan > tersedia) {
                       showAppToast(
                         context,
                         message: tersedia <= 0
@@ -595,7 +595,7 @@ class _ItemRow extends StatelessWidget {
                   if (hasil == null || !context.mounted) return;
                   if (hasil > 0 && item.lacakStok && !izinkanStokMinus) {
                     final tersedia = stok?.jumlah ?? 0;
-                    if (hasil > tersedia) {
+                    if (hasil * item.isiKemasan > tersedia) {
                       showAppToast(
                         context,
                         message: tersedia <= 0

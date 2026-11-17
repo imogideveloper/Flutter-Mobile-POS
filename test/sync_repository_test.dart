@@ -891,6 +891,102 @@ void main() {
     expect(rows.single.deletedAt, isNotNull);
   });
 
+  test('pull: kemasan jual produk tersimpan (isi desimal, harga) dan penghapusan ikut', () async {
+    SyncPullResult dengan(List<Map<String, dynamic>> kemasan) => SyncPullResult(
+          waktuPull: '2026-01-01T00:00:00Z',
+          produk: const [],
+          kategori: const [],
+          satuan: const [],
+          pajak: const [],
+          promo: const [],
+          metodeBayar: const [],
+          stok: const [],
+          hargaOutlet: const [],
+          hargaGrosir: const [],
+          tipeOrderPajak: const [],
+          pengaturanOutlet: const [],
+          hasMore: const {},
+          paket: null,
+          kodeFitur: const [],
+          batasFitur: const {},
+          produkKemasan: kemasan,
+        );
+    Map<String, dynamic> baris({String? deletedAt}) => {
+          'id': 'k1',
+          'produk_id': 'aqua',
+          'nama': 'Dus',
+          'isi': '12.0000',
+          'harga': '150000.00',
+          'updated_at': '2026-01-01T00:00:00Z',
+          'deleted_at': deletedAt,
+        };
+
+    api.pullResponse = dengan([baris()]);
+    await repo.jalankan();
+    var rows = await db.select(db.produkKemasan).get();
+    expect(rows.single.nama, 'Dus');
+    expect(rows.single.isi, 12.0);
+    expect(rows.single.harga, 150000);
+    expect(rows.single.tokoId, 'toko-asli');
+    expect(rows.single.deletedAt, isNull);
+
+    api.pullResponse = dengan([baris(deletedAt: '2026-01-02T00:00:00Z')]);
+    await repo.jalankan();
+    rows = await db.select(db.produkKemasan).get();
+    expect(rows.single.deletedAt, isNotNull);
+  });
+
+  test('push: transaksi kemasan mengirim isi_kemasan dan nama_kemasan; item biasa tidak', () async {
+    await db.produkDao.upsertProduk(ProdukCompanion.insert(
+      id: 'aqua', tokoId: 'toko-asli', nama: 'Aqua', tipe: ProdukTipe.barang, hpp: const Value(10000), createdAt: 0, updatedAt: 0,
+    ));
+    final dus = ItemKeranjang(
+      produkId: 'aqua', namaProduk: 'Aqua (Dus)', hargaSatuan: 150000, qty: 2, lacakStok: false, isiKemasan: 12, namaKemasan: 'Dus',
+    );
+    final biasa = const ItemKeranjang(produkId: 'aqua', namaProduk: 'Aqua', hargaSatuan: 15000, qty: 1, lacakStok: false);
+    await TransaksiRepository(db.transaksiDao, db.stokDao, db.produkDao).checkout(
+      tokoId: 'toko-asli',
+      outletId: 'outlet-asli',
+      shiftId: 'shift-uji',
+      penggunaId: 'pengguna-asli',
+      metodeBayarId: 'metode-tunai-default',
+      items: [dus, biasa],
+      hasil: k.hitung(k.TransaksiInput(items: [
+        k.ItemInput(produkId: 'aqua', varianId: null, namaProduk: 'Aqua (Dus)', qty: 2, hargaJual: 150000),
+        k.ItemInput(produkId: 'aqua', varianId: null, namaProduk: 'Aqua', qty: 1, hargaJual: 15000),
+      ])),
+      totalBayar: 315000,
+    );
+    api.pullResponse = const SyncPullResult(
+      waktuPull: '2026-01-01T00:00:00Z',
+      produk: [],
+      kategori: [],
+      satuan: [],
+      pajak: [],
+      promo: [],
+      metodeBayar: [],
+      stok: [],
+      hargaOutlet: [],
+      hargaGrosir: [],
+      tipeOrderPajak: [],
+      pengaturanOutlet: [],
+      hasMore: {},
+      paket: null,
+      kodeFitur: [],
+      batasFitur: {},
+    );
+
+    await repo.jalankan();
+
+    final items = (api.transaksiDiterima.single['items'] as List).cast<Map<String, dynamic>>();
+    final kirimDus = items.firstWhere((i) => i['nama_produk'] == 'Aqua (Dus)');
+    final kirimBiasa = items.firstWhere((i) => i['nama_produk'] == 'Aqua');
+    expect(kirimDus['isi_kemasan'], '12.0');
+    expect(kirimDus['nama_kemasan'], 'Dus');
+    expect(kirimDus['hpp_satuan'], '120000');
+    expect(kirimBiasa.containsKey('isi_kemasan'), isFalse);
+  });
+
   test('pull: stasiun dapur dan tautan kategori ke stasiun tersimpan; penghapusan melepas tautan', () async {
     SyncPullResult dengan({required List<Map<String, dynamic>> stasiun, required String? stasiunId}) => SyncPullResult(
           waktuPull: '2026-01-01T00:00:00Z',

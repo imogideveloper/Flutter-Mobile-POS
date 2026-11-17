@@ -329,6 +329,7 @@ class DioBackendApi implements BackendApi {
         tipeOrder: listOf('tipe_order'),
         batchStok: listOf('batch_stok'),
         stasiunDapur: listOf('stasiun_dapur'),
+        produkKemasan: listOf('produk_kemasan'),
         pengaturanOutlet: listOf('pengaturan_outlet'),
         hasMore: (body['has_more'] as Map<String, dynamic>).map(
           (k, v) => MapEntry(k, v as bool),

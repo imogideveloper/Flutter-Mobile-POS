@@ -42,6 +42,7 @@ import '../../features/produk/data/local/tables/produk_table.dart';
 import '../../features/produk/data/local/tables/produk_varian_table.dart';
 import '../../features/produk/data/local/tables/resep_table.dart';
 import '../../features/produk/data/local/tables/satuan_table.dart';
+import '../../features/produk/data/local/tables/produk_kemasan_table.dart';
 import '../../features/promo/data/local/pajak_dao.dart';
 import '../../features/promo/data/local/promo_dao.dart';
 import '../../features/promo/data/local/tables/pajak_table.dart';
@@ -112,6 +113,7 @@ part 'app_database.g.dart';
     Stok,
     MutasiStok,
     BatchStok,
+    ProdukKemasan,
     Pelanggan,
     RiwayatPoin,
     LevelMember,
@@ -190,7 +192,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 21;
+  int get schemaVersion => 22;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -268,6 +270,12 @@ class AppDatabase extends _$AppDatabase {
           // v12 -> v13 - batas margin produk (persen, per outlet).
           if (from < 13) {
             await m.addColumn(pengaturanOutlet, pengaturanOutlet.batasMargin);
+          }
+          // v21 -> v22 - jual per kemasan (IMOGI no. 43): katalog kemasan + snapshot kemasan di item transaksi.
+          if (from < 22) {
+            await m.createTable(produkKemasan);
+            await m.addColumn(itemTransaksi, itemTransaksi.isiKemasan);
+            await m.addColumn(itemTransaksi, itemTransaksi.namaKemasan);
           }
           // v20 -> v21 - klasifikasi fitur per jenis usaha (Batch B).
           if (from < 21) {

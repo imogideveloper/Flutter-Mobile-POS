@@ -33,6 +33,7 @@ import '../../../transaksi/presentation/providers/harga_keranjang_provider.dart'
 import '../providers/kategori_providers.dart';
 import '../providers/produk_providers.dart';
 import '../widgets/produk_lanjutan_sections.dart';
+import '../widgets/kemasan_produk_section.dart';
 
 final _formatRupiah = NumberFormat.currency(
   locale: 'id_ID',
@@ -577,6 +578,8 @@ class _ProdukFormPageState extends ConsumerState<ProdukFormPage> {
               if (_modeEdit) ...[
                 const SizedBox(height: AppSpacing.lg),
                 ProdukLanjutanSections(produkId: widget.produk!.id),
+                const SizedBox(height: AppSpacing.lg),
+                KemasanProdukSection(produkId: widget.produk!.id),
               ],
               const SizedBox(height: AppSpacing.xxxl),
               AppPrimaryButton(

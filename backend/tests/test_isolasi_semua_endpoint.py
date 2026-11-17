@@ -40,6 +40,7 @@ from app.models.produk import (
     HargaOutlet,
     Kategori,
     Modifier,
+    ProdukKemasan,
     ProdukVarian,
     Resep,
 )
@@ -246,6 +247,11 @@ async def _siapkan_satu_toko(client: AsyncClient, db: AsyncSession, toko, label:
     await db.commit()
     ids["batch_id"] = batch.id
 
+    kemasan = ProdukKemasan(toko_id=toko.toko.id, produk_id=produk.id, nama=f"Dus {label}", isi=Decimal("2"), harga=Decimal("1"))
+    db.add(kemasan)
+    await db.commit()
+    ids["kemasan_id"] = kemasan.id
+
     stasiun_resp = await client.post(
         f"/outlets/{toko.outlet.id}/stasiun-dapur", headers=toko.headers, json={"nama": f"Stasiun {label}"}
     )
@@ -325,6 +331,10 @@ def _body_untuk(method: str, path: str, ids: dict[str, uuid.UUID]) -> dict | Non
         return {}  # OutletUpdateIn - semua field opsional
     if path == "/outlets/{outlet_id}/pengaturan":
         return {}  # PengaturanOutletIn - semua field opsional
+    if path == "/kemasan/{kemasan_id}":
+        return {}  # KemasanUpdateIn - semua field opsional
+    if path == "/produk/{produk_id}/kemasan":
+        return {"nama": "Dus Sweep", "isi": 2, "harga": 1}
     if path == "/stasiun-dapur/{stasiun_id}":
         return {}  # StasiunDapurUpdateIn - semua field opsional
     if path == "/metode-bayar/{metode_bayar_id}":

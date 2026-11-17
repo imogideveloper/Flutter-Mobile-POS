@@ -14,6 +14,7 @@ mixin _$ProdukDaoMixin on DatabaseAccessor<AppDatabase> {
   $ModifierTable get modifier => attachedDatabase.modifier;
   $ProdukGrupModifierTable get produkGrupModifier =>
       attachedDatabase.produkGrupModifier;
+  $ProdukKemasanTable get produkKemasan => attachedDatabase.produkKemasan;
   ProdukDaoManager get managers => ProdukDaoManager(this);
 }
 
@@ -41,4 +42,6 @@ class ProdukDaoManager {
         _db.attachedDatabase,
         _db.produkGrupModifier,
       );
+  $$ProdukKemasanTableTableManager get produkKemasan =>
+      $$ProdukKemasanTableTableManager(_db.attachedDatabase, _db.produkKemasan);
 }

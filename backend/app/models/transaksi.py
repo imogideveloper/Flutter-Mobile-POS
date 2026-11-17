@@ -138,6 +138,10 @@ class ItemTransaksi(Base, UUIDPkMixin, TimestampMixin):
     diskon: Mapped[float] = mapped_column(Money, default=0)
     subtotal: Mapped[float] = mapped_column(Money)
     catatan: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Jual per kemasan (IMOGI no. 43): qty/harga_satuan/hpp_satuan di atas dalam satuan KEMASAN;
+    # stok berkurang qty x isi_kemasan. Baris biasa: isi_kemasan 1, nama_kemasan kosong.
+    isi_kemasan: Mapped[float] = mapped_column(Qty, default=1, server_default="1")
+    nama_kemasan: Mapped[str | None] = mapped_column(String(50), nullable=True)
 
 
 class ItemTransaksiModifier(Base, UUIDPkMixin, TimestampMixin):

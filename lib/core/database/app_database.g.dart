@@ -15215,6 +15215,560 @@ class MutasiStokCompanion extends UpdateCompanion<MutasiStokRow> {
   }
 }
 
+class $ProdukKemasanTable extends ProdukKemasan
+    with TableInfo<$ProdukKemasanTable, ProdukKemasanRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ProdukKemasanTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _tokoIdMeta = const VerificationMeta('tokoId');
+  @override
+  late final GeneratedColumn<String> tokoId = GeneratedColumn<String>(
+    'toko_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _produkIdMeta = const VerificationMeta(
+    'produkId',
+  );
+  @override
+  late final GeneratedColumn<String> produkId = GeneratedColumn<String>(
+    'produk_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _namaMeta = const VerificationMeta('nama');
+  @override
+  late final GeneratedColumn<String> nama = GeneratedColumn<String>(
+    'nama',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _isiMeta = const VerificationMeta('isi');
+  @override
+  late final GeneratedColumn<double> isi = GeneratedColumn<double>(
+    'isi',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _hargaMeta = const VerificationMeta('harga');
+  @override
+  late final GeneratedColumn<int> harga = GeneratedColumn<int>(
+    'harga',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<int> deletedAt = GeneratedColumn<int>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    tokoId,
+    produkId,
+    nama,
+    isi,
+    harga,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'produk_kemasan';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ProdukKemasanRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('toko_id')) {
+      context.handle(
+        _tokoIdMeta,
+        tokoId.isAcceptableOrUnknown(data['toko_id']!, _tokoIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_tokoIdMeta);
+    }
+    if (data.containsKey('produk_id')) {
+      context.handle(
+        _produkIdMeta,
+        produkId.isAcceptableOrUnknown(data['produk_id']!, _produkIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_produkIdMeta);
+    }
+    if (data.containsKey('nama')) {
+      context.handle(
+        _namaMeta,
+        nama.isAcceptableOrUnknown(data['nama']!, _namaMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_namaMeta);
+    }
+    if (data.containsKey('isi')) {
+      context.handle(
+        _isiMeta,
+        isi.isAcceptableOrUnknown(data['isi']!, _isiMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_isiMeta);
+    }
+    if (data.containsKey('harga')) {
+      context.handle(
+        _hargaMeta,
+        harga.isAcceptableOrUnknown(data['harga']!, _hargaMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_hargaMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ProdukKemasanRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ProdukKemasanRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      tokoId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}toko_id'],
+      )!,
+      produkId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}produk_id'],
+      )!,
+      nama: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}nama'],
+      )!,
+      isi: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}isi'],
+      )!,
+      harga: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}harga'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}deleted_at'],
+      ),
+    );
+  }
+
+  @override
+  $ProdukKemasanTable createAlias(String alias) {
+    return $ProdukKemasanTable(attachedDatabase, alias);
+  }
+}
+
+class ProdukKemasanRow extends DataClass
+    implements Insertable<ProdukKemasanRow> {
+  final String id;
+  final String tokoId;
+  final String produkId;
+  final String nama;
+  final double isi;
+  final int harga;
+  final int createdAt;
+  final int updatedAt;
+  final int? deletedAt;
+  const ProdukKemasanRow({
+    required this.id,
+    required this.tokoId,
+    required this.produkId,
+    required this.nama,
+    required this.isi,
+    required this.harga,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['toko_id'] = Variable<String>(tokoId);
+    map['produk_id'] = Variable<String>(produkId);
+    map['nama'] = Variable<String>(nama);
+    map['isi'] = Variable<double>(isi);
+    map['harga'] = Variable<int>(harga);
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<int>(deletedAt);
+    }
+    return map;
+  }
+
+  ProdukKemasanCompanion toCompanion(bool nullToAbsent) {
+    return ProdukKemasanCompanion(
+      id: Value(id),
+      tokoId: Value(tokoId),
+      produkId: Value(produkId),
+      nama: Value(nama),
+      isi: Value(isi),
+      harga: Value(harga),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory ProdukKemasanRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ProdukKemasanRow(
+      id: serializer.fromJson<String>(json['id']),
+      tokoId: serializer.fromJson<String>(json['tokoId']),
+      produkId: serializer.fromJson<String>(json['produkId']),
+      nama: serializer.fromJson<String>(json['nama']),
+      isi: serializer.fromJson<double>(json['isi']),
+      harga: serializer.fromJson<int>(json['harga']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      deletedAt: serializer.fromJson<int?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'tokoId': serializer.toJson<String>(tokoId),
+      'produkId': serializer.toJson<String>(produkId),
+      'nama': serializer.toJson<String>(nama),
+      'isi': serializer.toJson<double>(isi),
+      'harga': serializer.toJson<int>(harga),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'deletedAt': serializer.toJson<int?>(deletedAt),
+    };
+  }
+
+  ProdukKemasanRow copyWith({
+    String? id,
+    String? tokoId,
+    String? produkId,
+    String? nama,
+    double? isi,
+    int? harga,
+    int? createdAt,
+    int? updatedAt,
+    Value<int?> deletedAt = const Value.absent(),
+  }) => ProdukKemasanRow(
+    id: id ?? this.id,
+    tokoId: tokoId ?? this.tokoId,
+    produkId: produkId ?? this.produkId,
+    nama: nama ?? this.nama,
+    isi: isi ?? this.isi,
+    harga: harga ?? this.harga,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+  );
+  ProdukKemasanRow copyWithCompanion(ProdukKemasanCompanion data) {
+    return ProdukKemasanRow(
+      id: data.id.present ? data.id.value : this.id,
+      tokoId: data.tokoId.present ? data.tokoId.value : this.tokoId,
+      produkId: data.produkId.present ? data.produkId.value : this.produkId,
+      nama: data.nama.present ? data.nama.value : this.nama,
+      isi: data.isi.present ? data.isi.value : this.isi,
+      harga: data.harga.present ? data.harga.value : this.harga,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProdukKemasanRow(')
+          ..write('id: $id, ')
+          ..write('tokoId: $tokoId, ')
+          ..write('produkId: $produkId, ')
+          ..write('nama: $nama, ')
+          ..write('isi: $isi, ')
+          ..write('harga: $harga, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    tokoId,
+    produkId,
+    nama,
+    isi,
+    harga,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ProdukKemasanRow &&
+          other.id == this.id &&
+          other.tokoId == this.tokoId &&
+          other.produkId == this.produkId &&
+          other.nama == this.nama &&
+          other.isi == this.isi &&
+          other.harga == this.harga &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class ProdukKemasanCompanion extends UpdateCompanion<ProdukKemasanRow> {
+  final Value<String> id;
+  final Value<String> tokoId;
+  final Value<String> produkId;
+  final Value<String> nama;
+  final Value<double> isi;
+  final Value<int> harga;
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
+  final Value<int?> deletedAt;
+  final Value<int> rowid;
+  const ProdukKemasanCompanion({
+    this.id = const Value.absent(),
+    this.tokoId = const Value.absent(),
+    this.produkId = const Value.absent(),
+    this.nama = const Value.absent(),
+    this.isi = const Value.absent(),
+    this.harga = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ProdukKemasanCompanion.insert({
+    required String id,
+    required String tokoId,
+    required String produkId,
+    required String nama,
+    required double isi,
+    required int harga,
+    required int createdAt,
+    required int updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       tokoId = Value(tokoId),
+       produkId = Value(produkId),
+       nama = Value(nama),
+       isi = Value(isi),
+       harga = Value(harga),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<ProdukKemasanRow> custom({
+    Expression<String>? id,
+    Expression<String>? tokoId,
+    Expression<String>? produkId,
+    Expression<String>? nama,
+    Expression<double>? isi,
+    Expression<int>? harga,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<int>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (tokoId != null) 'toko_id': tokoId,
+      if (produkId != null) 'produk_id': produkId,
+      if (nama != null) 'nama': nama,
+      if (isi != null) 'isi': isi,
+      if (harga != null) 'harga': harga,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ProdukKemasanCompanion copyWith({
+    Value<String>? id,
+    Value<String>? tokoId,
+    Value<String>? produkId,
+    Value<String>? nama,
+    Value<double>? isi,
+    Value<int>? harga,
+    Value<int>? createdAt,
+    Value<int>? updatedAt,
+    Value<int?>? deletedAt,
+    Value<int>? rowid,
+  }) {
+    return ProdukKemasanCompanion(
+      id: id ?? this.id,
+      tokoId: tokoId ?? this.tokoId,
+      produkId: produkId ?? this.produkId,
+      nama: nama ?? this.nama,
+      isi: isi ?? this.isi,
+      harga: harga ?? this.harga,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (tokoId.present) {
+      map['toko_id'] = Variable<String>(tokoId.value);
+    }
+    if (produkId.present) {
+      map['produk_id'] = Variable<String>(produkId.value);
+    }
+    if (nama.present) {
+      map['nama'] = Variable<String>(nama.value);
+    }
+    if (isi.present) {
+      map['isi'] = Variable<double>(isi.value);
+    }
+    if (harga.present) {
+      map['harga'] = Variable<int>(harga.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<int>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProdukKemasanCompanion(')
+          ..write('id: $id, ')
+          ..write('tokoId: $tokoId, ')
+          ..write('produkId: $produkId, ')
+          ..write('nama: $nama, ')
+          ..write('isi: $isi, ')
+          ..write('harga: $harga, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $LevelMemberTable extends LevelMember
     with TableInfo<$LevelMemberTable, LevelMemberRow> {
   @override
@@ -24923,6 +25477,29 @@ class $ItemTransaksiTable extends ItemTransaksi
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _isiKemasanMeta = const VerificationMeta(
+    'isiKemasan',
+  );
+  @override
+  late final GeneratedColumn<double> isiKemasan = GeneratedColumn<double>(
+    'isi_kemasan',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1.0),
+  );
+  static const VerificationMeta _namaKemasanMeta = const VerificationMeta(
+    'namaKemasan',
+  );
+  @override
+  late final GeneratedColumn<String> namaKemasan = GeneratedColumn<String>(
+    'nama_kemasan',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -24970,6 +25547,8 @@ class $ItemTransaksiTable extends ItemTransaksi
     diskon,
     subtotal,
     catatan,
+    isiKemasan,
+    namaKemasan,
     createdAt,
     updatedAt,
     deletedAt,
@@ -25075,6 +25654,21 @@ class $ItemTransaksiTable extends ItemTransaksi
         catatan.isAcceptableOrUnknown(data['catatan']!, _catatanMeta),
       );
     }
+    if (data.containsKey('isi_kemasan')) {
+      context.handle(
+        _isiKemasanMeta,
+        isiKemasan.isAcceptableOrUnknown(data['isi_kemasan']!, _isiKemasanMeta),
+      );
+    }
+    if (data.containsKey('nama_kemasan')) {
+      context.handle(
+        _namaKemasanMeta,
+        namaKemasan.isAcceptableOrUnknown(
+          data['nama_kemasan']!,
+          _namaKemasanMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -25154,6 +25748,14 @@ class $ItemTransaksiTable extends ItemTransaksi
         DriftSqlType.string,
         data['${effectivePrefix}catatan'],
       ),
+      isiKemasan: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}isi_kemasan'],
+      )!,
+      namaKemasan: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}nama_kemasan'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}created_at'],
@@ -25189,6 +25791,8 @@ class ItemTransaksiRow extends DataClass
   final int diskon;
   final int subtotal;
   final String? catatan;
+  final double isiKemasan;
+  final String? namaKemasan;
   final int createdAt;
   final int updatedAt;
   final int? deletedAt;
@@ -25205,6 +25809,8 @@ class ItemTransaksiRow extends DataClass
     required this.diskon,
     required this.subtotal,
     this.catatan,
+    required this.isiKemasan,
+    this.namaKemasan,
     required this.createdAt,
     required this.updatedAt,
     this.deletedAt,
@@ -25229,6 +25835,10 @@ class ItemTransaksiRow extends DataClass
     map['subtotal'] = Variable<int>(subtotal);
     if (!nullToAbsent || catatan != null) {
       map['catatan'] = Variable<String>(catatan);
+    }
+    map['isi_kemasan'] = Variable<double>(isiKemasan);
+    if (!nullToAbsent || namaKemasan != null) {
+      map['nama_kemasan'] = Variable<String>(namaKemasan);
     }
     map['created_at'] = Variable<int>(createdAt);
     map['updated_at'] = Variable<int>(updatedAt);
@@ -25258,6 +25868,10 @@ class ItemTransaksiRow extends DataClass
       catatan: catatan == null && nullToAbsent
           ? const Value.absent()
           : Value(catatan),
+      isiKemasan: Value(isiKemasan),
+      namaKemasan: namaKemasan == null && nullToAbsent
+          ? const Value.absent()
+          : Value(namaKemasan),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
@@ -25284,6 +25898,8 @@ class ItemTransaksiRow extends DataClass
       diskon: serializer.fromJson<int>(json['diskon']),
       subtotal: serializer.fromJson<int>(json['subtotal']),
       catatan: serializer.fromJson<String?>(json['catatan']),
+      isiKemasan: serializer.fromJson<double>(json['isiKemasan']),
+      namaKemasan: serializer.fromJson<String?>(json['namaKemasan']),
       createdAt: serializer.fromJson<int>(json['createdAt']),
       updatedAt: serializer.fromJson<int>(json['updatedAt']),
       deletedAt: serializer.fromJson<int?>(json['deletedAt']),
@@ -25305,6 +25921,8 @@ class ItemTransaksiRow extends DataClass
       'diskon': serializer.toJson<int>(diskon),
       'subtotal': serializer.toJson<int>(subtotal),
       'catatan': serializer.toJson<String?>(catatan),
+      'isiKemasan': serializer.toJson<double>(isiKemasan),
+      'namaKemasan': serializer.toJson<String?>(namaKemasan),
       'createdAt': serializer.toJson<int>(createdAt),
       'updatedAt': serializer.toJson<int>(updatedAt),
       'deletedAt': serializer.toJson<int?>(deletedAt),
@@ -25324,6 +25942,8 @@ class ItemTransaksiRow extends DataClass
     int? diskon,
     int? subtotal,
     Value<String?> catatan = const Value.absent(),
+    double? isiKemasan,
+    Value<String?> namaKemasan = const Value.absent(),
     int? createdAt,
     int? updatedAt,
     Value<int?> deletedAt = const Value.absent(),
@@ -25340,6 +25960,8 @@ class ItemTransaksiRow extends DataClass
     diskon: diskon ?? this.diskon,
     subtotal: subtotal ?? this.subtotal,
     catatan: catatan.present ? catatan.value : this.catatan,
+    isiKemasan: isiKemasan ?? this.isiKemasan,
+    namaKemasan: namaKemasan.present ? namaKemasan.value : this.namaKemasan,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
@@ -25364,6 +25986,12 @@ class ItemTransaksiRow extends DataClass
       diskon: data.diskon.present ? data.diskon.value : this.diskon,
       subtotal: data.subtotal.present ? data.subtotal.value : this.subtotal,
       catatan: data.catatan.present ? data.catatan.value : this.catatan,
+      isiKemasan: data.isiKemasan.present
+          ? data.isiKemasan.value
+          : this.isiKemasan,
+      namaKemasan: data.namaKemasan.present
+          ? data.namaKemasan.value
+          : this.namaKemasan,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
@@ -25385,6 +26013,8 @@ class ItemTransaksiRow extends DataClass
           ..write('diskon: $diskon, ')
           ..write('subtotal: $subtotal, ')
           ..write('catatan: $catatan, ')
+          ..write('isiKemasan: $isiKemasan, ')
+          ..write('namaKemasan: $namaKemasan, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt')
@@ -25406,6 +26036,8 @@ class ItemTransaksiRow extends DataClass
     diskon,
     subtotal,
     catatan,
+    isiKemasan,
+    namaKemasan,
     createdAt,
     updatedAt,
     deletedAt,
@@ -25426,6 +26058,8 @@ class ItemTransaksiRow extends DataClass
           other.diskon == this.diskon &&
           other.subtotal == this.subtotal &&
           other.catatan == this.catatan &&
+          other.isiKemasan == this.isiKemasan &&
+          other.namaKemasan == this.namaKemasan &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt);
@@ -25444,6 +26078,8 @@ class ItemTransaksiCompanion extends UpdateCompanion<ItemTransaksiRow> {
   final Value<int> diskon;
   final Value<int> subtotal;
   final Value<String?> catatan;
+  final Value<double> isiKemasan;
+  final Value<String?> namaKemasan;
   final Value<int> createdAt;
   final Value<int> updatedAt;
   final Value<int?> deletedAt;
@@ -25461,6 +26097,8 @@ class ItemTransaksiCompanion extends UpdateCompanion<ItemTransaksiRow> {
     this.diskon = const Value.absent(),
     this.subtotal = const Value.absent(),
     this.catatan = const Value.absent(),
+    this.isiKemasan = const Value.absent(),
+    this.namaKemasan = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -25479,6 +26117,8 @@ class ItemTransaksiCompanion extends UpdateCompanion<ItemTransaksiRow> {
     this.diskon = const Value.absent(),
     required int subtotal,
     this.catatan = const Value.absent(),
+    this.isiKemasan = const Value.absent(),
+    this.namaKemasan = const Value.absent(),
     required int createdAt,
     required int updatedAt,
     this.deletedAt = const Value.absent(),
@@ -25505,6 +26145,8 @@ class ItemTransaksiCompanion extends UpdateCompanion<ItemTransaksiRow> {
     Expression<int>? diskon,
     Expression<int>? subtotal,
     Expression<String>? catatan,
+    Expression<double>? isiKemasan,
+    Expression<String>? namaKemasan,
     Expression<int>? createdAt,
     Expression<int>? updatedAt,
     Expression<int>? deletedAt,
@@ -25523,6 +26165,8 @@ class ItemTransaksiCompanion extends UpdateCompanion<ItemTransaksiRow> {
       if (diskon != null) 'diskon': diskon,
       if (subtotal != null) 'subtotal': subtotal,
       if (catatan != null) 'catatan': catatan,
+      if (isiKemasan != null) 'isi_kemasan': isiKemasan,
+      if (namaKemasan != null) 'nama_kemasan': namaKemasan,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
@@ -25543,6 +26187,8 @@ class ItemTransaksiCompanion extends UpdateCompanion<ItemTransaksiRow> {
     Value<int>? diskon,
     Value<int>? subtotal,
     Value<String?>? catatan,
+    Value<double>? isiKemasan,
+    Value<String?>? namaKemasan,
     Value<int>? createdAt,
     Value<int>? updatedAt,
     Value<int?>? deletedAt,
@@ -25561,6 +26207,8 @@ class ItemTransaksiCompanion extends UpdateCompanion<ItemTransaksiRow> {
       diskon: diskon ?? this.diskon,
       subtotal: subtotal ?? this.subtotal,
       catatan: catatan ?? this.catatan,
+      isiKemasan: isiKemasan ?? this.isiKemasan,
+      namaKemasan: namaKemasan ?? this.namaKemasan,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
@@ -25607,6 +26255,12 @@ class ItemTransaksiCompanion extends UpdateCompanion<ItemTransaksiRow> {
     if (catatan.present) {
       map['catatan'] = Variable<String>(catatan.value);
     }
+    if (isiKemasan.present) {
+      map['isi_kemasan'] = Variable<double>(isiKemasan.value);
+    }
+    if (namaKemasan.present) {
+      map['nama_kemasan'] = Variable<String>(namaKemasan.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<int>(createdAt.value);
     }
@@ -25637,6 +26291,8 @@ class ItemTransaksiCompanion extends UpdateCompanion<ItemTransaksiRow> {
           ..write('diskon: $diskon, ')
           ..write('subtotal: $subtotal, ')
           ..write('catatan: $catatan, ')
+          ..write('isiKemasan: $isiKemasan, ')
+          ..write('namaKemasan: $namaKemasan, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -37371,6 +38027,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $StokTable stok = $StokTable(this);
   late final $BatchStokTable batchStok = $BatchStokTable(this);
   late final $MutasiStokTable mutasiStok = $MutasiStokTable(this);
+  late final $ProdukKemasanTable produkKemasan = $ProdukKemasanTable(this);
   late final $LevelMemberTable levelMember = $LevelMemberTable(this);
   late final $PelangganTable pelanggan = $PelangganTable(this);
   late final $ShiftTable shift = $ShiftTable(this);
@@ -37467,6 +38124,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     stok,
     batchStok,
     mutasiStok,
+    produkKemasan,
     levelMember,
     pelanggan,
     shift,
@@ -54612,6 +55270,295 @@ typedef $$MutasiStokTableProcessedTableManager =
         bool dibuatOleh,
       })
     >;
+typedef $$ProdukKemasanTableCreateCompanionBuilder =
+    ProdukKemasanCompanion Function({
+      required String id,
+      required String tokoId,
+      required String produkId,
+      required String nama,
+      required double isi,
+      required int harga,
+      required int createdAt,
+      required int updatedAt,
+      Value<int?> deletedAt,
+      Value<int> rowid,
+    });
+typedef $$ProdukKemasanTableUpdateCompanionBuilder =
+    ProdukKemasanCompanion Function({
+      Value<String> id,
+      Value<String> tokoId,
+      Value<String> produkId,
+      Value<String> nama,
+      Value<double> isi,
+      Value<int> harga,
+      Value<int> createdAt,
+      Value<int> updatedAt,
+      Value<int?> deletedAt,
+      Value<int> rowid,
+    });
+
+class $$ProdukKemasanTableFilterComposer
+    extends Composer<_$AppDatabase, $ProdukKemasanTable> {
+  $$ProdukKemasanTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get tokoId => $composableBuilder(
+    column: $table.tokoId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get produkId => $composableBuilder(
+    column: $table.produkId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get nama => $composableBuilder(
+    column: $table.nama,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get isi => $composableBuilder(
+    column: $table.isi,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get harga => $composableBuilder(
+    column: $table.harga,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ProdukKemasanTableOrderingComposer
+    extends Composer<_$AppDatabase, $ProdukKemasanTable> {
+  $$ProdukKemasanTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get tokoId => $composableBuilder(
+    column: $table.tokoId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get produkId => $composableBuilder(
+    column: $table.produkId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get nama => $composableBuilder(
+    column: $table.nama,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get isi => $composableBuilder(
+    column: $table.isi,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get harga => $composableBuilder(
+    column: $table.harga,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ProdukKemasanTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ProdukKemasanTable> {
+  $$ProdukKemasanTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get tokoId =>
+      $composableBuilder(column: $table.tokoId, builder: (column) => column);
+
+  GeneratedColumn<String> get produkId =>
+      $composableBuilder(column: $table.produkId, builder: (column) => column);
+
+  GeneratedColumn<String> get nama =>
+      $composableBuilder(column: $table.nama, builder: (column) => column);
+
+  GeneratedColumn<double> get isi =>
+      $composableBuilder(column: $table.isi, builder: (column) => column);
+
+  GeneratedColumn<int> get harga =>
+      $composableBuilder(column: $table.harga, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $$ProdukKemasanTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ProdukKemasanTable,
+          ProdukKemasanRow,
+          $$ProdukKemasanTableFilterComposer,
+          $$ProdukKemasanTableOrderingComposer,
+          $$ProdukKemasanTableAnnotationComposer,
+          $$ProdukKemasanTableCreateCompanionBuilder,
+          $$ProdukKemasanTableUpdateCompanionBuilder,
+          (
+            ProdukKemasanRow,
+            BaseReferences<
+              _$AppDatabase,
+              $ProdukKemasanTable,
+              ProdukKemasanRow
+            >,
+          ),
+          ProdukKemasanRow,
+          PrefetchHooks Function()
+        > {
+  $$ProdukKemasanTableTableManager(_$AppDatabase db, $ProdukKemasanTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ProdukKemasanTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ProdukKemasanTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ProdukKemasanTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> tokoId = const Value.absent(),
+                Value<String> produkId = const Value.absent(),
+                Value<String> nama = const Value.absent(),
+                Value<double> isi = const Value.absent(),
+                Value<int> harga = const Value.absent(),
+                Value<int> createdAt = const Value.absent(),
+                Value<int> updatedAt = const Value.absent(),
+                Value<int?> deletedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ProdukKemasanCompanion(
+                id: id,
+                tokoId: tokoId,
+                produkId: produkId,
+                nama: nama,
+                isi: isi,
+                harga: harga,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String tokoId,
+                required String produkId,
+                required String nama,
+                required double isi,
+                required int harga,
+                required int createdAt,
+                required int updatedAt,
+                Value<int?> deletedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ProdukKemasanCompanion.insert(
+                id: id,
+                tokoId: tokoId,
+                produkId: produkId,
+                nama: nama,
+                isi: isi,
+                harga: harga,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$ProdukKemasanTable, ProdukKemasanRow>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $ProdukKemasanTable,
+                    ProdukKemasanRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ProdukKemasanTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ProdukKemasanTable,
+      ProdukKemasanRow,
+      $$ProdukKemasanTableFilterComposer,
+      $$ProdukKemasanTableOrderingComposer,
+      $$ProdukKemasanTableAnnotationComposer,
+      $$ProdukKemasanTableCreateCompanionBuilder,
+      $$ProdukKemasanTableUpdateCompanionBuilder,
+      (
+        ProdukKemasanRow,
+        BaseReferences<_$AppDatabase, $ProdukKemasanTable, ProdukKemasanRow>,
+      ),
+      ProdukKemasanRow,
+      PrefetchHooks Function()
+    >;
 typedef $$LevelMemberTableCreateCompanionBuilder =
     LevelMemberCompanion Function({
       required String id,
@@ -62936,6 +63883,8 @@ typedef $$ItemTransaksiTableCreateCompanionBuilder =
       Value<int> diskon,
       required int subtotal,
       Value<String?> catatan,
+      Value<double> isiKemasan,
+      Value<String?> namaKemasan,
       required int createdAt,
       required int updatedAt,
       Value<int?> deletedAt,
@@ -62955,6 +63904,8 @@ typedef $$ItemTransaksiTableUpdateCompanionBuilder =
       Value<int> diskon,
       Value<int> subtotal,
       Value<String?> catatan,
+      Value<double> isiKemasan,
+      Value<String?> namaKemasan,
       Value<int> createdAt,
       Value<int> updatedAt,
       Value<int?> deletedAt,
@@ -63151,6 +64102,16 @@ class $$ItemTransaksiTableFilterComposer
 
   ColumnFilters<String> get catatan => $composableBuilder(
     column: $table.catatan,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get isiKemasan => $composableBuilder(
+    column: $table.isiKemasan,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get namaKemasan => $composableBuilder(
+    column: $table.namaKemasan,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -63387,6 +64348,16 @@ class $$ItemTransaksiTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<double> get isiKemasan => $composableBuilder(
+    column: $table.isiKemasan,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get namaKemasan => $composableBuilder(
+    column: $table.namaKemasan,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -63531,6 +64502,16 @@ class $$ItemTransaksiTableAnnotationComposer
 
   GeneratedColumn<String> get catatan =>
       $composableBuilder(column: $table.catatan, builder: (column) => column);
+
+  GeneratedColumn<double> get isiKemasan => $composableBuilder(
+    column: $table.isiKemasan,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get namaKemasan => $composableBuilder(
+    column: $table.namaKemasan,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<int> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -63758,6 +64739,8 @@ class $$ItemTransaksiTableTableManager
                 Value<int> diskon = const Value.absent(),
                 Value<int> subtotal = const Value.absent(),
                 Value<String?> catatan = const Value.absent(),
+                Value<double> isiKemasan = const Value.absent(),
+                Value<String?> namaKemasan = const Value.absent(),
                 Value<int> createdAt = const Value.absent(),
                 Value<int> updatedAt = const Value.absent(),
                 Value<int?> deletedAt = const Value.absent(),
@@ -63775,6 +64758,8 @@ class $$ItemTransaksiTableTableManager
                 diskon: diskon,
                 subtotal: subtotal,
                 catatan: catatan,
+                isiKemasan: isiKemasan,
+                namaKemasan: namaKemasan,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
@@ -63794,6 +64779,8 @@ class $$ItemTransaksiTableTableManager
                 Value<int> diskon = const Value.absent(),
                 required int subtotal,
                 Value<String?> catatan = const Value.absent(),
+                Value<double> isiKemasan = const Value.absent(),
+                Value<String?> namaKemasan = const Value.absent(),
                 required int createdAt,
                 required int updatedAt,
                 Value<int?> deletedAt = const Value.absent(),
@@ -63811,6 +64798,8 @@ class $$ItemTransaksiTableTableManager
                 diskon: diskon,
                 subtotal: subtotal,
                 catatan: catatan,
+                isiKemasan: isiKemasan,
+                namaKemasan: namaKemasan,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
@@ -74255,6 +75244,8 @@ class $AppDatabaseManager {
       $$BatchStokTableTableManager(_db, _db.batchStok);
   $$MutasiStokTableTableManager get mutasiStok =>
       $$MutasiStokTableTableManager(_db, _db.mutasiStok);
+  $$ProdukKemasanTableTableManager get produkKemasan =>
+      $$ProdukKemasanTableTableManager(_db, _db.produkKemasan);
   $$LevelMemberTableTableManager get levelMember =>
       $$LevelMemberTableTableManager(_db, _db.levelMember);
   $$PelangganTableTableManager get pelanggan =>

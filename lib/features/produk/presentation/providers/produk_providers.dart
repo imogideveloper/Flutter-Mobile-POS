@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/database/app_database.dart' show StasiunDapurRow;
+import '../../../../core/database/app_database.dart' show ProdukKemasanRow, StasiunDapurRow;
 
 import '../../../../core/providers/database_provider.dart';
 import '../../data/local/produk_dao.dart';
@@ -32,4 +32,19 @@ final grupTambahanProdukProvider = FutureProvider.autoDispose.family<List<GrupTa
 /// Stasiun dapur aktif di outlet ini (IMOGI no. 35), urut nama.
 final stasiunDapurProvider = StreamProvider.family<List<StasiunDapurRow>, String>((ref, outletId) {
   return ref.watch(produkDaoProvider).watchStasiunDapur(outletId);
+});
+
+/// Kemasan jual aktif satu toko (IMOGI no. 43).
+final kemasanSemuaProvider = StreamProvider.family<List<ProdukKemasanRow>, String>((ref, tokoId) {
+  return ref.watch(produkDaoProvider).watchSemuaKemasan(tokoId);
+});
+
+/// Kemasan aktif dikelompokkan per produk, urut isi terkecil; produk tanpa kemasan tidak ada di peta.
+final kemasanPerProdukProvider = Provider.family<Map<String, List<ProdukKemasanRow>>, String>((ref, tokoId) {
+  final semua = ref.watch(kemasanSemuaProvider(tokoId)).value ?? const <ProdukKemasanRow>[];
+  final peta = <String, List<ProdukKemasanRow>>{};
+  for (final k in semua) {
+    peta.putIfAbsent(k.produkId, () => []).add(k);
+  }
+  return peta;
 });
