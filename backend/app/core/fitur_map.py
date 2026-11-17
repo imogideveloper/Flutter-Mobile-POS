@@ -39,7 +39,7 @@ FITUR_MAP: list[PemetaanFitur] = [
     PemetaanFitur("kelola_karyawan", 1, None, "Tahap 3a: CRUD pengguna dasar DILEPAS dari gate ini (toko Gratis tetap boleh tambah kasir, dibatasi paket.maks_pengguna - lihat _pastikan_kuota_pengguna di routers/pengguna.py). kelola_karyawan kini cuma utk role custom/izin, belum ada endpointnya."),
     PemetaanFitur("poin_loyalitas", 1, None, "Tahap 3a A.1: checkout_service HANYA memanggil tambah_poin_dari_transaksi kalau has_fitur - inline (has_fitur), bukan endpoint terpisah utk digate require_fitur di sini."),
     PemetaanFitur("diskon_member", 1, None, "Tahap 3a: dipakai di harga/kalkulator.py (level_member.diskon_persen pelanggan) - gating-nya inline lewat fitur_aktif yang dikirim ke mesin hitung (has_fitur), bukan endpoint terpisah."),
-    PemetaanFitur("survei", 1, None, "Tidak ada endpoint survei sama sekali (audit tahap 1)."),
+    PemetaanFitur("survei", 1, ("POST", "/survei"), "IMOGI no. 59: seluruh router /survei digate (daftar, buat, jawab, hasil)."),
     PemetaanFitur("absensi", 1, None, "Tidak ada endpoint absensi sama sekali (audit tahap 1)."),
     PemetaanFitur("struk_ringkas", 2, None, "Tahap 4: PATCH /outlets/{id}/pengaturan menolak 403 fitur_terkunci kalau diisi True tanpa fitur ini (lihat routers/outlet.py) - inline per-field, bukan endpoint terpisah (endpoint-nya sendiri, GET/PATCH pengaturan, TIDAK digate - semua paket boleh ubah field lain). Dites manual di tests/test_pengaturan_struk.py."),
     PemetaanFitur("tiket_dapur", 2, None, "Sudah digate INLINE di checkout_service.py (has_fitur, bukan require_fitur) sejak sesi sebelumnya - bukan endpoint terpisah, tidak perlu baris baru di sini."),

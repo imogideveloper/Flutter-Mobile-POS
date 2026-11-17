@@ -256,6 +256,17 @@ class LainnyaPage extends ConsumerWidget {
                   bila(
                     'pelanggan.kelola',
                     FiturTerkunci(
+                      kode: 'survei',
+                      child: SettingsMenuRow(
+                        label: 'Survei pelanggan',
+                        value: 'Kepuasan & saran',
+                        onTap: () => context.push('/survei'),
+                      ),
+                    ),
+                  ),
+                  bila(
+                    'pelanggan.kelola',
+                    FiturTerkunci(
                       kode: 'customer_broadcast',
                       child: SettingsMenuRow(
                         label: 'Kirim WA ke pelanggan',

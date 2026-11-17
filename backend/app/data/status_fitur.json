@@ -232,8 +232,8 @@
   "catatan": "Tidak relevan untuk Makanan & Minuman."
  },
  "59": {
-  "status": "belum",
-  "catatan": "Hanya tabel lokal."
+  "status": "sedang",
+  "catatan": "SEBAGIAN (2026-11-17): Lainnya > Survei pelanggan: buat survei (rating 1-5, pilihan, teks), isi jawaban pelanggan, lihat hasil. Butuh internet. Belum: tampil di struk/layar pelanggan/WhatsApp, tautan ke transaksi, dan belum diuji di HP."
  },
  "60": {
   "status": "tidak_relevan",

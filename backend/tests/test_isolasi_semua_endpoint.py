@@ -30,6 +30,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.main import app
 from app.models.jadwal import PengajuanCuti
 from app.models.pengeluaran import Pengeluaran
+from app.models.pelanggan import PertanyaanSurvei, Survei
 from app.models.order import Meja, TipeOrder
 from app.models.outlet import Outlet, Paket, PermintaanUpgrade
 from app.models.pelanggan import LevelMember
@@ -252,6 +253,13 @@ async def _siapkan_satu_toko(client: AsyncClient, db: AsyncSession, toko, label:
     await db.commit()
     ids["kemasan_id"] = kemasan.id
 
+    survei = Survei(toko_id=toko.toko.id, judul=f"Survei {label}")
+    db.add(survei)
+    await db.commit()
+    db.add(PertanyaanSurvei(survei_id=survei.id, teks="Puas?", tipe="rating", urutan=0))
+    await db.commit()
+    ids["survei_id"] = survei.id
+
     stasiun_resp = await client.post(
         f"/outlets/{toko.outlet.id}/stasiun-dapur", headers=toko.headers, json={"nama": f"Stasiun {label}"}
     )
@@ -331,6 +339,10 @@ def _body_untuk(method: str, path: str, ids: dict[str, uuid.UUID]) -> dict | Non
         return {}  # OutletUpdateIn - semua field opsional
     if path == "/outlets/{outlet_id}/pengaturan":
         return {}  # PengaturanOutletIn - semua field opsional
+    if path == "/survei/{survei_id}":
+        return {}  # SurveiUpdateIn - semua field opsional
+    if path == "/survei/{survei_id}/jawaban":
+        return {"jawaban": [{"pertanyaan_id": str(uuid.uuid4()), "nilai_angka": 5}]}
     if path == "/kemasan/{kemasan_id}":
         return {}  # KemasanUpdateIn - semua field opsional
     if path == "/produk/{produk_id}/kemasan":
