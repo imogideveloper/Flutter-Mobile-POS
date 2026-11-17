@@ -18,9 +18,9 @@ Tanggal: 2026-11-08. Menggantikan `docs/gap_fnb.md` sebagai acuan utama. Daftar 
 | Relevan untuk Makanan & Minuman (inti atau opsional untuk minimal 1 dari 7 jenis usaha) | 64 |
 | Tidak relevan untuk Makanan & Minuman (disembunyikan) | 23 |
 | ✅ Lengkap | 15 (tidak berubah: belum ada fitur yang diuji di HP, jadi tidak ada yang dinaikkan) |
-| 🟡 Sebagian | 36 (awal audit 24; +12 sejak 2026-11-12/17) |
+| 🟡 Sebagian | 37 (awal audit 24; +13 sejak 2026-11-12/17) |
 
-| ❌ Belum ada | 13 (awal audit 25) |
+| ❌ Belum ada | 12 (awal audit 25) |
 
 | Fitur inti untuk Kafe & Kedai Kopi | 46 (✅ 11, 🟡 26, ❌ 9); awal audit ✅ 11, 🟡 18, ❌ 17 |
 
@@ -98,7 +98,7 @@ Diurutkan: inti untuk Kafe & Kedai Kopi lebih dulu. ❌ = belum ada, 🟡 = seba
 | 59 | Pelanggan | Survei pelanggan | Professional | 2 inti, 5 opsional, Kafe: Inti | ❌ | Hanya tabel lokal. |
 | 73 | Akuntansi | Rekap pajak PPN & PB1 | Professional | 2 inti, 5 opsional, Kafe: Inti | 🟡 | SEBAGIAN (2026-11-12): tab PPN/PB1 di Lainnya > Rekap pajak: pajak dan service dipungut per nama dan tarif; server `/laporan/rekap-pajak`. Belum: ekspor, PPN masukan/keluaran, pelaporan SPT. Belum diuji di HP. |
 | 83 | Akuntansi | Aset tetap & penyusutan | Enterprise | 2 inti, 4 opsional, Kafe: Inti | ❌ | Tidak ada aset tetap dan penyusutan. |
-| 84 | Akuntansi | Laporan keuangan konsolidasi multi-outlet | Enterprise | 2 inti, 5 opsional, Kafe: Inti | ❌ | Tidak ada laporan keuangan konsolidasi. |
+| 84 | Akuntansi | Laporan keuangan konsolidasi multi-outlet | Enterprise | 2 inti, 5 opsional, Kafe: Inti | 🟡 | SEBAGIAN (2026-11-17): Lainnya > Laba rugi konsolidasi (Owner/Manajer, digerbang fitur consolidation): laba rugi tiap outlet aktif dan total toko dalam satu layar, rentang hari/7 hari/bulan; server GET /laporan/laba-rugi-konsolidasi memakai rumus laba rugi no. 69 yang sama (keputusan sementara, perlu validasi akuntan). Total memuat biaya tanpa outlet. Belum: neraca, arus kas, ekspor, eliminasi transaksi antar outlet, mata uang. Butuh internet, lulus tes otomatis, belum diuji di HP. |
 | 87 | Outlet | Multi-Outlet | Professional | 2 inti, 5 opsional, Kafe: Inti | 🟡 | SEBAGIAN (2026-11-17): Lainnya > Ganti outlet (digerbang fitur multi_outlet) menampilkan outlet yang boleh dipakai pengguna (Owner/Manajer semua, peran lain sesuai akses outlet; server GET /outlets/saya) dan memindahkan outlet aktif di HP; data outlet tujuan ditarik ulang lewat sync. Pindah ditolak bila shift masih terbuka. Belum: tampilan nama outlet aktif di header, uji di HP dengan 2 outlet. |
 | 56 | Pelanggan | Promo ulang tahun pelanggan | Professional | 1 inti, 5 opsional, Kafe: Inti | 🟡 | SEBAGIAN (2026-11-13): promo bisa ditandai Khusus ulang tahun (gerbang paket birthday_promo, migrasi 0017); tanggal lahir pelanggan bisa diisi di form, ikut impor CSV, dan kini ikut sync ke HP; di keranjang promo itu hanya bisa dipilih bila pelanggan berulang tahun hari ini dan dicabut bila pelanggan diganti; daftar pelanggan menandai yang berulang tahun hari ini. Penerapan otomatis sudah ada (2026-11-17): memilih pelanggan yang berulang tahun hari ini di keranjang otomatis memasang promo ulang tahun bila kasir belum memilih promo (bisa diganti atau dilepas). Belum: pemberitahuan ke pelanggan, validasi server saat checkout. Belum diuji di HP. |
 | 71 | Akuntansi | Piutang & hutang usaha (AR/AP) | Professional | 5 inti, 2 opsional, Kafe: Opsional | 🟡 | Piutang pelanggan (kasbon) ada. Hutang usaha ke supplier belum dicocokkan (backend punya modul pembelian). |

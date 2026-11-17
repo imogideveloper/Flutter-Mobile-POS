@@ -108,6 +108,7 @@ _FITUR = [
     ("staff_schedule", "Jadwal shift mingguan & cuti", "pengguna", 2),
     ("birthday_promo", "Promo ulang tahun pelanggan", "pelanggan", 2),
     ("pack_units", "Jual per kemasan (pcs, dus, pak)", "produk", 1),
+    ("consolidation", "Laporan keuangan konsolidasi multi-outlet", "akuntansi", 2),
 ]
 
 _PAKET = [("Gratis", 0), ("Pro", 1), ("Bisnis", 2)]

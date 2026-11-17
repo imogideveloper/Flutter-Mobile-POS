@@ -313,6 +313,17 @@ class LainnyaPage extends ConsumerWidget {
                   bila(
                     'laporan.lihat',
                     FiturTerkunci(
+                      kode: 'consolidation',
+                      child: SettingsMenuRow(
+                        label: 'Laba rugi konsolidasi',
+                        value: 'Semua outlet',
+                        onTap: () => context.push('/laba-rugi-konsolidasi'),
+                      ),
+                    ),
+                  ),
+                  bila(
+                    'laporan.lihat',
+                    FiturTerkunci(
                       kode: 'expenses',
                       child: SettingsMenuRow(
                         label: 'Pengeluaran',

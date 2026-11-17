@@ -8,6 +8,7 @@ from app.core.db import get_db
 from app.core.deps import get_pengguna_id, get_role_id, get_toko_id, require_outlet_access
 from app.models.transaksi import Shift
 from app.schemas.laporan import (
+    LabaRugiKonsolidasiOut,
     LabaRugiOut,
     LaporanPiutangOut,
     LaporanShiftOut,
@@ -171,3 +172,29 @@ async def laporan_pph_final(
         db, dari=dari, sampai=sampai, outlet_id=outlet_id, toko_id=toko_id, pengguna_id=pengguna_id, role_id=role_id
     )
     return await pajak_service.pph_final(db, toko_id=toko_id, outlet_id=outlet_id, dari=dari, sampai=sampai)
+
+
+@router.get(
+    "/laba-rugi-konsolidasi",
+    response_model=LabaRugiKonsolidasiOut,
+    dependencies=[Depends(require_fitur("consolidation"))],
+)
+async def laporan_laba_rugi_konsolidasi(
+    dari: datetime = Query(...),
+    sampai: datetime = Query(...),
+    toko_id: uuid.UUID = Depends(get_toko_id),
+    pengguna_id: uuid.UUID = Depends(get_pengguna_id),
+    role_id: uuid.UUID = Depends(get_role_id),
+    db: AsyncSession = Depends(get_db),
+) -> LabaRugiKonsolidasiOut:
+    """Laba rugi semua outlet (IMOGI no. 84). Hanya Owner/Manajer: peran yang dibatasi outlet tertentu
+    tidak boleh melihat angka outlet lain."""
+    from app.models.akun import Role  # import lokal - hindari circular import
+
+    await _validasi_laporan_keuangan(
+        db, dari=dari, sampai=sampai, outlet_id=None, toko_id=toko_id, pengguna_id=pengguna_id, role_id=role_id
+    )
+    role = await db.get(Role, role_id)
+    if not (role is not None and role.is_system and role.nama in ("Owner", "Manajer")):
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Laporan konsolidasi hanya untuk Owner/Manajer")
+    return await laba_rugi_service.laba_rugi_konsolidasi(db, toko_id=toko_id, dari=dari, sampai=sampai)

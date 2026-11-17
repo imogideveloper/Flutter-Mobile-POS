@@ -8,7 +8,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.pengeluaran import Pengeluaran
-from app.schemas.laporan import BiayaKategoriOut, LabaRugiOut
+from app.models.outlet import Outlet
+from app.schemas.laporan import BiayaKategoriOut, LabaRugiKonsolidasiOut, LabaRugiOut, LabaRugiOutletOut
 from app.services.laporan_service import _item_untuk_transaksi, _transaksi_selesai
 
 # Belanja bahan sudah tercermin di HPP penjualan; tidak dikurangkan dua kali.
@@ -66,4 +67,33 @@ async def laba_rugi(
         belanja_bahan=belanja_bahan,
         pajak_dipungut=pajak,
         jumlah_transaksi=len(transaksi),
+    )
+
+
+async def laba_rugi_konsolidasi(
+    db: AsyncSession, *, toko_id: uuid.UUID, dari: datetime, sampai: datetime
+) -> LabaRugiKonsolidasiOut:
+    """Laba rugi per outlet aktif + total toko (IMOGI no. 84). Total dihitung langsung untuk seluruh toko
+    (bukan penjumlahan baris), supaya biaya tanpa outlet dan outlet yang sudah dihapus tetap ikut."""
+    outlets = (
+        await db.execute(
+            select(Outlet)
+            .where(Outlet.toko_id == toko_id, Outlet.deleted_at.is_(None), Outlet.aktif.is_(True))
+            .order_by(Outlet.created_at)
+        )
+    ).scalars().all()
+    per_outlet = [
+        LabaRugiOutletOut(
+            outlet_id=o.id,
+            outlet_nama=o.nama,
+            laporan=await laba_rugi(db, toko_id=toko_id, outlet_id=o.id, dari=dari, sampai=sampai),
+        )
+        for o in outlets
+    ]
+    total = await laba_rugi(db, toko_id=toko_id, outlet_id=None, dari=dari, sampai=sampai)
+    biaya_outlet = sum((Decimal(p.laporan.total_biaya_operasional) for p in per_outlet), Decimal("0"))
+    return LabaRugiKonsolidasiOut(
+        per_outlet=per_outlet,
+        total=total,
+        biaya_tanpa_outlet=Decimal(total.total_biaya_operasional) - biaya_outlet,
     )

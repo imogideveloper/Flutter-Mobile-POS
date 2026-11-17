@@ -125,3 +125,19 @@ class PphFinalOut(BaseModel):
     omzet: Decimal
     pph_terutang: Decimal
     per_bulan: list[PphFinalBulanOut]
+
+
+class LabaRugiOutletOut(BaseModel):
+    outlet_id: uuid.UUID
+    outlet_nama: str
+    laporan: LabaRugiOut
+
+
+class LabaRugiKonsolidasiOut(BaseModel):
+    """Laba rugi seluruh outlet (IMOGI no. 84): satu laporan per outlet aktif plus total toko. Total toko
+    juga memuat biaya yang dicatat tanpa outlet (`biaya_tanpa_outlet`, sudah termasuk di total biaya
+    operasional total), jadi laba bersih total = jumlah laba bersih outlet dikurangi biaya itu."""
+
+    per_outlet: list[LabaRugiOutletOut]
+    total: LabaRugiOut
+    biaya_tanpa_outlet: Decimal
