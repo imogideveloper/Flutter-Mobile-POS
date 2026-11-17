@@ -318,5 +318,5 @@ Aturan baca: **Sementara** = perilaku yang sekarang dipakai di kode. **Dampak bi
 | AC2 | Penerapan otomatis hanya terjadi saat memilih pelanggan; membuka kembali pesanan tersimpan tidak memasangnya lagi | Susulan |
 | AC3 | Server belum memeriksa ulang tanggal lahir saat checkout (transaksi offline tidak boleh ditolak) | Sementara |
 | AD1 | Ganti outlet (no. 87): watermark sync hanya satu untuk semua outlet, jadi saat berpindah outlet watermark direset ke awal (tarik penuh). Sementara; alternatif watermark per outlet bila datanya besar | Sementara |
-| AD2 | Ganti outlet: shift yang masih terbuka di outlet lama tidak ditutup otomatis; transaksi belum terkirim tetap dikirim ke outlet asalnya. Perlu keputusan apakah berpindah dilarang saat shift terbuka | Menunggu lead |
+| AD2 | Ganti outlet: sementara pindah DITOLAK bila ada shift terbuka di outlet sekarang (tutup shift dulu); transaksi belum terkirim tetap dikirim ke outlet asalnya. Perlu konfirmasi lead apakah aturan ini diinginkan | Sementara |
 | AD3 | Ganti outlet hanya mengubah outlet aktif di HP; perangkat tetap terdaftar di outlet saat pairing (`perangkat.outlet_id`), server tidak memakainya untuk membatasi | Sementara |

@@ -345,6 +345,6 @@
  },
  "87": {
   "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-17): Lainnya > Ganti outlet (digerbang fitur multi_outlet) menampilkan outlet yang boleh dipakai pengguna (Owner/Manajer semua, peran lain sesuai akses outlet; server GET /outlets/saya) dan memindahkan outlet aktif di HP; data outlet tujuan ditarik ulang lewat sync. Belum: shift/laci terbuka di outlet lama, tampilan nama outlet aktif di header, uji di HP dengan 2 outlet."
+  "catatan": "SEBAGIAN (2026-11-17): Lainnya > Ganti outlet (digerbang fitur multi_outlet) menampilkan outlet yang boleh dipakai pengguna (Owner/Manajer semua, peran lain sesuai akses outlet; server GET /outlets/saya) dan memindahkan outlet aktif di HP; data outlet tujuan ditarik ulang lewat sync. Pindah ditolak bila shift masih terbuka. Belum: tampilan nama outlet aktif di header, uji di HP dengan 2 outlet."
  }
 }

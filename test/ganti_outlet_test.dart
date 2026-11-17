@@ -69,5 +69,36 @@ void main() {
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(milliseconds: 1));
   });
-}
 
+  testWidgets('shift masih terbuka di outlet sekarang: pindah outlet ditolak tanpa dialog', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final store = _StoreRekam();
+    await db.shiftDao.bukaShift(
+      id: 'sh1',
+      tokoId: tokoIdPlaceholder,
+      outletId: outletIdPlaceholder,
+      penggunaId: 'pengguna-1',
+      modalAwal: 0,
+    );
+
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        ...overridesSudahLogin(db).where((o) => o.toString().contains('AuthSessionStore') == false),
+        authSessionStoreProvider.overrideWithValue(store),
+        outletSayaProvider.overrideWith((ref) async => _daftar),
+      ],
+      child: const MaterialApp(home: Scaffold(body: GantiOutletPage())),
+    ));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Outlet Cabang'));
+    await tester.pumpAndSettle();
+    expect(find.text('Tutup shift di outlet ini dulu sebelum pindah outlet.'), findsOneWidget);
+    expect(find.byKey(const Key('gantiOutlet.ya')), findsNothing);
+    expect(store.outletDisimpan, isEmpty);
+
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(milliseconds: 1));
+  });
+}

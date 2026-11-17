@@ -13,6 +13,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/empty_state.dart';
+import '../../../shift/presentation/providers/shift_providers.dart';
 
 /// Outlet yang boleh dipakai pengguna ini (IMOGI no. 87), diambil dari server.
 class OutletPilihan {
@@ -52,6 +53,17 @@ class GantiOutletPage extends ConsumerWidget {
   const GantiOutletPage({super.key});
 
   Future<void> _pilih(BuildContext context, WidgetRef ref, OutletPilihan outlet) async {
+    // Shift yang masih terbuka di outlet sekarang harus ditutup dulu, supaya kas laci tidak "tertinggal".
+    final shift = await ref.read(shiftTerbukaProvider(ref.read(currentOutletIdProvider)).future);
+    if (!context.mounted) return;
+    if (shift != null) {
+      showAppToast(
+        context,
+        message: 'Tutup shift di outlet ini dulu sebelum pindah outlet.',
+        variant: ToastVariant.warning,
+      );
+      return;
+    }
     final yakin = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
