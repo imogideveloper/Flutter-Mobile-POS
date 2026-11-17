@@ -310,11 +310,13 @@ class _RiwayatListPageState extends ConsumerState<RiwayatListPage> {
               ),
               Padding(
                 padding: const EdgeInsets.all(AppSpacing.xl),
-                child: Row(
-                  children: [
-                    _ringkasan('Penjualan', _formatRupiah.format(penjualan)),
-                    _ringkasan('Transaksi', '${sumber.length}'),
-                  ],
+                child: AppCard(
+                  child: Row(
+                    children: [
+                      _ringkasan('Penjualan', _formatRupiah.format(penjualan)),
+                      _ringkasan('Transaksi', '${sumber.length}'),
+                    ],
+                  ),
                 ),
               ),
               Expanded(
@@ -344,8 +346,8 @@ class _RiwayatListPageState extends ConsumerState<RiwayatListPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: AppTypography.secondary.copyWith(fontSize: 11)),
-          Text(value, style: AppTypography.cardTitle.copyWith(fontSize: 15)),
+          Text(label, style: AppTypography.secondary),
+          Text(value, style: AppTypography.cardTitle.copyWith(fontSize: 20, color: AppColors.primaryDark)),
         ],
       ),
     );

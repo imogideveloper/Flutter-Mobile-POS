@@ -4,8 +4,8 @@ import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 
-/// Tampilan kosong standar: ikon + pesan, dipakai untuk list riwayat/stok/
-/// pelanggan/produk yang belum punya data.
+/// Tampilan kosong standar: ikon dalam lingkaran berwarna + pesan (+ tombol aksi opsional), dipakai untuk
+/// list riwayat/stok/pelanggan/produk yang belum punya data.
 class EmptyState extends StatelessWidget {
   const EmptyState({super.key, required this.icon, required this.message, this.action});
 
@@ -21,14 +21,19 @@ class EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 40, color: AppColors.textTertiary),
-            const SizedBox(height: AppSpacing.md),
+            Container(
+              width: 84,
+              height: 84,
+              decoration: const BoxDecoration(color: AppColors.primaryTint, shape: BoxShape.circle),
+              child: Icon(icon, size: 38, color: AppColors.primary),
+            ),
+            const SizedBox(height: AppSpacing.xl),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: AppTypography.secondary,
+              style: AppTypography.bodyEmphasis.copyWith(color: AppColors.textSecondary),
             ),
-            if (action != null) ...[const SizedBox(height: AppSpacing.lg), action!],
+            if (action != null) ...[const SizedBox(height: AppSpacing.xl), action!],
           ],
         ),
       ),

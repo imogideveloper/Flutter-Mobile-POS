@@ -121,6 +121,18 @@ class LainnyaPage extends ConsumerWidget {
     Widget bila(String kodeIzin, Widget row) =>
         izinSaya.contains(kodeIzin) ? row : const SizedBox.shrink();
 
+    // Satu grup menu (judul + kartu). Grup yang semua barisnya disembunyikan izin tidak digambar sama sekali,
+    // supaya peran terbatas tidak melihat judul dengan kartu kosong.
+    List<Widget> grup(String judul, List<Widget> baris) {
+      final tampak = baris.where((w) => !(w is SizedBox && w.width == 0 && w.height == 0));
+      if (tampak.isEmpty) return const [];
+      return [
+        SectionHeader(label: judul),
+        AppCard(padding: EdgeInsets.zero, child: Column(children: baris)),
+        const SizedBox(height: AppSpacing.lg),
+      ];
+    }
+
     return Scaffold(
       appBar: AppBar(title: const Text('Lainnya')),
       body: SingleChildScrollView(
@@ -203,15 +215,12 @@ class LainnyaPage extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: AppSpacing.lg),
-            const SectionHeader(label: 'Operasional'),
-            AppCard(
-              padding: EdgeInsets.zero,
-              child: Column(
-                children: [
+            ...grup('Penjualan', [
                   bila(
                     'shift.buka_tutup',
                     SettingsMenuRow(
                       label: 'Tutup shift',
+                      ikon: Icons.lock_clock_outlined,
                       value: shift == null
                           ? 'Shift tutup'
                           : 'sejak ${_formatWaktu.format(DateTime.fromMillisecondsSinceEpoch(shift.dibukaPada, isUtc: true).toLocal())}',
@@ -222,6 +231,7 @@ class LainnyaPage extends ConsumerWidget {
                     'shift.buka_tutup',
                     SettingsMenuRow(
                       label: 'Kas keluar / masuk',
+                      ikon: Icons.payments_outlined,
                       value: 'Lihat shift',
                       onTap: () => context.push('/shift'),
                     ),
@@ -232,6 +242,7 @@ class LainnyaPage extends ConsumerWidget {
                       kode: 'pay_later',
                       child: SettingsMenuRow(
                         label: 'Order belum dibayar',
+                        ikon: Icons.pending_actions_outlined,
                         value: 'Terima order, bayar nanti',
                         onTap: () => context.push('/order-belum-dibayar'),
                       ),
@@ -248,17 +259,21 @@ class LainnyaPage extends ConsumerWidget {
                       if (!punya) return const SizedBox.shrink();
                       return SettingsMenuRow(
                         label: 'Status pesanan',
+                        ikon: Icons.soup_kitchen_outlined,
                         value: 'Pantau',
                         onTap: () => context.push('/status-pesanan'),
                       );
                     },
                   ),
+            ]),
+            ...grup('Pelanggan', [
                   bila(
                     'pelanggan.kelola',
                     FiturTerkunci(
                       kode: 'prepaid_revenue',
                       child: SettingsMenuRow(
                         label: 'Deposit pelanggan',
+                        ikon: Icons.account_balance_wallet_outlined,
                         value: 'Saldo di muka',
                         onTap: () => context.push('/deposit'),
                       ),
@@ -270,6 +285,7 @@ class LainnyaPage extends ConsumerWidget {
                       kode: 'survei',
                       child: SettingsMenuRow(
                         label: 'Survei pelanggan',
+                        ikon: Icons.rate_review_outlined,
                         value: 'Kepuasan & saran',
                         onTap: () => context.push('/survei'),
                       ),
@@ -281,6 +297,7 @@ class LainnyaPage extends ConsumerWidget {
                       kode: 'customer_broadcast',
                       child: SettingsMenuRow(
                         label: 'Kirim WA ke pelanggan',
+                        ikon: Icons.campaign_outlined,
                         value: 'Banyak penerima',
                         onTap: () => context.push('/kirim-massal'),
                       ),
@@ -292,6 +309,7 @@ class LainnyaPage extends ConsumerWidget {
                       kode: 'customer_import',
                       child: SettingsMenuRow(
                         label: 'Impor pelanggan',
+                        ikon: Icons.upload_file_outlined,
                         value: 'CSV',
                         onTap: () => context.push('/impor-pelanggan'),
                       ),
@@ -301,14 +319,18 @@ class LainnyaPage extends ConsumerWidget {
                     'pelanggan.kelola',
                     SettingsMenuRow(
                       label: 'Pelanggan',
+                      ikon: Icons.people_alt_outlined,
                       value: '$jumlahPelanggan',
                       onTap: () => context.push('/pelanggan'),
                     ),
                   ),
+            ]),
+            ...grup('Tim', [
                   FiturTerkunci(
                     kode: 'absensi',
                     child: SettingsMenuRow(
                       label: 'Absensi',
+                      ikon: Icons.how_to_reg_outlined,
                       value: 'Masuk / keluar',
                       onTap: () => context.push('/absensi'),
                     ),
@@ -317,16 +339,20 @@ class LainnyaPage extends ConsumerWidget {
                     kode: 'staff_schedule',
                     child: SettingsMenuRow(
                       label: 'Jadwal & cuti',
+                      ikon: Icons.event_available_outlined,
                       value: 'Shift / cuti',
                       onTap: () => context.push('/jadwal-cuti'),
                     ),
                   ),
+            ]),
+            ...grup('Keuangan', [
                   bila(
                     'laporan.lihat',
                     FiturTerkunci(
                       kode: 'tax_recap',
                       child: SettingsMenuRow(
                         label: 'Rekap pajak',
+                        ikon: Icons.receipt_long_outlined,
                         value: 'PPN / PPh',
                         onTap: () => context.push('/rekap-pajak'),
                       ),
@@ -338,6 +364,7 @@ class LainnyaPage extends ConsumerWidget {
                       kode: 'profit_loss',
                       child: SettingsMenuRow(
                         label: 'Laba rugi',
+                        ikon: Icons.trending_up,
                         value: 'Lihat',
                         onTap: () => context.push('/laba-rugi'),
                       ),
@@ -349,6 +376,7 @@ class LainnyaPage extends ConsumerWidget {
                       kode: 'consolidation',
                       child: SettingsMenuRow(
                         label: 'Laba rugi konsolidasi',
+                        ikon: Icons.account_tree_outlined,
                         value: 'Semua outlet',
                         onTap: () => context.push('/laba-rugi-konsolidasi'),
                       ),
@@ -360,6 +388,7 @@ class LainnyaPage extends ConsumerWidget {
                       kode: 'year_end_closing',
                       child: SettingsMenuRow(
                         label: 'Tutup buku',
+                        ikon: Icons.event_busy_outlined,
                         value: 'Kunci periode',
                         onTap: () => context.push('/tutup-buku'),
                       ),
@@ -371,6 +400,7 @@ class LainnyaPage extends ConsumerWidget {
                       kode: 'accounting_export',
                       child: SettingsMenuRow(
                         label: 'Ekspor ke software akuntansi',
+                        ikon: Icons.ios_share_outlined,
                         value: 'CSV harian',
                         onTap: () => context.push('/ekspor-akuntansi'),
                       ),
@@ -382,6 +412,7 @@ class LainnyaPage extends ConsumerWidget {
                       kode: 'budget',
                       child: SettingsMenuRow(
                         label: 'Anggaran & proyeksi',
+                        ikon: Icons.savings_outlined,
                         value: 'Biaya per kategori',
                         onTap: () => context.push('/anggaran'),
                       ),
@@ -393,6 +424,7 @@ class LainnyaPage extends ConsumerWidget {
                       kode: 'fixed_assets',
                       child: SettingsMenuRow(
                         label: 'Aset tetap & penyusutan',
+                        ikon: Icons.precision_manufacturing_outlined,
                         value: 'Nilai buku',
                         onTap: () => context.push('/aset-tetap'),
                       ),
@@ -404,6 +436,7 @@ class LainnyaPage extends ConsumerWidget {
                       kode: 'settlement',
                       child: SettingsMenuRow(
                         label: 'Settlement QRIS & e-wallet',
+                        ikon: Icons.qr_code_2,
                         value: 'Rekonsiliasi',
                         onTap: () => context.push('/settlement'),
                       ),
@@ -415,15 +448,19 @@ class LainnyaPage extends ConsumerWidget {
                       kode: 'expenses',
                       child: SettingsMenuRow(
                         label: 'Pengeluaran',
+                        ikon: Icons.money_off_outlined,
                         value: 'Catat biaya',
                         onTap: () => context.push('/pengeluaran'),
                       ),
                     ),
                   ),
+            ]),
+            ...grup('Stok', [
                   bila(
                     'stok.kelola',
                     SettingsMenuRow(
                       label: 'Stok',
+                      ikon: Icons.inventory_2_outlined,
                       value: jumlahMenipis == 0
                           ? 'Aman'
                           : '$jumlahMenipis menipis',
@@ -431,19 +468,13 @@ class LainnyaPage extends ConsumerWidget {
                       showDivider: false,
                     ),
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            const SectionHeader(label: 'Toko'),
-            AppCard(
-              padding: EdgeInsets.zero,
-              child: Column(
-                children: [
+            ]),
+            ...grup('Toko', [
                   bila(
                     'pengaturan.kelola',
                     SettingsMenuRow(
                       label: 'Outlet dan struk',
+                      ikon: Icons.storefront_outlined,
                       value: 'Atur',
                       onTap: () => context.push('/lainnya/outlet-struk'),
                     ),
@@ -459,6 +490,7 @@ class LainnyaPage extends ConsumerWidget {
                       );
                       return SettingsMenuRow(
                         label: 'Printer struk',
+                        ikon: Icons.print_outlined,
                         value: namaPrinter ?? 'Belum diatur',
                         onTap: () => context.push('/lainnya/printer'),
                       );
@@ -468,6 +500,7 @@ class LainnyaPage extends ConsumerWidget {
                     'pengaturan.kelola',
                     SettingsMenuRow(
                       label: 'Metode pembayaran',
+                      ikon: Icons.credit_card_outlined,
                       value: 'Atur',
                       onTap: () => context.push('/lainnya/metode-bayar'),
                     ),
@@ -476,6 +509,7 @@ class LainnyaPage extends ConsumerWidget {
                     'produk.kelola',
                     SettingsMenuRow(
                       label: 'Kategori produk',
+                      ikon: Icons.category_outlined,
                       value: 'Atur',
                       onTap: () => context.push('/kategori'),
                     ),
@@ -486,6 +520,7 @@ class LainnyaPage extends ConsumerWidget {
                       kode: 'ekspor_impor',
                       child: SettingsMenuRow(
                         label: 'Impor & ekspor produk',
+                        ikon: Icons.import_export,
                         value: 'CSV',
                         onTap: () => context.push('/impor-produk'),
                       ),
@@ -495,6 +530,7 @@ class LainnyaPage extends ConsumerWidget {
                     'produk.kelola',
                     SettingsMenuRow(
                       label: 'Varian & tambahan',
+                      ikon: Icons.tune,
                       value: 'Atur',
                       onTap: () => context.push('/grup-tambahan'),
                     ),
@@ -503,6 +539,7 @@ class LainnyaPage extends ConsumerWidget {
                     kode: 'multi_outlet',
                     child: SettingsMenuRow(
                       label: 'Ganti outlet',
+                      ikon: Icons.swap_horiz,
                       value: 'Pilih outlet aktif',
                       onTap: () => context.push('/ganti-outlet'),
                     ),
@@ -513,6 +550,7 @@ class LainnyaPage extends ConsumerWidget {
                       kode: 'tiket_dapur',
                       child: SettingsMenuRow(
                         label: 'Stasiun dapur',
+                        ikon: Icons.restaurant_outlined,
                         value: 'Bar, Dapur',
                         onTap: () => context.push('/stasiun-dapur'),
                       ),
@@ -522,6 +560,7 @@ class LainnyaPage extends ConsumerWidget {
                     'pengaturan.kelola',
                     SettingsMenuRow(
                       label: 'Tipe pesanan & meja',
+                      ikon: Icons.table_restaurant_outlined,
                       value: 'Atur',
                       onTap: () => context.push('/tipe-order-meja'),
                     ),
@@ -530,6 +569,7 @@ class LainnyaPage extends ConsumerWidget {
                     'pengaturan.kelola',
                     SettingsMenuRow(
                       label: 'Level member & poin',
+                      ikon: Icons.military_tech_outlined,
                       value: 'Atur',
                       onTap: () => context.push('/level-member-poin'),
                     ),
@@ -538,6 +578,7 @@ class LainnyaPage extends ConsumerWidget {
                     'promo.kelola',
                     SettingsMenuRow(
                       label: 'Pajak dan service',
+                      ikon: Icons.percent,
                       value: 'Atur',
                       onTap: () => context.push('/pajak'),
                     ),
@@ -548,25 +589,20 @@ class LainnyaPage extends ConsumerWidget {
                       kode: 'diskon',
                       child: SettingsMenuRow(
                         label: 'Promo',
+                        ikon: Icons.local_offer_outlined,
                         value: 'Atur',
                         onTap: () => context.push('/promo'),
                         showDivider: false,
                       ),
                     ),
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            const SectionHeader(label: 'Akun'),
-            AppCard(
-              padding: EdgeInsets.zero,
-              child: Column(
-                children: [
+            ]),
+            ...grup('Akun', [
                   bila(
                     'pengguna.kelola',
                     SettingsMenuRow(
                       label: 'Karyawan dan hak akses',
+                      ikon: Icons.badge_outlined,
                       value: '$jumlahKaryawan orang',
                       onTap: () => context.push('/pengguna'),
                     ),
@@ -575,6 +611,7 @@ class LainnyaPage extends ConsumerWidget {
                     'pengaturan.kelola',
                     SettingsMenuRow(
                       label: 'Paket langganan',
+                      ikon: Icons.workspace_premium_outlined,
                       value: 'Atur',
                       onTap: () => context.push('/lainnya/paket-langganan'),
                       showDivider: true,
@@ -582,6 +619,7 @@ class LainnyaPage extends ConsumerWidget {
                   ),
                   SettingsMenuRow(
                     label: 'Keluar / ganti kasir',
+                    ikon: Icons.switch_account_outlined,
                     value: penggunaSaatIni?.nama ?? '',
                     onTap: () {
                       ref.read(currentPenggunaIdProvider.notifier).logout();
@@ -592,13 +630,12 @@ class LainnyaPage extends ConsumerWidget {
                   if (roleSaatIni?.nama == 'Owner')
                     SettingsMenuRow(
                       label: 'Keluar dari usaha',
+                      ikon: Icons.logout,
                       value: namaToko,
                       onTap: () => tampilkanLogoutUsaha(context, ref),
                       showDivider: false,
                     ),
-                ],
-              ),
-            ),
+            ]),
           ],
         ),
       ),

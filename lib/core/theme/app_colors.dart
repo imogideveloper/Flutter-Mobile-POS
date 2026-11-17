@@ -35,6 +35,10 @@ abstract final class AppColors {
   static const dangerText = Color(0xFFB42318);
   static const dangerTextStrong = Color(0xFF8F1D13);
 
+  // Aksen oranye - bintang rating, penanda stok, ikon sync
+  static const accentOrange = Color(0xFFD97A1E);
+  static const accentGreenSoft = Color(0xFF5AB89A);
+
   // Indigo - avatar/badge member
   static const indigoBg = Color(0xFFE9ECF7);
   static const indigoText = Color(0xFF2F3E7A);

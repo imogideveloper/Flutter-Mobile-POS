@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_colors.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -284,7 +285,7 @@ class _CatatDepositDialogState extends State<_CatatDepositDialog> {
             if (_salah != null)
               Padding(
                 padding: const EdgeInsets.only(top: AppSpacing.sm),
-                child: Text(_salah!, key: const Key('deposit.salah'), style: const TextStyle(color: Colors.red)),
+                child: Text(_salah!, key: const Key('deposit.salah'), style: const TextStyle(color: AppColors.dangerText)),
               ),
           ],
         ),

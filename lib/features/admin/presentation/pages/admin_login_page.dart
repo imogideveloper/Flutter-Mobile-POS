@@ -74,9 +74,10 @@ class _AdminLoginPageState extends ConsumerState<AdminLoginPage> {
                     key: const Key('adminLogin.email'),
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
+                    textInputAction: TextInputAction.next,
                     autofillHints: const [AutofillHints.email],
-                    decoration: const InputDecoration(labelText: 'Email'),
-                    validator: (v) => (v == null || !v.contains('@')) ? 'Isi email yang valid' : null,
+                    decoration: const InputDecoration(labelText: 'Email atau nama pengguna'),
+                    validator: (v) => (v == null || v.trim().isEmpty) ? 'Isi email atau nama pengguna' : null,
                   ),
                   const SizedBox(height: AppSpacing.md),
                   TextFormField(

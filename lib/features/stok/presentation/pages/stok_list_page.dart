@@ -161,7 +161,7 @@ class _StokMenipisRow extends StatelessWidget {
               value: pct,
               minHeight: 6,
               backgroundColor: AppColors.borderDefault,
-              color: const Color(0xFFD97A1E),
+              color: AppColors.accentOrange,
             ),
           ),
           const SizedBox(height: AppSpacing.xs),

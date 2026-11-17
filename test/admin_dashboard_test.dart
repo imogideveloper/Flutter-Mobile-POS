@@ -211,7 +211,7 @@ void main() {
 
     await tester.tap(find.byKey(const Key('adminLogin.masuk')));
     await tester.pumpAndSettle();
-    expect(find.text('Isi email yang valid'), findsOneWidget);
+    expect(find.text('Isi email atau nama pengguna'), findsOneWidget);
     expect(notifier.emailTerakhir, isNull);
 
     await tester.enterText(find.byKey(const Key('adminLogin.email')), 'lead@imogi.test');
@@ -220,6 +220,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(notifier.emailTerakhir, 'lead@imogi.test');
+
     expect(find.text('halaman-dashboard'), findsOneWidget);
   });
 }

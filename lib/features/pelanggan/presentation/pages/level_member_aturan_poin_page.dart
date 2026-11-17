@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/database/app_database.dart';
@@ -229,7 +230,7 @@ class _LevelMemberDialogState extends ConsumerState<_LevelMemberDialog> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (!online) const OfflineNoticeBanner(),
-            if (_error != null) Text(_error!, style: const TextStyle(color: Colors.red)),
+            if (_error != null) Text(_error!, style: const TextStyle(color: AppColors.dangerText)),
             TextFormField(
               key: const Key('levelMemberDialog.nama'),
               controller: _namaController,
@@ -376,7 +377,7 @@ class _AturanPoinFormState extends ConsumerState<_AturanPoinForm> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (_error != null) ...[
-              Text(_error!, style: const TextStyle(color: Colors.red)),
+              Text(_error!, style: const TextStyle(color: AppColors.dangerText)),
               const SizedBox(height: AppSpacing.sm),
             ],
             TextFormField(

@@ -121,8 +121,19 @@ class LoginPage extends ConsumerWidget {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.lg, AppSpacing.xl, AppSpacing.sm),
-            child: Text('Pilih akun untuk mulai bertugas', style: AppTypography.secondary),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.xl, AppSpacing.xl, AppSpacing.lg),
+            child: Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: const BoxDecoration(color: AppColors.primaryTint, shape: BoxShape.circle),
+                  child: const Icon(Icons.storefront_outlined, color: AppColors.primary),
+                ),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(child: Text('Pilih akun untuk mulai bertugas', style: AppTypography.bodyEmphasis)),
+              ],
+            ),
           ),
           Expanded(
             child: seed.when(

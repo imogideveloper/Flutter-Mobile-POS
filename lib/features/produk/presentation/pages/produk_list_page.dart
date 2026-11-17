@@ -232,7 +232,7 @@ class _FilterChipButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (bg, fg, border) = selected
-        ? (AppColors.textPrimary, AppColors.surface, AppColors.textPrimary)
+        ? (AppColors.primaryTint, AppColors.primaryDark, AppColors.primaryTintBorder)
         : variant == _ChipVariant.warning
         ? (AppColors.warningBg, AppColors.warningTextStrong, AppColors.warningBg)
         : (AppColors.surface, AppColors.textPrimary, AppColors.borderDefault);
@@ -336,11 +336,28 @@ class _ProdukRow extends StatelessWidget {
                     style: AppTypography.moneyAmount,
                   ),
                   if (stokLabel.isNotEmpty)
-                    Text(
-                      stokLabel,
-                      style: AppTypography.secondary.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: stokColor,
+                    Padding(
+                      padding: const EdgeInsets.only(top: AppSpacing.xs),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          // Hanya stok habis/menipis yang diberi latar; stok normal cukup teks biasa supaya
+                          // daftar tidak dipenuhi warna.
+                          color: stokColor == AppColors.dangerText
+                              ? AppColors.dangerBg
+                              : stokColor == AppColors.warningTextStrong
+                                  ? AppColors.warningBg
+                                  : Colors.transparent,
+                          borderRadius: BorderRadius.circular(AppRadius.pill),
+                        ),
+                        child: Text(
+                          stokLabel,
+                          style: AppTypography.secondary.copyWith(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 12,
+                            color: stokColor,
+                          ),
+                        ),
                       ),
                     ),
                 ],

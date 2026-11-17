@@ -247,7 +247,7 @@ class _BayarQrisPageState extends ConsumerState<BayarQrisPage> {
                       width: 10,
                       height: 10,
                       decoration: const BoxDecoration(
-                        color: Color(0xFFD97A1E),
+                        color: AppColors.accentOrange,
                         shape: BoxShape.circle,
                       ),
                     ),

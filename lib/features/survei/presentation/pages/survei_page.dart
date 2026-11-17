@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/network/auth_session_store.dart';
 import '../../../../core/network/backend_exception.dart';
 import '../../../../core/network/dio_backend_api.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_card.dart';
@@ -393,7 +394,7 @@ class _IsiSurveiPageState extends ConsumerState<IsiSurveiPage> {
                             onPressed: () => setState(() => _angka[q['id'] as String] = n),
                             icon: Icon(
                               (_angka[q['id']] ?? 0) >= n ? Icons.star : Icons.star_border,
-                              color: Colors.amber,
+                              color: AppColors.accentOrange,
                             ),
                           ),
                       ],

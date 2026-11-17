@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/database/app_database.dart';
@@ -148,7 +149,7 @@ class _ProdukPajakSectionState extends ConsumerState<_ProdukPajakSection> {
           if (_memuat)
             const Center(child: CircularProgressIndicator())
           else if (_error != null)
-            Text(_error!, style: const TextStyle(color: Colors.red))
+            Text(_error!, style: const TextStyle(color: AppColors.dangerText))
           else
             pajakAsync.when(
               data: (daftarPajak) => daftarPajak.isEmpty
@@ -259,7 +260,7 @@ class _ResepSectionState extends ConsumerState<_ResepSection> {
           if (_memuat)
             const Center(child: CircularProgressIndicator())
           else if (_error != null)
-            Text(_error!, style: const TextStyle(color: Colors.red))
+            Text(_error!, style: const TextStyle(color: AppColors.dangerText))
           else if (_daftar.isEmpty)
             const EmptyState(icon: Icons.soup_kitchen_outlined, message: 'Belum ada resep')
           else
@@ -357,7 +358,7 @@ class _BundlingSectionState extends ConsumerState<_BundlingSection> {
           if (_memuat)
             const Center(child: CircularProgressIndicator())
           else if (_error != null)
-            Text(_error!, style: const TextStyle(color: Colors.red))
+            Text(_error!, style: const TextStyle(color: AppColors.dangerText))
           else if (_daftar.isEmpty)
             const EmptyState(icon: Icons.inventory_2_outlined, message: 'Belum ada isi bundling')
           else
@@ -501,7 +502,7 @@ class _ResepBundlingDialogState extends ConsumerState<_ResepBundlingDialog> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (!online) const OfflineNoticeBanner(),
-            if (_error != null) Text(_error!, style: const TextStyle(color: Colors.red)),
+            if (_error != null) Text(_error!, style: const TextStyle(color: AppColors.dangerText)),
             if (_modeEdit)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8),
@@ -735,7 +736,7 @@ class _HargaGrosirDialogState extends ConsumerState<_HargaGrosirDialog> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (!online) const OfflineNoticeBanner(),
-            if (_error != null) Text(_error!, style: const TextStyle(color: Colors.red)),
+            if (_error != null) Text(_error!, style: const TextStyle(color: AppColors.dangerText)),
             TextFormField(
               key: const Key('hargaGrosirDialog.minQty'),
               controller: _minQtyController,
@@ -985,7 +986,7 @@ class _HargaOutletDialogState extends ConsumerState<_HargaOutletDialog> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (!online) const OfflineNoticeBanner(),
-            if (_error != null) Text(_error!, style: const TextStyle(color: Colors.red)),
+            if (_error != null) Text(_error!, style: const TextStyle(color: AppColors.dangerText)),
             if (_modeEdit)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8),

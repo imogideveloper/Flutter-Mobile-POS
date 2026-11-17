@@ -20,7 +20,7 @@ import '../providers/laporan_providers.dart';
 
 final _formatRupiah = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
 
-const _warnaMetode = [AppColors.primary, Color(0xFF5AB89A), Color(0xFFD97A1E), Color(0xFF9FB1A9)];
+const _warnaMetode = [AppColors.primary, AppColors.accentGreenSoft, AppColors.accentOrange, AppColors.textTertiary];
 
 /// Sesuai mockup "Laporan" - semua angka dihitung langsung dari data
 /// transaksi+item+pembayaran yang sudah ada di SQLite lokal, tidak ada
@@ -128,16 +128,16 @@ class _TabPeriode extends ConsumerWidget {
             height: 34,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: aktif ? AppColors.surface : Colors.transparent,
+              color: aktif ? AppColors.primary : Colors.transparent,
               borderRadius: BorderRadius.circular(9),
             ),
             child: Text(
               label,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: aktif ? FontWeight.w700 : FontWeight.w600,
-                color: aktif ? AppColors.textPrimary : AppColors.textSecondary,
+                color: aktif ? AppColors.surface : AppColors.textSecondary,
               ),
             ),
           ),
@@ -151,7 +151,11 @@ class _TabPeriode extends ConsumerWidget {
 
     return Container(
       padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(color: AppColors.bg, borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.borderDefault),
+      ),
       child: Row(
         children: [
           tab('Hari ini', PeriodeLaporan.hariIni),

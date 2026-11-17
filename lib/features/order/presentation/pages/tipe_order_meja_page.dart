@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/database/app_database.dart';
@@ -333,7 +334,7 @@ class _TipeOrderDialogState extends ConsumerState<_TipeOrderDialog> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (!online) const OfflineNoticeBanner(),
-            if (_error != null) Text(_error!, style: const TextStyle(color: Colors.red)),
+            if (_error != null) Text(_error!, style: const TextStyle(color: AppColors.dangerText)),
             TextFormField(
               key: const Key('tipeOrderDialog.nama'),
               controller: _namaController,
@@ -540,7 +541,7 @@ class _MejaDialogState extends ConsumerState<_MejaDialog> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (!online) const OfflineNoticeBanner(),
-            if (_error != null) Text(_error!, style: const TextStyle(color: Colors.red)),
+            if (_error != null) Text(_error!, style: const TextStyle(color: AppColors.dangerText)),
             TextFormField(
               key: const Key('mejaDialog.nama'),
               controller: _namaController,

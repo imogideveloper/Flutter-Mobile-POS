@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -137,7 +138,7 @@ class _PenggunaListPageState extends ConsumerState<PenggunaListPage> {
                               if (pengguna['aktif'] != true)
                                 const Padding(
                                   padding: EdgeInsets.only(left: AppSpacing.sm),
-                                  child: Text('Nonaktif', style: TextStyle(color: Colors.red)),
+                                  child: Text('Nonaktif', style: TextStyle(color: AppColors.dangerText)),
                                 ),
                             ],
                           ),

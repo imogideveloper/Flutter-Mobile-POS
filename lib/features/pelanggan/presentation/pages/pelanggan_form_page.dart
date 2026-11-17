@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/database/app_database.dart';
@@ -193,7 +194,7 @@ class _PelangganFormPageState extends ConsumerState<PelangganFormPage> {
             children: [
               const OfflineNoticeBanner(),
               if (_errorServer != null) ...[
-                Text(_errorServer!, style: const TextStyle(color: Colors.red)),
+                Text(_errorServer!, style: const TextStyle(color: AppColors.dangerText)),
                 const SizedBox(height: AppSpacing.sm),
               ],
               TextFormField(

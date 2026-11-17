@@ -98,6 +98,69 @@ abstract final class AppTheme {
           textStyle: AppTypography.bodyEmphasis,
         ),
       ),
+      // Komponen berikut dulu jatuh ke gaya bawaan Material (mint, sudut berbeda) sehingga tidak serasi
+      // dengan tombol utama. Disamakan di sini supaya seluruh aplikasi satu bahasa visual.
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.surface,
+        elevation: 2,
+        highlightElevation: 4,
+        extendedTextStyle: AppTypography.bodyEmphasis.copyWith(color: AppColors.surface),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.lg)),
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: AppColors.surface,
+        selectedColor: AppColors.primaryTint,
+        checkmarkColor: AppColors.primary,
+        side: const BorderSide(color: AppColors.borderStrong),
+        labelStyle: AppTypography.bodyEmphasis.copyWith(fontSize: 13),
+        secondaryLabelStyle: AppTypography.bodyEmphasis.copyWith(fontSize: 13, color: AppColors.primaryDark),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.pill)),
+        showCheckmark: false,
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: AppColors.surface,
+        surfaceTintColor: Colors.transparent,
+        elevation: 3,
+        titleTextStyle: AppTypography.cardTitle,
+        contentTextStyle: AppTypography.body,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.xl)),
+      ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: AppColors.surface,
+        surfaceTintColor: Colors.transparent,
+        showDragHandle: true,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
+        ),
+      ),
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.selected) ? AppColors.surface : AppColors.textTertiary,
+        ),
+        trackColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.selected) ? AppColors.primary : AppColors.borderStrong,
+        ),
+        trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
+      ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          backgroundColor: WidgetStateProperty.resolveWith(
+            (s) => s.contains(WidgetState.selected) ? AppColors.primaryTint : AppColors.surface,
+          ),
+          foregroundColor: WidgetStateProperty.resolveWith(
+            (s) => s.contains(WidgetState.selected) ? AppColors.primaryDark : AppColors.textPrimary,
+          ),
+          side: const WidgetStatePropertyAll(BorderSide(color: AppColors.borderStrong)),
+          textStyle: WidgetStatePropertyAll(AppTypography.bodyEmphasis),
+        ),
+      ),
+      progressIndicatorTheme: const ProgressIndicatorThemeData(color: AppColors.primary),
+      checkboxTheme: CheckboxThemeData(
+        fillColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.selected) ? AppColors.primary : null,
+        ),
+      ),
       listTileTheme: const ListTileThemeData(
         iconColor: AppColors.textSecondary,
         textColor: AppColors.textPrimary,
