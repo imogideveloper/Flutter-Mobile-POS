@@ -13,7 +13,7 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.fitur_map import endpoint_tergate
-from tests.conftest import buat_perangkat, buat_produk, buat_toko_siap_pakai
+from tests.conftest import buat_metode_bayar, buat_perangkat, buat_produk, buat_toko_siap_pakai
 
 # Tiap entri: (method, url_builder, body_builder) - keduanya terima
 # (toko, extra) dan mengembalikan nilai siap pakai. `extra` adalah dict
@@ -88,7 +88,16 @@ async def _setup_survei(db: AsyncSession, toko) -> dict:
     }
 
 
+async def _setup_settlement(db: AsyncSession, toko) -> dict:
+    metode = await buat_metode_bayar(db, toko.toko.id, tipe="qris")
+    return {
+        "method": "POST", "url": "/settlement",
+        "json": {"metode_bayar_id": str(metode.id), "tanggal": "2026-11-17", "jumlah_diterima": "1000"},
+    }
+
+
 _SETUP: dict[str, _SetupFn] = {
+    "settlement": _setup_settlement,
     "survei": _setup_survei,
     "resep": _setup_resep,
     "bundling": _setup_bundling,

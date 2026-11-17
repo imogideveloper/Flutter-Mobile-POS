@@ -346,6 +346,17 @@ class LainnyaPage extends ConsumerWidget {
                   bila(
                     'laporan.lihat',
                     FiturTerkunci(
+                      kode: 'settlement',
+                      child: SettingsMenuRow(
+                        label: 'Settlement QRIS & e-wallet',
+                        value: 'Rekonsiliasi',
+                        onTap: () => context.push('/settlement'),
+                      ),
+                    ),
+                  ),
+                  bila(
+                    'laporan.lihat',
+                    FiturTerkunci(
                       kode: 'expenses',
                       child: SettingsMenuRow(
                         label: 'Pengeluaran',

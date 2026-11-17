@@ -30,6 +30,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.main import app
 from app.models.jadwal import PengajuanCuti
 from app.models.pengeluaran import Pengeluaran
+from app.models.settlement import Settlement
 from app.models.pelanggan import PertanyaanSurvei, Survei
 from app.models.order import Meja, TipeOrder
 from app.models.outlet import Outlet, Paket, PermintaanUpgrade
@@ -259,6 +260,13 @@ async def _siapkan_satu_toko(client: AsyncClient, db: AsyncSession, toko, label:
     db.add(PertanyaanSurvei(survei_id=survei.id, teks="Puas?", tipe="rating", urutan=0))
     await db.commit()
     ids["survei_id"] = survei.id
+
+    settlement = Settlement(
+        toko_id=toko.toko.id, metode_bayar_id=ids["metode_bayar_id"], tanggal=date(2026, 11, 17), jumlah_diterima=Decimal("1")
+    )
+    db.add(settlement)
+    await db.commit()
+    ids["settlement_id"] = settlement.id
 
     stasiun_resp = await client.post(
         f"/outlets/{toko.outlet.id}/stasiun-dapur", headers=toko.headers, json={"nama": f"Stasiun {label}"}

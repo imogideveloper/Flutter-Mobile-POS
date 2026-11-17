@@ -292,8 +292,8 @@
   "catatan": "SEBAGIAN (2026-11-12): tab PPN/PB1 di Lainnya > Rekap pajak: pajak dan service dipungut per nama dan tarif; server `/laporan/rekap-pajak`. Belum: ekspor, PPN masukan/keluaran, pelaporan SPT. Belum diuji di HP."
  },
  "74": {
-  "status": "belum",
-  "catatan": "Tidak ada settlement atau rekonsiliasi QRIS dan e-wallet."
+  "status": "sedang",
+  "catatan": "SEBAGIAN (2026-11-17): Lainnya > Settlement QRIS & e-wallet: catat dana yang masuk rekening (per tanggal penjualan dan metode, dengan biaya/MDR) dan bandingkan dengan penjualan non-tunai di POS (cocok, selisih, belum dicatat). Butuh internet. Belum: impor otomatis dari penyedia/gateway, cakupan 7 hari tetap, jurnal akuntansi, belum diuji di HP."
  },
  "75": {
   "status": "tidak_relevan",

@@ -15,6 +15,7 @@ from . import (  # noqa: F401
     platform,
     produk,
     promo,
+    settlement,
     stok,
     transaksi,
 )
