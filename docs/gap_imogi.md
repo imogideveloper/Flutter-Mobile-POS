@@ -18,9 +18,9 @@ Tanggal: 2026-11-08. Menggantikan `docs/gap_fnb.md` sebagai acuan utama. Daftar 
 | Relevan untuk Makanan & Minuman (inti atau opsional untuk minimal 1 dari 7 jenis usaha) | 64 |
 | Tidak relevan untuk Makanan & Minuman (disembunyikan) | 23 |
 | ✅ Lengkap | 15 (tidak berubah: belum ada fitur yang diuji di HP, jadi tidak ada yang dinaikkan) |
-| 🟡 Sebagian | 37 (awal audit 24; +13 sejak 2026-11-12/17) |
+| 🟡 Sebagian | 38 (awal audit 24; +14 sejak 2026-11-12/17) |
 
-| ❌ Belum ada | 12 (awal audit 25) |
+| ❌ Belum ada | 11 (awal audit 25) |
 
 | Fitur inti untuk Kafe & Kedai Kopi | 46 (✅ 11, 🟡 26, ❌ 9); awal audit ✅ 11, 🟡 18, ❌ 17 |
 
@@ -112,7 +112,7 @@ Diurutkan: inti untuk Kafe & Kedai Kopi lebih dulu. ❌ = belum ada, 🟡 = seba
 | 25 | Struk | Catatan tambahan di struk | Enterprise | 0 inti, 7 opsional, Kafe: Opsional | 🟡 | Catatan pesanan tercetak. Footer struk toko sudah ada dan kini dibatasi maks. 300 karakter di Pengaturan struk. Belum diuji di HP. |
 | 27 | Dapur | Terima order, bayar belakangan (nota order) | Free | 0 inti, 3 opsional, Kafe: Opsional | 🟡 | SEBAGIAN (2026-11-15): tombol Terima Order (bayar nanti) di keranjang mencatat pesanan sebagai transaksi belum dibayar tanpa pelanggan (nomor antrean, status pesanan, tiket dapur ikut berjalan; bukan kasbon, paket Gratis boleh); layar Order belum dibayar (Lainnya) mencatat pelunasan penuh atau sebagian per metode bayar; server menerima lewat bayar_belakangan (migrasi 0024). Belum: pilihan jatuh tempo/kapan membayar, cetak nota order khusus, penukaran poin dan metode QRIS saat pelunasan. Lulus tes otomatis, belum diuji di HP. |
 | 53 | Pelanggan | Upload pelanggan via template | Professional | 0 inti, 6 opsional, Kafe: Opsional | 🟡 | SEBAGIAN (2026-11-13): Lainnya > Impor pelanggan: template CSV, pratinjau, simulasi dan impor lewat `POST /pelanggan/impor`; nomor HP dinormalkan. Belum: memperbarui pelanggan lama, poin/level. Belum diuji di HP. |
-| 57 | Pelanggan | Kirim WA ke banyak pelanggan | Professional | 0 inti, 5 opsional, Kafe: Opsional | ❌ | Hanya kirim struk lewat WhatsApp; belum ada kirim pesan massal ke pelanggan. |
+| 57 | Pelanggan | Kirim WA ke banyak pelanggan | Professional | 0 inti, 5 opsional, Kafe: Opsional | 🟡 | SEBAGIAN (2026-11-17): Lainnya > Kirim WA ke pelanggan (digerbang customer_broadcast): tulis satu pesan dengan {nama} dan {toko}, pilih penerima (hanya yang punya nomor WhatsApp sah, saring level dan cari), lalu pesan dibuka di WhatsApp satu per satu dan dikirim kasir sendiri. Belum: kirim otomatis lewat gateway WhatsApp Business, riwayat kiriman, penjadwalan, opt-out pelanggan. Lulus tes otomatis, belum diuji di HP. |
 | 77 | Akuntansi | BPJS & PPh 21 di penggajian | Enterprise | 0 inti, 7 opsional, Kafe: Opsional | ❌ | Tidak ada BPJS dan PPh 21. |
 | 78 | Akuntansi | Tutup buku akhir tahun | Enterprise | 0 inti, 7 opsional, Kafe: Opsional | ❌ | Tidak ada tutup buku akhir tahun. |
 

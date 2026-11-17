@@ -256,6 +256,17 @@ class LainnyaPage extends ConsumerWidget {
                   bila(
                     'pelanggan.kelola',
                     FiturTerkunci(
+                      kode: 'customer_broadcast',
+                      child: SettingsMenuRow(
+                        label: 'Kirim WA ke pelanggan',
+                        value: 'Banyak penerima',
+                        onTap: () => context.push('/kirim-massal'),
+                      ),
+                    ),
+                  ),
+                  bila(
+                    'pelanggan.kelola',
+                    FiturTerkunci(
                       kode: 'customer_import',
                       child: SettingsMenuRow(
                         label: 'Impor pelanggan',
