@@ -20,6 +20,7 @@ from app.models.pengeluaran import KATEGORI_PENGELUARAN, Pengeluaran
 from app.models.transaksi import Transaksi
 from app.services.fitur_service import require_fitur
 from app.services.izin_service import has_izin
+from app.services.tutup_buku_service import pastikan_periode_terbuka
 
 router = APIRouter(prefix="/anggaran", tags=["anggaran"], dependencies=[Depends(require_fitur("budget"))])
 
@@ -76,6 +77,7 @@ async def tetapkan_anggaran(
     if body.kategori not in KATEGORI_PENGELUARAN:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "Kategori tidak dikenal")
     awal = _awal_bulan(body.bulan)
+    await pastikan_periode_terbuka(db, toko_id, awal)
     ada = (
         await db.execute(
             select(Anggaran).where(Anggaran.toko_id == toko_id, Anggaran.bulan == awal, Anggaran.kategori == body.kategori)

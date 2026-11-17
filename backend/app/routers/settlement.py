@@ -18,6 +18,7 @@ from app.models.settlement import Settlement
 from app.models.transaksi import MetodeBayar, Pembayaran, Transaksi
 from app.services.fitur_service import require_fitur
 from app.services.izin_service import has_izin
+from app.services.tutup_buku_service import pastikan_periode_terbuka
 
 router = APIRouter(prefix="/settlement", tags=["settlement"], dependencies=[Depends(require_fitur("settlement"))])
 
@@ -107,6 +108,7 @@ async def catat_settlement(
     db: AsyncSession = Depends(get_db),
 ) -> SettlementOut:
     await _wajib_izin(db, role_id)
+    await pastikan_periode_terbuka(db, toko_id, body.tanggal)
     metode = await _metode_nontunai_milik_toko(db, body.metode_bayar_id, toko_id)
     s = Settlement(
         toko_id=toko_id,
@@ -160,6 +162,7 @@ async def hapus_settlement(
     s = await db.get(Settlement, settlement_id)
     if s is None or s.toko_id != toko_id or s.deleted_at is not None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Settlement tidak ditemukan")
+    await pastikan_periode_terbuka(db, toko_id, s.tanggal)
     s.deleted_at = datetime.now(UTC)
     await db.commit()
 

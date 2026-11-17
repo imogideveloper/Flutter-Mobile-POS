@@ -308,8 +308,8 @@
   "catatan": "Tidak ada BPJS dan PPh 21."
  },
  "78": {
-  "status": "belum",
-  "catatan": "Tidak ada tutup buku akhir tahun."
+  "status": "sedang",
+  "catatan": "SEBAGIAN (2026-11-17): Lainnya > Tutup buku (hanya Owner): kunci pembukuan sampai tanggal tertentu; pengeluaran, settlement, dan anggaran bertanggal terkunci ditolak (409), bisa dibuka kembali (tercatat di audit). Butuh internet. Belum: jurnal penutup/saldo awal tahun baru, penguncian transaksi penjualan, penguncian aset, belum diuji di HP."
  },
  "79": {
   "status": "belum",

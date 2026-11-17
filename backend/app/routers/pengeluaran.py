@@ -18,6 +18,7 @@ from app.schemas.pengeluaran import DaftarPengeluaranOut, PengeluaranIn, Pengelu
 from app.services.audit_service import catat_audit
 from app.services.fitur_service import require_fitur
 from app.services.izin_service import has_izin
+from app.services.tutup_buku_service import pastikan_periode_terbuka
 
 router = APIRouter(
     prefix="/pengeluaran", tags=["pengeluaran"], dependencies=[Depends(require_fitur("expenses"))]
@@ -80,6 +81,7 @@ async def catat_pengeluaran(
             if ada.toko_id != toko_id:
                 raise HTTPException(status.HTTP_409_CONFLICT, "ID pengeluaran tidak tersedia")
             return ada  # kirim ulang yang sama: idempoten
+    await pastikan_periode_terbuka(db, toko_id, body.tanggal)
     if body.outlet_id is not None:
         outlet = await db.get(Outlet, body.outlet_id)
         if outlet is None or outlet.toko_id != toko_id:
@@ -120,6 +122,7 @@ async def hapus_pengeluaran(
     baris = await db.get(Pengeluaran, pengeluaran_id)
     if baris is None or baris.toko_id != toko_id or baris.deleted_at is not None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Pengeluaran tidak ditemukan")
+    await pastikan_periode_terbuka(db, toko_id, baris.tanggal)
     baris.deleted_at = datetime.now(UTC)
     await catat_audit(
         db, toko_id=toko_id, pengguna_id=pengguna_id, aksi="hapus_pengeluaran",

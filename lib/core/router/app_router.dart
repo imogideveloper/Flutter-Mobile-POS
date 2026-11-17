@@ -18,6 +18,7 @@ import '../../features/pengeluaran/presentation/pages/laba_rugi_konsolidasi_page
 import '../../features/pengeluaran/presentation/pages/rekap_pajak_page.dart';
 import '../../features/pengeluaran/presentation/pages/pengeluaran_page.dart';
 import '../../features/pengeluaran/presentation/pages/settlement_page.dart';
+import '../../features/pengeluaran/presentation/pages/tutup_buku_page.dart';
 import '../../features/pengeluaran/presentation/pages/ekspor_akuntansi_page.dart';
 import '../../features/pengeluaran/presentation/pages/anggaran_page.dart';
 import '../../features/pengeluaran/presentation/pages/aset_tetap_page.dart';
@@ -415,6 +416,10 @@ GoRouter _buildRouter() => GoRouter(
     GoRoute(
       path: '/jadwal-cuti',
       builder: (context, state) => const JadwalCutiPage(),
+    ),
+    GoRoute(
+      path: '/tutup-buku',
+      builder: (context, state) => const IzinGuard(kodeIzin: 'laporan.lihat', child: TutupBukuPage()),
     ),
     GoRoute(
       path: '/ekspor-akuntansi',

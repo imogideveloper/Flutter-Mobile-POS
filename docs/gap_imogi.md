@@ -18,9 +18,9 @@ Tanggal: 2026-11-08. Menggantikan `docs/gap_fnb.md` sebagai acuan utama. Daftar 
 | Relevan untuk Makanan & Minuman (inti atau opsional untuk minimal 1 dari 7 jenis usaha) | 64 |
 | Tidak relevan untuk Makanan & Minuman (disembunyikan) | 23 |
 | ✅ Lengkap | 15 (tidak berubah: belum ada fitur yang diuji di HP, jadi tidak ada yang dinaikkan) |
-| 🟡 Sebagian | 43 (awal audit 24; +19 sejak 2026-11-12/17) |
+| 🟡 Sebagian | 44 (awal audit 24; +20 sejak 2026-11-12/17) |
 
-| ❌ Belum ada | 6 (awal audit 25) |
+| ❌ Belum ada | 5 (awal audit 25) |
 
 | Fitur inti untuk Kafe & Kedai Kopi | 46 (✅ 11, 🟡 26, ❌ 9); awal audit ✅ 11, 🟡 18, ❌ 17 |
 
@@ -114,7 +114,7 @@ Diurutkan: inti untuk Kafe & Kedai Kopi lebih dulu. ❌ = belum ada, 🟡 = seba
 | 53 | Pelanggan | Upload pelanggan via template | Professional | 0 inti, 6 opsional, Kafe: Opsional | 🟡 | SEBAGIAN (2026-11-13): Lainnya > Impor pelanggan: template CSV, pratinjau, simulasi dan impor lewat `POST /pelanggan/impor`; nomor HP dinormalkan. Belum: memperbarui pelanggan lama, poin/level. Belum diuji di HP. |
 | 57 | Pelanggan | Kirim WA ke banyak pelanggan | Professional | 0 inti, 5 opsional, Kafe: Opsional | 🟡 | SEBAGIAN (2026-11-17): Lainnya > Kirim WA ke pelanggan (digerbang customer_broadcast): tulis satu pesan dengan {nama} dan {toko}, pilih penerima (hanya yang punya nomor WhatsApp sah, saring level dan cari), lalu pesan dibuka di WhatsApp satu per satu dan dikirim kasir sendiri. Belum: kirim otomatis lewat gateway WhatsApp Business, riwayat kiriman, penjadwalan, opt-out pelanggan. Lulus tes otomatis, belum diuji di HP. |
 | 77 | Akuntansi | BPJS & PPh 21 di penggajian | Enterprise | 0 inti, 7 opsional, Kafe: Opsional | ❌ | Tidak ada BPJS dan PPh 21. |
-| 78 | Akuntansi | Tutup buku akhir tahun | Enterprise | 0 inti, 7 opsional, Kafe: Opsional | ❌ | Tidak ada tutup buku akhir tahun. |
+| 78 | Akuntansi | Tutup buku akhir tahun | Enterprise | 0 inti, 7 opsional, Kafe: Opsional | 🟡 | SEBAGIAN (2026-11-17): Lainnya > Tutup buku (digerbang `year_end_closing`, hanya Owner): kunci pembukuan sampai tanggal tertentu; pengeluaran, settlement, dan anggaran pada/sebelum tanggal itu tidak bisa dicatat, diubah, atau dihapus (409); Owner bisa membuka kembali penutupan terakhir; keduanya masuk audit. Server: `/tutup-buku` (migrasi 0033). Belum: jurnal penutup, saldo awal, penguncian penjualan/aset, belum diuji di HP. |
 
 ---
 

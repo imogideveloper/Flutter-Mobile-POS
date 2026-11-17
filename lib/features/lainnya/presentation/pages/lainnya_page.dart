@@ -346,6 +346,17 @@ class LainnyaPage extends ConsumerWidget {
                   bila(
                     'laporan.lihat',
                     FiturTerkunci(
+                      kode: 'year_end_closing',
+                      child: SettingsMenuRow(
+                        label: 'Tutup buku',
+                        value: 'Kunci periode',
+                        onTap: () => context.push('/tutup-buku'),
+                      ),
+                    ),
+                  ),
+                  bila(
+                    'laporan.lihat',
+                    FiturTerkunci(
                       kode: 'accounting_export',
                       child: SettingsMenuRow(
                         label: 'Ekspor ke software akuntansi',

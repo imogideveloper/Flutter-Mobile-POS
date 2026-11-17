@@ -117,7 +117,12 @@ async def _setup_accounting_export(db: AsyncSession, toko) -> dict:
     }
 
 
+async def _setup_year_end_closing(db: AsyncSession, toko) -> dict:
+    return {"method": "GET", "url": "/tutup-buku", "json": None}
+
+
 _SETUP: dict[str, _SetupFn] = {
+    "year_end_closing": _setup_year_end_closing,
     "accounting_export": _setup_accounting_export,
     "budget": _setup_budget,
     "fixed_assets": _setup_fixed_assets,
