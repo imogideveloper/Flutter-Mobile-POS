@@ -81,6 +81,10 @@ async def _setup_multi_outlet(db: AsyncSession, toko) -> dict:
     return {"method": "POST", "url": "/outlets", "json": {"kode": "OUT2", "nama": "Outlet Kedua"}}
 
 
+async def _setup_product_options(db: AsyncSession, toko) -> dict:
+    return {"method": "POST", "url": "/grup-modifier", "json": {"nama": "Topping"}}
+
+
 async def _setup_survei(db: AsyncSession, toko) -> dict:
     return {
         "method": "POST", "url": "/survei",
@@ -142,6 +146,7 @@ _SETUP: dict[str, _SetupFn] = {
     "fixed_assets": _setup_fixed_assets,
     "settlement": _setup_settlement,
     "survei": _setup_survei,
+    "product_options": _setup_product_options,
     "resep": _setup_resep,
     "bundling": _setup_bundling,
     "harga_grosir": _setup_harga_grosir,

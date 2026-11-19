@@ -6,7 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from tests.conftest import buat_produk, buat_toko_siap_pakai
 
 
-async def test_varian_crud(client: AsyncClient, db_session: AsyncSession, toko_a) -> None:
+async def test_varian_crud(client: AsyncClient, db_session: AsyncSession) -> None:
+    toko_a = await buat_toko_siap_pakai(db_session, nama_paket="Bisnis")
     produk = await buat_produk(db_session, toko_a.toko.id, nama="Kopi")
 
     resp = await client.post(
@@ -20,8 +21,9 @@ async def test_varian_crud(client: AsyncClient, db_session: AsyncSession, toko_a
 
 
 async def test_varian_produk_toko_lain_ditolak(
-    client: AsyncClient, db_session: AsyncSession, toko_a, toko_b
+    client: AsyncClient, db_session: AsyncSession, toko_b
 ) -> None:
+    toko_a = await buat_toko_siap_pakai(db_session, nama_paket="Bisnis")
     produk_b = await buat_produk(db_session, toko_b.toko.id)
 
     resp = await client.get(f"/produk/{produk_b.id}/varian", headers=toko_a.headers)
@@ -29,8 +31,9 @@ async def test_varian_produk_toko_lain_ditolak(
 
 
 async def test_grup_modifier_dan_modifier_lalu_ditautkan_ke_produk(
-    client: AsyncClient, db_session: AsyncSession, toko_a
+    client: AsyncClient, db_session: AsyncSession
 ) -> None:
+    toko_a = await buat_toko_siap_pakai(db_session, nama_paket="Bisnis")
     produk = await buat_produk(db_session, toko_a.toko.id, nama="Kopi Susu")
 
     resp_grup = await client.post(

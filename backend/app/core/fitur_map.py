@@ -19,7 +19,9 @@ from dataclasses import dataclass
 @dataclass(frozen=True)
 class PemetaanFitur:
     kode: str
-    tingkat: int  # 1 Pro, 2 Bisnis
+    # Katalog IMOGI: 1 Starter, 2 Professional, 3 Enterprise (0 Free tidak digate). Seed TES masih
+    # memakai tiga paket lama (Gratis, Pro, Bisnis; lihat perlu_konfirmasi A8), tingkat angkanya tetap sama.
+    tingkat: int
     # (method, path) endpoint yang DIGATE require_fitur(kode) - None kalau
     # tidak ada endpoint/field sama sekali utk fitur ini (lihat catatan).
     endpoint: tuple[str, str] | None
@@ -51,6 +53,7 @@ FITUR_MAP: list[PemetaanFitur] = [
     PemetaanFitur("label_pembayaran", 2, None, "Tahap 4: PATCH /metode-bayar/{id} menolak 403 fitur_terkunci kalau body mengisi nama/urutan tanpa fitur ini (aktif/nonaktif TIDAK digate) - inline per-field di routers/penjualan_setup.py, dites manual di tests/test_pengaturan_struk.py."),
     PemetaanFitur("logo_struk", 2, None, "Tahap 4: POST /toko/logo (routers/toko.py) digate require_fitur langsung - endpoint=None di sini BUKAN krn belum ada endpoint (sekarang ADA), tapi krn endpoint ini butuh multipart file upload yang harness test_gating_fitur.py (client.request json=/params= saja) tidak dukung. Dites manual di tests/test_pengaturan_struk.py."),
     PemetaanFitur("bundling", 2, ("POST", "/produk/{produk_id}/bundling"), "GET juga digate; endpoint ini JUGA menolak 400 kalau isinya produk bundling lain (lihat docs/aturan_harga.md). Tahap 3a: checkout_service SEKARANG expand bundling_item utk potong stok komponen (+ resep komponen itu kalau ada) - lihat _potong_stok_item."),
+    PemetaanFitur("product_options", 1, ("POST", "/grup-modifier"), "Varian dan tambahan produk: seluruh route varian, grup-modifier, dan modifier digate (routers/produk_lanjutan.py). Dites di tests/test_gating_fitur.py."),
     PemetaanFitur("pack_units", 1, None, "POST /produk/{produk_id}/kemasan (routers/produk_kemasan.py) digate require_fitur langsung; GET/PATCH/DELETE tidak digate. Dites di tests/test_kemasan.py. Stok tetap satuan dasar: stok berkurang qty x isi_kemasan."),
     PemetaanFitur("consolidation", 3, None, "GET /laporan/laba-rugi-konsolidasi (routers/laporan.py) digate require_fitur langsung; hanya Owner/Manajer. Dites di tests/test_laba_rugi_konsolidasi.py."),
     PemetaanFitur("settlement", 2, ("POST", "/settlement"), "IMOGI no. 74: seluruh router /settlement digate (catat, daftar, hapus, rekonsiliasi). Dites di tests/test_settlement.py."),

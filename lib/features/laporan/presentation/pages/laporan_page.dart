@@ -190,6 +190,14 @@ class _IsiLaporan extends StatelessWidget {
         children: [
           _kartuRingkasan(),
           const SizedBox(height: AppSpacing.md),
+          if (ringkasan.penjualanHarian.length >= 2)
+            FiturTerkunci(
+              kode: 'tren_penjualan',
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                child: _KartuTren(data: ringkasan.penjualanHarian, sebelumnya: ringkasan.penjualanPeriodeSebelumnya),
+              ),
+            ),
           if (ringkasan.jamRamai.isNotEmpty) ..._kartuJamRamai(),
           if (ringkasan.metodeBayar.isNotEmpty) ..._kartuMetodeBayar(),
           _kartuProdukTerlaris(),
@@ -480,4 +488,107 @@ Color _warnaMargin(MarginProdukLaporan m, int batas) {
   final persen = m.marginPersen;
   if (persen != null && persen < batas) return AppColors.warningTextStrong;
   return AppColors.primaryDark;
+}
+
+/// Grafik tren penjualan per hari (IMOGI no. 65): batang per tanggal, puncak disorot, plus rata-rata harian
+/// dan perbandingan paruh akhir dengan paruh awal periode. Dihitung offline dari transaksi lokal.
+class _KartuTren extends StatelessWidget {
+  const _KartuTren({required this.data, this.sebelumnya});
+
+  final List<PenjualanHarian> data;
+
+  /// Total periode sebelumnya yang sama panjang; null bila tidak ada pembanding.
+  final int? sebelumnya;
+
+  @override
+  Widget build(BuildContext context) {
+    final maks = data.map((d) => d.total).reduce((a, b) => a > b ? a : b);
+    final puncak = data.firstWhere((d) => d.total == maks);
+    final total = data.fold<int>(0, (a, d) => a + d.total);
+    final rataRata = (total / data.length).round();
+
+    final tengah = data.length ~/ 2;
+    final awal = data.take(tengah).fold<int>(0, (a, d) => a + d.total);
+    final akhir = data.skip(data.length - tengah).fold<int>(0, (a, d) => a + d.total);
+    final String? perubahan = awal <= 0 ? null : '${akhir >= awal ? '+' : ''}${((akhir - awal) / awal * 100).round()}%';
+    final naik = akhir >= awal;
+    final formatTanggal = DateFormat('d/M');
+
+    return AppCard(
+      key: const Key('laporan.tren'),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Tren penjualan', style: AppTypography.bodyEmphasis),
+              if (perubahan != null)
+                Text(
+                  '$perubahan vs paruh awal',
+                  key: const Key('laporan.tren.perubahan'),
+                  style: AppTypography.secondary.copyWith(
+                    color: naik ? AppColors.primaryDark : AppColors.dangerText,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 2),
+          Text(
+            'Rata-rata ${_formatRupiah.format(rataRata)}/hari · puncak ${formatTanggal.format(puncak.tanggal)} (${_formatRupiah.format(puncak.total)})',
+            style: AppTypography.secondary,
+          ),
+          if (sebelumnya != null && sebelumnya! > 0)
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Text(
+                _bandingPeriode(total, sebelumnya!),
+                key: const Key('laporan.tren.periodeSebelumnya'),
+                style: AppTypography.secondary,
+              ),
+            ),
+          const SizedBox(height: AppSpacing.md),
+          SizedBox(
+            height: 120,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              reverse: true,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  for (final d in data)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Container(
+                            width: 22,
+                            height: maks == 0 ? 2 : (92 * d.total / maks).clamp(2, 92).toDouble(),
+                            decoration: BoxDecoration(
+                              color: d.total == maks ? AppColors.primary : AppColors.primaryTintBorder,
+                              borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(formatTanggal.format(d.tanggal), style: AppTypography.secondary.copyWith(fontSize: 9)),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Kalimat perbandingan total periode ini dengan periode sebelumnya yang sama panjang.
+String _bandingPeriode(int sekarang, int sebelumnya) {
+  final persen = ((sekarang - sebelumnya) / sebelumnya * 100).round();
+  final arah = persen > 0 ? 'naik $persen%' : (persen < 0 ? 'turun ${-persen}%' : 'sama');
+  return 'Dibanding periode sebelumnya (${_formatRupiah.format(sebelumnya)}): $arah';
 }

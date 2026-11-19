@@ -20,6 +20,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_toast.dart';
 import '../../../dapur/presentation/tiket_dapur_helper.dart';
 import '../../../fitur/presentation/providers/feature_gate_provider.dart';
+import '../../../pelanggan/presentation/providers/pelanggan_providers.dart';
 import '../../domain/hasil_transaksi.dart';
 import '../providers/harga_keranjang_provider.dart';
 import '../providers/transaksi_providers.dart';
@@ -230,7 +231,11 @@ class _StrukPageState extends ConsumerState<StrukPage> {
     final baris = await _bangunBarisStruk();
     final lebar = (pengaturanOutlet?.lebarKertasMm ?? 58) == 80 ? 48 : 32;
     final teks = struk.renderTeksStruk(baris, lebar).join('\n');
-    await kirimStrukWhatsApp(teks: teks);
+    // Pelanggan transaksi punya nomor -> langsung ke chat-nya; bila tidak, menu bagikan biasa.
+    final pelangganId = widget.hasil.pelangganId;
+    final pelanggan = pelangganId == null ? null : await ref.read(pelangganDaoProvider).pelangganById(pelangganId);
+    final noHp = pelanggan?.noHp?.trim();
+    await kirimStrukWhatsApp(teks: teks, noHpPelanggan: (noHp == null || noHp.isEmpty) ? null : noHp);
   }
 
   @override

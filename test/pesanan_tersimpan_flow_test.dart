@@ -232,4 +232,53 @@ void main() {
       expect(sisaAntrean, isEmpty, reason: 'sudah ditandai sync, tidak boleh dikirim ulang');
     },
   );
+
+  test('diskon manual item ikut tersimpan dan pulih saat pesanan dibuka lagi', () async {
+    await db.produkDao.upsertProduk(ProdukCompanion.insert(
+      id: 'p1',
+      tokoId: 't1',
+      nama: 'Kopi Hitam',
+      tipe: ProdukTipe.barang,
+      hargaJual: const Value(15000),
+      createdAt: 0,
+      updatedAt: 0,
+    ));
+    const diskon = ItemKeranjang(
+      produkId: 'p1',
+      namaProduk: 'Kopi Hitam',
+      hargaSatuan: 15000,
+      qty: 2,
+      lacakStok: false,
+      diskonNominal: 5000,
+    );
+    final hasil = k.hitung(
+      k.TransaksiInput(
+        items: [
+          k.ItemInput(
+            produkId: 'p1',
+            varianId: null,
+            namaProduk: 'Kopi Hitam',
+            qty: 2,
+            hargaJual: 15000,
+            diskonOverride: diskon.diskonManual,
+          ),
+        ],
+      ),
+    );
+    final draftId = await repo.simpanPesanan(
+      tokoId: 't1',
+      outletId: 'o1',
+      penggunaId: 'u1',
+      items: const [diskon],
+      hasil: hasil,
+      diskonManualDisetujuiOleh: 'owner-1',
+    );
+
+    final draft = await db.transaksiDao.transaksiById(draftId);
+    expect(draft!.diskonManualDisetujuiOleh, 'owner-1');
+    final pulih = await repo.itemUntukResumePesanan(draftId);
+    expect(pulih.single.adaDiskonManual, isTrue);
+    expect(pulih.single.diskonManual, 5000);
+    expect(pulih.single.subtotal - pulih.single.diskonManual, 25000);
+  });
 }

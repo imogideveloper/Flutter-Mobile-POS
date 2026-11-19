@@ -13,7 +13,8 @@ from app.models.promo import Pajak
 from tests.conftest import buat_produk, buat_toko_siap_pakai
 
 
-async def test_varian_patch_delete(client: AsyncClient, db_session: AsyncSession, toko_a) -> None:
+async def test_varian_patch_delete(client: AsyncClient, db_session: AsyncSession) -> None:
+    toko_a = await buat_toko_siap_pakai(db_session, nama_paket="Bisnis")
     produk = await buat_produk(db_session, toko_a.toko.id)
     varian = ProdukVarian(produk_id=produk.id, nama="Besar", harga_jual=Decimal("20000"))
     db_session.add(varian)
@@ -36,7 +37,8 @@ async def test_varian_patch_delete(client: AsyncClient, db_session: AsyncSession
     assert len(audit_rows) == 2
 
 
-async def test_grup_modifier_dan_modifier_patch_delete(client: AsyncClient, db_session: AsyncSession, toko_a) -> None:
+async def test_grup_modifier_dan_modifier_patch_delete(client: AsyncClient, db_session: AsyncSession) -> None:
+    toko_a = await buat_toko_siap_pakai(db_session, nama_paket="Bisnis")
     grup = GrupModifier(toko_id=toko_a.toko.id, nama="Topping")
     db_session.add(grup)
     await db_session.flush()

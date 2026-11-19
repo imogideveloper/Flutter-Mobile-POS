@@ -4,7 +4,7 @@ import 'package:apps_pos/features/laporan/data/laporan_repository.dart';
 import 'package:apps_pos/features/produk/data/local/tables/produk_table.dart';
 import 'package:apps_pos/features/transaksi/data/transaksi_repository.dart';
 import 'package:apps_pos/features/transaksi/domain/item_keranjang.dart';
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart' hide isNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -254,5 +254,38 @@ void main() {
     test('rentang melebihi batas paket ditolak', () {
       expect(rentangLaporanMelebihiBatas(jumlahHari: 31, batasHari: 30), isTrue);
     });
+  });
+
+  test('ringkasan memuat penjualan periode sebelumnya sebagai pembanding tren', () async {
+    const items = [
+      ItemKeranjang(produkId: 'p1', namaProduk: 'Kopi Hitam', hargaSatuan: 15000, qty: 3, lacakStok: false),
+    ];
+    await transaksiRepo.checkout(
+      tokoId: 't1',
+      outletId: 'o1',
+      shiftId: 'shift1',
+      penggunaId: 'u1',
+      metodeBayarId: 'metode-tunai-default',
+      items: items,
+      hasil: _hitung(items),
+      totalBayar: 45000,
+    );
+
+    final hariIni = await laporanRepo.ringkasan('o1', PeriodeLaporan.hariIni);
+    expect(hariIni.penjualanPeriodeSebelumnya, isNull, reason: 'kemarin tidak ada transaksi');
+    expect(hariIni.penjualanHarian, hasLength(1));
+
+    // Geser transaksi itu ke kemarin: kini menjadi pembanding periode "hari ini".
+    final kemarin = DateTime.now().toUtc().subtract(const Duration(days: 1)).millisecondsSinceEpoch;
+    await db.customStatement('UPDATE transaksi SET tanggal = ?', [kemarin]);
+    final sesudah = await laporanRepo.ringkasan('o1', PeriodeLaporan.hariIni);
+    expect(sesudah.jumlahTransaksi, 0);
+    expect(sesudah.penjualanPeriodeSebelumnya, 45000);
+  });
+
+  test('jumlah batang tren sama dengan jumlah hari periode (tidak bergeser oleh zona waktu)', () async {
+    expect((await laporanRepo.ringkasan('o1', PeriodeLaporan.hariIni)).penjualanHarian, hasLength(1));
+    expect((await laporanRepo.ringkasan('o1', PeriodeLaporan.tujuhHari)).penjualanHarian, hasLength(7));
+    expect((await laporanRepo.ringkasan('o1', PeriodeLaporan.tigaPuluhHari)).penjualanHarian, hasLength(30));
   });
 }

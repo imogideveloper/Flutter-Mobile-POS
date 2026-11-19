@@ -41,3 +41,12 @@ class DaftarPengeluaranOut(BaseModel):
     total: float
     per_kategori: list[RingkasanKategoriOut]
     item: list[PengeluaranOut]
+
+
+class PengeluaranUbahIn(BaseModel):
+    """Ubah sebagian catatan pengeluaran; hanya field yang dikirim yang diubah."""
+
+    tanggal: date | None = None
+    kategori: KategoriPengeluaran | None = None
+    jumlah: float | None = Field(default=None, gt=0, le=99_999_999_999)
+    catatan: str | None = Field(default=None, max_length=300)

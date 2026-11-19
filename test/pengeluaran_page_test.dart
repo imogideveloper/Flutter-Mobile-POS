@@ -69,6 +69,25 @@ class _FakeApi implements BackendApi {
     return baris.first;
   }
 
+  final List<Map<String, dynamic>> diubah = [];
+
+  @override
+  Future<dynamic> patchJson({
+    required String accessToken,
+    required String path,
+    required Map<String, dynamic> body,
+  }) async {
+    final id = path.split('/').last;
+    diubah.add({'id': id, ...body});
+    final b = baris.firstWhere((e) => e['id'] == id);
+    b
+      ..['tanggal'] = body['tanggal']
+      ..['kategori'] = body['kategori']
+      ..['jumlah'] = (body['jumlah'] as num).toDouble()
+      ..['catatan'] = body['catatan'];
+    return b;
+  }
+
   @override
   Future<void> hapusPengeluaran({required String accessToken, required String pengeluaranId}) async {
     dihapus.add(pengeluaranId);
@@ -125,6 +144,26 @@ void main() {
     expect(api.rentangDiminta.length, 2);
     expect(api.rentangDiminta.last.endsWith('..${tanggalApi(DateTime.now())}'), isTrue);
     expect(api.rentangDiminta.last.contains('-01..'), isTrue);
+    await _tutup(tester);
+  });
+
+  testWidgets('mengetuk baris membuka form terisi dan menyimpan perubahan lewat PATCH', (tester) async {
+    final api = _FakeApi();
+    await _buka(tester, api);
+    await tester.tap(find.byKey(const Key('pengeluaran.item.p1')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Ubah pengeluaran'), findsOneWidget);
+    expect(find.text('150.000'), findsOneWidget, reason: 'jumlah lama terisi');
+    await tester.enterText(find.byKey(const Key('pengeluaranForm.jumlah')), '175000');
+    await tester.tap(find.byKey(const Key('pengeluaranForm.simpan')));
+    await tester.pumpAndSettle();
+
+    expect(api.dikirim, isEmpty, reason: 'mengubah tidak membuat catatan baru');
+    expect(api.diubah.single['id'], 'p1');
+    expect(api.diubah.single['jumlah'], 175000);
+    expect(api.diubah.single['catatan'], 'Biji kopi');
+    expect(find.text('Rp 200.000'), findsOneWidget);
     await _tutup(tester);
   });
 

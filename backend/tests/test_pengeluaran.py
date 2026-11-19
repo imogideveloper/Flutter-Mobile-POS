@@ -85,3 +85,47 @@ async def test_pengeluaran_terisolasi_antar_toko(client: AsyncClient, db_session
     # id klien milik toko lain tidak boleh dipakai ulang
     bentrok = await client.post("/pengeluaran", headers=b.headers, json=_badan(id=dibuat.json()["id"]))
     assert bentrok.status_code == 409
+
+
+async def test_ubah_pengeluaran_sebagian_dan_tercatat(client: AsyncClient, db_session: AsyncSession) -> None:
+    toko = await buat_toko_siap_pakai(db_session, nama_paket="Pro")
+    h = toko.headers
+    dibuat = (await client.post("/pengeluaran", headers=h, json=_badan())).json()
+
+    r = await client.patch(f"/pengeluaran/{dibuat['id']}", headers=h, json={"jumlah": 175000, "catatan": "Biji kopi 6 kg"})
+    assert r.status_code == 200
+    hasil = r.json()
+    assert hasil["jumlah"] == 175000 and hasil["catatan"] == "Biji kopi 6 kg"
+    assert hasil["kategori"] == "belanja_bahan" and hasil["tanggal"] == "2026-11-12", "field yang tidak dikirim tidak berubah"
+
+    daftar = (await client.get("/pengeluaran", headers=h, params={"dari": "2026-11-12", "sampai": "2026-11-12"})).json()
+    assert daftar["total"] == 175000
+
+    kosongkan = await client.patch(f"/pengeluaran/{dibuat['id']}", headers=h, json={"catatan": None})
+    assert kosongkan.json()["catatan"] is None
+
+
+async def test_ubah_pengeluaran_validasi_izin_dan_isolasi(client: AsyncClient, db_session: AsyncSession) -> None:
+    a = await buat_toko_siap_pakai(db_session, nama_paket="Pro")
+    b = await buat_toko_siap_pakai(db_session, nama_paket="Pro")
+    kasir = await buat_toko_siap_pakai(db_session, nama_role="Kasir", nama_paket="Pro")
+    dibuat = (await client.post("/pengeluaran", headers=a.headers, json=_badan())).json()
+    url = f"/pengeluaran/{dibuat['id']}"
+
+    assert (await client.patch(url, headers=a.headers, json={"jumlah": 0})).status_code == 422
+    assert (await client.patch(url, headers=b.headers, json={"jumlah": 1000})).status_code == 404
+    assert (await client.patch(url, headers=kasir.headers, json={"jumlah": 1000})).status_code == 403
+    assert (await client.patch(f"/pengeluaran/{uuid.uuid4()}", headers=a.headers, json={"jumlah": 1000})).status_code == 404
+
+
+async def test_ubah_pengeluaran_ditolak_di_periode_tertutup(client: AsyncClient, db_session: AsyncSession) -> None:
+    toko = await buat_toko_siap_pakai(db_session, nama_paket="Bisnis")
+    h = toko.headers
+    lama = (await client.post("/pengeluaran", headers=h, json=_badan(tanggal="2026-11-05"))).json()
+    baru = (await client.post("/pengeluaran", headers=h, json=_badan(tanggal="2026-11-14"))).json()
+    assert (await client.post("/tutup-buku", headers=h, json={"sampai": "2026-11-10"})).status_code == 201
+
+    assert (await client.patch(f"/pengeluaran/{lama['id']}", headers=h, json={"jumlah": 1000})).status_code == 409
+    # memindahkan catatan baru ke tanggal yang sudah terkunci juga ditolak
+    assert (await client.patch(f"/pengeluaran/{baru['id']}", headers=h, json={"tanggal": "2026-11-08"})).status_code == 409
+    assert (await client.patch(f"/pengeluaran/{baru['id']}", headers=h, json={"jumlah": 2000})).status_code == 200

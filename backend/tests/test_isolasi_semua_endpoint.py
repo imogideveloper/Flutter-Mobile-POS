@@ -359,6 +359,8 @@ def _body_untuk(method: str, path: str, ids: dict[str, uuid.UUID]) -> dict | Non
         return {}  # OutletUpdateIn - semua field opsional
     if path == "/outlets/{outlet_id}/pengaturan":
         return {}  # PengaturanOutletIn - semua field opsional
+    if path == "/pengeluaran/{pengeluaran_id}":
+        return {}  # PengeluaranUbahIn - semua field opsional
     if path == "/aset-tetap/{aset_id}":
         return {}  # AsetUpdateIn - semua field opsional
     if path == "/survei/{survei_id}":

@@ -6,7 +6,7 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.produk import GrupModifier, Modifier, ProdukGrupModifier
-from tests.conftest import buat_perangkat, buat_produk
+from tests.conftest import buat_perangkat, buat_produk, buat_toko_siap_pakai
 
 EPOCH = datetime(1970, 1, 1, tzinfo=UTC).isoformat()
 
@@ -94,8 +94,9 @@ async def test_grup_dihapus_ikut_terkirim_sebagai_penanda_hapus(
 
 
 async def test_set_produk_grup_ganti_seluruh_daftar_dan_tolak_produk_toko_lain(
-    client: AsyncClient, db_session: AsyncSession, toko_a, toko_b
+    client: AsyncClient, db_session: AsyncSession, toko_b
 ) -> None:
+    toko_a = await buat_toko_siap_pakai(db_session, nama_paket="Bisnis")
     perangkat = await buat_perangkat(db_session, toko_a.toko.id, toko_a.outlet.id)
     produk1, grup = await _buat_katalog(db_session, toko_a)
     produk2 = await buat_produk(db_session, toko_a.toko.id, nama="Teh")

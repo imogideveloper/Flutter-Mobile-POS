@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 
 import '../../../../core/providers/session_provider.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
+import '../../../fitur/presentation/providers/feature_gate_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -93,22 +94,22 @@ class _ProdukListPageState extends ConsumerState<ProdukListPage> {
             onPressed: () => context.push('/stok'),
             child: const Text('Kelola stok'),
           ),
+          // Pintasan yang berhubungan dengan produk. Shift, pajak, pengguna, dan keluar ada di tab Lainnya.
           PopupMenuButton<String>(
-            onSelected: (value) {
-              if (value == 'logout') {
-                ref.read(currentPenggunaIdProvider.notifier).logout();
-                context.go('/');
-                return;
-              }
-              context.push(value);
+            key: const Key('produk.menuLainnya'),
+            tooltip: 'Menu produk',
+            onSelected: (value) => context.push(value),
+            itemBuilder: (context) {
+              final gate = ref.read(featureGateProvider).value;
+              bool tampil(String kode) => gate == null || (gate.relevan(kode) && gate.has(kode));
+              return [
+                const PopupMenuItem(value: '/kategori', child: Text('Kategori produk')),
+                if (tampil('product_options'))
+                  const PopupMenuItem(value: '/grup-tambahan', child: Text('Varian & tambahan')),
+                if (tampil('ekspor_impor'))
+                  const PopupMenuItem(value: '/impor-produk', child: Text('Impor & ekspor produk')),
+              ];
             },
-            itemBuilder: (context) => const [
-              PopupMenuItem(value: '/shift', child: Text('Shift')),
-              PopupMenuItem(value: '/pajak', child: Text('Pajak & Service')),
-              PopupMenuItem(value: '/pengguna', child: Text('Kelola Pengguna')),
-              PopupMenuDivider(),
-              PopupMenuItem(value: 'logout', child: Text('Keluar')),
-            ],
           ),
         ],
       ),

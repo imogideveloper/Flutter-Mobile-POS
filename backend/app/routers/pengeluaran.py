@@ -14,7 +14,7 @@ from app.core.db import get_db
 from app.core.deps import get_pengguna_id, get_role_id, get_toko_id
 from app.models.outlet import Outlet
 from app.models.pengeluaran import Pengeluaran
-from app.schemas.pengeluaran import DaftarPengeluaranOut, PengeluaranIn, PengeluaranOut, RingkasanKategoriOut
+from app.schemas.pengeluaran import DaftarPengeluaranOut, PengeluaranIn, PengeluaranOut, PengeluaranUbahIn, RingkasanKategoriOut
 from app.services.audit_service import catat_audit
 from app.services.fitur_service import require_fitur
 from app.services.izin_service import has_izin
@@ -130,3 +130,37 @@ async def hapus_pengeluaran(
         data_lama={"kategori": baris.kategori, "jumlah": str(baris.jumlah)},
     )
     await db.commit()
+
+
+@router.patch("/{pengeluaran_id}", response_model=PengeluaranOut)
+async def ubah_pengeluaran(
+    pengeluaran_id: uuid.UUID,
+    body: PengeluaranUbahIn,
+    toko_id: uuid.UUID = Depends(get_toko_id),
+    pengguna_id: uuid.UUID = Depends(get_pengguna_id),
+    role_id: uuid.UUID = Depends(get_role_id),
+    db: AsyncSession = Depends(get_db),
+) -> Pengeluaran:
+    await _wajib_izin(db, role_id)
+    baris = await db.get(Pengeluaran, pengeluaran_id)
+    if baris is None or baris.toko_id != toko_id or baris.deleted_at is not None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Pengeluaran tidak ditemukan")
+    # Tanggal lama DAN tanggal baru harus berada di periode yang belum ditutup.
+    await pastikan_periode_terbuka(db, toko_id, baris.tanggal)
+    perubahan = body.model_dump(exclude_unset=True)
+    if "tanggal" in perubahan and perubahan["tanggal"] is not None:
+        await pastikan_periode_terbuka(db, toko_id, perubahan["tanggal"])
+    data_lama = {"tanggal": str(baris.tanggal), "kategori": baris.kategori, "jumlah": str(baris.jumlah), "catatan": baris.catatan}
+    for kolom in ("tanggal", "kategori", "jumlah"):
+        if perubahan.get(kolom) is not None:
+            setattr(baris, kolom, perubahan[kolom])
+    if "catatan" in perubahan:
+        baris.catatan = perubahan["catatan"]
+    await catat_audit(
+        db, toko_id=toko_id, pengguna_id=pengguna_id, aksi="ubah_pengeluaran",
+        tabel="pengeluaran", record_id=baris.id, data_lama=data_lama,
+        data_baru={"tanggal": str(baris.tanggal), "kategori": baris.kategori, "jumlah": str(baris.jumlah), "catatan": baris.catatan},
+    )
+    await db.commit()
+    await db.refresh(baris)
+    return baris

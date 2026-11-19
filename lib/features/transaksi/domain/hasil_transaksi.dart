@@ -22,7 +22,11 @@ class HasilTransaksi {
     this.jatuhTempo,
     this.produkStokMenipis = const [],
     this.nomorAntrean,
+    this.pelangganId,
   });
+
+  /// Pelanggan transaksi ini (bila dipilih), dipakai tombol WhatsApp di struk agar langsung ke nomornya.
+  final String? pelangganId;
 
   final String id;
   final String nomorStruk;

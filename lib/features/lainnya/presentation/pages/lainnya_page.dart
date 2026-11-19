@@ -159,24 +159,27 @@ class LainnyaPage extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryTint,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: const Text(
-                      'Gratis',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.primaryDark,
+                  // Nama paket sungguhan dari cache sync (bukan tulisan tetap); disembunyikan bila belum pernah sync.
+                  if (ref.watch(featureGateProvider).value?.paket case final paket? when paket.trim().isNotEmpty)
+                    Container(
+                      key: const Key('lainnya.lencanaPaket'),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryTint,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        paket,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.primaryDark,
+                        ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -528,11 +531,14 @@ class LainnyaPage extends ConsumerWidget {
                   ),
                   bila(
                     'produk.kelola',
-                    SettingsMenuRow(
-                      label: 'Varian & tambahan',
-                      ikon: Icons.tune,
-                      value: 'Atur',
-                      onTap: () => context.push('/grup-tambahan'),
+                    FiturTerkunci(
+                      kode: 'product_options',
+                      child: SettingsMenuRow(
+                        label: 'Varian & tambahan',
+                        ikon: Icons.tune,
+                        value: 'Atur',
+                        onTap: () => context.push('/grup-tambahan'),
+                      ),
                     ),
                   ),
                   FiturTerkunci(

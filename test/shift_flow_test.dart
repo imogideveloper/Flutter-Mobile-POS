@@ -18,14 +18,11 @@ void main() {
     ));
     await tester.pumpAndSettle();
 
-    // App mendarat di tab Kasir (default) - pindah ke tab Produk dulu,
-    // PopupMenuButton menu lainnya ada di AppBar halaman itu.
-    await tester.tap(find.text('Produk'));
+    // App mendarat di tab Kasir (default) - menu Shift ada di tab Lainnya (grup Penjualan).
+    await tester.tap(find.text('Lainnya'));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byType(PopupMenuButton<String>));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Shift'));
+    await tester.tap(find.text('Tutup shift'));
     await tester.pumpAndSettle();
 
     expect(find.text('Tidak ada shift terbuka di outlet ini'), findsOneWidget);

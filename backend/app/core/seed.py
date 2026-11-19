@@ -87,6 +87,7 @@ _FITUR = [
     ("poin_loyalitas", "Poin loyalitas pelanggan", "pelanggan", 1),
     ("diskon_member", "Diskon member", "pelanggan", 1),
     ("survei", "Survei pelanggan", "pelanggan", 1),
+    ("product_options", "Varian & tambahan produk (ukuran, level, topping)", "produk", 1),
     ("absensi", "Absensi karyawan", "pengguna", 1),
     ("struk_ringkas", "Struk ringkas", "penjualan", 2),
     ("tiket_dapur", "Cetak tiket dapur", "penjualan", 2),

@@ -366,6 +366,7 @@ class TransaksiRepository {
 
     return HasilTransaksi(
       id: transaksiId,
+      pelangganId: pelangganId,
       nomorStruk: nomorStruk,
       nomorAntrean: nomorAntrean,
       tanggal: now,
@@ -661,6 +662,7 @@ class TransaksiRepository {
     required k.HasilKalkulasi hasil,
     String? draftIdSebelumnya,
     String? pelangganId,
+    String? diskonManualDisetujuiOleh,
     String? tipeOrderId,
     String? catatan,
   }) async {
@@ -682,6 +684,7 @@ class TransaksiRepository {
           pelangganId: Value(pelangganId),
           tipeOrderId: Value(tipeOrderId),
           catatan: Value(catatan),
+          diskonManualDisetujuiOleh: Value(items.any((i) => i.adaDiskonManual) ? diskonManualDisetujuiOleh : null),
           nomorStruk: nomorStruk,
           tanggal: now,
           status: TransaksiStatus.tersimpan,
@@ -703,6 +706,7 @@ class TransaksiRepository {
               qty: items[i].qty,
               hargaSatuan: hasil.items[i].hargaSatuan,
               subtotal: hasil.items[i].subtotal,
+              diskon: Value(items[i].adaDiskonManual ? hasil.items[i].diskon : 0),
               isiKemasan: Value(items[i].isiKemasan),
               namaKemasan: Value(items[i].kemasan ? items[i].namaKemasan : null),
               createdAt: now,
@@ -741,6 +745,8 @@ class TransaksiRepository {
         namaKemasan: row.namaKemasan,
         lacakStok: produk?.lacakStok ?? false,
         modifiers: modifiers,
+        // Diskon manual tersimpan sebagai Rupiah per baris; dipulihkan sebagai diskon nominal.
+        diskonNominal: row.diskon,
       ));
     }
     return items;

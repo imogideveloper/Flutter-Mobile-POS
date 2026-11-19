@@ -94,6 +94,13 @@ class LaporanRepository {
     // yang sungguhan terverifikasi, walau metodeBayarId-nya sama persis
     // (sama alasan dgn backend laporan_service.py).
     // Label tujuan (IMOGI no. 18) ikut kunci: GoPay dan OVO jadi baris terpisah untuk rekonsiliasi.
+    // Periode sebelumnya sama panjang, tepat sebelum rentang ini (pembanding tren).
+    final panjang = akhirMs - awalMs;
+    final sebelumnya = await _transaksiDao.transaksiSelesaiRentang(outletId, awalMs - panjang, awalMs);
+    final penjualanSebelumnya = sebelumnya.isEmpty ? null : sebelumnya.fold<int>(0, (a, b) => a + b.total);
+
+    final penjualanHarian = _susunPenjualanHarian(transaksiList.map((t) => (t.tanggal, t.total)), awalMs, akhirMs);
+
     final metodeTotal = <(String, String?, String?), int>{};
     for (final p in pembayaranList) {
       final key = (
@@ -137,6 +144,8 @@ class LaporanRepository {
       jamRamai: jamRamai,
       metodeBayar: metodeBayar,
       produkTerlaris: produkTerlaris.take(5).toList(),
+      penjualanHarian: penjualanHarian,
+      penjualanPeriodeSebelumnya: penjualanSebelumnya,
       marginProduk: hitungMarginProduk([
         for (final item in items)
           BarisItemMargin(
@@ -148,4 +157,30 @@ class LaporanRepository {
       ]),
     );
   }
+}
+
+/// Total penjualan per hari UTC (batas yang sama dengan periode laporan) dari [awalMs] sampai [akhirMs] (eksklusif); hari tanpa transaksi
+/// bernilai 0 supaya grafik tren tidak melompati hari kosong. Dibatasi 92 hari agar grafik tetap terbaca.
+List<PenjualanHarian> susunPenjualanHarian(Iterable<(int, int)> transaksi, int awalMs, int akhirMs) =>
+    _susunPenjualanHarian(transaksi, awalMs, akhirMs);
+
+List<PenjualanHarian> _susunPenjualanHarian(Iterable<(int, int)> transaksi, int awalMs, int akhirMs) {
+  // Hari UTC, sama dengan batas periode laporan (rentang dihitung per hari UTC), supaya 7 hari = 7 batang.
+  DateTime hari(int ms) {
+    final d = DateTime.fromMillisecondsSinceEpoch(ms, isUtc: true);
+    return DateTime.utc(d.year, d.month, d.day);
+  }
+
+  final total = <DateTime, int>{};
+  for (final (ms, jumlah) in transaksi) {
+    final h = hari(ms);
+    total[h] = (total[h] ?? 0) + jumlah;
+  }
+  final awal = hari(awalMs);
+  final akhir = hari(akhirMs - 1);
+  final hasil = <PenjualanHarian>[];
+  for (var h = awal; !h.isAfter(akhir) && hasil.length < 92; h = DateTime.utc(h.year, h.month, h.day + 1)) {
+    hasil.add(PenjualanHarian(tanggal: h, total: total[h] ?? 0));
+  }
+  return hasil;
 }

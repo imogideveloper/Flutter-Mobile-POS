@@ -67,6 +67,7 @@ class KeranjangPage extends ConsumerWidget {
           pelangganId: ref.read(keranjangPelangganIdProvider),
           tipeOrderId: ref.read(keranjangTipeOrderIdProvider),
           catatan: ref.read(keranjangCatatanProvider),
+          diskonManualDisetujuiOleh: ref.read(persetujuanDiskonKeranjangProvider),
         );
     ref.read(keranjangProvider.notifier).kosongkan();
     if (context.mounted) {

@@ -78,7 +78,7 @@ async def _pastikan_varian_milik_produk(db: AsyncSession, varian_id: uuid.UUID |
 
 # ---------------------------------------------------------------- Varian --
 
-@router.get("/produk/{produk_id}/varian", response_model=list[ProdukVarianOut])
+@router.get("/produk/{produk_id}/varian", response_model=list[ProdukVarianOut], dependencies=[Depends(require_fitur("product_options"))])
 async def daftar_varian(
     produk_id: uuid.UUID, toko_id: uuid.UUID = Depends(get_toko_id), db: AsyncSession = Depends(get_db)
 ) -> list[ProdukVarian]:
@@ -92,7 +92,7 @@ async def daftar_varian(
 
 
 @router.post(
-    "/produk/{produk_id}/varian", response_model=ProdukVarianOut, status_code=status.HTTP_201_CREATED
+    "/produk/{produk_id}/varian", response_model=ProdukVarianOut, status_code=status.HTTP_201_CREATED, dependencies=[Depends(require_fitur("product_options"))]
 )
 async def tambah_varian(
     produk_id: uuid.UUID,
@@ -115,7 +115,7 @@ async def _ambil_varian_milik_produk(db: AsyncSession, varian_id: uuid.UUID, pro
     return varian
 
 
-@router.patch("/produk/{produk_id}/varian/{varian_id}", response_model=ProdukVarianOut)
+@router.patch("/produk/{produk_id}/varian/{varian_id}", response_model=ProdukVarianOut, dependencies=[Depends(require_fitur("product_options"))])
 async def ubah_varian(
     produk_id: uuid.UUID,
     varian_id: uuid.UUID,
@@ -143,7 +143,7 @@ async def ubah_varian(
     return varian
 
 
-@router.delete("/produk/{produk_id}/varian/{varian_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/produk/{produk_id}/varian/{varian_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(require_fitur("product_options"))])
 async def hapus_varian(
     produk_id: uuid.UUID,
     varian_id: uuid.UUID,
@@ -165,7 +165,7 @@ async def hapus_varian(
 
 # ------------------------------------------------------------ Grup modifier (toko-scoped) --
 
-@router.get("/grup-modifier", response_model=list[GrupModifierOut])
+@router.get("/grup-modifier", response_model=list[GrupModifierOut], dependencies=[Depends(require_fitur("product_options"))])
 async def daftar_grup_modifier(
     toko_id: uuid.UUID = Depends(get_toko_id), db: AsyncSession = Depends(get_db)
 ) -> list[GrupModifier]:
@@ -175,7 +175,7 @@ async def daftar_grup_modifier(
     return list(rows)
 
 
-@router.post("/grup-modifier", response_model=GrupModifierOut, status_code=status.HTTP_201_CREATED)
+@router.post("/grup-modifier", response_model=GrupModifierOut, status_code=status.HTTP_201_CREATED, dependencies=[Depends(require_fitur("product_options"))])
 async def tambah_grup_modifier(
     body: GrupModifierIn, toko_id: uuid.UUID = Depends(get_toko_id), db: AsyncSession = Depends(get_db)
 ) -> GrupModifier:
@@ -195,7 +195,7 @@ async def _ambil_grup_modifier_milik_toko(
     return grup
 
 
-@router.patch("/grup-modifier/{grup_modifier_id}", response_model=GrupModifierOut)
+@router.patch("/grup-modifier/{grup_modifier_id}", response_model=GrupModifierOut, dependencies=[Depends(require_fitur("product_options"))])
 async def ubah_grup_modifier(
     grup_modifier_id: uuid.UUID,
     body: GrupModifierUpdateIn,
@@ -220,7 +220,7 @@ async def ubah_grup_modifier(
     return grup
 
 
-@router.delete("/grup-modifier/{grup_modifier_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/grup-modifier/{grup_modifier_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(require_fitur("product_options"))])
 async def hapus_grup_modifier(
     grup_modifier_id: uuid.UUID,
     toko_id: uuid.UUID = Depends(get_toko_id),
@@ -238,7 +238,7 @@ async def hapus_grup_modifier(
     await db.commit()
 
 
-@router.get("/grup-modifier/{grup_modifier_id}/modifier", response_model=list[ModifierOut])
+@router.get("/grup-modifier/{grup_modifier_id}/modifier", response_model=list[ModifierOut], dependencies=[Depends(require_fitur("product_options"))])
 async def daftar_modifier(
     grup_modifier_id: uuid.UUID,
     toko_id: uuid.UUID = Depends(get_toko_id),
@@ -256,7 +256,7 @@ async def daftar_modifier(
 
 
 @router.post(
-    "/grup-modifier/{grup_modifier_id}/modifier", response_model=ModifierOut, status_code=status.HTTP_201_CREATED
+    "/grup-modifier/{grup_modifier_id}/modifier", response_model=ModifierOut, status_code=status.HTTP_201_CREATED, dependencies=[Depends(require_fitur("product_options"))]
 )
 async def tambah_modifier(
     grup_modifier_id: uuid.UUID,
@@ -279,7 +279,7 @@ async def _ambil_modifier_milik_grup(db: AsyncSession, modifier_id: uuid.UUID, g
     return modifier
 
 
-@router.patch("/grup-modifier/{grup_modifier_id}/modifier/{modifier_id}", response_model=ModifierOut)
+@router.patch("/grup-modifier/{grup_modifier_id}/modifier/{modifier_id}", response_model=ModifierOut, dependencies=[Depends(require_fitur("product_options"))])
 async def ubah_modifier(
     grup_modifier_id: uuid.UUID,
     modifier_id: uuid.UUID,
@@ -307,7 +307,7 @@ async def ubah_modifier(
     return modifier
 
 
-@router.delete("/grup-modifier/{grup_modifier_id}/modifier/{modifier_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/grup-modifier/{grup_modifier_id}/modifier/{modifier_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(require_fitur("product_options"))])
 async def hapus_modifier(
     grup_modifier_id: uuid.UUID,
     modifier_id: uuid.UUID,
@@ -327,7 +327,7 @@ async def hapus_modifier(
     await db.commit()
 
 
-@router.put("/produk/{produk_id}/grup-modifier/{grup_modifier_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.put("/produk/{produk_id}/grup-modifier/{grup_modifier_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(require_fitur("product_options"))])
 async def tautkan_grup_modifier_ke_produk(
     produk_id: uuid.UUID,
     grup_modifier_id: uuid.UUID,
@@ -343,7 +343,7 @@ async def tautkan_grup_modifier_ke_produk(
         await db.commit()
 
 
-@router.put("/grup-modifier/{grup_modifier_id}/produk", status_code=status.HTTP_204_NO_CONTENT)
+@router.put("/grup-modifier/{grup_modifier_id}/produk", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(require_fitur("product_options"))])
 async def set_produk_grup_modifier(
     grup_modifier_id: uuid.UUID,
     body: IdsIn,
@@ -376,7 +376,7 @@ async def set_produk_grup_modifier(
     await db.commit()
 
 
-@router.get("/produk/{produk_id}/grup-modifier", response_model=list[GrupModifierOut])
+@router.get("/produk/{produk_id}/grup-modifier", response_model=list[GrupModifierOut], dependencies=[Depends(require_fitur("product_options"))])
 async def daftar_grup_modifier_produk(
     produk_id: uuid.UUID, toko_id: uuid.UUID = Depends(get_toko_id), db: AsyncSession = Depends(get_db)
 ) -> list[GrupModifier]:

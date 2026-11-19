@@ -10,6 +10,8 @@ class RingkasanLaporan {
     required this.metodeBayar,
     required this.produkTerlaris,
     this.marginProduk = const [],
+    this.penjualanHarian = const [],
+    this.penjualanPeriodeSebelumnya,
   });
 
   final int penjualanBersih;
@@ -22,7 +24,19 @@ class RingkasanLaporan {
   /// HPP dan margin per produk, urut laba terbesar (IMOGI no. 72); semua produk terjual, bukan 5 teratas.
   final List<MarginProdukLaporan> marginProduk;
 
+  /// Penjualan per hari UTC (batas periode laporan) selama periode, hari tanpa transaksi bernilai 0; dasar grafik tren (IMOGI no. 65).
+  final List<PenjualanHarian> penjualanHarian;
+
+  /// Total penjualan pada periode sebelumnya yang sama panjang (null bila tidak ada transaksi di sana); pembanding tren.
+  final int? penjualanPeriodeSebelumnya;
+
   int get rataRata => jumlahTransaksi == 0 ? 0 : (penjualanBersih / jumlahTransaksi).round();
+}
+
+class PenjualanHarian {
+  const PenjualanHarian({required this.tanggal, required this.total});
+  final DateTime tanggal;
+  final int total;
 }
 
 class JamRamai {

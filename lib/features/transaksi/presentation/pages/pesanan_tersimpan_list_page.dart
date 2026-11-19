@@ -43,6 +43,7 @@ class PesananTersimpanListPage extends ConsumerWidget {
           pelangganId: row.pelangganId,
           tipeOrderId: row.tipeOrderId,
           catatan: row.catatan,
+          diskonDisetujuiOleh: row.diskonManualDisetujuiOleh,
         );
 
     // F3.E.3 - harga dihitung ULANG dari harga produk saat ini (promo/

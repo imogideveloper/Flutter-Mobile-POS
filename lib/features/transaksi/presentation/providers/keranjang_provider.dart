@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
+import '../../../../core/providers/session_provider.dart';
 import '../../../produk/domain/produk.dart';
 import '../../../promo/domain/promo.dart';
 import '../../../pelanggan/domain/ulang_tahun.dart';
@@ -10,7 +11,11 @@ import '../../domain/item_keranjang.dart';
 
 class KeranjangNotifier extends Notifier<List<ItemKeranjang>> {
   @override
-  List<ItemKeranjang> build() => [];
+  List<ItemKeranjang> build() {
+    // Keranjang tidak boleh terbawa ke kasir berikutnya: berubah akun (login/logout) mengosongkannya.
+    ref.watch(currentPenggunaIdProvider);
+    return [];
+  }
 
   /// Menambah satu unit [produk]. [modifiers] = pilihan tambahan (varian/topping);
   /// pilihan berbeda menjadi baris terpisah, pilihan sama menambah qty barisnya.
@@ -92,6 +97,7 @@ class KeranjangNotifier extends Notifier<List<ItemKeranjang>> {
     String? pelangganId,
     String? tipeOrderId,
     String? catatan,
+    String? diskonDisetujuiOleh,
   }) {
     state = items;
     ref.read(keranjangPelangganIdProvider.notifier).state = pelangganId;
@@ -99,7 +105,7 @@ class KeranjangNotifier extends Notifier<List<ItemKeranjang>> {
     ref.read(keranjangCatatanProvider.notifier).state = catatan;
     ref.read(keranjangPromoIdProvider.notifier).state = null;
     ref.read(keranjangPoinDitukarProvider.notifier).state = 0;
-    ref.read(keranjangDiskonDisetujuiOlehProvider.notifier).state = null;
+    ref.read(keranjangDiskonDisetujuiOlehProvider.notifier).state = diskonDisetujuiOleh;
     ref.read(draftPesananDibukaProvider.notifier).state = draftId;
   }
 }
@@ -109,7 +115,10 @@ class KeranjangNotifier extends Notifier<List<ItemKeranjang>> {
 /// draft mana yang harus dihapus (lewat
 /// TransaksiRepository.checkout(gantikanPesananTersimpanId: ...)) begitu
 /// pembayaran ini sukses. null kalau keranjang ini transaksi baru biasa.
-final draftPesananDibukaProvider = StateProvider<String?>((ref) => null);
+final draftPesananDibukaProvider = StateProvider<String?>((ref) {
+  ref.watch(currentPenggunaIdProvider); // ganti kasir = mulai dari kosong
+  return null;
+});
 
 final keranjangProvider =
     NotifierProvider<KeranjangNotifier, List<ItemKeranjang>>(
@@ -126,13 +135,28 @@ final subtotalKeranjangProvider = Provider<int>((ref) {
 /// Provider terpisah (bukan digabung ke `ItemKeranjang`/state list di
 /// atas) supaya operasi tambah/ubah qty per-item tidak perlu menyalin
 /// metadata ini setiap kali.
-final keranjangPelangganIdProvider = StateProvider<String?>((ref) => null);
-final keranjangPromoIdProvider = StateProvider<String?>((ref) => null);
-final keranjangTipeOrderIdProvider = StateProvider<String?>((ref) => null);
-final keranjangCatatanProvider = StateProvider<String?>((ref) => null);
+final keranjangPelangganIdProvider = StateProvider<String?>((ref) {
+  ref.watch(currentPenggunaIdProvider); // ganti kasir = mulai dari kosong
+  return null;
+});
+final keranjangPromoIdProvider = StateProvider<String?>((ref) {
+  ref.watch(currentPenggunaIdProvider); // ganti kasir = mulai dari kosong
+  return null;
+});
+final keranjangTipeOrderIdProvider = StateProvider<String?>((ref) {
+  ref.watch(currentPenggunaIdProvider); // ganti kasir = mulai dari kosong
+  return null;
+});
+final keranjangCatatanProvider = StateProvider<String?>((ref) {
+  ref.watch(currentPenggunaIdProvider); // ganti kasir = mulai dari kosong
+  return null;
+});
 // Modul 10 (tukar poin) - jumlah POIN (bukan Rupiah) yang kasir pilih utk
 // ditukar jadi diskon checkout ini. 0 = tidak menukar poin sama sekali.
-final keranjangPoinDitukarProvider = StateProvider<int>((ref) => 0);
+final keranjangPoinDitukarProvider = StateProvider<int>((ref) {
+  ref.watch(currentPenggunaIdProvider);
+  return 0;
+});
 
 /// Apakah pelanggan di keranjang berulang tahun hari ini (IMOGI no. 56).
 final keranjangPelangganUlangTahunProvider = Provider<bool>((ref) {
@@ -166,7 +190,10 @@ final keranjangPromoProvider = Provider<Promo?>((ref) {
 
 /// Id pengguna yang menyetujui diskon manual di keranjang ini. Hanya dipakai
 /// bila ada baris dengan diskon manual (lihat [persetujuanDiskonKeranjangProvider]).
-final keranjangDiskonDisetujuiOlehProvider = StateProvider<String?>((ref) => null);
+final keranjangDiskonDisetujuiOlehProvider = StateProvider<String?>((ref) {
+  ref.watch(currentPenggunaIdProvider); // ganti kasir = mulai dari kosong
+  return null;
+});
 
 /// Approver yang dikirim saat checkout: null bila tidak ada diskon manual sama sekali.
 final persetujuanDiskonKeranjangProvider = Provider<String?>((ref) {

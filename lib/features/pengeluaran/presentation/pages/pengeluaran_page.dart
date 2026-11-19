@@ -63,11 +63,11 @@ class _PengeluaranPageState extends ConsumerState<PengeluaranPage> {
     }
   }
 
-  Future<void> _tambah() async {
+  Future<void> _tambah({PengeluaranItem? ubah}) async {
     final tersimpan = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
-      builder: (_) => const _FormPengeluaran(),
+      builder: (_) => _FormPengeluaran(awal: ubah),
     );
     if (tersimpan == true) _muat();
   }
@@ -181,6 +181,7 @@ class _PengeluaranPageState extends ConsumerState<PengeluaranPage> {
           ListTile(
             key: Key('pengeluaran.item.${item.id}'),
             contentPadding: EdgeInsets.zero,
+            onTap: () => _tambah(ubah: item),
             title: Text(labelKategoriPengeluaran(item.kategori)),
             subtitle: Text([
               DateFormat('d MMM yyyy', 'id_ID').format(DateTime.parse(item.tanggal)),
@@ -204,22 +205,29 @@ class _PengeluaranPageState extends ConsumerState<PengeluaranPage> {
   }
 }
 
+/// Form catat pengeluaran baru, atau ubah bila [awal] diisi (ketuk baris di daftar).
 class _FormPengeluaran extends ConsumerStatefulWidget {
-  const _FormPengeluaran();
+  const _FormPengeluaran({this.awal});
+
+  final PengeluaranItem? awal;
 
   @override
   ConsumerState<_FormPengeluaran> createState() => _FormPengeluaranState();
 }
 
 class _FormPengeluaranState extends ConsumerState<_FormPengeluaran> {
-  final _jumlah = TextEditingController();
-  final _catatan = TextEditingController();
-  String _kategori = 'belanja_bahan';
-  DateTime _tanggal = DateTime.now();
+  late final _jumlah = TextEditingController(
+    text: widget.awal == null ? '' : formatRupiahDigits(widget.awal!.jumlah),
+  );
+  late final _catatan = TextEditingController(text: widget.awal?.catatan ?? '');
+  late String _kategori = widget.awal?.kategori ?? 'belanja_bahan';
+  late DateTime _tanggal = widget.awal == null ? DateTime.now() : DateTime.parse(widget.awal!.tanggal);
   bool _menyimpan = false;
   String? _error;
   // Dibuat sekali per form: ketuk Simpan dua kali tidak menggandakan catatan (idempoten di server).
   final String _id = generateId();
+
+  bool get _mengubah => widget.awal != null;
 
   @override
   void dispose() {
@@ -241,17 +249,31 @@ class _FormPengeluaranState extends ConsumerState<_FormPengeluaran> {
     try {
       final sesi = await ref.read(authSessionStoreProvider).muat();
       if (sesi == null) throw const BackendException(message: 'Perangkat belum terhubung ke server');
-      await ref.read(backendApiProvider).catatPengeluaran(
-        accessToken: sesi.accessToken,
-        body: {
-          'id': _id,
-          'outlet_id': sesi.outletId,
-          'tanggal': tanggalApi(_tanggal),
-          'kategori': _kategori,
-          'jumlah': nilai,
-          if (_catatan.text.trim().isNotEmpty) 'catatan': _catatan.text.trim(),
-        },
-      );
+      if (_mengubah) {
+        await ref.read(backendApiProvider).patchJson(
+          accessToken: sesi.accessToken,
+          path: '/pengeluaran/${widget.awal!.id}',
+          body: {
+            'tanggal': tanggalApi(_tanggal),
+            'kategori': _kategori,
+            'jumlah': nilai,
+            // null menghapus catatan lama bila dikosongkan.
+            'catatan': _catatan.text.trim().isEmpty ? null : _catatan.text.trim(),
+          },
+        );
+      } else {
+        await ref.read(backendApiProvider).catatPengeluaran(
+          accessToken: sesi.accessToken,
+          body: {
+            'id': _id,
+            'outlet_id': sesi.outletId,
+            'tanggal': tanggalApi(_tanggal),
+            'kategori': _kategori,
+            'jumlah': nilai,
+            if (_catatan.text.trim().isNotEmpty) 'catatan': _catatan.text.trim(),
+          },
+        );
+      }
       if (mounted) Navigator.pop(context, true);
     } on BackendException catch (e) {
       if (mounted) {
@@ -275,7 +297,7 @@ class _FormPengeluaranState extends ConsumerState<_FormPengeluaran> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Catat pengeluaran', style: AppTypography.cardTitle),
+          Text(_mengubah ? 'Ubah pengeluaran' : 'Catat pengeluaran', style: AppTypography.cardTitle),
           const SizedBox(height: AppSpacing.md),
           DropdownButtonFormField<String>(
             key: const Key('pengeluaranForm.kategori'),
