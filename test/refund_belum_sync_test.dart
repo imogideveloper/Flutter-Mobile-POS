@@ -57,4 +57,48 @@ void main() {
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(milliseconds: 1));
   });
+
+  for (final (statusServer, voidAktif, refundAktif) in [
+    ('selesai', true, true),
+    ('refund_sebagian', false, true),
+    ('refund', false, false),
+  ]) {
+    testWidgets('Detail transaksi $statusServer: tombol Void aktif=$voidAktif, Refund aktif=$refundAktif', (tester) async {
+      tester.view.physicalSize = const Size(600, 1400);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      final repo = TransaksiRepository(db.transaksiDao, db.stokDao, db.produkDao);
+      const item = ItemKeranjang(produkId: 'p1', namaProduk: 'Kopi', hargaSatuan: 18000, qty: 1, lacakStok: false);
+      final trx = await repo.checkout(
+        tokoId: 't1',
+        outletId: 'o1',
+        shiftId: 's1',
+        penggunaId: 'u1',
+        metodeBayarId: 'm1',
+        items: const [item],
+        hasil: k.hitung(k.TransaksiInput(items: [
+          k.ItemInput(produkId: 'p1', varianId: null, namaProduk: 'Kopi', qty: 1, hargaJual: 18000),
+        ])),
+        totalBayar: 18000,
+      );
+      await db.transaksiDao.terapkanStatusRefund(transaksiId: trx.id, statusServer: statusServer, now: 1);
+
+      await tester.pumpWidget(ProviderScope(
+        overrides: [appDatabaseProvider.overrideWith((ref) => db)],
+        child: MaterialApp(home: TransaksiDetailPage(transaksiId: trx.id)),
+      ));
+      await tester.pumpAndSettle();
+
+      final tombolVoid = tester.widget<OutlinedButton>(find.byKey(const Key('transaksiDetail.void')));
+      final tombolRefund = tester.widget<OutlinedButton>(find.byKey(const Key('transaksiDetail.refund')));
+      expect(tombolVoid.onPressed != null, voidAktif);
+      expect(tombolRefund.onPressed != null, refundAktif);
+
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(milliseconds: 1));
+    });
+  }
 }

@@ -9,6 +9,8 @@ class RingkasanLaporan {
     required this.jamRamai,
     required this.metodeBayar,
     required this.produkTerlaris,
+    this.pajakService = 0,
+    this.totalPenerimaan = 0,
     this.marginProduk = const [],
     this.penjualanHarian = const [],
     this.penjualanPeriodeSebelumnya,
@@ -16,7 +18,14 @@ class RingkasanLaporan {
     this.trenKategori = const [],
   });
 
+  /// Penjualan tanpa pajak dan service, setelah diskon dan refund (sama dengan Laba rugi).
   final int penjualanBersih;
+
+  /// Pajak dan service charge yang dipungut, setelah refund. Ditampilkan terpisah dari penjualan bersih.
+  final int pajakService;
+
+  /// Semua uang yang diterima dari pelanggan (bersih + pajak + service), setelah refund.
+  final int totalPenerimaan;
   final int labaKotor;
   final int jumlahTransaksi;
   final List<JamRamai> jamRamai;

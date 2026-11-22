@@ -16,6 +16,9 @@ final periodeLaporanProvider = StateProvider<PeriodeLaporan>((ref) => PeriodeLap
 final rentangCustomLaporanProvider = StateProvider<(DateTime, DateTime)?>((ref) => null);
 
 final ringkasanLaporanProvider = FutureProvider<RingkasanLaporan>((ref) {
+  // Hitung ulang setiap ada transaksi baru atau perubahan status (void, refund). Tanpa ini Laporan memakai
+  // hasil lama selama tab terbuka dan baru berubah setelah periode diganti.
+  ref.watch(riwayatTransaksiProvider);
   final outletId = ref.watch(currentOutletIdProvider);
   final periode = ref.watch(periodeLaporanProvider);
   final rentangCustom = ref.watch(rentangCustomLaporanProvider);

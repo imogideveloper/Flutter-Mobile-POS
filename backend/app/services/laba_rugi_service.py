@@ -1,4 +1,5 @@
-"""Laporan laba rugi (IMOGI no. 69): penjualan dan HPP dari transaksi selesai, biaya dari pengeluaran."""
+"""Laporan laba rugi (IMOGI no. 69): penjualan dan HPP dari transaksi selesai dan refund sebagian
+(setelah dikurangi refund), biaya dari pengeluaran."""
 
 import uuid
 from datetime import datetime, timedelta
@@ -10,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.pengeluaran import Pengeluaran
 from app.models.outlet import Outlet
 from app.schemas.laporan import BiayaKategoriOut, LabaRugiKonsolidasiOut, LabaRugiOut, LabaRugiOutletOut
-from app.services.laporan_service import _item_untuk_transaksi, _transaksi_selesai
+from app.services.laporan_service import _DUA_DESIMAL, item_penjualan, transaksi_penjualan
 
 # Belanja bahan sudah tercermin di HPP penjualan; tidak dikurangkan dua kali.
 _KATEGORI_HPP = "belanja_bahan"
@@ -19,15 +20,17 @@ _KATEGORI_HPP = "belanja_bahan"
 async def laba_rugi(
     db: AsyncSession, *, toko_id: uuid.UUID, outlet_id: uuid.UUID | None, dari: datetime, sampai: datetime
 ) -> LabaRugiOut:
-    transaksi = await _transaksi_selesai(db, toko_id, outlet_id, dari, sampai)
-    items = await _item_untuk_transaksi(db, [t.id for t in transaksi])
+    # Transaksi selesai + refund sebagian; refund penuh dan void tidak ikut. Nilai tiap transaksi dikurangi
+    # proporsional sebesar refund-nya (AT1). HPP hanya dikurangi untuk barang yang dikembalikan ke stok.
+    penjualan = await transaksi_penjualan(db, toko_id, outlet_id, dari, sampai)
+    items = await item_penjualan(db, [p.transaksi.id for p in penjualan])
 
     nol = Decimal("0")
-    penjualan_kotor = sum((Decimal(t.subtotal) for t in transaksi), nol)
-    diskon = sum((Decimal(t.total_diskon) for t in transaksi), nol)
+    penjualan_kotor = sum((Decimal(p.transaksi.subtotal) * p.sisa for p in penjualan), nol).quantize(_DUA_DESIMAL)
+    diskon = sum((Decimal(p.transaksi.total_diskon) * p.sisa for p in penjualan), nol).quantize(_DUA_DESIMAL)
     penjualan_bersih = penjualan_kotor - diskon
-    pajak = sum((Decimal(t.total_pajak) for t in transaksi), nol)
-    hpp = sum((Decimal(i.hpp_satuan) * Decimal(i.qty) for i in items), nol)
+    pajak = sum((p.pajak_service for p in penjualan), nol)
+    hpp = sum((Decimal(i.item.hpp_satuan) * i.qty_hpp for i in items), nol)
     laba_kotor = penjualan_bersih - hpp
 
     # Pengeluaran dicatat per tanggal (tanpa jam): ambil tanggal dari [dari, sampai).
@@ -66,7 +69,7 @@ async def laba_rugi(
         laba_bersih=laba_kotor - total_biaya,
         belanja_bahan=belanja_bahan,
         pajak_dipungut=pajak,
-        jumlah_transaksi=len(transaksi),
+        jumlah_transaksi=len(penjualan),
     )
 
 

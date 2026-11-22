@@ -269,9 +269,14 @@ class _RiwayatListPageState extends ConsumerState<RiwayatListPage> {
                       _formatRupiah.format(r.total).toLowerCase().contains(kata))
                   .toList();
 
+          // Total uang yang diterima dari transaksi di daftar ini. Transaksi void dan refund penuh tidak
+          // dihitung; refund sebagian belum dikurangkan di sini (nominalnya ada di Laporan).
           final penjualan = sumber
-              .where((r) => r.status != TransaksiStatus.dibatalkan)
+              .where((r) => r.status != TransaksiStatus.dibatalkan && r.status != TransaksiStatus.refund)
               .fold<int>(0, (a, b) => a + b.total);
+          final jumlahBerlaku = sumber
+              .where((r) => r.status != TransaksiStatus.dibatalkan && r.status != TransaksiStatus.refund)
+              .length;
 
           return Column(
             children: [
@@ -313,8 +318,8 @@ class _RiwayatListPageState extends ConsumerState<RiwayatListPage> {
                 child: AppCard(
                   child: Row(
                     children: [
-                      _ringkasan('Penjualan', _formatRupiah.format(penjualan)),
-                      _ringkasan('Transaksi', '${sumber.length}'),
+                      _ringkasan('Total penerimaan', _formatRupiah.format(penjualan)),
+                      _ringkasan('Transaksi', '$jumlahBerlaku'),
                     ],
                   ),
                 ),

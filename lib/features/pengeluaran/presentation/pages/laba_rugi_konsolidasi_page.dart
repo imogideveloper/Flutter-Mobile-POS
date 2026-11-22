@@ -174,8 +174,8 @@ class _LabaRugiKonsolidasiPageState extends ConsumerState<LabaRugiKonsolidasiPag
         ),
         const SizedBox(height: AppSpacing.md),
         Text(
-          'Rumus sama dengan laporan Laba rugi per outlet (belanja bahan tidak dikurangkan lagi, refund belum '
-          'dihitung). Total toko memuat biaya yang dicatat tanpa outlet.',
+          'Rumus sama dengan laporan Laba rugi per outlet (belanja bahan tidak dikurangkan lagi, refund sudah '
+          'dikurangkan dari penjualan). Total toko memuat biaya yang dicatat tanpa outlet.',
           style: AppTypography.secondary,
         ),
       ],

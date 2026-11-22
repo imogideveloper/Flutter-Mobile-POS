@@ -26,7 +26,7 @@ import '../../../../core/widgets/app_toast.dart';
 import '../../domain/detail_transaksi.dart';
 import '../../domain/metode_bayar_label.dart';
 import '../../data/local/tables/transaksi_table.dart' show TransaksiStatus;
-import '../../data/transaksi_repository.dart' show TransaksiSudahDivoidException;
+import '../../data/transaksi_repository.dart' show TransaksiSudahDirefundException, TransaksiSudahDivoidException;
 import '../providers/harga_keranjang_provider.dart';
 import '../providers/transaksi_providers.dart';
 import 'refund_page.dart';
@@ -245,6 +245,15 @@ class _TransaksiDetailPageState extends ConsumerState<TransaksiDetailPage> {
       if (mounted) {
         showAppToast(context, message: 'Transaksi ini sudah di-void sebelumnya', variant: ToastVariant.warning);
       }
+    } on TransaksiSudahDirefundException {
+      ref.invalidate(detailTransaksiProvider(widget.transaksiId));
+      if (mounted) {
+        showAppToast(
+          context,
+          message: 'Transaksi ini sudah direfund, tidak bisa di-void',
+          variant: ToastVariant.warning,
+        );
+      }
     } finally {
       if (mounted) setState(() => _memvoid = false);
     }
@@ -348,6 +357,8 @@ class _TransaksiDetailPageState extends ConsumerState<TransaksiDetailPage> {
           // Backend hanya terima refund utk status 'selesai'/'refund_sebagian'
           // (lihat refund_service.py) - 'refund' = semua qty sudah habis.
           final sudahRefundPenuh = detail.status == TransaksiStatus.refund;
+          // Void tidak boleh setelah refund (penuh atau sebagian): stok dikembalikan dua kali.
+          final sudahDirefund = sudahRefundPenuh || detail.status == TransaksiStatus.refundSebagian;
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(AppSpacing.xl),
@@ -437,7 +448,8 @@ class _TransaksiDetailPageState extends ConsumerState<TransaksiDetailPage> {
                             side: const BorderSide(color: AppColors.dangerBorder),
                             foregroundColor: AppColors.dangerTextStrong,
                           ),
-                          onPressed: _memvoid ? null : () => _voidTransaksi(detail),
+                          key: const Key('transaksiDetail.void'),
+                          onPressed: (_memvoid || sudahDirefund) ? null : () => _voidTransaksi(detail),
                           child: _memvoid
                               ? const SizedBox(
                                   height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2))

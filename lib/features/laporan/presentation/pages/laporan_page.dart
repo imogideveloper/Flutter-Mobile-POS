@@ -245,17 +245,38 @@ class _IsiLaporan extends StatelessWidget {
           const Text('Penjualan bersih', style: TextStyle(color: Colors.white70, fontSize: 13)),
           Text(
             _formatRupiah.format(ringkasan.penjualanBersih),
+            key: const Key('laporan.penjualanBersih'),
             style: const TextStyle(
                 color: Colors.white, fontSize: 28, fontWeight: FontWeight.w700, letterSpacing: -0.3),
           ),
+          const SizedBox(height: 2),
+          const Text(
+            'Tanpa pajak dan service, setelah diskon dan refund',
+            style: TextStyle(color: Colors.white60, fontSize: 11),
+          ),
           const SizedBox(height: AppSpacing.md),
           const Divider(color: Colors.white24, height: 1),
-          const SizedBox(height: AppSpacing.sm),
+          const SizedBox(height: AppSpacing.md),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _statTeal('Laba kotor', _formatRupiah.format(ringkasan.labaKotor)),
               _statTeal('Transaksi', '${ringkasan.jumlahTransaksi}'),
               _statTeal('Rata-rata', _formatRupiah.format(ringkasan.rataRata)),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          const Divider(color: Colors.white12, height: 1),
+          const SizedBox(height: AppSpacing.md),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _statTeal('Pajak & service', _formatRupiah.format(ringkasan.pajakService),
+                  key: const Key('laporan.pajakService')),
+              _statTeal('Total penerimaan', _formatRupiah.format(ringkasan.totalPenerimaan),
+                  key: const Key('laporan.totalPenerimaan')),
+              // Kolom kosong supaya sejajar dengan baris di atas (tiga kolom sama lebar).
+              const Expanded(child: SizedBox.shrink()),
             ],
           ),
         ],
@@ -263,8 +284,9 @@ class _IsiLaporan extends StatelessWidget {
     );
   }
 
-  Widget _statTeal(String label, String value) {
+  Widget _statTeal(String label, String value, {Key? key}) {
     return Expanded(
+      key: key,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

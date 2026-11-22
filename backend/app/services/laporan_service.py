@@ -6,6 +6,7 @@ berarti hal yang sama di kedua sisi, walau datanya beda (app = data lokal
 HP, sini = agregat lintas-outlet/toko dari server)."""
 
 import uuid
+from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 
@@ -14,7 +15,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.pelanggan import Pelanggan
-from app.models.transaksi import ItemTransaksi, MetodeBayar, Pembayaran, Shift, Transaksi
+from app.models.transaksi import ItemRefund, ItemTransaksi, MetodeBayar, Pembayaran, Refund, Shift, Transaksi
 from app.schemas.laporan import (
     JamRamaiOut,
     LaporanPiutangOut,
@@ -67,6 +68,119 @@ async def _transaksi_selesai(
     if outlet_id is not None:
         query = query.where(Transaksi.outlet_id == outlet_id)
     return list((await db.execute(query)).scalars().all())
+
+
+_DUA_DESIMAL = Decimal("0.01")
+
+
+@dataclass(frozen=True)
+class PenjualanTransaksi:
+    """Satu transaksi yang dihitung sebagai penjualan, beserta total refund yang sudah dikembalikan.
+
+    Keputusan sementara AT1 (docs/perlu_konfirmasi.md), selaras dengan app Flutter
+    (lib/features/laporan/domain/angka_penjualan.dart): penjualan bersih = tanpa pajak, service, dan
+    pembulatan; total penerimaan = semua uang dari pelanggan; refund dikurangkan proporsional."""
+
+    transaksi: Transaksi
+    refund: Decimal
+
+    @property
+    def sisa(self) -> Decimal:
+        """Bagian transaksi yang masih penjualan (1 = utuh, 0 = semuanya sudah direfund)."""
+        total = Decimal(self.transaksi.total)
+        if total <= 0:
+            return Decimal("1")
+        return max(Decimal("0"), Decimal("1") - min(self.refund, total) / total)
+
+    @property
+    def penjualan_bersih(self) -> Decimal:
+        t = self.transaksi
+        dasar = Decimal(t.total) - Decimal(t.total_pajak) - Decimal(t.pembulatan)
+        return (dasar * self.sisa).quantize(_DUA_DESIMAL)
+
+    @property
+    def pajak_service(self) -> Decimal:
+        return (Decimal(self.transaksi.total_pajak) * self.sisa).quantize(_DUA_DESIMAL)
+
+    @property
+    def total_penerimaan(self) -> Decimal:
+        total = Decimal(self.transaksi.total)
+        if total <= 0:
+            return total.quantize(_DUA_DESIMAL)
+        return (total - min(self.refund, total)).quantize(_DUA_DESIMAL)
+
+
+async def transaksi_penjualan(
+    db: AsyncSession, toko_id: uuid.UUID, outlet_id: uuid.UUID | None, dari: datetime, sampai: datetime
+) -> list[PenjualanTransaksi]:
+    """Transaksi yang dihitung sebagai penjualan: selesai dan refund sebagian (sisanya masih penjualan).
+    Refund penuh dan void tidak ikut. Bandingkan `_transaksi_selesai` yang hanya status selesai."""
+    query = select(Transaksi).where(
+        Transaksi.toko_id == toko_id,
+        Transaksi.status.in_(("selesai", "refund_sebagian")),
+        Transaksi.tanggal >= dari,
+        Transaksi.tanggal < sampai,
+    )
+    if outlet_id is not None:
+        query = query.where(Transaksi.outlet_id == outlet_id)
+    transaksi_list = list((await db.execute(query)).scalars().all())
+    if not transaksi_list:
+        return []
+
+    rows = await db.execute(
+        select(Refund.transaksi_id, func.coalesce(func.sum(Refund.total), 0))
+        .where(Refund.transaksi_id.in_([t.id for t in transaksi_list]), Refund.deleted_at.is_(None))
+        .group_by(Refund.transaksi_id)
+    )
+    refund_per_transaksi = {tid: Decimal(str(jumlah)) for tid, jumlah in rows.all()}
+    return [PenjualanTransaksi(t, refund_per_transaksi.get(t.id, Decimal("0"))) for t in transaksi_list]
+
+
+@dataclass(frozen=True)
+class ItemPenjualan:
+    """Item transaksi dengan qty yang masih terjual. `qty_hpp` = qty yang HPP-nya tetap ditanggung
+    (barang yang direfund tetapi tidak dikembalikan ke stok tetap jadi biaya)."""
+
+    item: ItemTransaksi
+    qty: Decimal
+    qty_hpp: Decimal
+
+    @property
+    def subtotal(self) -> Decimal:
+        qty_asli = Decimal(self.item.qty)
+        if qty_asli <= 0:
+            return Decimal("0")
+        return (Decimal(self.item.subtotal) * self.qty / qty_asli).quantize(_DUA_DESIMAL)
+
+
+async def item_penjualan(db: AsyncSession, transaksi_ids: list[uuid.UUID]) -> list[ItemPenjualan]:
+    """Item untuk [transaksi_ids] setelah dikurangi qty yang sudah direfund (dari `item_refund`)."""
+    items = await _item_untuk_transaksi(db, transaksi_ids)
+    if not items:
+        return []
+    rows = await db.execute(
+        select(ItemRefund.item_transaksi_id, ItemRefund.qty, Refund.kembalikan_stok)
+        .join(Refund, Refund.id == ItemRefund.refund_id)
+        .where(
+            Refund.transaksi_id.in_(transaksi_ids),
+            Refund.deleted_at.is_(None),
+            ItemRefund.deleted_at.is_(None),
+        )
+    )
+    direfund: dict[uuid.UUID, Decimal] = {}
+    direfund_stok: dict[uuid.UUID, Decimal] = {}
+    for item_id, qty, kembalikan_stok in rows.all():
+        direfund[item_id] = direfund.get(item_id, Decimal("0")) + Decimal(str(qty))
+        if kembalikan_stok:
+            direfund_stok[item_id] = direfund_stok.get(item_id, Decimal("0")) + Decimal(str(qty))
+    return [
+        ItemPenjualan(
+            item=i,
+            qty=max(Decimal("0"), Decimal(i.qty) - direfund.get(i.id, Decimal("0"))),
+            qty_hpp=max(Decimal("0"), Decimal(i.qty) - direfund_stok.get(i.id, Decimal("0"))),
+        )
+        for i in items
+    ]
 
 
 async def _item_untuk_transaksi(db: AsyncSession, transaksi_ids: list[uuid.UUID]) -> list[ItemTransaksi]:
@@ -152,27 +266,35 @@ async def ringkasan_penjualan(
     dari: datetime,
     sampai: datetime,
 ) -> RingkasanPenjualanOut:
-    transaksi_list = await _transaksi_selesai(db, toko_id, outlet_id, dari, sampai)
-    transaksi_ids = [t.id for t in transaksi_list]
+    # Penjualan = selesai + refund sebagian, dikurangi refund (AT1); refund penuh dan void tidak ikut.
+    penjualan_list = await transaksi_penjualan(db, toko_id, outlet_id, dari, sampai)
+    transaksi_ids = [p.transaksi.id for p in penjualan_list]
 
-    items = await _item_untuk_transaksi(db, transaksi_ids)
+    items = await item_penjualan(db, transaksi_ids)
     pembayaran_list = await _pembayaran_untuk_transaksi(db, transaksi_ids)
     label_metode = await _label_metode_bayar(db, toko_id)
     kas_diterima = await _kas_diterima_periode(
         db, toko_id=toko_id, outlet_id=outlet_id, dari=dari, sampai=sampai
     )
 
-    penjualan_bersih = sum((t.total for t in transaksi_list), Decimal("0"))
+    nol = Decimal("0")
+    penjualan_bersih = sum((p.penjualan_bersih for p in penjualan_list), nol)
+    pajak_service = sum((p.pajak_service for p in penjualan_list), nol)
+    total_penerimaan = sum((p.total_penerimaan for p in penjualan_list), nol)
     laba_kotor = sum(
-        ((item.harga_satuan - item.hpp_satuan) * item.qty for item in items), Decimal("0")
+        (
+            (i.item.harga_satuan * i.qty - i.item.hpp_satuan * i.qty_hpp)
+            for i in items
+        ),
+        nol,
     )
-    jumlah_transaksi = len(transaksi_list)
-    rata_rata = (penjualan_bersih / jumlah_transaksi) if jumlah_transaksi else Decimal("0")
+    jumlah_transaksi = len(penjualan_list)
+    rata_rata = (penjualan_bersih / jumlah_transaksi) if jumlah_transaksi else nol
 
     jam_total: dict[int, Decimal] = {}
-    for t in transaksi_list:
-        jam = t.tanggal.hour
-        jam_total[jam] = jam_total.get(jam, Decimal("0")) + t.total
+    for p in penjualan_list:
+        jam = p.transaksi.tanggal.hour
+        jam_total[jam] = jam_total.get(jam, nol) + p.penjualan_bersih
     jam_ramai = [JamRamaiOut(jam=jam, total=total) for jam, total in sorted(jam_total.items())]
 
     # Key (metode_bayar_id, label) - BUKAN cuma metode_bayar_id - supaya
@@ -201,6 +323,8 @@ async def ringkasan_penjualan(
 
     return RingkasanPenjualanOut(
         penjualan_bersih=penjualan_bersih,
+        pajak_service=pajak_service,
+        total_penerimaan=total_penerimaan,
         kas_diterima=kas_diterima,
         laba_kotor=laba_kotor,
         jumlah_transaksi=jumlah_transaksi,
@@ -219,16 +343,19 @@ async def produk_terlaris(
     sampai: datetime,
     limit: int = 5,
 ) -> list[ProdukTerlarisOut]:
-    transaksi_list = await _transaksi_selesai(db, toko_id, outlet_id, dari, sampai)
-    items = await _item_untuk_transaksi(db, [t.id for t in transaksi_list])
+    penjualan_list = await transaksi_penjualan(db, toko_id, outlet_id, dari, sampai)
+    items = await item_penjualan(db, [p.transaksi.id for p in penjualan_list])
 
     agregat: dict[uuid.UUID, dict] = {}
-    for item in items:
+    for ip in items:
+        if ip.qty <= 0:
+            continue  # seluruh qty item ini sudah direfund
+        item = ip.item
         entry = agregat.setdefault(
             item.produk_id, {"nama_produk": item.nama_produk, "qty": Decimal("0"), "total": Decimal("0")}
         )
-        entry["qty"] += item.qty
-        entry["total"] += item.subtotal
+        entry["qty"] += ip.qty
+        entry["total"] += ip.subtotal
 
     hasil = sorted(
         (ProdukTerlarisOut(produk_id=pid, **data) for pid, data in agregat.items()),

@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../../../../core/database/app_database.dart';
+import '../../../../core/utils/id_generator.dart';
 import 'tables/item_transaksi_modifier_table.dart';
 import 'tables/item_transaksi_table.dart';
 import 'tables/pembayaran_table.dart';
@@ -248,6 +249,153 @@ class TransaksiDao extends DatabaseAccessor<AppDatabase> with _$TransaksiDaoMixi
         updatedAt: Value(now),
       ),
     );
+  }
+
+  /// Refund selalu diproses server (online). Setelah berhasil, status transaksi di HP ikut disamakan
+  /// dengan status yang dikembalikan server ('refund' atau 'refund_sebagian'); nilai lain diabaikan.
+  /// Penanda sync tidak disentuh: perubahan ini berasal dari server, bukan untuk dikirim balik.
+  Future<void> terapkanStatusRefund({
+    required String transaksiId,
+    required String statusServer,
+    required int now,
+  }) async {
+    final status = switch (statusServer) {
+      'refund' => TransaksiStatus.refund,
+      'refund_sebagian' => TransaksiStatus.refundSebagian,
+      _ => null,
+    };
+    if (status == null) return;
+    await (update(transaksi)..where((t) => t.id.equals(transaksiId))).write(
+      TransaksiCompanion(status: Value(status), updatedAt: Value(now)),
+    );
+  }
+
+  /// Transaksi yang dihitung sebagai penjualan di laporan: selesai dan refund sebagian (sisanya masih
+  /// penjualan). Refund penuh dan void tidak ikut.
+  Future<List<TransaksiRow>> transaksiPenjualanRentang(String outletId, int awalMs, int akhirMs) =>
+      (select(transaksi)
+            ..where((t) =>
+                t.outletId.equals(outletId) &
+                t.deletedAt.isNull() &
+                (t.status.equalsValue(TransaksiStatus.selesai) | t.status.equalsValue(TransaksiStatus.refundSebagian)) &
+                t.tanggal.isBiggerOrEqualValue(awalMs) &
+                t.tanggal.isSmallerThanValue(akhirMs)))
+          .get();
+
+  /// Total refund (Rupiah) per transaksi, dari refund yang dicatat di HP ini lewat [catatRefundLokal].
+  Future<Map<String, int>> totalRefundPerTransaksi(Iterable<String> transaksiIds) async {
+    final ids = transaksiIds.toList();
+    if (ids.isEmpty) return {};
+    final tabel = attachedDatabase.refund;
+    final rows = await (select(tabel)..where((r) => r.transaksiId.isIn(ids) & r.deletedAt.isNull())).get();
+    final hasil = <String, int>{};
+    for (final r in rows) {
+      hasil[r.transaksiId] = (hasil[r.transaksiId] ?? 0) + r.total;
+    }
+    return hasil;
+  }
+
+  /// Mencatat refund yang berhasil diproses server ke tabel lokal, supaya laporan di HP bisa mengurangi
+  /// penjualan. Tidak melakukan apa-apa bila transaksinya tidak ada di HP ini.
+  Future<void> catatRefundLokal({
+    required String id,
+    required String transaksiId,
+    required String nomor,
+    required String alasan,
+    required int total,
+    required bool kembalikanStok,
+    required int now,
+  }) async {
+    final ada = await (select(transaksi)..where((t) => t.id.equals(transaksiId))).getSingleOrNull();
+    if (ada == null) return;
+    await into(attachedDatabase.refund).insertOnConflictUpdate(
+      RefundCompanion.insert(
+        id: id,
+        transaksiId: transaksiId,
+        nomor: nomor,
+        alasan: alasan,
+        total: total,
+        kembalikanStok: Value(kembalikanStok),
+        createdAt: now,
+        updatedAt: now,
+      ),
+    );
+  }
+
+  /// Mencatat item yang direfund (menurut server) ke item lokal transaksi ini. Id item di server berbeda dari id di
+  /// HP, jadi item dicocokkan lewat (nama produk, harga satuan); bila tidak ada yang cocok persis, lewat nama saja.
+  /// Qty dibagi ke baris lokal yang sama berurutan sesuai sisa qty tiap baris. Perlu baris refund lokal dari
+  /// [catatRefundLokal] lebih dulu; tanpa itu tidak melakukan apa-apa. Aman dipanggil ulang untuk refund yang sama.
+  Future<void> catatItemRefundLokal({
+    required String refundId,
+    required String transaksiId,
+    required List<({String namaProduk, int hargaSatuan, double qty, int jumlah})> items,
+    required int now,
+  }) async {
+    final tabelRefund = attachedDatabase.refund;
+    final tabelItemRefund = attachedDatabase.itemRefund;
+    final refund = await (select(tabelRefund)..where((r) => r.id.equals(refundId))).getSingleOrNull();
+    if (refund == null) return;
+
+    await transaction(() async {
+      final lokal = await itemUntukTransaksi(transaksiId);
+      await (delete(tabelItemRefund)..where((r) => r.refundId.equals(refundId))).go();
+      final sudahDirefund = <String, double>{};
+      if (lokal.isNotEmpty) {
+        final rows = await (select(tabelItemRefund)
+              ..where((r) => r.itemTransaksiId.isIn([for (final i in lokal) i.id]) & r.deletedAt.isNull()))
+            .get();
+        for (final r in rows) {
+          sudahDirefund[r.itemTransaksiId] = (sudahDirefund[r.itemTransaksiId] ?? 0) + r.qty;
+        }
+      }
+
+      for (final masuk in items) {
+        var kandidat = lokal.where((i) => i.namaProduk == masuk.namaProduk && i.hargaSatuan == masuk.hargaSatuan);
+        if (kandidat.isEmpty) kandidat = lokal.where((i) => i.namaProduk == masuk.namaProduk);
+        var sisaButuh = masuk.qty;
+        for (final baris in kandidat) {
+          if (sisaButuh <= 0) break;
+          final tersedia = baris.qty - (sudahDirefund[baris.id] ?? 0);
+          if (tersedia <= 0) continue;
+          final ambil = sisaButuh < tersedia ? sisaButuh : tersedia;
+          await into(tabelItemRefund).insert(
+            ItemRefundCompanion.insert(
+              id: generateId(),
+              refundId: refundId,
+              itemTransaksiId: baris.id,
+              qty: ambil,
+              jumlah: masuk.qty <= 0 ? 0 : (masuk.jumlah * ambil / masuk.qty).round(),
+              createdAt: now,
+              updatedAt: now,
+            ),
+          );
+          sudahDirefund[baris.id] = (sudahDirefund[baris.id] ?? 0) + ambil;
+          sisaButuh -= ambil;
+        }
+      }
+    });
+  }
+
+  /// Total qty yang direfund per id item lokal, dan bagian yang barangnya dikembalikan ke stok.
+  Future<Map<String, ({double qty, double qtyKembaliStok})>> refundPerItem(Iterable<String> itemIds) async {
+    final ids = itemIds.toList();
+    if (ids.isEmpty) return {};
+    final ir = attachedDatabase.itemRefund;
+    final r = attachedDatabase.refund;
+    final query = select(ir).join([innerJoin(r, r.id.equalsExp(ir.refundId))])
+      ..where(ir.itemTransaksiId.isIn(ids) & ir.deletedAt.isNull() & r.deletedAt.isNull());
+    final hasil = <String, ({double qty, double qtyKembaliStok})>{};
+    for (final baris in await query.get()) {
+      final item = baris.readTable(ir);
+      final refund = baris.readTable(r);
+      final lama = hasil[item.itemTransaksiId] ?? (qty: 0.0, qtyKembaliStok: 0.0);
+      hasil[item.itemTransaksiId] = (
+        qty: lama.qty + item.qty,
+        qtyKembaliStok: lama.qtyKembaliStok + (refund.kembalikanStok ? item.qty : 0.0),
+      );
+    }
+    return hasil;
   }
 
   Future<void> tandaiSudahSync(List<String> transaksiIds, int waktuSyncMs) {

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import '../../../core/database/app_database.dart' show ItemTransaksiRow;
 import '../../transaksi/data/local/transaksi_dao.dart';
+import '../domain/angka_penjualan.dart';
 import '../domain/ringkasan_laporan.dart';
 
 enum PeriodeLaporan { hariIni, tujuhHari, tigaPuluhHari, custom }
@@ -79,20 +80,24 @@ class LaporanRepository {
     (DateTime, DateTime)? rentangCustom,
   }) async {
     final (awalMs, akhirMs) = _rentang(periode, rentangCustom);
-    final transaksiList = await _transaksiDao.transaksiSelesaiRentang(outletId, awalMs, akhirMs);
+    // Penjualan = transaksi selesai + refund sebagian (refund penuh dan void tidak ikut). Angka dihitung per
+    // transaksi setelah dikurangi refund yang tercatat di HP ini (lihat angka_penjualan.dart).
+    final transaksiList = await _transaksiDao.transaksiPenjualanRentang(outletId, awalMs, akhirMs);
     final transaksiIds = [for (final t in transaksiList) t.id];
+    final angka = angkaPenjualanPerTransaksi(transaksiList, await _transaksiDao.totalRefundPerTransaksi(transaksiIds));
+    final angkaTotal = jumlahkanAngkaPenjualan(angka.values);
 
-    final items = await _transaksiDao.itemUntukTransaksiList(transaksiIds);
+    final items = await _itemSetelahRefund(await _transaksiDao.itemUntukTransaksiList(transaksiIds));
     final pembayaranList = await _transaksiDao.pembayaranUntukTransaksiList(transaksiIds);
 
-    final penjualanBersih = transaksiList.fold<int>(0, (a, b) => a + b.total);
-    final labaKotor = items.fold<int>(
-        0, (a, item) => a + ((item.hargaSatuan - item.hppSatuan) * item.qty).round());
+    final penjualanBersih = angkaTotal.penjualanBersih;
+    // Laba kotor per item: harga x qty yang masih terjual dikurangi HPP x qty yang HPP-nya masih ditanggung.
+    final labaKotor = items.fold<int>(0, (a, item) => a + item.labaKotor);
 
     final jamTotal = <int, int>{};
     for (final t in transaksiList) {
       final jam = DateTime.fromMillisecondsSinceEpoch(t.tanggal, isUtc: true).toLocal().hour;
-      jamTotal[jam] = (jamTotal[jam] ?? 0) + t.total;
+      jamTotal[jam] = (jamTotal[jam] ?? 0) + angka[t.id]!.penjualanBersih;
     }
     final jamRamai = jamTotal.entries.map((e) => JamRamai(jam: e.key, total: e.value)).toList()
       ..sort((a, b) => a.jam.compareTo(b.jam));
@@ -104,17 +109,23 @@ class LaporanRepository {
     // Label tujuan (IMOGI no. 18) ikut kunci: GoPay dan OVO jadi baris terpisah untuk rekonsiliasi.
     // Periode sebelumnya sama panjang, tepat sebelum rentang ini (pembanding tren).
     final panjang = akhirMs - awalMs;
-    final sebelumnya = await _transaksiDao.transaksiSelesaiRentang(outletId, awalMs - panjang, awalMs);
-    final penjualanSebelumnya = sebelumnya.isEmpty ? null : sebelumnya.fold<int>(0, (a, b) => a + b.total);
+    final sebelumnya = await _transaksiDao.transaksiPenjualanRentang(outletId, awalMs - panjang, awalMs);
+    final angkaSebelumnya = angkaPenjualanPerTransaksi(
+      sebelumnya,
+      await _transaksiDao.totalRefundPerTransaksi([for (final t in sebelumnya) t.id]),
+    );
+    final penjualanSebelumnya =
+        sebelumnya.isEmpty ? null : jumlahkanAngkaPenjualan(angkaSebelumnya.values).penjualanBersih;
 
-    final itemSebelumnya = await _transaksiDao.itemUntukTransaksiList([for (final t in sebelumnya) t.id]);
+    final itemSebelumnya =
+        await _itemSetelahRefund(await _transaksiDao.itemUntukTransaksiList([for (final t in sebelumnya) t.id]));
     final kategoriProduk = await _transaksiDao.namaKategoriPerProduk({
-      for (final i in [...items, ...itemSebelumnya]) i.produkId,
+      for (final i in [...items, ...itemSebelumnya]) i.item.produkId,
     });
-    Map<String, int> omzetPer(List<ItemTransaksiRow> daftar, String Function(ItemTransaksiRow) kunci) {
+    Map<String, int> omzetPer(List<ItemTerjual> daftar, String Function(ItemTransaksiRow) kunci) {
       final m = <String, int>{};
       for (final i in daftar) {
-        m[kunci(i)] = (m[kunci(i)] ?? 0) + i.subtotal;
+        m[kunci(i.item)] = (m[kunci(i.item)] ?? 0) + i.subtotal;
       }
       return m;
     }
@@ -122,7 +133,11 @@ class LaporanRepository {
     String namaProduk(ItemTransaksiRow i) => i.namaProduk;
     String namaKategori(ItemTransaksiRow i) => kategoriProduk[i.produkId] ?? 'Tanpa kategori';
 
-    final penjualanHarian = _susunPenjualanHarian(transaksiList.map((t) => (t.tanggal, t.total)), awalMs, akhirMs);
+    final penjualanHarian = _susunPenjualanHarian(
+      transaksiList.map((t) => (t.tanggal, angka[t.id]!.penjualanBersih)),
+      awalMs,
+      akhirMs,
+    );
 
     final metodeTotal = <(String, String?, String?), int>{};
     for (final p in pembayaranList) {
@@ -147,9 +162,11 @@ class LaporanRepository {
 
     final produkQty = <String, double>{};
     final produkTotal = <String, int>{};
-    for (final item in items) {
-      produkQty[item.namaProduk] = (produkQty[item.namaProduk] ?? 0) + item.qty;
-      produkTotal[item.namaProduk] = (produkTotal[item.namaProduk] ?? 0) + item.subtotal;
+    for (final terjual in items) {
+      if (terjual.qty <= 0) continue; // seluruh qty item ini sudah direfund
+      final nama = terjual.item.namaProduk;
+      produkQty[nama] = (produkQty[nama] ?? 0) + terjual.qty;
+      produkTotal[nama] = (produkTotal[nama] ?? 0) + terjual.subtotal;
     }
     final produkTerlaris = produkTotal.entries
         .map((e) => ProdukTerlaris(
@@ -162,6 +179,8 @@ class LaporanRepository {
 
     return RingkasanLaporan(
       penjualanBersih: penjualanBersih,
+      pajakService: angkaTotal.pajakService,
+      totalPenerimaan: angkaTotal.totalPenerimaan,
       labaKotor: labaKotor,
       jumlahTransaksi: transaksiList.length,
       jamRamai: jamRamai,
@@ -172,15 +191,23 @@ class LaporanRepository {
       trenProduk: hitungTren(omzetPer(items, namaProduk), omzetPer(itemSebelumnya, namaProduk)),
       trenKategori: hitungTren(omzetPer(items, namaKategori), omzetPer(itemSebelumnya, namaKategori)),
       marginProduk: hitungMarginProduk([
-        for (final item in items)
+        for (final terjual in items)
           BarisItemMargin(
-            nama: item.namaProduk,
-            qty: item.qty,
-            omzet: item.subtotal,
-            hpp: (item.hppSatuan * item.qty).round(),
+            nama: terjual.item.namaProduk,
+            qty: terjual.qty,
+            omzet: terjual.subtotal,
+            hpp: terjual.hpp,
           ),
       ]),
     );
+  }
+
+  /// Item dengan qty yang masih terjual setelah dikurangi refund yang tercatat di HP ini.
+  Future<List<ItemTerjual>> _itemSetelahRefund(List<ItemTransaksiRow> items) async {
+    final refund = await _transaksiDao.refundPerItem([for (final i in items) i.id]);
+    return itemTerjual(items, {
+      for (final e in refund.entries) e.key: RefundItem(qty: e.value.qty, qtyKembaliStok: e.value.qtyKembaliStok),
+    });
   }
 }
 

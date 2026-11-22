@@ -18,7 +18,11 @@ class MetodeBayarPersenOut(BaseModel):
 
 
 class RingkasanPenjualanOut(BaseModel):
+    # AT1: penjualan_bersih = tanpa pajak, service, dan pembulatan, setelah refund. Pajak/service dan total
+    # penerimaan (semua uang dari pelanggan, setelah refund) dikirim terpisah.
     penjualan_bersih: Decimal
+    pajak_service: Decimal = Decimal("0")
+    total_penerimaan: Decimal = Decimal("0")
     # Kas diterima (tahap 3b-1) - uang yang BENAR2 masuk selama periode ini
     # (Pembayaran.dibayar_pada di rentang [dari, sampai)), BEDA dari
     # penjualan_bersih yang menghitung NILAI TRANSAKSI yang terjadi di

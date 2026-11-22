@@ -155,7 +155,8 @@ class _LabaRugiPageState extends ConsumerState<LabaRugiPage> {
         Text(
           'Catatan: pajak/service yang dipungut (Rp ${formatRupiahDigits(d.pajakDipungut)}) bukan pendapatan '
           'sehingga tidak dihitung. Belanja bahan (Rp ${formatRupiahDigits(d.belanjaBahan)}) tidak dikurangkan lagi '
-          'karena sudah tercermin di HPP. Refund belum diperhitungkan.',
+          'karena sudah tercermin di HPP. Refund sudah dikurangkan dari penjualan; HPP hanya dikurangi untuk barang '
+          'yang dikembalikan ke stok.',
           key: const Key('labaRugi.catatan'),
           style: AppTypography.secondary,
         ),

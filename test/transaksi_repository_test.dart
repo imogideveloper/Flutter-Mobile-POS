@@ -580,4 +580,44 @@ void main() {
     );
     expect(await stokSaatIni(), 10, reason: 'void ulang tidak boleh menambah stok lagi');
   });
+
+  for (final statusServer in ['refund', 'refund_sebagian']) {
+    test('void ditolak pada transaksi berstatus $statusServer dan stok tidak berubah', () async {
+      final items = const [
+        ItemKeranjang(produkId: 'p-barang', namaProduk: 'Kopi Hitam', hargaSatuan: 15000, qty: 4, lacakStok: true),
+      ];
+      final hasil = await repo.checkout(
+        tokoId: 't1',
+        outletId: 'o1',
+        shiftId: 'shift1',
+        penggunaId: 'u1',
+        metodeBayarId: 'metode-tunai',
+        items: items,
+        hasil: _hitung(items),
+        totalBayar: 60000,
+      );
+      await db.transaksiDao.terapkanStatusRefund(transaksiId: hasil.id, statusServer: statusServer, now: 1);
+
+      Future<num> stokSaatIni() async => (await (db.select(db.stok)
+                ..where((t) => t.outletId.equals('o1') & t.produkId.equals('p-barang')))
+              .getSingle())
+          .jumlah;
+      final sebelum = await stokSaatIni();
+
+      await expectLater(
+        repo.voidTransaksi(
+          transaksiId: hasil.id,
+          tokoId: 't1',
+          outletId: 'o1',
+          alasan: 'Salah input',
+          disetujuiOleh: 'owner1',
+          items: hasil.items,
+        ),
+        throwsA(isA<TransaksiSudahDirefundException>()),
+      );
+      expect(await stokSaatIni(), sebelum, reason: 'void setelah refund tidak boleh mengembalikan stok lagi');
+      final row = await db.transaksiDao.transaksiById(hasil.id);
+      expect(row.status, statusServer == 'refund' ? TransaksiStatus.refund : TransaksiStatus.refundSebagian);
+    });
+  }
 }

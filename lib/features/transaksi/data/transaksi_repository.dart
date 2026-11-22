@@ -46,6 +46,15 @@ class TransaksiSudahDivoidException implements Exception {
   String toString() => 'Transaksi ini sudah di-void sebelumnya';
 }
 
+/// Dilempar saat void dicoba pada transaksi yang sudah direfund (penuh atau sebagian): stok dan uangnya
+/// sudah dikembalikan lewat refund, jadi void akan mengembalikan stok untuk kedua kalinya.
+class TransaksiSudahDirefundException implements Exception {
+  const TransaksiSudahDirefundException();
+
+  @override
+  String toString() => 'Transaksi ini sudah direfund, tidak bisa di-void';
+}
+
 class TransaksiRepository {
   TransaksiRepository(this._transaksiDao, this._stokDao, this._produkDao);
 
@@ -623,6 +632,9 @@ class TransaksiRepository {
       final saatIni = await _transaksiDao.transaksiById(transaksiId);
       if (saatIni.status == TransaksiStatus.dibatalkan) {
         throw const TransaksiSudahDivoidException();
+      }
+      if (saatIni.status == TransaksiStatus.refund || saatIni.status == TransaksiStatus.refundSebagian) {
+        throw const TransaksiSudahDirefundException();
       }
 
       await _transaksiDao.voidTransaksi(

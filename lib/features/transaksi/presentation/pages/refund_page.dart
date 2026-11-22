@@ -148,6 +148,45 @@ class _RefundPageState extends ConsumerState<RefundPage> {
             },
           );
 
+      // Samakan status transaksi di HP dengan server supaya Riwayat dan detail tidak lagi menampilkan "Selesai".
+      final dao = ref.read(transaksiDaoProvider);
+      final sekarang = DateTime.now().toUtc().millisecondsSinceEpoch;
+      // Nominal refund dicatat DULU agar Laporan bisa mengurangi penjualan (tabel ini tidak ikut sync); Laporan
+      // menghitung ulang saat status berubah, jadi nominalnya harus sudah ada pada saat itu.
+      final refundId = hasil['id']?.toString() ?? 'refund-${widget.transaksi.id}-$sekarang';
+      await dao.catatRefundLokal(
+        id: refundId,
+        transaksiId: widget.transaksi.id,
+        nomor: hasil['nomor']?.toString() ?? '',
+        alasan: _alasanController.text.trim(),
+        total: double.parse(hasil['total'].toString()).round(),
+        kembalikanStok: _kembalikanStok,
+        now: sekarang,
+      );
+      // Item yang direfund, dicocokkan ke item lokal lewat nama dan harga (id item server berbeda dari id lokal),
+      // supaya laba kotor, produk terlaris, dan tren di Laporan ikut berkurang.
+      final itemServer = {for (final i in items) i.itemTransaksiId: i};
+      await dao.catatItemRefundLokal(
+        refundId: refundId,
+        transaksiId: widget.transaksi.id,
+        items: [
+          for (final r in (hasil['items'] as List? ?? const []))
+            if (itemServer[(r as Map)['item_transaksi_id']?.toString()] case final asal?)
+              (
+                namaProduk: asal.namaProduk,
+                hargaSatuan: asal.hargaSatuan,
+                qty: double.parse(r['qty'].toString()),
+                jumlah: double.parse(r['jumlah'].toString()).round(),
+              ),
+        ],
+        now: sekarang,
+      );
+      await dao.terapkanStatusRefund(
+        transaksiId: widget.transaksi.id,
+        statusServer: hasil['status_transaksi']?.toString() ?? '',
+        now: sekarang,
+      );
+
       if (!mounted) return;
       showAppToast(
         context,
