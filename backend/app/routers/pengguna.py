@@ -22,7 +22,7 @@ from app.services.izin_service import has_izin
 
 async def _pastikan_role_milik_toko(db: AsyncSession, role_id: uuid.UUID, toko_id: uuid.UUID) -> Role:
     role = await db.get(Role, role_id)
-    if role is None or (not role.is_system and role.toko_id != toko_id):
+    if role is None or role.deleted_at is not None or (not role.is_system and role.toko_id != toko_id):
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Role tidak ditemukan")
     return role
 

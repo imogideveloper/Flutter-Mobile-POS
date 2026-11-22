@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import '../../../core/database/app_database.dart' show ItemTransaksiRow;
 import '../../transaksi/data/local/transaksi_dao.dart';
 import '../domain/ringkasan_laporan.dart';
 
@@ -23,8 +24,15 @@ String? _labelOverridePembayaran(String? payloadGatewayJson) {
 String? _labelTujuanPembayaran(String? payloadGatewayJson) {
   if (payloadGatewayJson == null) return null;
   final decoded = jsonDecode(payloadGatewayJson);
-  final tujuan = decoded is Map ? decoded['label_tujuan'] : null;
-  return tujuan is String && tujuan.trim().isNotEmpty ? tujuan.trim() : null;
+  if (decoded is! Map) return null;
+  // Kartu: jenis (Debit/Kredit) lebih dulu, lalu mesin EDC/tujuan, mis. "Debit · EDC BCA".
+  final jenis = switch (decoded['jenis_kartu']) { 'debit' => 'Debit', 'kredit' => 'Kredit', _ => null };
+  final tujuan = decoded['label_tujuan'];
+  final bagian = [
+    ?jenis,
+    if (tujuan is String && tujuan.trim().isNotEmpty) tujuan.trim(),
+  ];
+  return bagian.isEmpty ? null : bagian.join(' · ');
 }
 
 /// F3.C - fitur 'laporan_dasar': null batasHari = paket tanpa batas
@@ -99,6 +107,21 @@ class LaporanRepository {
     final sebelumnya = await _transaksiDao.transaksiSelesaiRentang(outletId, awalMs - panjang, awalMs);
     final penjualanSebelumnya = sebelumnya.isEmpty ? null : sebelumnya.fold<int>(0, (a, b) => a + b.total);
 
+    final itemSebelumnya = await _transaksiDao.itemUntukTransaksiList([for (final t in sebelumnya) t.id]);
+    final kategoriProduk = await _transaksiDao.namaKategoriPerProduk({
+      for (final i in [...items, ...itemSebelumnya]) i.produkId,
+    });
+    Map<String, int> omzetPer(List<ItemTransaksiRow> daftar, String Function(ItemTransaksiRow) kunci) {
+      final m = <String, int>{};
+      for (final i in daftar) {
+        m[kunci(i)] = (m[kunci(i)] ?? 0) + i.subtotal;
+      }
+      return m;
+    }
+
+    String namaProduk(ItemTransaksiRow i) => i.namaProduk;
+    String namaKategori(ItemTransaksiRow i) => kategoriProduk[i.produkId] ?? 'Tanpa kategori';
+
     final penjualanHarian = _susunPenjualanHarian(transaksiList.map((t) => (t.tanggal, t.total)), awalMs, akhirMs);
 
     final metodeTotal = <(String, String?, String?), int>{};
@@ -146,6 +169,8 @@ class LaporanRepository {
       produkTerlaris: produkTerlaris.take(5).toList(),
       penjualanHarian: penjualanHarian,
       penjualanPeriodeSebelumnya: penjualanSebelumnya,
+      trenProduk: hitungTren(omzetPer(items, namaProduk), omzetPer(itemSebelumnya, namaProduk)),
+      trenKategori: hitungTren(omzetPer(items, namaKategori), omzetPer(itemSebelumnya, namaKategori)),
       marginProduk: hitungMarginProduk([
         for (final item in items)
           BarisItemMargin(

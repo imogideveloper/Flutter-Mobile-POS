@@ -129,3 +129,26 @@ async def test_ubah_pengeluaran_ditolak_di_periode_tertutup(client: AsyncClient,
     # memindahkan catatan baru ke tanggal yang sudah terkunci juga ditolak
     assert (await client.patch(f"/pengeluaran/{baru['id']}", headers=h, json={"tanggal": "2026-11-08"})).status_code == 409
     assert (await client.patch(f"/pengeluaran/{baru['id']}", headers=h, json={"jumlah": 2000})).status_code == 200
+
+
+async def test_izin_keuangan_dan_pengeluaran_terpisah_dari_laporan_lihat(
+    client: AsyncClient, db_session: AsyncSession
+) -> None:
+    """Peran yang hanya punya laporan.lihat tidak bisa laba rugi/pengeluaran; izin barunya yang menentukan."""
+    from sqlalchemy import delete, select
+
+    from app.models.akun import Izin, Role, RoleIzin
+
+    toko = await buat_toko_siap_pakai(db_session, nama_role="Manajer", nama_paket="Bisnis")
+    role = (await db_session.execute(select(Role).where(Role.nama == "Manajer", Role.is_system.is_(True)))).scalar_one()
+    baru = (
+        await db_session.execute(select(Izin.id).where(Izin.kode.in_(["laporan.keuangan", "pengeluaran.catat"])))
+    ).scalars().all()
+    await db_session.execute(delete(RoleIzin).where(RoleIzin.role_id == role.id, RoleIzin.izin_id.in_(baru)))
+    await db_session.commit()
+
+    rentang = {"dari": "2026-11-01T00:00:00Z", "sampai": "2026-11-30T00:00:00Z"}
+    assert (await client.get("/laporan/laba-rugi", headers=toko.headers, params=rentang)).status_code == 403
+    assert (await client.get("/laporan/rekap-pajak", headers=toko.headers, params=rentang)).status_code == 403
+    r = await client.get("/pengeluaran", headers=toko.headers, params={"dari": "2026-11-12", "sampai": "2026-11-12"})
+    assert r.status_code == 403

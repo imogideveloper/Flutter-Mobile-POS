@@ -26,7 +26,7 @@ router = APIRouter(
 
 
 async def _wajib_izin(db: AsyncSession, role_id: uuid.UUID) -> None:
-    if not await has_izin(db, role_id, "laporan.lihat"):
+    if not await has_izin(db, role_id, "pengeluaran.catat"):
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Tidak punya izin mengelola pengeluaran")
 
 

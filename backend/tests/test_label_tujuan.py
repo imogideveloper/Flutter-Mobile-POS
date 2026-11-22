@@ -105,3 +105,13 @@ async def test_laporan_memisahkan_baris_per_label_tujuan(client: AsyncClient, db
     assert total["Qris · OVO"] == Decimal("10000")
     assert total["Qris"] == Decimal("10000")
     assert total["QRIS manual (belum terverifikasi) · BCA"] == Decimal("10000")
+
+
+def test_label_kartu_menyertakan_jenis_dan_mesin_edc():
+    from app.services.laporan_service import _label_pembayaran
+
+    assert _label_pembayaran("Kartu", {"jenis_kartu": "debit", "label_tujuan": "EDC BCA"}) == "Kartu · Debit · EDC BCA"
+    assert _label_pembayaran("Kartu", {"jenis_kartu": "kredit"}) == "Kartu · Kredit"
+    assert _label_pembayaran("Kartu", {"label_tujuan": "EDC BCA"}) == "Kartu · EDC BCA"
+    assert _label_pembayaran("Kartu", {"jenis_kartu": "aneh"}) == "Kartu"
+    assert _label_pembayaran("Kartu", None) == "Kartu"

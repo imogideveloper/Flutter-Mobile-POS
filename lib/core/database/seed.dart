@@ -23,9 +23,26 @@ const _izinBawaan = <(String kode, String modul, String deskripsi)>[
   ('laporan.lihat', 'laporan', 'Melihat laporan'),
   ('pengguna.kelola', 'pengaturan', 'Mengelola karyawan dan role'),
   ('pengaturan.kelola', 'pengaturan', 'Mengubah pengaturan toko/outlet'),
+  // Tambahan dari panduan IMOGI (migrasi server 0035)
+  ('bon.jual', 'penjualan', 'Jual bon / uang muka (DP)'),
+  ('bon.lihat', 'penjualan', 'Melihat daftar bon'),
+  ('pesanan.status', 'penjualan', 'Mengubah status pesanan dan antrian'),
+  ('persetujuan.pin', 'penjualan', 'Menyetujui tindakan dengan PIN'),
+  ('produk.lihat_margin', 'produk', 'Melihat harga beli dan margin'),
+  ('stok.opname_posting', 'stok', 'Memposting hasil stok opname'),
+  ('pengeluaran.catat', 'laporan', 'Mencatat pengeluaran'),
+  ('laporan.keuangan', 'laporan', 'Melihat laba rugi, pajak, dan margin'),
 ];
 
-const _izinKasir = {'transaksi.buat', 'shift.buka_tutup', 'kas.keluar_masuk', 'pelanggan.kelola'};
+const _izinKasir = {
+  'transaksi.buat',
+  'shift.buka_tutup',
+  'kas.keluar_masuk',
+  'pelanggan.kelola',
+  'bon.jual',
+  'bon.lihat',
+  'pesanan.status',
+};
 const _izinBukanManajer = {'pengguna.kelola', 'pengaturan.kelola'};
 
 /// Tiruan dari seed role/izin/owner di schema_pos v2 (bagian seed data) -

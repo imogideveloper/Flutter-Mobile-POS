@@ -42,7 +42,7 @@ void main() {
           updatedAt: now,
         ));
 
-    tester.view.physicalSize = const Size(900, 2400);
+    tester.view.physicalSize = const Size(900, 3200);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(ProviderScope(

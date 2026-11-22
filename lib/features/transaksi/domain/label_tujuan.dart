@@ -46,9 +46,10 @@ String? validasiLabelTujuan({required List<String> tersedia, required String? pi
 
 /// Isi `payload_gateway` pembayaran manual: 4 digit akhir kartu dan/atau label tujuan.
 /// null bila tidak ada keduanya. Kunci sama dengan yang dibaca laporan (lokal dan server).
-String? payloadPembayaranManual({String? empatDigitAkhirKartu, String? labelTujuan}) {
+String? payloadPembayaranManual({String? empatDigitAkhirKartu, String? labelTujuan, String? jenisKartu}) {
   final isi = <String, dynamic>{
     if (empatDigitAkhirKartu != null) 'empat_digit_akhir_kartu': empatDigitAkhirKartu,
+    if (jenisKartu != null && jenisKartu.isNotEmpty) 'jenis_kartu': jenisKartu,
     if (labelTujuan != null && labelTujuan.isNotEmpty) 'label_tujuan': labelTujuan,
   };
   return isi.isEmpty ? null : jsonEncode(isi);

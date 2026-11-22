@@ -3,7 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/printer/pengaturan_printer_providers.dart';
 import '../../../../core/printer/printer_service.dart';
+import '../../../../core/struk/cetak_label_helper.dart';
+import '../../../../core/struk/cetak_struk_helper.dart' show variantStatusCetak;
 import '../../../../core/struk/esc_pos_converter.dart';
+import '../../../../core/struk/penyusun_label_produk.dart';
 import '../../../../core/struk/penyusun_struk.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -18,7 +21,8 @@ class PengaturanPrinterPage extends ConsumerStatefulWidget {
   const PengaturanPrinterPage({super.key});
 
   @override
-  ConsumerState<PengaturanPrinterPage> createState() => _PengaturanPrinterPageState();
+  ConsumerState<PengaturanPrinterPage> createState() =>
+      _PengaturanPrinterPageState();
 }
 
 class _PengaturanPrinterPageState extends ConsumerState<PengaturanPrinterPage> {
@@ -27,6 +31,12 @@ class _PengaturanPrinterPageState extends ConsumerState<PengaturanPrinterPage> {
   String? _namaTerpilih;
   int _lebarKertasMm = 58;
   bool _cetakOtomatis = true;
+  String? _labelMac;
+  String? _labelNama;
+  int _labelLebar = 40;
+  int _labelTinggi = 30;
+  bool _labelOtomatis = true;
+  bool _mencetakTesLabel = false;
   bool _mencari = false;
   bool _mencetakTes = false;
   bool _sudahMuatPengaturan = false;
@@ -45,6 +55,11 @@ class _PengaturanPrinterPageState extends ConsumerState<PengaturanPrinterPage> {
       _namaTerpilih = pengaturan.namaPrinter as String?;
       _lebarKertasMm = pengaturan.lebarKertasMm as int;
       _cetakOtomatis = pengaturan.cetakOtomatis as bool;
+      _labelMac = pengaturan.labelMacAddress as String?;
+      _labelNama = pengaturan.labelNamaPrinter as String?;
+      _labelLebar = pengaturan.labelLebarMm as int;
+      _labelTinggi = pengaturan.labelTinggiMm as int;
+      _labelOtomatis = pengaturan.labelOtomatis as bool;
     });
   }
 
@@ -52,19 +67,26 @@ class _PengaturanPrinterPageState extends ConsumerState<PengaturanPrinterPage> {
     setState(() => _mencari = true);
     try {
       final printer = ref.read(printerServiceProvider);
-      final diizinkan = await printer.izinDiberikan() || await printer.mintaIzin();
+      final diizinkan =
+          await printer.izinDiberikan() || await printer.mintaIzin();
       if (!diizinkan) {
         if (mounted) {
-          showAppToast(context,
-              message: 'Izin Bluetooth ditolak - tidak bisa mencari printer', variant: ToastVariant.warning);
+          showAppToast(
+            context,
+            message: 'Izin Bluetooth ditolak - tidak bisa mencari printer',
+            variant: ToastVariant.warning,
+          );
         }
         return;
       }
       final aktif = await printer.bluetoothAktif();
       if (!aktif) {
         if (mounted) {
-          showAppToast(context,
-              message: 'Bluetooth mati - nyalakan dulu lalu coba lagi', variant: ToastVariant.warning);
+          showAppToast(
+            context,
+            message: 'Bluetooth mati - nyalakan dulu lalu coba lagi',
+            variant: ToastVariant.warning,
+          );
         }
         return;
       }
@@ -85,7 +107,11 @@ class _PengaturanPrinterPageState extends ConsumerState<PengaturanPrinterPage> {
         final sukses = await printer.sambungkan(_macTerpilih!);
         if (!sukses) {
           if (mounted) {
-            showAppToast(context, message: 'Gagal terhubung ke printer', variant: ToastVariant.danger);
+            showAppToast(
+              context,
+              message: 'Gagal terhubung ke printer',
+              variant: ToastVariant.danger,
+            );
           }
           return;
         }
@@ -99,7 +125,10 @@ class _PengaturanPrinterPageState extends ConsumerState<PengaturanPrinterPage> {
         BarisStruk('Lebar kertas: $_lebarKertasMm mm'),
         BarisStruk('-' * pengaturan.lebarKarakter),
       ];
-      final bytes = await konversiKeEscPos(baris: baris, lebarKertasMm: _lebarKertasMm);
+      final bytes = await konversiKeEscPos(
+        baris: baris,
+        lebarKertasMm: _lebarKertasMm,
+      );
       final berhasilCetak = await printer.cetakBytes(bytes);
       if (mounted) {
         showAppToast(
@@ -113,15 +142,56 @@ class _PengaturanPrinterPageState extends ConsumerState<PengaturanPrinterPage> {
     }
   }
 
-  Future<void> _simpan() async {
-    await ref.read(pengaturanPrinterDaoProvider).simpan(
+  /// Cetak satu stiker contoh ke printer label (ukuran sesuai pilihan) untuk memastikan ukuran dan koneksi.
+  Future<void> _cetakTesLabel() async {
+    if (_labelMac == null) return;
+    setState(() => _mencetakTesLabel = true);
+    try {
+      // Simpan dulu agar cetakLabelProduk memakai printer dan ukuran yang baru dipilih.
+      await _simpan(tampilkanToast: false);
+      final status = await cetakLabelProduk(ref, [
+        LabelProdukData(
+          namaProduk: 'Es Kopi Susu',
+          urutan: 1,
+          total: 1,
+          tanggalEpochMs: DateTime.now().millisecondsSinceEpoch,
+          nomorAntrean: 'A-001',
+          namaToko: 'Tes label',
+          tambahan: const ['Less sugar'],
+        ),
+      ]);
+      if (mounted) {
+        showAppToast(
+          context,
+          message: pesanStatusLabel(status, 1),
+          variant: variantStatusCetak(status),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _mencetakTesLabel = false);
+    }
+  }
+
+  Future<void> _simpan({bool tampilkanToast = true}) async {
+    await ref
+        .read(pengaturanPrinterDaoProvider)
+        .simpan(
           macAddress: _macTerpilih,
           namaPrinter: _namaTerpilih,
           lebarKertasMm: _lebarKertasMm,
           cetakOtomatis: _cetakOtomatis,
+          labelMacAddress: _labelMac,
+          labelNamaPrinter: _labelNama,
+          labelLebarMm: _labelLebar,
+          labelTinggiMm: _labelTinggi,
+          labelOtomatis: _labelOtomatis,
         );
-    if (mounted) {
-      showAppToast(context, message: 'Pengaturan printer disimpan', variant: ToastVariant.success);
+    if (mounted && tampilkanToast) {
+      showAppToast(
+        context,
+        message: 'Pengaturan printer disimpan',
+        variant: ToastVariant.success,
+      );
     }
   }
 
@@ -144,10 +214,18 @@ class _PengaturanPrinterPageState extends ConsumerState<PengaturanPrinterPage> {
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.xl),
         children: [
-          Text('Printer terpasangkan', style: AppTypography.cardTitle.copyWith(fontSize: 15)),
+          Text(
+            'Printer terpasangkan',
+            style: AppTypography.cardTitle.copyWith(fontSize: 15),
+          ),
           const SizedBox(height: AppSpacing.sm),
           if (_mencari)
-            const Center(child: Padding(padding: EdgeInsets.all(AppSpacing.lg), child: CircularProgressIndicator()))
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.all(AppSpacing.lg),
+                child: CircularProgressIndicator(),
+              ),
+            )
           else if (_daftarPerangkat.isEmpty)
             Text(
               'Belum ada printer terpasangkan - pasangkan dulu lewat Pengaturan Bluetooth HP.',
@@ -160,9 +238,14 @@ class _PengaturanPrinterPageState extends ConsumerState<PengaturanPrinterPage> {
                 children: [
                   for (final perangkat in _daftarPerangkat)
                     RadioListTile<String>(
-                      key: Key('pengaturanPrinter.perangkat.${perangkat.macAddress}'),
+                      key: Key(
+                        'pengaturanPrinter.perangkat.${perangkat.macAddress}',
+                      ),
                       title: Text(perangkat.nama),
-                      subtitle: Text(perangkat.macAddress, style: AppTypography.secondary),
+                      subtitle: Text(
+                        perangkat.macAddress,
+                        style: AppTypography.secondary,
+                      ),
                       value: perangkat.macAddress,
                       groupValue: _macTerpilih,
                       onChanged: (value) => setState(() {
@@ -174,7 +257,10 @@ class _PengaturanPrinterPageState extends ConsumerState<PengaturanPrinterPage> {
               ),
             ),
           const SizedBox(height: AppSpacing.xl),
-          Text('Lebar kertas', style: AppTypography.cardTitle.copyWith(fontSize: 15)),
+          Text(
+            'Lebar kertas',
+            style: AppTypography.cardTitle.copyWith(fontSize: 15),
+          ),
           const SizedBox(height: AppSpacing.sm),
           Row(
             children: [
@@ -210,11 +296,109 @@ class _PengaturanPrinterPageState extends ConsumerState<PengaturanPrinterPage> {
             height: 48,
             child: OutlinedButton(
               key: const Key('pengaturanPrinter.cetakTes'),
-              onPressed: _macTerpilih == null || _mencetakTes ? null : _cetakTes,
+              onPressed: _macTerpilih == null || _mencetakTes
+                  ? null
+                  : _cetakTes,
               child: Text(_mencetakTes ? 'Mencetak...' : 'Cetak tes'),
             ),
           ),
+          const SizedBox(height: AppSpacing.xxl),
+          Text(
+            'Printer label kemasan',
+            style: AppTypography.cardTitle.copyWith(fontSize: 15),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            'Stiker per porsi untuk ditempel di kemasan. Pakai printer label termal (bahasa TSPL), terpisah dari printer struk.',
+            style: AppTypography.secondary,
+          ),
           const SizedBox(height: AppSpacing.sm),
+          if (_daftarPerangkat.isEmpty)
+            Text(
+              'Belum ada printer terpasangkan.',
+              style: AppTypography.secondary,
+            )
+          else
+            AppCard(
+              padding: EdgeInsets.zero,
+              child: Column(
+                children: [
+                  RadioListTile<String?>(
+                    key: const Key('pengaturanPrinter.label.tidak'),
+                    title: const Text('Tidak pakai printer label'),
+                    value: null,
+                    groupValue: _labelMac,
+                    onChanged: (_) => setState(() {
+                      _labelMac = null;
+                      _labelNama = null;
+                    }),
+                  ),
+                  for (final perangkat in _daftarPerangkat)
+                    RadioListTile<String?>(
+                      key: Key(
+                        'pengaturanPrinter.label.perangkat.${perangkat.macAddress}',
+                      ),
+                      title: Text(perangkat.nama),
+                      subtitle: Text(
+                        perangkat.macAddress,
+                        style: AppTypography.secondary,
+                      ),
+                      value: perangkat.macAddress,
+                      groupValue: _labelMac,
+                      onChanged: (value) => setState(() {
+                        _labelMac = value;
+                        _labelNama = perangkat.nama;
+                      }),
+                    ),
+                ],
+              ),
+            ),
+          const SizedBox(height: AppSpacing.md),
+          Text(
+            'Ukuran stiker',
+            style: AppTypography.bodyEmphasis.copyWith(fontSize: 13),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Wrap(
+            spacing: AppSpacing.sm,
+            children: [
+              for (final (l, t) in const [
+                (40, 30),
+                (50, 30),
+                (50, 40),
+                (58, 40),
+              ])
+                ChoiceChip(
+                  key: Key('pengaturanPrinter.labelUkuran.${l}x$t'),
+                  label: Text('$l x $t mm'),
+                  selected: _labelLebar == l && _labelTinggi == t,
+                  onSelected: (_) => setState(() {
+                    _labelLebar = l;
+                    _labelTinggi = t;
+                  }),
+                ),
+            ],
+          ),
+          SwitchListTile(
+            key: const Key('pengaturanPrinter.labelOtomatis'),
+            contentPadding: EdgeInsets.zero,
+            title: const Text('Cetak label otomatis setelah bayar'),
+            value: _labelOtomatis,
+            onChanged: (value) => setState(() => _labelOtomatis = value),
+          ),
+          SizedBox(
+            height: 48,
+            child: OutlinedButton(
+              key: const Key('pengaturanPrinter.cetakTesLabel'),
+              onPressed: _labelMac == null || _mencetakTesLabel
+                  ? null
+                  : _cetakTesLabel,
+              child: Text(
+                _mencetakTesLabel ? 'Mencetak...' : 'Cetak tes label',
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.lg),
           SizedBox(
             height: 48,
             child: FilledButton(

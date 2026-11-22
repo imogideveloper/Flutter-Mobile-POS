@@ -105,10 +105,16 @@ def _label_pembayaran(nama_metode: str, payload_gateway: dict | None) -> str:
         dasar = "QRIS manual (belum terverifikasi)"
     # Label tujuan (IMOGI no. 18, mis. GoPay/OVO/BCA): baris dipisah per tujuan supaya bisa
     # direkonsiliasi dengan mutasi/settlement masing-masing. Dart mirror: laporan_repository.dart.
-    tujuan = payload_gateway.get("label_tujuan") if payload_gateway else None
-    if isinstance(tujuan, str) and tujuan.strip():
-        return f"{dasar} · {tujuan.strip()}"
-    return dasar
+    # Kartu: jenis (Debit/Kredit) lebih dulu, lalu mesin EDC/tujuan, mis. "Kartu · Debit · EDC BCA".
+    bagian: list[str] = []
+    if payload_gateway:
+        jenis = {"debit": "Debit", "kredit": "Kredit"}.get(payload_gateway.get("jenis_kartu"))
+        if jenis:
+            bagian.append(jenis)
+        tujuan = payload_gateway.get("label_tujuan")
+        if isinstance(tujuan, str) and tujuan.strip():
+            bagian.append(tujuan.strip())
+    return " · ".join([dasar, *bagian])
 
 
 async def _kas_diterima_periode(

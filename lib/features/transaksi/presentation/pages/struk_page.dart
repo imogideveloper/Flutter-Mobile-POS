@@ -7,6 +7,8 @@ import 'package:intl/intl.dart';
 
 import '../../../../core/providers/session_provider.dart';
 import '../../../../core/providers/toko_profile_provider.dart';
+import '../../../../core/printer/pengaturan_printer_providers.dart';
+import '../../../../core/struk/cetak_label_helper.dart';
 import '../../../../core/struk/cetak_struk_helper.dart';
 import '../../../../core/struk/gaya_logo.dart';
 import '../../../../core/struk/kirim_whatsapp_helper.dart';
@@ -139,11 +141,14 @@ class _StrukPageState extends ConsumerState<StrukPage> {
   }
 
   Future<void> _cetakOtomatisJikaAktif() async {
-    if (!await perluCetakOtomatis(ref)) return;
-    await _cetak(diam: true);
-    // Tiket dapur ikut tercetak otomatis setelah pembayaran (bawaan IMOGI:
-    // nyala untuk kafe, restoran, minuman, food court) bila fiturnya terbuka.
-    if (await _tiketDapurTersedia()) await _cetakTiketDapur(diam: true);
+    if (await perluCetakOtomatis(ref)) {
+      await _cetak(diam: true);
+      // Tiket dapur ikut tercetak otomatis setelah pembayaran (bawaan IMOGI: nyala untuk kafe, restoran,
+      // minuman, food court) bila fiturnya terbuka.
+      if (await _tiketDapurTersedia()) await _cetakTiketDapur(diam: true);
+    }
+    // Label kemasan berdiri sendiri: printer labelnya bisa diatur tanpa printer struk.
+    if (await _tiketDapurTersedia() && await perluCetakLabelOtomatis(ref)) await _cetakLabel(diam: true);
   }
 
   Future<bool> _tiketDapurTersedia() async {
@@ -172,6 +177,38 @@ class _StrukPageState extends ConsumerState<StrukPage> {
           ),
         ),
     ];
+  }
+
+  /// Label kemasan: satu stiker per porsi ke printer label (terpisah dari printer struk).
+  Future<void> _cetakLabel({bool diam = false}) async {
+    if (_mencetak) return;
+    setState(() => _mencetak = true);
+    try {
+      final hasil = widget.hasil;
+      final labels = await labelUntukDicetak(
+        ref,
+        hasil.items,
+        tanggalEpochMs: hasil.tanggal,
+        nomorAntrean: hasil.nomorAntrean,
+        nomorStruk: hasil.nomorStruk,
+      );
+      if (labels.isEmpty) {
+        if (mounted && !diam) {
+          showAppToast(context, message: 'Tidak ada item yang perlu label', variant: ToastVariant.info);
+        }
+        return;
+      }
+      final status = await cetakLabelProduk(ref, labels);
+      if (!mounted) return;
+      if (diam && status == StatusCetak.printerBelumDiatur) return;
+      showAppToast(
+        context,
+        message: pesanStatusLabel(status, labels.length),
+        variant: variantStatusCetak(status),
+      );
+    } finally {
+      if (mounted) setState(() => _mencetak = false);
+    }
   }
 
   Future<void> _cetakTiketDapur({bool diam = false}) async {
@@ -406,6 +443,18 @@ class _StrukPageState extends ConsumerState<StrukPage> {
                     label: const Text('Cetak tiket dapur'),
                   ),
                 ),
+                if (ref.watch(pengaturanPrinterProvider).value?.labelMacAddress != null) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      key: const Key('strukPage.cetakLabel'),
+                      onPressed: _mencetak ? null : () => _cetakLabel(),
+                      icon: const Icon(Icons.label_outline, size: 20),
+                      label: const Text('Cetak label kemasan'),
+                    ),
+                  ),
+                ],
               ],
               const SizedBox(height: AppSpacing.sm),
               SizedBox(

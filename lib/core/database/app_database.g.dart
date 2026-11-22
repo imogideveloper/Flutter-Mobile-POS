@@ -37679,6 +37679,67 @@ class $PengaturanPrinterTable extends PengaturanPrinter
     ),
     defaultValue: const Constant(true),
   );
+  static const VerificationMeta _labelMacAddressMeta = const VerificationMeta(
+    'labelMacAddress',
+  );
+  @override
+  late final GeneratedColumn<String> labelMacAddress = GeneratedColumn<String>(
+    'label_mac_address',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _labelNamaPrinterMeta = const VerificationMeta(
+    'labelNamaPrinter',
+  );
+  @override
+  late final GeneratedColumn<String> labelNamaPrinter = GeneratedColumn<String>(
+    'label_nama_printer',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _labelLebarMmMeta = const VerificationMeta(
+    'labelLebarMm',
+  );
+  @override
+  late final GeneratedColumn<int> labelLebarMm = GeneratedColumn<int>(
+    'label_lebar_mm',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(40),
+  );
+  static const VerificationMeta _labelTinggiMmMeta = const VerificationMeta(
+    'labelTinggiMm',
+  );
+  @override
+  late final GeneratedColumn<int> labelTinggiMm = GeneratedColumn<int>(
+    'label_tinggi_mm',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(30),
+  );
+  static const VerificationMeta _labelOtomatisMeta = const VerificationMeta(
+    'labelOtomatis',
+  );
+  @override
+  late final GeneratedColumn<bool> labelOtomatis = GeneratedColumn<bool>(
+    'label_otomatis',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("label_otomatis" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -37686,6 +37747,11 @@ class $PengaturanPrinterTable extends PengaturanPrinter
     namaPrinter,
     lebarKertasMm,
     cetakOtomatis,
+    labelMacAddress,
+    labelNamaPrinter,
+    labelLebarMm,
+    labelTinggiMm,
+    labelOtomatis,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -37735,6 +37801,51 @@ class $PengaturanPrinterTable extends PengaturanPrinter
         ),
       );
     }
+    if (data.containsKey('label_mac_address')) {
+      context.handle(
+        _labelMacAddressMeta,
+        labelMacAddress.isAcceptableOrUnknown(
+          data['label_mac_address']!,
+          _labelMacAddressMeta,
+        ),
+      );
+    }
+    if (data.containsKey('label_nama_printer')) {
+      context.handle(
+        _labelNamaPrinterMeta,
+        labelNamaPrinter.isAcceptableOrUnknown(
+          data['label_nama_printer']!,
+          _labelNamaPrinterMeta,
+        ),
+      );
+    }
+    if (data.containsKey('label_lebar_mm')) {
+      context.handle(
+        _labelLebarMmMeta,
+        labelLebarMm.isAcceptableOrUnknown(
+          data['label_lebar_mm']!,
+          _labelLebarMmMeta,
+        ),
+      );
+    }
+    if (data.containsKey('label_tinggi_mm')) {
+      context.handle(
+        _labelTinggiMmMeta,
+        labelTinggiMm.isAcceptableOrUnknown(
+          data['label_tinggi_mm']!,
+          _labelTinggiMmMeta,
+        ),
+      );
+    }
+    if (data.containsKey('label_otomatis')) {
+      context.handle(
+        _labelOtomatisMeta,
+        labelOtomatis.isAcceptableOrUnknown(
+          data['label_otomatis']!,
+          _labelOtomatisMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -37764,6 +37875,26 @@ class $PengaturanPrinterTable extends PengaturanPrinter
         DriftSqlType.bool,
         data['${effectivePrefix}cetak_otomatis'],
       )!,
+      labelMacAddress: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}label_mac_address'],
+      ),
+      labelNamaPrinter: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}label_nama_printer'],
+      ),
+      labelLebarMm: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}label_lebar_mm'],
+      )!,
+      labelTinggiMm: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}label_tinggi_mm'],
+      )!,
+      labelOtomatis: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}label_otomatis'],
+      )!,
     );
   }
 
@@ -37780,12 +37911,22 @@ class PengaturanPrinterRow extends DataClass
   final String? namaPrinter;
   final int lebarKertasMm;
   final bool cetakOtomatis;
+  final String? labelMacAddress;
+  final String? labelNamaPrinter;
+  final int labelLebarMm;
+  final int labelTinggiMm;
+  final bool labelOtomatis;
   const PengaturanPrinterRow({
     required this.id,
     this.macAddress,
     this.namaPrinter,
     required this.lebarKertasMm,
     required this.cetakOtomatis,
+    this.labelMacAddress,
+    this.labelNamaPrinter,
+    required this.labelLebarMm,
+    required this.labelTinggiMm,
+    required this.labelOtomatis,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -37799,6 +37940,15 @@ class PengaturanPrinterRow extends DataClass
     }
     map['lebar_kertas_mm'] = Variable<int>(lebarKertasMm);
     map['cetak_otomatis'] = Variable<bool>(cetakOtomatis);
+    if (!nullToAbsent || labelMacAddress != null) {
+      map['label_mac_address'] = Variable<String>(labelMacAddress);
+    }
+    if (!nullToAbsent || labelNamaPrinter != null) {
+      map['label_nama_printer'] = Variable<String>(labelNamaPrinter);
+    }
+    map['label_lebar_mm'] = Variable<int>(labelLebarMm);
+    map['label_tinggi_mm'] = Variable<int>(labelTinggiMm);
+    map['label_otomatis'] = Variable<bool>(labelOtomatis);
     return map;
   }
 
@@ -37813,6 +37963,15 @@ class PengaturanPrinterRow extends DataClass
           : Value(namaPrinter),
       lebarKertasMm: Value(lebarKertasMm),
       cetakOtomatis: Value(cetakOtomatis),
+      labelMacAddress: labelMacAddress == null && nullToAbsent
+          ? const Value.absent()
+          : Value(labelMacAddress),
+      labelNamaPrinter: labelNamaPrinter == null && nullToAbsent
+          ? const Value.absent()
+          : Value(labelNamaPrinter),
+      labelLebarMm: Value(labelLebarMm),
+      labelTinggiMm: Value(labelTinggiMm),
+      labelOtomatis: Value(labelOtomatis),
     );
   }
 
@@ -37827,6 +37986,11 @@ class PengaturanPrinterRow extends DataClass
       namaPrinter: serializer.fromJson<String?>(json['namaPrinter']),
       lebarKertasMm: serializer.fromJson<int>(json['lebarKertasMm']),
       cetakOtomatis: serializer.fromJson<bool>(json['cetakOtomatis']),
+      labelMacAddress: serializer.fromJson<String?>(json['labelMacAddress']),
+      labelNamaPrinter: serializer.fromJson<String?>(json['labelNamaPrinter']),
+      labelLebarMm: serializer.fromJson<int>(json['labelLebarMm']),
+      labelTinggiMm: serializer.fromJson<int>(json['labelTinggiMm']),
+      labelOtomatis: serializer.fromJson<bool>(json['labelOtomatis']),
     );
   }
   @override
@@ -37838,6 +38002,11 @@ class PengaturanPrinterRow extends DataClass
       'namaPrinter': serializer.toJson<String?>(namaPrinter),
       'lebarKertasMm': serializer.toJson<int>(lebarKertasMm),
       'cetakOtomatis': serializer.toJson<bool>(cetakOtomatis),
+      'labelMacAddress': serializer.toJson<String?>(labelMacAddress),
+      'labelNamaPrinter': serializer.toJson<String?>(labelNamaPrinter),
+      'labelLebarMm': serializer.toJson<int>(labelLebarMm),
+      'labelTinggiMm': serializer.toJson<int>(labelTinggiMm),
+      'labelOtomatis': serializer.toJson<bool>(labelOtomatis),
     };
   }
 
@@ -37847,12 +38016,26 @@ class PengaturanPrinterRow extends DataClass
     Value<String?> namaPrinter = const Value.absent(),
     int? lebarKertasMm,
     bool? cetakOtomatis,
+    Value<String?> labelMacAddress = const Value.absent(),
+    Value<String?> labelNamaPrinter = const Value.absent(),
+    int? labelLebarMm,
+    int? labelTinggiMm,
+    bool? labelOtomatis,
   }) => PengaturanPrinterRow(
     id: id ?? this.id,
     macAddress: macAddress.present ? macAddress.value : this.macAddress,
     namaPrinter: namaPrinter.present ? namaPrinter.value : this.namaPrinter,
     lebarKertasMm: lebarKertasMm ?? this.lebarKertasMm,
     cetakOtomatis: cetakOtomatis ?? this.cetakOtomatis,
+    labelMacAddress: labelMacAddress.present
+        ? labelMacAddress.value
+        : this.labelMacAddress,
+    labelNamaPrinter: labelNamaPrinter.present
+        ? labelNamaPrinter.value
+        : this.labelNamaPrinter,
+    labelLebarMm: labelLebarMm ?? this.labelLebarMm,
+    labelTinggiMm: labelTinggiMm ?? this.labelTinggiMm,
+    labelOtomatis: labelOtomatis ?? this.labelOtomatis,
   );
   PengaturanPrinterRow copyWithCompanion(PengaturanPrinterCompanion data) {
     return PengaturanPrinterRow(
@@ -37869,6 +38052,21 @@ class PengaturanPrinterRow extends DataClass
       cetakOtomatis: data.cetakOtomatis.present
           ? data.cetakOtomatis.value
           : this.cetakOtomatis,
+      labelMacAddress: data.labelMacAddress.present
+          ? data.labelMacAddress.value
+          : this.labelMacAddress,
+      labelNamaPrinter: data.labelNamaPrinter.present
+          ? data.labelNamaPrinter.value
+          : this.labelNamaPrinter,
+      labelLebarMm: data.labelLebarMm.present
+          ? data.labelLebarMm.value
+          : this.labelLebarMm,
+      labelTinggiMm: data.labelTinggiMm.present
+          ? data.labelTinggiMm.value
+          : this.labelTinggiMm,
+      labelOtomatis: data.labelOtomatis.present
+          ? data.labelOtomatis.value
+          : this.labelOtomatis,
     );
   }
 
@@ -37879,14 +38077,29 @@ class PengaturanPrinterRow extends DataClass
           ..write('macAddress: $macAddress, ')
           ..write('namaPrinter: $namaPrinter, ')
           ..write('lebarKertasMm: $lebarKertasMm, ')
-          ..write('cetakOtomatis: $cetakOtomatis')
+          ..write('cetakOtomatis: $cetakOtomatis, ')
+          ..write('labelMacAddress: $labelMacAddress, ')
+          ..write('labelNamaPrinter: $labelNamaPrinter, ')
+          ..write('labelLebarMm: $labelLebarMm, ')
+          ..write('labelTinggiMm: $labelTinggiMm, ')
+          ..write('labelOtomatis: $labelOtomatis')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, macAddress, namaPrinter, lebarKertasMm, cetakOtomatis);
+  int get hashCode => Object.hash(
+    id,
+    macAddress,
+    namaPrinter,
+    lebarKertasMm,
+    cetakOtomatis,
+    labelMacAddress,
+    labelNamaPrinter,
+    labelLebarMm,
+    labelTinggiMm,
+    labelOtomatis,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -37895,7 +38108,12 @@ class PengaturanPrinterRow extends DataClass
           other.macAddress == this.macAddress &&
           other.namaPrinter == this.namaPrinter &&
           other.lebarKertasMm == this.lebarKertasMm &&
-          other.cetakOtomatis == this.cetakOtomatis);
+          other.cetakOtomatis == this.cetakOtomatis &&
+          other.labelMacAddress == this.labelMacAddress &&
+          other.labelNamaPrinter == this.labelNamaPrinter &&
+          other.labelLebarMm == this.labelLebarMm &&
+          other.labelTinggiMm == this.labelTinggiMm &&
+          other.labelOtomatis == this.labelOtomatis);
 }
 
 class PengaturanPrinterCompanion extends UpdateCompanion<PengaturanPrinterRow> {
@@ -37904,6 +38122,11 @@ class PengaturanPrinterCompanion extends UpdateCompanion<PengaturanPrinterRow> {
   final Value<String?> namaPrinter;
   final Value<int> lebarKertasMm;
   final Value<bool> cetakOtomatis;
+  final Value<String?> labelMacAddress;
+  final Value<String?> labelNamaPrinter;
+  final Value<int> labelLebarMm;
+  final Value<int> labelTinggiMm;
+  final Value<bool> labelOtomatis;
   final Value<int> rowid;
   const PengaturanPrinterCompanion({
     this.id = const Value.absent(),
@@ -37911,6 +38134,11 @@ class PengaturanPrinterCompanion extends UpdateCompanion<PengaturanPrinterRow> {
     this.namaPrinter = const Value.absent(),
     this.lebarKertasMm = const Value.absent(),
     this.cetakOtomatis = const Value.absent(),
+    this.labelMacAddress = const Value.absent(),
+    this.labelNamaPrinter = const Value.absent(),
+    this.labelLebarMm = const Value.absent(),
+    this.labelTinggiMm = const Value.absent(),
+    this.labelOtomatis = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   PengaturanPrinterCompanion.insert({
@@ -37919,6 +38147,11 @@ class PengaturanPrinterCompanion extends UpdateCompanion<PengaturanPrinterRow> {
     this.namaPrinter = const Value.absent(),
     this.lebarKertasMm = const Value.absent(),
     this.cetakOtomatis = const Value.absent(),
+    this.labelMacAddress = const Value.absent(),
+    this.labelNamaPrinter = const Value.absent(),
+    this.labelLebarMm = const Value.absent(),
+    this.labelTinggiMm = const Value.absent(),
+    this.labelOtomatis = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   static Insertable<PengaturanPrinterRow> custom({
@@ -37927,6 +38160,11 @@ class PengaturanPrinterCompanion extends UpdateCompanion<PengaturanPrinterRow> {
     Expression<String>? namaPrinter,
     Expression<int>? lebarKertasMm,
     Expression<bool>? cetakOtomatis,
+    Expression<String>? labelMacAddress,
+    Expression<String>? labelNamaPrinter,
+    Expression<int>? labelLebarMm,
+    Expression<int>? labelTinggiMm,
+    Expression<bool>? labelOtomatis,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -37935,6 +38173,11 @@ class PengaturanPrinterCompanion extends UpdateCompanion<PengaturanPrinterRow> {
       if (namaPrinter != null) 'nama_printer': namaPrinter,
       if (lebarKertasMm != null) 'lebar_kertas_mm': lebarKertasMm,
       if (cetakOtomatis != null) 'cetak_otomatis': cetakOtomatis,
+      if (labelMacAddress != null) 'label_mac_address': labelMacAddress,
+      if (labelNamaPrinter != null) 'label_nama_printer': labelNamaPrinter,
+      if (labelLebarMm != null) 'label_lebar_mm': labelLebarMm,
+      if (labelTinggiMm != null) 'label_tinggi_mm': labelTinggiMm,
+      if (labelOtomatis != null) 'label_otomatis': labelOtomatis,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -37945,6 +38188,11 @@ class PengaturanPrinterCompanion extends UpdateCompanion<PengaturanPrinterRow> {
     Value<String?>? namaPrinter,
     Value<int>? lebarKertasMm,
     Value<bool>? cetakOtomatis,
+    Value<String?>? labelMacAddress,
+    Value<String?>? labelNamaPrinter,
+    Value<int>? labelLebarMm,
+    Value<int>? labelTinggiMm,
+    Value<bool>? labelOtomatis,
     Value<int>? rowid,
   }) {
     return PengaturanPrinterCompanion(
@@ -37953,6 +38201,11 @@ class PengaturanPrinterCompanion extends UpdateCompanion<PengaturanPrinterRow> {
       namaPrinter: namaPrinter ?? this.namaPrinter,
       lebarKertasMm: lebarKertasMm ?? this.lebarKertasMm,
       cetakOtomatis: cetakOtomatis ?? this.cetakOtomatis,
+      labelMacAddress: labelMacAddress ?? this.labelMacAddress,
+      labelNamaPrinter: labelNamaPrinter ?? this.labelNamaPrinter,
+      labelLebarMm: labelLebarMm ?? this.labelLebarMm,
+      labelTinggiMm: labelTinggiMm ?? this.labelTinggiMm,
+      labelOtomatis: labelOtomatis ?? this.labelOtomatis,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -37975,6 +38228,21 @@ class PengaturanPrinterCompanion extends UpdateCompanion<PengaturanPrinterRow> {
     if (cetakOtomatis.present) {
       map['cetak_otomatis'] = Variable<bool>(cetakOtomatis.value);
     }
+    if (labelMacAddress.present) {
+      map['label_mac_address'] = Variable<String>(labelMacAddress.value);
+    }
+    if (labelNamaPrinter.present) {
+      map['label_nama_printer'] = Variable<String>(labelNamaPrinter.value);
+    }
+    if (labelLebarMm.present) {
+      map['label_lebar_mm'] = Variable<int>(labelLebarMm.value);
+    }
+    if (labelTinggiMm.present) {
+      map['label_tinggi_mm'] = Variable<int>(labelTinggiMm.value);
+    }
+    if (labelOtomatis.present) {
+      map['label_otomatis'] = Variable<bool>(labelOtomatis.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -37989,6 +38257,11 @@ class PengaturanPrinterCompanion extends UpdateCompanion<PengaturanPrinterRow> {
           ..write('namaPrinter: $namaPrinter, ')
           ..write('lebarKertasMm: $lebarKertasMm, ')
           ..write('cetakOtomatis: $cetakOtomatis, ')
+          ..write('labelMacAddress: $labelMacAddress, ')
+          ..write('labelNamaPrinter: $labelNamaPrinter, ')
+          ..write('labelLebarMm: $labelLebarMm, ')
+          ..write('labelTinggiMm: $labelTinggiMm, ')
+          ..write('labelOtomatis: $labelOtomatis, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -74966,6 +75239,11 @@ typedef $$PengaturanPrinterTableCreateCompanionBuilder =
       Value<String?> namaPrinter,
       Value<int> lebarKertasMm,
       Value<bool> cetakOtomatis,
+      Value<String?> labelMacAddress,
+      Value<String?> labelNamaPrinter,
+      Value<int> labelLebarMm,
+      Value<int> labelTinggiMm,
+      Value<bool> labelOtomatis,
       Value<int> rowid,
     });
 typedef $$PengaturanPrinterTableUpdateCompanionBuilder =
@@ -74975,6 +75253,11 @@ typedef $$PengaturanPrinterTableUpdateCompanionBuilder =
       Value<String?> namaPrinter,
       Value<int> lebarKertasMm,
       Value<bool> cetakOtomatis,
+      Value<String?> labelMacAddress,
+      Value<String?> labelNamaPrinter,
+      Value<int> labelLebarMm,
+      Value<int> labelTinggiMm,
+      Value<bool> labelOtomatis,
       Value<int> rowid,
     });
 
@@ -75009,6 +75292,31 @@ class $$PengaturanPrinterTableFilterComposer
 
   ColumnFilters<bool> get cetakOtomatis => $composableBuilder(
     column: $table.cetakOtomatis,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get labelMacAddress => $composableBuilder(
+    column: $table.labelMacAddress,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get labelNamaPrinter => $composableBuilder(
+    column: $table.labelNamaPrinter,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get labelLebarMm => $composableBuilder(
+    column: $table.labelLebarMm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get labelTinggiMm => $composableBuilder(
+    column: $table.labelTinggiMm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get labelOtomatis => $composableBuilder(
+    column: $table.labelOtomatis,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -75046,6 +75354,31 @@ class $$PengaturanPrinterTableOrderingComposer
     column: $table.cetakOtomatis,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get labelMacAddress => $composableBuilder(
+    column: $table.labelMacAddress,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get labelNamaPrinter => $composableBuilder(
+    column: $table.labelNamaPrinter,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get labelLebarMm => $composableBuilder(
+    column: $table.labelLebarMm,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get labelTinggiMm => $composableBuilder(
+    column: $table.labelTinggiMm,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get labelOtomatis => $composableBuilder(
+    column: $table.labelOtomatis,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$PengaturanPrinterTableAnnotationComposer
@@ -75077,6 +75410,31 @@ class $$PengaturanPrinterTableAnnotationComposer
 
   GeneratedColumn<bool> get cetakOtomatis => $composableBuilder(
     column: $table.cetakOtomatis,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get labelMacAddress => $composableBuilder(
+    column: $table.labelMacAddress,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get labelNamaPrinter => $composableBuilder(
+    column: $table.labelNamaPrinter,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get labelLebarMm => $composableBuilder(
+    column: $table.labelLebarMm,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get labelTinggiMm => $composableBuilder(
+    column: $table.labelTinggiMm,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get labelOtomatis => $composableBuilder(
+    column: $table.labelOtomatis,
     builder: (column) => column,
   );
 }
@@ -75126,6 +75484,11 @@ class $$PengaturanPrinterTableTableManager
                 Value<String?> namaPrinter = const Value.absent(),
                 Value<int> lebarKertasMm = const Value.absent(),
                 Value<bool> cetakOtomatis = const Value.absent(),
+                Value<String?> labelMacAddress = const Value.absent(),
+                Value<String?> labelNamaPrinter = const Value.absent(),
+                Value<int> labelLebarMm = const Value.absent(),
+                Value<int> labelTinggiMm = const Value.absent(),
+                Value<bool> labelOtomatis = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => PengaturanPrinterCompanion(
                 id: id,
@@ -75133,6 +75496,11 @@ class $$PengaturanPrinterTableTableManager
                 namaPrinter: namaPrinter,
                 lebarKertasMm: lebarKertasMm,
                 cetakOtomatis: cetakOtomatis,
+                labelMacAddress: labelMacAddress,
+                labelNamaPrinter: labelNamaPrinter,
+                labelLebarMm: labelLebarMm,
+                labelTinggiMm: labelTinggiMm,
+                labelOtomatis: labelOtomatis,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -75142,6 +75510,11 @@ class $$PengaturanPrinterTableTableManager
                 Value<String?> namaPrinter = const Value.absent(),
                 Value<int> lebarKertasMm = const Value.absent(),
                 Value<bool> cetakOtomatis = const Value.absent(),
+                Value<String?> labelMacAddress = const Value.absent(),
+                Value<String?> labelNamaPrinter = const Value.absent(),
+                Value<int> labelLebarMm = const Value.absent(),
+                Value<int> labelTinggiMm = const Value.absent(),
+                Value<bool> labelOtomatis = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => PengaturanPrinterCompanion.insert(
                 id: id,
@@ -75149,6 +75522,11 @@ class $$PengaturanPrinterTableTableManager
                 namaPrinter: namaPrinter,
                 lebarKertasMm: lebarKertasMm,
                 cetakOtomatis: cetakOtomatis,
+                labelMacAddress: labelMacAddress,
+                labelNamaPrinter: labelNamaPrinter,
+                labelLebarMm: labelLebarMm,
+                labelTinggiMm: labelTinggiMm,
+                labelOtomatis: labelOtomatis,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

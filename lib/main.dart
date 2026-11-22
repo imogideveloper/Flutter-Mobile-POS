@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
+import 'core/auth/kunci_layar.dart';
 import 'core/network/auto_sync.dart';
 import 'core/network/fitur_terkunci_event.dart';
+import 'core/providers/session_provider.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/widgets/fitur_terkunci_sheet.dart';
@@ -36,7 +38,14 @@ class AppsPosApp extends ConsumerWidget {
       // Builder (bukan langsung di MaterialApp) supaya context di sini
       // sudah punya Navigator di atasnya - dibutuhkan showModalBottomSheet
       // dipanggil dari _FiturTerkunciListener di bawah.
-      builder: (context, child) => _FiturTerkunciListener(child: child),
+      builder: (context, child) => KunciLayarHost(
+        // Sama dengan "Keluar / ganti kasir": keluarkan pengguna dan buka layar PIN.
+        kunci: () {
+          ref.read(currentPenggunaIdProvider.notifier).logout();
+          ref.read(appRouterProvider).go('/');
+        },
+        child: _FiturTerkunciListener(child: child),
+      ),
     );
   }
 }

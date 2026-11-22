@@ -21,6 +21,8 @@ import '../../../../core/widgets/offline_notice_banner.dart';
 import '../../../../core/providers/toko_profile_provider.dart';
 import '../../../../core/struk/gaya_logo.dart';
 import '../../../promo/domain/rincian_pajak.dart';
+import '../../../fitur/presentation/providers/feature_gate_provider.dart';
+import '../../domain/rekomendasi_outlet.dart';
 import '../../../transaksi/presentation/providers/harga_keranjang_provider.dart';
 
 /// Pengaturan outlet & struk (tahap 4 bagian B) - header/footer/lebar
@@ -115,6 +117,54 @@ class _PengaturanOutletStrukPageState extends ConsumerState<PengaturanOutletStru
     } finally {
       if (mounted) setState(() => _memuat = false);
     }
+  }
+
+  /// Isi form dengan nilai rekomendasi jenis usaha (BELUM tersimpan sampai kasir menekan Simpan). Pilihan
+  /// yang terkunci paket (logo, struk ringkas, nomor antrean) tidak diubah.
+  Future<void> _kembalikanKeRekomendasi() async {
+    final yakin = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Kembalikan ke rekomendasi?'),
+        content: const Text(
+          'Isian di halaman ini diganti dengan nilai yang disarankan untuk jenis usaha Anda. '
+          'Perubahan baru tersimpan setelah Anda menekan Simpan.',
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Batal')),
+          FilledButton(
+            key: const Key('pengaturanOutletForm.rekomendasiYa'),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Kembalikan'),
+          ),
+        ],
+      ),
+    );
+    if (yakin != true || !mounted) return;
+    final profil = await ref.read(tokoProfileProvider.future);
+    final gate = await ref.read(featureGateProvider.future);
+    final r = rekomendasiOutlet(profil?.jenisUsaha ?? JenisUsaha.kafe);
+    if (!mounted) return;
+    setState(() {
+      _headerController.clear();
+      _footerController.text = r.footerStruk;
+      _lebarKertasMm = r.lebarKertasMm;
+      if (gate.has('logo_struk')) {
+        _tampilLogo = r.tampilLogo;
+        _gayaLogo = GayaLogo.unggah;
+      }
+      if (gate.has('struk_ringkas')) _strukRingkas = r.strukRingkas;
+      if (gate.has('nomor_antrean')) {
+        _pakaiNomorAntrean = r.pakaiNomorAntrean;
+        _antreanAwalanController.text = r.antreanAwalan;
+        _antreanMulaiController.text = '${r.antreanMulai}';
+      }
+      _estimasiController.text = '${r.estimasiMenit}';
+      _batasMarginController.text = '${r.batasMargin}';
+      _pembulatan = r.pembulatan;
+      _izinkanStokMinus = r.izinkanStokMinus;
+    });
+    showAppToast(context, message: 'Dikembalikan ke rekomendasi. Tekan Simpan untuk menyimpan.', variant: ToastVariant.info);
   }
 
   Future<void> _simpan() async {
@@ -455,7 +505,16 @@ class _PengaturanOutletStrukPageState extends ConsumerState<PengaturanOutletStru
                         ),
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.xl),
+                    const SizedBox(height: AppSpacing.md),
+                    Center(
+                      child: TextButton.icon(
+                        key: const Key('pengaturanOutletForm.rekomendasi'),
+                        onPressed: _menyimpan ? null : _kembalikanKeRekomendasi,
+                        icon: const Icon(Icons.restart_alt, size: 18),
+                        label: const Text('Kembalikan ke rekomendasi'),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
                     Text('Pratinjau struk', style: AppTypography.cardTitle.copyWith(fontSize: 15)),
                     const SizedBox(height: AppSpacing.sm),
                     _pratinjauStruk(),

@@ -9,6 +9,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../fitur/presentation/providers/feature_gate_provider.dart';
+import '../../../../core/providers/izin_provider.dart';
 import '../../../../core/providers/session_provider.dart';
 import '../../../../core/widgets/fitur_terkunci.dart';
 import '../../../produk/domain/margin_produk.dart';
@@ -196,6 +197,30 @@ class _IsiLaporan extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.only(bottom: AppSpacing.md),
                 child: _KartuTren(data: ringkasan.penjualanHarian, sebelumnya: ringkasan.penjualanPeriodeSebelumnya),
+              ),
+            ),
+          if (ringkasan.trenKategori.isNotEmpty)
+            FiturTerkunci(
+              kode: 'tren_penjualan',
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                child: _KartuTrenItem(
+                  key: const Key('laporan.trenKategori'),
+                  judul: 'Tren per kategori',
+                  data: ringkasan.trenKategori,
+                ),
+              ),
+            ),
+          if (ringkasan.trenProduk.isNotEmpty)
+            FiturTerkunci(
+              kode: 'tren_penjualan',
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                child: _KartuTrenItem(
+                  key: const Key('laporan.trenProduk'),
+                  judul: 'Tren per produk',
+                  data: ringkasan.trenProduk,
+                ),
               ),
             ),
           if (ringkasan.jamRamai.isNotEmpty) ..._kartuJamRamai(),
@@ -419,6 +444,9 @@ class _KartuMarginProduk extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (!(ref.watch(izinSayaProvider).value?.contains('produk.lihat_margin') ?? true)) {
+      return const SizedBox.shrink();
+    }
     final outletId = ref.watch(currentOutletIdProvider);
     final batas = ref.watch(pengaturanOutletProvider(outletId)).value?.batasMargin ?? batasMarginBawaan;
     final totalOmzet = data.fold<int>(0, (a, b) => a + b.omzet);
@@ -591,4 +619,66 @@ String _bandingPeriode(int sekarang, int sebelumnya) {
   final persen = ((sekarang - sebelumnya) / sebelumnya * 100).round();
   final arah = persen > 0 ? 'naik $persen%' : (persen < 0 ? 'turun ${-persen}%' : 'sama');
   return 'Dibanding periode sebelumnya (${_formatRupiah.format(sebelumnya)}): $arah';
+}
+
+/// Omzet lima kategori atau produk teratas beserta perubahannya dibanding periode sebelumnya yang sama
+/// panjang. Dihitung offline dari transaksi lokal.
+class _KartuTrenItem extends StatelessWidget {
+  const _KartuTrenItem({super.key, required this.judul, required this.data});
+
+  final String judul;
+  final List<TrenItemLaporan> data;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(judul, style: AppTypography.bodyEmphasis),
+          const SizedBox(height: 2),
+          Text('Dibanding periode sebelumnya yang sama panjang.', style: AppTypography.secondary),
+          const SizedBox(height: AppSpacing.sm),
+          for (final t in data)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5),
+              child: Row(
+                children: [
+                  Expanded(child: Text(t.nama, style: AppTypography.bodyEmphasis)),
+                  Text(_formatRupiah.format(t.omzet), style: AppTypography.secondary),
+                  const SizedBox(width: AppSpacing.sm),
+                  SizedBox(
+                    width: 62,
+                    child: Text(
+                      _labelPerubahan(t),
+                      key: Key('laporan.tren.${t.nama}'),
+                      textAlign: TextAlign.right,
+                      style: AppTypography.secondary.copyWith(
+                        color: _warnaPerubahan(t),
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+String _labelPerubahan(TrenItemLaporan t) {
+  if (t.baru) return 'Baru';
+  final p = t.perubahanPersen;
+  if (p == null) return '-';
+  final bulat = p.round();
+  return bulat > 0 ? '+$bulat%' : '$bulat%';
+}
+
+Color _warnaPerubahan(TrenItemLaporan t) {
+  if (t.baru) return AppColors.primaryDark;
+  final p = t.perubahanPersen;
+  if (p == null || p.round() == 0) return AppColors.textSecondary;
+  return p > 0 ? AppColors.primaryDark : AppColors.dangerText;
 }

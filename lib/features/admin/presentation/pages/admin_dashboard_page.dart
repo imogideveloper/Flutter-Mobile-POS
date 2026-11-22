@@ -26,7 +26,7 @@ class AdminDashboardPage extends ConsumerWidget {
     if (sesi == null) {
       // Tidak ada sesi admin (mis. dibuka langsung): arahkan ke login.
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (context.mounted) context.go('/admin/login');
+        if (context.mounted) context.go('/');
       });
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }

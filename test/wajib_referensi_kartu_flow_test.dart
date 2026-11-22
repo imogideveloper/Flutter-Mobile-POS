@@ -67,9 +67,18 @@ void main() {
     expect(find.text('No. referensi wajib diisi untuk metode ini'), findsOneWidget);
     expect(await db.select(db.transaksi).get(), isEmpty);
 
-    // Lengkap -> diterima.
+    // Referensi lengkap tetapi jenis kartu belum dipilih -> ditolak.
     await tester.enterText(find.byKey(const Key('bayarForm.nomorReferensi')), 'APP-778');
     await tester.enterText(find.byKey(const Key('bayarForm.empatDigitAkhir')), '9876');
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('bayarForm.selesaikan')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.text('Pilih jenis kartu (debit atau kredit)'), findsOneWidget);
+    expect(await db.select(db.transaksi).get(), isEmpty);
+
+    // Pilih Kredit -> diterima.
+    await tester.tap(find.byKey(const Key('bayarForm.jenisKartu.kredit')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('bayarForm.selesaikan')));
     await tester.pumpAndSettle();
@@ -78,6 +87,7 @@ void main() {
     final pembayaran = await db.select(db.pembayaran).get();
     expect(pembayaran, hasLength(1));
     expect(pembayaran.single.refGateway, 'APP-778');
+    expect(pembayaran.single.payloadGateway, contains('"jenis_kartu":"kredit"'));
 
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(milliseconds: 1));

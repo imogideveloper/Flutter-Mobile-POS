@@ -63,8 +63,8 @@ async def _setup_tipe_order(db: AsyncSession, toko) -> dict:
 
 async def _setup_kelola_karyawan(db: AsyncSession, toko) -> dict:
     return {
-        "method": "POST", "url": "/pengguna",
-        "json": {"role_id": str(toko.role.id), "nama": "Karyawan Test"},
+        "method": "POST", "url": "/roles",
+        "json": {"nama": "Peran Uji", "izin_kode": ["transaksi.buat"]},
     }
 
 

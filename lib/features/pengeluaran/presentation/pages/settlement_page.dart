@@ -262,8 +262,11 @@ class _CatatSettlementDialogState extends State<_CatatSettlementDialog> {
     return AlertDialog(
       title: const Text('Catat dana masuk'),
       content: SingleChildScrollView(
+        // Jarak antar kolom supaya garis tepi tidak saling menempel; padding atas agar label kolom pertama tidak terpotong.
+        padding: const EdgeInsets.only(top: 8),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          spacing: 16,
           children: [
             DropdownButtonFormField<String>(
               key: const Key('settlement.metode'),

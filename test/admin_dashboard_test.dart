@@ -182,7 +182,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 1));
   });
 
-  testWidgets('dashboard tanpa sesi admin diarahkan ke login', (tester) async {
+  testWidgets('dashboard tanpa sesi admin kembali ke layar masuk utama', (tester) async {
     final router = GoRouter(routes: [
       GoRoute(path: '/', builder: (_, _) => const Text('beranda')),
       GoRoute(path: '/admin', builder: (_, _) => const AdminDashboardPage()),
@@ -193,7 +193,7 @@ void main() {
       child: MaterialApp.router(routerConfig: router),
     ));
     await tester.pumpAndSettle();
-    expect(find.byKey(const Key('adminLogin.masuk')), findsOneWidget);
+    expect(find.text('beranda'), findsOneWidget, reason: 'tidak ada layar login admin terpisah lagi');
   });
 
   testWidgets('login admin: validasi lalu masuk ke dashboard', (tester) async {

@@ -85,9 +85,11 @@ class PengaturanMetodeBayarPage extends ConsumerWidget {
               TextField(
                 key: const Key('pengaturanMetodeBayarForm.labelTujuan'),
                 controller: labelController,
-                decoration: const InputDecoration(
-                  labelText: 'Label tujuan (pisahkan koma)',
-                  helperText: 'Mis. GoPay, OVO, ShopeePay. Kasir memilih satu saat menerima pembayaran.',
+                decoration: InputDecoration(
+                  labelText: metode.tipe == MetodeBayarTipe.kartu ? 'Mesin EDC (pisahkan koma)' : 'Label tujuan (pisahkan koma)',
+                  helperText: metode.tipe == MetodeBayarTipe.kartu
+                      ? 'Mis. EDC BCA, EDC Mandiri. Kasir memilih mesin yang dipakai saat menerima pembayaran.'
+                      : 'Mis. GoPay, OVO, ShopeePay. Kasir memilih satu saat menerima pembayaran.',
                   helperMaxLines: 2,
                 ),
               ),

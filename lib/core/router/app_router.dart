@@ -8,6 +8,7 @@ import '../../features/auth/presentation/pages/pengguna_form_page.dart';
 import '../../features/admin/presentation/pages/admin_dashboard_page.dart';
 import '../../features/admin/presentation/pages/admin_login_page.dart';
 import '../../features/auth/presentation/pages/pengguna_list_page.dart';
+import '../../features/auth/presentation/pages/peran_page.dart';
 import '../../features/laporan/presentation/pages/laporan_page.dart';
 import '../../features/pelanggan/presentation/pages/pelanggan_list_page.dart';
 import '../../features/pelanggan/presentation/pages/impor_pelanggan_page.dart';
@@ -217,6 +218,19 @@ GoRouter _buildRouter() => GoRouter(
 
     // Halaman full-screen di luar bottom nav.
     GoRoute(
+      path: '/peran',
+      builder: (context, state) => const IzinGuard(kodeIzin: 'pengguna.kelola', child: PeranListPage()),
+      routes: [
+        GoRoute(
+          path: 'form',
+          builder: (context, state) => IzinGuard(
+            kodeIzin: 'pengguna.kelola',
+            child: PeranFormPage(peranId: state.extra as String?),
+          ),
+        ),
+      ],
+    ),
+    GoRoute(
       path: '/pengguna',
       builder: (context, state) => IzinGuard(
         kodeIzin: 'pengguna.kelola',
@@ -399,16 +413,16 @@ GoRouter _buildRouter() => GoRouter(
     ),
     GoRoute(
       path: '/laba-rugi',
-      builder: (context, state) => const IzinGuard(kodeIzin: 'laporan.lihat', child: LabaRugiPage()),
+      builder: (context, state) => const IzinGuard(kodeIzin: 'laporan.keuangan', child: LabaRugiPage()),
     ),
     GoRoute(
       path: '/laba-rugi-konsolidasi',
       builder: (context, state) =>
-          const IzinGuard(kodeIzin: 'laporan.lihat', child: LabaRugiKonsolidasiPage()),
+          const IzinGuard(kodeIzin: 'laporan.keuangan', child: LabaRugiKonsolidasiPage()),
     ),
     GoRoute(
       path: '/rekap-pajak',
-      builder: (context, state) => const IzinGuard(kodeIzin: 'laporan.lihat', child: RekapPajakPage()),
+      builder: (context, state) => const IzinGuard(kodeIzin: 'laporan.keuangan', child: RekapPajakPage()),
     ),
     GoRoute(
       path: '/absensi',
@@ -440,7 +454,7 @@ GoRouter _buildRouter() => GoRouter(
     ),
     GoRoute(
       path: '/pengeluaran',
-      builder: (context, state) => const IzinGuard(kodeIzin: 'laporan.lihat', child: PengeluaranPage()),
+      builder: (context, state) => const IzinGuard(kodeIzin: 'pengeluaran.catat', child: PengeluaranPage()),
     ),
     GoRoute(
       path: '/survei',

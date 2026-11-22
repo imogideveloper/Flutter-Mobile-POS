@@ -52,6 +52,10 @@ void main() {
         jsonDecode(payloadPembayaranManual(empatDigitAkhirKartu: '1234', labelTujuan: 'BCA')!),
         {'empat_digit_akhir_kartu': '1234', 'label_tujuan': 'BCA'},
       );
+      expect(
+        jsonDecode(payloadPembayaranManual(empatDigitAkhirKartu: '1234', labelTujuan: 'EDC BCA', jenisKartu: 'debit')!),
+        {'empat_digit_akhir_kartu': '1234', 'jenis_kartu': 'debit', 'label_tujuan': 'EDC BCA'},
+      );
     });
   });
 

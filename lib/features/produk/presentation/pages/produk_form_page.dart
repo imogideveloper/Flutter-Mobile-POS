@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/database/app_database.dart' show ProdukCompanion;
+import '../../../../core/providers/izin_provider.dart';
 import '../../../../core/network/auth_session_store.dart';
 import '../../../../core/network/backend_exception.dart';
 import '../../../../core/network/dio_backend_api.dart';
@@ -336,6 +337,7 @@ class _ProdukFormPageState extends ConsumerState<ProdukFormPage> {
   @override
   Widget build(BuildContext context) {
     final online = isOnlineSaat(ref);
+    final lihatMargin = ref.watch(izinSayaProvider).value?.contains('produk.lihat_margin') ?? true;
     final margin = _hargaJual - _hpp;
     final persenMargin = marginPersen(hargaJual: _hargaJual, hpp: _hpp) ?? 0;
     // Batas margin diatur per outlet (Pengaturan struk), bawaan 50% untuk makanan dan minuman.
@@ -451,8 +453,8 @@ class _ProdukFormPageState extends ConsumerState<ProdukFormPage> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: AppSpacing.md),
-                        Expanded(
+                        if (lihatMargin) const SizedBox(width: AppSpacing.md),
+                        if (lihatMargin) Expanded(
                           child: _LabeledField(
                             label: 'Harga modal (HPP)',
                             child: TextFormField(
@@ -466,7 +468,7 @@ class _ProdukFormPageState extends ConsumerState<ProdukFormPage> {
                         ),
                       ],
                     ),
-                    if (_hargaJual > 0) ...[
+                    if (lihatMargin && _hargaJual > 0) ...[
                       const SizedBox(height: AppSpacing.sm),
                       Text(
                         'Margin ${_formatRupiah.format(margin)} · $persenMargin%',

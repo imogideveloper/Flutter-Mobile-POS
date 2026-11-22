@@ -142,5 +142,31 @@ async def test_peran_bawaan_kru_ada_dengan_izin_sempit(db_session: AsyncSession)
         )
         return set(rows.scalars().all())
 
-    assert await izin("Barista & Dapur") == {"transaksi.buat"}
-    assert await izin("Gudang") == {"stok.kelola", "pembelian.kelola"}
+    assert await izin("Barista & Dapur") == {"transaksi.buat", "pesanan.status"}
+    assert await izin("Gudang") == {"stok.kelola", "pembelian.kelola", "stok.opname_posting"}
+
+
+@pytest.mark.asyncio
+async def test_izin_panduan_imogi_ada_dan_peran_bawaan_sesuai(db_session: AsyncSession) -> None:
+    """8 izin tambahan dari panduan IMOGI ada di katalog; Kasir dapat izin bon/status pesanan, bukan laba rugi."""
+    from app.models.akun import Izin, Role, RoleIzin
+
+    baru = {
+        "bon.jual", "bon.lihat", "pesanan.status", "persetujuan.pin",
+        "produk.lihat_margin", "stok.opname_posting", "pengeluaran.catat", "laporan.keuangan",
+    }
+    kode = set((await db_session.execute(select(Izin.kode))).scalars().all())
+    assert baru <= kode
+
+    async def izin(nama: str) -> set[str]:
+        role = (await db_session.execute(select(Role).where(Role.nama == nama, Role.is_system.is_(True)))).scalar_one()
+        rows = await db_session.execute(
+            select(Izin.kode).join(RoleIzin, RoleIzin.izin_id == Izin.id).where(RoleIzin.role_id == role.id)
+        )
+        return set(rows.scalars().all())
+
+    kasir = await izin("Kasir")
+    assert {"bon.jual", "bon.lihat", "pesanan.status"} <= kasir
+    assert "laporan.keuangan" not in kasir
+    assert baru <= await izin("Owner")
+    assert "pengeluaran.catat" in await izin("Manajer")

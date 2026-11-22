@@ -19,6 +19,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_toast.dart';
+import '../../../admin/presentation/providers/admin_providers.dart';
 import '../providers/auth_providers.dart';
 
 const _panjangOtp = 6;
@@ -38,7 +39,16 @@ enum _Mode { masuk, daftar }
 /// otp_service.py), jadi utk testing manual kode OTP harus dibaca dari log
 /// server, TIDAK ditampilkan di app ini (beda dgn versi stub sebelumnya).
 class OtpLoginPage extends ConsumerStatefulWidget {
-  const OtpLoginPage({super.key, required this.onSelesai, this.onMasukDenganPin});
+  const OtpLoginPage({
+    super.key,
+    required this.onSelesai,
+    this.onMasukDenganPin,
+    this.aturPinBaru = false,
+  });
+
+  /// Dibuka dari "Lupa PIN kasir?" di layar pemilihan akun: nomor HP, OTP, lalu PIN baru. Bukan
+  /// bagian dari layar masuk biasa.
+  final bool aturPinBaru;
 
   /// Dipanggil setelah OTP berhasil ATAU user pilih "Masuk dengan PIN
   /// karyawan" - AuthGatePage lanjut menampilkan LoginPage (pilih
@@ -72,11 +82,17 @@ class _OtpLoginPageState extends ConsumerState<OtpLoginPage> {
   /// backend/app/routers/auth.py::verifikasi_otp) - beda dari "Reset PIN"
   /// di menu Karyawan (itu Owner mereset PIN KARYAWAN LAIN, butuh sudah
   /// login duluan, tidak bisa dipakai kalau Owner sendiri yang lupa PIN).
-  bool _lupaPin = false;
+  late bool _lupaPin = widget.aturPinBaru;
 
   // Dipakai kedua mode.
   final _nomorController = TextEditingController();
-  final _otpControllers = List.generate(_panjangOtp, (_) => TextEditingController());
+  // Mode masuk: isian berupa email atau nama pengguna = akun Administrator (kata sandi, bukan OTP).
+  final _passwordAdminController = TextEditingController();
+  bool _sembunyikanSandi = true;
+  final _otpControllers = List.generate(
+    _panjangOtp,
+    (_) => TextEditingController(),
+  );
   final _otpFocusNodes = List.generate(_panjangOtp, (_) => FocusNode());
   String? _kodeTerkirimKe;
   Timer? _timer;
@@ -90,6 +106,7 @@ class _OtpLoginPageState extends ConsumerState<OtpLoginPage> {
     _pinController.dispose();
     _konfirmasiPinController.dispose();
     _nomorController.dispose();
+    _passwordAdminController.dispose();
     for (final c in _otpControllers) {
       c.dispose();
     }
@@ -100,10 +117,9 @@ class _OtpLoginPageState extends ConsumerState<OtpLoginPage> {
     super.dispose();
   }
 
-  void _gantiMode(_Mode mode) {
+  /// Batal di tahap OTP: kembali ke isian nomor (bukan keluar dari halaman).
+  void _kembaliKeIsianNomor() {
     setState(() {
-      _mode = mode;
-      _lupaPin = false;
       _kodeTerkirimKe = null;
       _timer?.cancel();
       _detikSisa = 0;
@@ -113,14 +129,76 @@ class _OtpLoginPageState extends ConsumerState<OtpLoginPage> {
     });
   }
 
+  void _gantiMode(_Mode mode) {
+    setState(() {
+      _mode = mode;
+      _lupaPin = false;
+      _kodeTerkirimKe = null;
+      _timer?.cancel();
+      _detikSisa = 0;
+      _nomorController.clear();
+      _passwordAdminController.clear();
+      for (final c in _otpControllers) {
+        c.clear();
+      }
+    });
+  }
+
+  /// Mode masuk: isian yang memuat huruf atau '@' bukan nomor HP, berarti akun Administrator
+  /// (email atau nama pengguna + kata sandi). Pemilik usaha selalu memakai nomor HP + OTP.
+  bool get _identitasAdmin =>
+      !widget.aturPinBaru &&
+      _mode == _Mode.masuk &&
+      RegExp(r'[A-Za-z@]').hasMatch(_nomorController.text);
+
+  Future<void> _masukAdmin() async {
+    final identitas = _nomorController.text.trim();
+    if (identitas.isEmpty || _passwordAdminController.text.isEmpty) {
+      showAppToast(
+        context,
+        message: 'Isi email dan kata sandi',
+        variant: ToastVariant.warning,
+      );
+      return;
+    }
+    setState(() => _memproses = true);
+    try {
+      await ref
+          .read(adminSesiProvider.notifier)
+          .masuk(email: identitas, password: _passwordAdminController.text);
+      if (!mounted) return;
+      // Halaman ini bisa terbuka sebagai rute tambahan (dari "Lupa PIN kasir?"): tutup dulu supaya tidak
+      // tertinggal di belakang dashboard saat admin keluar.
+      Navigator.of(context).popUntil((r) => r.isFirst);
+      context.go('/admin');
+    } on BackendException catch (e) {
+      if (mounted)
+        showAppToast(context, message: e.message, variant: ToastVariant.danger);
+    } catch (e) {
+      if (mounted)
+        showAppToast(
+          context,
+          message: 'Gagal masuk: $e',
+          variant: ToastVariant.danger,
+        );
+    } finally {
+      if (mounted) setState(() => _memproses = false);
+    }
+  }
+
   Future<void> _kirimKode() async {
-    if ((_mode == _Mode.daftar || _lupaPin) && !(_formKey.currentState?.validate() ?? false)) {
+    if ((_mode == _Mode.daftar || _lupaPin) &&
+        !(_formKey.currentState?.validate() ?? false)) {
       return;
     }
 
-    final nomor = _nomorController.text.trim();
+    final nomor = _nomorController.text.replaceAll(RegExp(r'[^0-9]'), '');
     if (_mode == _Mode.masuk && nomor.length < 8) {
-      showAppToast(context, message: 'Masukkan nomor HP yang valid', variant: ToastVariant.warning);
+      showAppToast(
+        context,
+        message: 'Masukkan nomor HP yang valid',
+        variant: ToastVariant.warning,
+      );
       return;
     }
 
@@ -132,7 +210,11 @@ class _OtpLoginPageState extends ConsumerState<OtpLoginPage> {
         _kodeTerkirimKe = nomor;
         _detikSisa = _detikKirimUlang;
       });
-      showAppToast(context, message: 'Kode OTP dikirim lewat WhatsApp', variant: ToastVariant.success);
+      showAppToast(
+        context,
+        message: 'Kode OTP dikirim lewat WhatsApp',
+        variant: ToastVariant.success,
+      );
 
       _timer?.cancel();
       _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -146,7 +228,8 @@ class _OtpLoginPageState extends ConsumerState<OtpLoginPage> {
 
       FocusScope.of(context).requestFocus(_otpFocusNodes.first);
     } on BackendException catch (e) {
-      if (mounted) showAppToast(context, message: e.message, variant: ToastVariant.danger);
+      if (mounted)
+        showAppToast(context, message: e.message, variant: ToastVariant.danger);
     } finally {
       if (mounted) setState(() => _memproses = false);
     }
@@ -155,7 +238,11 @@ class _OtpLoginPageState extends ConsumerState<OtpLoginPage> {
   Future<void> _verifikasiOtp() async {
     final kode = _otpControllers.map((c) => c.text).join();
     if (kode.length != _panjangOtp) {
-      showAppToast(context, message: 'Kode OTP belum lengkap', variant: ToastVariant.warning);
+      showAppToast(
+        context,
+        message: 'Kode OTP belum lengkap',
+        variant: ToastVariant.warning,
+      );
       return;
     }
 
@@ -165,21 +252,31 @@ class _OtpLoginPageState extends ConsumerState<OtpLoginPage> {
       // Dikirim di dua kasus: mode daftar (PIN awal akun baru) ATAU mode
       // masuk dgn "lupa PIN" dicentang (reset PIN device - lihat catatan
       // _lupaPin di atas).
-      final pinUntukDikirim = (_mode == _Mode.daftar || _lupaPin) ? _pinController.text : null;
-      final hasil = await ref.read(backendApiProvider).otpVerify(
+      final pinUntukDikirim = (_mode == _Mode.daftar || _lupaPin)
+          ? _pinController.text
+          : null;
+      final hasil = await ref
+          .read(backendApiProvider)
+          .otpVerify(
             noHp: _kodeTerkirimKe!,
             kode: kode,
             deviceUid: deviceUid,
             namaPerangkat: 'Perangkat ${defaultTargetPlatform.name}',
             platform: defaultTargetPlatform.name,
-            namaToko: _mode == _Mode.daftar ? _namaTokoController.text.trim() : null,
+            namaToko: _mode == _Mode.daftar
+                ? _namaTokoController.text.trim()
+                : null,
             jenisUsaha: _mode == _Mode.daftar ? _jenisUsaha.kode : null,
-            namaPemilik: _mode == _Mode.daftar ? _namaPemilikController.text.trim() : null,
+            namaPemilik: _mode == _Mode.daftar
+                ? _namaPemilikController.text.trim()
+                : null,
             pin: pinUntukDikirim,
           );
 
       final tokoIdLama = ref.read(currentTokoIdProvider);
-      await ref.read(penggunaRepositoryProvider).terapkanIdentitasBackend(
+      await ref
+          .read(penggunaRepositoryProvider)
+          .terapkanIdentitasBackend(
             tokoIdLama: tokoIdLama,
             tokoIdBaru: hasil.tokoId,
             penggunaIdBaru: hasil.penggunaId,
@@ -190,58 +287,78 @@ class _OtpLoginPageState extends ConsumerState<OtpLoginPage> {
       await pairingDao.migrasikanTokoId(dari: tokoIdLama, ke: hasil.tokoId);
 
       final now = DateTime.now().toUtc().millisecondsSinceEpoch;
-      await pairingDao.upsertOutlet(OutletsCompanion.insert(
-        id: hasil.outletId,
-        tokoId: hasil.tokoId,
-        kode: hasil.outletKode,
-        nama: hasil.outletNama,
-        createdAt: now,
-        updatedAt: now,
-      ));
-      await pairingDao.upsertPerangkat(PerangkatCompanion.insert(
-        id: hasil.perangkatId,
-        tokoId: hasil.tokoId,
-        outletId: Value(hasil.outletId),
-        nama: 'Perangkat ${defaultTargetPlatform.name}',
-        deviceUid: deviceUid,
-        platform: Value(defaultTargetPlatform.name),
-        createdAt: now,
-        updatedAt: now,
-      ));
+      await pairingDao.upsertOutlet(
+        OutletsCompanion.insert(
+          id: hasil.outletId,
+          tokoId: hasil.tokoId,
+          kode: hasil.outletKode,
+          nama: hasil.outletNama,
+          createdAt: now,
+          updatedAt: now,
+        ),
+      );
+      await pairingDao.upsertPerangkat(
+        PerangkatCompanion.insert(
+          id: hasil.perangkatId,
+          tokoId: hasil.tokoId,
+          outletId: Value(hasil.outletId),
+          nama: 'Perangkat ${defaultTargetPlatform.name}',
+          deviceUid: deviceUid,
+          platform: Value(defaultTargetPlatform.name),
+          createdAt: now,
+          updatedAt: now,
+        ),
+      );
 
-      await ref.read(authSessionStoreProvider).simpan(SesiBackend(
-            accessToken: hasil.accessToken,
-            refreshToken: hasil.refreshToken,
-            tokoId: hasil.tokoId,
-            outletId: hasil.outletId,
-            penggunaId: hasil.penggunaId,
-            perangkatId: hasil.perangkatId,
-          ));
+      await ref
+          .read(authSessionStoreProvider)
+          .simpan(
+            SesiBackend(
+              accessToken: hasil.accessToken,
+              refreshToken: hasil.refreshToken,
+              tokoId: hasil.tokoId,
+              outletId: hasil.outletId,
+              penggunaId: hasil.penggunaId,
+              perangkatId: hasil.perangkatId,
+            ),
+          );
 
       ref.read(currentTokoIdProvider.notifier).set(hasil.tokoId);
       ref.read(currentOutletIdProvider.notifier).set(hasil.outletId);
       ref.read(currentPerangkatIdProvider.notifier).set(hasil.perangkatId);
       ref.read(currentPenggunaIdProvider.notifier).login(hasil.penggunaId);
 
-      if (_mode == _Mode.daftar) {
-        await simpanTokoProfile(
-          ref,
-          namaToko: _namaTokoController.text.trim(),
-          jenisUsaha: _jenisUsaha,
-          namaPemilik: _namaPemilikController.text.trim(),
-        );
-      }
+      // Profil usaha SELALU ditulis dari jawaban server, baik daftar maupun masuk. Dulu hanya saat daftar,
+      // sehingga masuk ke usaha lain tetap menampilkan nama usaha sebelumnya.
+      final daftar = _mode == _Mode.daftar;
+      await simpanTokoProfile(
+        ref,
+        namaToko: hasil.tokoNama.isNotEmpty
+            ? hasil.tokoNama
+            : _namaTokoController.text.trim(),
+        jenisUsaha: hasil.jenisUsaha != null
+            ? JenisUsaha.dariKode(hasil.jenisUsaha)
+            : (daftar ? _jenisUsaha : JenisUsaha.kafe),
+        namaPemilik: hasil.penggunaNama.isNotEmpty
+            ? hasil.penggunaNama
+            : _namaPemilikController.text.trim(),
+      );
       await tandaiDeviceSudahPaired(ref);
       if (mounted) widget.onSelesai();
     } on BackendException catch (e) {
-      if (mounted) showAppToast(context, message: e.message, variant: ToastVariant.danger);
+      if (mounted)
+        showAppToast(context, message: e.message, variant: ToastVariant.danger);
     } catch (e) {
       // Backend sudah terlanjur sukses sebelum langkah lokal ini (toko
       // sudah kebuat di server) - kalau step lokal (DB/secure storage)
       // gagal, jangan biarkan user "stuck" tanpa pesan sama sekali kayak
       // sebelumnya (BackendException doang yang ketangkep di atas).
       if (mounted) {
-        showAppToast(context, message: 'Gagal menyimpan sesi lokal: $e', variant: ToastVariant.danger);
+        showAppToast(
+          context,
+          message: 'Gagal menyimpan sesi lokal: $e',
+          variant: ToastVariant.danger,
+        );
       }
     } finally {
       if (mounted) setState(() => _memproses = false);
@@ -252,116 +369,194 @@ class _OtpLoginPageState extends ConsumerState<OtpLoginPage> {
   Widget build(BuildContext context) {
     final tahapOtp = _kodeTerkirimKe != null;
 
-    return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppSpacing.xl),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: AppSpacing.xl),
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  alignment: Alignment.center,
-                  child: const Icon(Icons.point_of_sale_outlined, color: Colors.white, size: 22),
-                ),
-                const SizedBox(height: AppSpacing.xxl),
-                Text(
-                  _mode == _Mode.masuk ? 'Masuk ke kasir' : 'Daftar toko baru',
-                  style: AppTypography.headerTitle.copyWith(fontSize: 26),
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  _mode == _Mode.masuk
-                      ? 'Pakai nomor HP yang terdaftar di toko kamu. Kode masuk dikirim lewat WhatsApp.'
-                      : 'Gratis untuk mulai. Isi data toko kamu, lalu verifikasi nomor HP.',
-                  style: AppTypography.secondary.copyWith(fontSize: 14),
-                ),
-                const SizedBox(height: AppSpacing.xxl),
-                if (!tahapOtp && _mode == _Mode.daftar) ..._formDaftar(),
-                if (!tahapOtp) ...[
-                  Text('Nomor HP', style: AppTypography.bodyEmphasis.copyWith(fontSize: 13)),
-                  const SizedBox(height: AppSpacing.xs),
-                  TextFormField(
-                    key: const Key('otpLogin.nomorHp'),
-                    controller: _nomorController,
-                    keyboardType: TextInputType.phone,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    decoration: const InputDecoration(prefixText: '+62 '),
-                    validator: _mode == _Mode.daftar
-                        ? (value) => (value == null || value.trim().length < 8)
-                            ? 'Nomor HP wajib diisi'
-                            : null
-                        : null,
-                  ),
-                  const SizedBox(height: AppSpacing.xl),
-                ],
-                if (!tahapOtp && _mode == _Mode.masuk) ...[
-                  Center(
-                    child: TextButton(
-                      key: const Key('otpLogin.lupaPin'),
-                      onPressed: () => setState(() => _lupaPin = !_lupaPin),
-                      child: Text(_lupaPin ? 'Batal atur PIN baru' : 'Lupa PIN kasir? Atur PIN baru'),
+    return PopScope(
+      canPop: !tahapOtp,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop && tahapOtp) _kembaliKeIsianNomor();
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSpacing.xl),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (tahapOtp || Navigator.of(context).canPop())
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: IconButton(
+                        key: const Key('otpLogin.kembali'),
+                        tooltip: 'Kembali',
+                        padding: EdgeInsets.zero,
+                        alignment: Alignment.centerLeft,
+                        icon: const Icon(Icons.arrow_back),
+                        onPressed: tahapOtp
+                            ? _kembaliKeIsianNomor
+                            : () => Navigator.of(context).maybePop(),
+                      ),
+                    )
+                  else
+                    const SizedBox(height: AppSpacing.xl),
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    alignment: Alignment.center,
+                    child: const Icon(
+                      Icons.point_of_sale_outlined,
+                      color: Colors.white,
+                      size: 22,
                     ),
                   ),
-                  if (_lupaPin) ..._formPin(),
+                  const SizedBox(height: AppSpacing.xxl),
+                  Text(
+                    tahapOtp
+                        ? 'Kode OTP'
+                        : (widget.aturPinBaru
+                              ? 'Atur PIN baru'
+                              : (_mode == _Mode.masuk
+                                    ? 'Masuk'
+                                    : 'Daftar toko baru')),
+                    style: AppTypography.headerTitle.copyWith(fontSize: 26),
+                  ),
+                  if (!tahapOtp && _mode == _Mode.daftar) ...[
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      'Gratis untuk mulai. Isi data toko kamu, lalu verifikasi nomor HP.',
+                      style: AppTypography.secondary.copyWith(fontSize: 14),
+                    ),
+                  ],
+                  const SizedBox(height: AppSpacing.xxl),
+                  if (!tahapOtp && _mode == _Mode.daftar) ..._formDaftar(),
+                  if (!tahapOtp) ...[
+                    Text(
+                      _mode == _Mode.masuk && !widget.aturPinBaru
+                          ? 'Nomor HP atau email'
+                          : 'Nomor HP',
+                      style: AppTypography.bodyEmphasis.copyWith(fontSize: 13),
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    TextFormField(
+                      key: const Key('otpLogin.nomorHp'),
+                      controller: _nomorController,
+                      // Mode masuk menerima nomor HP ATAU email/nama pengguna (akun Administrator).
+                      keyboardType: _mode == _Mode.masuk && !widget.aturPinBaru
+                          ? TextInputType.emailAddress
+                          : TextInputType.phone,
+                      inputFormatters: [
+                        if (_mode == _Mode.daftar || widget.aturPinBaru)
+                          FilteringTextInputFormatter.digitsOnly
+                        else
+                          FilteringTextInputFormatter.allow(
+                            RegExp(r'[0-9A-Za-z@._+\-]'),
+                          ),
+                      ],
+                      onChanged: (_) => setState(() {}),
+                      decoration: InputDecoration(
+                        prefixText: _identitasAdmin ? null : '+62 ',
+                      ),
+                      validator: _mode == _Mode.daftar
+                          ? (value) =>
+                                (value == null || value.trim().length < 8)
+                                ? 'Nomor HP wajib diisi'
+                                : null
+                          : null,
+                    ),
+                    const SizedBox(height: AppSpacing.xl),
+                  ],
+                  if (!tahapOtp && _identitasAdmin) ...[
+                    Text(
+                      'Kata sandi',
+                      style: AppTypography.bodyEmphasis.copyWith(fontSize: 13),
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    TextFormField(
+                      key: const Key('otpLogin.passwordAdmin'),
+                      controller: _passwordAdminController,
+                      obscureText: _sembunyikanSandi,
+                      textInputAction: TextInputAction.done,
+                      onFieldSubmitted: (_) =>
+                          _memproses ? null : _masukAdmin(),
+                      decoration: InputDecoration(
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _sembunyikanSandi
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                          ),
+                          onPressed: () => setState(
+                            () => _sembunyikanSandi = !_sembunyikanSandi,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.xl),
+                  ],
+                  if (!tahapOtp && widget.aturPinBaru) ..._formPin(),
+                  if (tahapOtp) ..._tahapOtpWidgets(),
+                  AppPrimaryButton(
+                    key: const Key('otpLogin.kirim'),
+                    label: _memproses
+                        ? 'Memeriksa...'
+                        : (_identitasAdmin && !tahapOtp
+                              ? 'Masuk'
+                              : (tahapOtp
+                                    ? (_mode == _Mode.daftar
+                                          ? 'Daftar'
+                                          : 'Masuk')
+                                    : 'Kirim kode')),
+                    onPressed: _memproses
+                        ? null
+                        : (_identitasAdmin && !tahapOtp
+                              ? _masukAdmin
+                              : (tahapOtp ? _verifikasiOtp : _kirimKode)),
+                  ),
                   const SizedBox(height: AppSpacing.sm),
+                  if (_mode == _Mode.masuk &&
+                      !_identitasAdmin &&
+                      !widget.aturPinBaru &&
+                      widget.onMasukDenganPin != null)
+                    AppSecondaryButton(
+                      key: const Key('otpLogin.masukDenganPin'),
+                      label: 'Masuk dengan PIN karyawan',
+                      fullWidth: true,
+                      onPressed: widget.onMasukDenganPin,
+                    ),
+                  if (_mode == _Mode.masuk &&
+                      !_identitasAdmin &&
+                      !widget.aturPinBaru &&
+                      widget.onMasukDenganPin == null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: AppSpacing.xs),
+                      child: Text(
+                        'Perangkat baru dipasangkan oleh pemilik lewat kode OTP. '
+                        'Karyawan masuk dengan PIN setelah perangkat dipasangkan.',
+                        key: const Key('otpLogin.petunjukKaryawan'),
+                        textAlign: TextAlign.center,
+                        style: AppTypography.secondary,
+                      ),
+                    ),
+                  const SizedBox(height: AppSpacing.lg),
+                  if (!widget.aturPinBaru)
+                    Center(
+                      child: TextButton(
+                        onPressed: () => _gantiMode(
+                          _mode == _Mode.masuk ? _Mode.daftar : _Mode.masuk,
+                        ),
+                        child: Text(
+                          _mode == _Mode.masuk
+                              ? 'Belum punya toko? Daftar gratis'
+                              : 'Sudah punya toko? Masuk',
+                        ),
+                      ),
+                    ),
                 ],
-                if (tahapOtp) ..._tahapOtpWidgets(),
-                AppPrimaryButton(
-                  label: _memproses
-                      ? 'Memeriksa...'
-                      : (tahapOtp
-                          ? (_mode == _Mode.daftar ? 'Daftar' : 'Masuk')
-                          : 'Kirim kode'),
-                  onPressed: _memproses ? null : (tahapOtp ? _verifikasiOtp : _kirimKode),
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                if (_mode == _Mode.masuk && widget.onMasukDenganPin != null)
-                  AppSecondaryButton(
-                    key: const Key('otpLogin.masukDenganPin'),
-                    label: 'Masuk dengan PIN karyawan',
-                    fullWidth: true,
-                    onPressed: widget.onMasukDenganPin,
-                  ),
-                if (_mode == _Mode.masuk && widget.onMasukDenganPin == null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: AppSpacing.xs),
-                    child: Text(
-                      'Perangkat baru dipasangkan oleh pemilik lewat kode OTP. '
-                      'Karyawan masuk dengan PIN setelah perangkat dipasangkan.',
-                      key: const Key('otpLogin.petunjukKaryawan'),
-                      textAlign: TextAlign.center,
-                      style: AppTypography.secondary,
-                    ),
-                  ),
-                const SizedBox(height: AppSpacing.lg),
-                Center(
-                  child: TextButton(
-                    onPressed: () =>
-                        _gantiMode(_mode == _Mode.masuk ? _Mode.daftar : _Mode.masuk),
-                    child: Text(
-                      _mode == _Mode.masuk
-                          ? 'Belum punya toko? Daftar gratis'
-                          : 'Sudah punya toko? Masuk',
-                    ),
-                  ),
-                ),
-                Center(
-                  child: TextButton(
-                    key: const Key('otpLogin.masukAdmin'),
-                    onPressed: () => context.push('/admin/login'),
-                    child: const Text('Masuk sebagai Administrator'),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ),
@@ -371,34 +566,49 @@ class _OtpLoginPageState extends ConsumerState<OtpLoginPage> {
 
   List<Widget> _formDaftar() {
     return [
-      Text('Nama toko', style: AppTypography.bodyEmphasis.copyWith(fontSize: 13)),
+      Text(
+        'Nama toko',
+        style: AppTypography.bodyEmphasis.copyWith(fontSize: 13),
+      ),
       const SizedBox(height: AppSpacing.xs),
       TextFormField(
         key: const Key('otpLogin.namaToko'),
         controller: _namaTokoController,
         decoration: const InputDecoration(hintText: 'Contoh: Kopi Senja'),
-        validator: (value) =>
-            (value == null || value.trim().isEmpty) ? 'Nama toko wajib diisi' : null,
+        validator: (value) => (value == null || value.trim().isEmpty)
+            ? 'Nama toko wajib diisi'
+            : null,
       ),
       const SizedBox(height: AppSpacing.lg),
-      Text('Jenis usaha', style: AppTypography.bodyEmphasis.copyWith(fontSize: 13)),
+      Text(
+        'Jenis usaha',
+        style: AppTypography.bodyEmphasis.copyWith(fontSize: 13),
+      ),
       const SizedBox(height: AppSpacing.xs),
       DropdownButtonFormField<JenisUsaha>(
         key: const Key('otpLogin.jenisUsaha'),
         initialValue: _jenisUsaha,
         items: JenisUsaha.values
-            .map((j) => DropdownMenuItem(value: j, child: Text(labelJenisUsaha[j]!)))
+            .map(
+              (j) =>
+                  DropdownMenuItem(value: j, child: Text(labelJenisUsaha[j]!)),
+            )
             .toList(),
-        onChanged: (value) => setState(() => _jenisUsaha = value ?? _jenisUsaha),
+        onChanged: (value) =>
+            setState(() => _jenisUsaha = value ?? _jenisUsaha),
       ),
       const SizedBox(height: AppSpacing.lg),
-      Text('Nama pemilik', style: AppTypography.bodyEmphasis.copyWith(fontSize: 13)),
+      Text(
+        'Nama pemilik',
+        style: AppTypography.bodyEmphasis.copyWith(fontSize: 13),
+      ),
       const SizedBox(height: AppSpacing.xs),
       TextFormField(
         key: const Key('otpLogin.namaPemilik'),
         controller: _namaPemilikController,
-        validator: (value) =>
-            (value == null || value.trim().isEmpty) ? 'Nama pemilik wajib diisi' : null,
+        validator: (value) => (value == null || value.trim().isEmpty)
+            ? 'Nama pemilik wajib diisi'
+            : null,
       ),
       const SizedBox(height: AppSpacing.lg),
       ..._formPin(),
@@ -416,7 +626,10 @@ class _OtpLoginPageState extends ConsumerState<OtpLoginPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('PIN kasir', style: AppTypography.bodyEmphasis.copyWith(fontSize: 13)),
+                Text(
+                  'PIN kasir',
+                  style: AppTypography.bodyEmphasis.copyWith(fontSize: 13),
+                ),
                 const SizedBox(height: AppSpacing.xs),
                 TextFormField(
                   key: const Key('otpLogin.pin'),
@@ -441,7 +654,10 @@ class _OtpLoginPageState extends ConsumerState<OtpLoginPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Ulangi PIN', style: AppTypography.bodyEmphasis.copyWith(fontSize: 13)),
+                Text(
+                  'Ulangi PIN',
+                  style: AppTypography.bodyEmphasis.copyWith(fontSize: 13),
+                ),
                 const SizedBox(height: AppSpacing.xs),
                 TextFormField(
                   key: const Key('otpLogin.konfirmasiPin'),
@@ -470,14 +686,6 @@ class _OtpLoginPageState extends ConsumerState<OtpLoginPage> {
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text('Kode OTP', style: AppTypography.bodyEmphasis.copyWith(fontSize: 13)),
-          Text('Dikirim ke +62$_kodeTerkirimKe', style: AppTypography.secondary),
-        ],
-      ),
-      const SizedBox(height: AppSpacing.sm),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
           for (var i = 0; i < _panjangOtp; i++)
             SizedBox(
               width: 48,
@@ -488,7 +696,10 @@ class _OtpLoginPageState extends ConsumerState<OtpLoginPage> {
                 textAlign: TextAlign.center,
                 keyboardType: TextInputType.number,
                 maxLength: 1,
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 // contentPadding horizontal GLOBAL (InputDecorationTheme,
                 // dirancang utk field lebar normal) kalau dipakai apa
@@ -514,11 +725,16 @@ class _OtpLoginPageState extends ConsumerState<OtpLoginPage> {
       ),
       const SizedBox(height: AppSpacing.sm),
       Text(
-        _detikSisa > 0 ? 'Kirim ulang kode dalam 0:${_detikSisa.toString().padLeft(2, '0')}' : '',
+        _detikSisa > 0
+            ? 'Kirim ulang kode dalam 0:${_detikSisa.toString().padLeft(2, '0')}'
+            : '',
         style: AppTypography.secondary,
       ),
       if (_detikSisa == 0)
-        TextButton(onPressed: _kirimKode, child: const Text('Kirim ulang kode')),
+        TextButton(
+          onPressed: _kirimKode,
+          child: const Text('Kirim ulang kode'),
+        ),
       const SizedBox(height: AppSpacing.xl),
     ];
   }

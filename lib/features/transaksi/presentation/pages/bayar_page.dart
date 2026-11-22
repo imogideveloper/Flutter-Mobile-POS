@@ -63,6 +63,8 @@ class _BayarPageState extends ConsumerState<BayarPage> {
   String? _metodeTerpilihId;
   // Label tujuan terpilih (IMOGI no. 18); direset tiap ganti metode.
   String? _labelTujuanTerpilih;
+  // 'debit' atau 'kredit' untuk metode kartu; direset tiap ganti metode.
+  String? _jenisKartuTerpilih;
   bool _modeSplit = false;
   String? _splitMetodeAId;
   String? _splitMetodeBId;
@@ -134,6 +136,10 @@ class _BayarPageState extends ConsumerState<BayarPage> {
           _pesan(galatReferensi);
           return;
         }
+        if (metode.tipe == MetodeBayarTipe.kartu && metode.wajibReferensi && _jenisKartuTerpilih == null) {
+          _pesan('Pilih jenis kartu (debit atau kredit)');
+          return;
+        }
         final galatLabel = validasiLabelTujuan(
           tersedia: daftarLabelTujuan(metode.labelTujuan),
           pilihan: _labelTujuanTerpilih,
@@ -149,6 +155,7 @@ class _BayarPageState extends ConsumerState<BayarPage> {
             nomorReferensi: nomorReferensi.isEmpty ? null : nomorReferensi,
             empatDigitAkhirKartu: empatDigit.isEmpty ? null : empatDigit,
             labelTujuan: _labelTujuanTerpilih,
+            jenisKartu: metode.tipe == MetodeBayarTipe.kartu ? _jenisKartuTerpilih : null,
           ),
         ];
       }
@@ -296,6 +303,7 @@ class _BayarPageState extends ConsumerState<BayarPage> {
                                   _modeSplit = false;
                                   _metodeTerpilihId = metode.id;
                                   _labelTujuanTerpilih = null;
+                                  _jenisKartuTerpilih = null;
                                 });
                               },
                             ),
@@ -426,8 +434,26 @@ class _BayarPageState extends ConsumerState<BayarPage> {
                     // Kartu/Transfer manual - bayar pas, tidak ada kembalian.
                     Text('Konfirmasi ${metodeTerpilih.nama}', style: AppTypography.cardTitle.copyWith(fontSize: 15)),
                     const SizedBox(height: AppSpacing.sm),
+                    if (metodeTerpilih.tipe == MetodeBayarTipe.kartu) ...[
+                      Text(metodeTerpilih.wajibReferensi ? 'Jenis kartu (wajib)' : 'Jenis kartu', style: AppTypography.secondary),
+                      const SizedBox(height: AppSpacing.xs),
+                      Wrap(
+                        key: const Key('bayarForm.jenisKartu'),
+                        spacing: AppSpacing.sm,
+                        children: [
+                          for (final (kode, nama) in const [('debit', 'Debit'), ('kredit', 'Kredit')])
+                            ChoiceChip(
+                              key: Key('bayarForm.jenisKartu.$kode'),
+                              label: Text(nama),
+                              selected: _jenisKartuTerpilih == kode,
+                              onSelected: (_) => setState(() => _jenisKartuTerpilih = kode),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                    ],
                     if (daftarLabelTujuan(metodeTerpilih.labelTujuan).isNotEmpty) ...[
-                      Text('Tujuan pembayaran', style: AppTypography.secondary),
+                      Text(metodeTerpilih.tipe == MetodeBayarTipe.kartu ? 'Mesin EDC' : 'Tujuan pembayaran', style: AppTypography.secondary),
                       const SizedBox(height: AppSpacing.xs),
                       Wrap(
                         key: const Key('bayarForm.labelTujuan'),

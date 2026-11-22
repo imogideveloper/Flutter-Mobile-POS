@@ -183,6 +183,18 @@ class TransaksiDao extends DatabaseAccessor<AppDatabase> with _$TransaksiDaoMixi
     return (select(itemTransaksi)..where((t) => t.transaksiId.isIn(transaksiIds))).get();
   }
 
+  /// Nama kategori tiap produk (produk tanpa kategori tidak ada di hasil), dasar laporan tren per kategori.
+  Future<Map<String, String>> namaKategoriPerProduk(Set<String> produkIds) async {
+    if (produkIds.isEmpty) return const {};
+    final db = attachedDatabase;
+    final query = db.select(db.produk).join([
+      innerJoin(db.kategori, db.kategori.id.equalsExp(db.produk.kategoriId)),
+    ])
+      ..where(db.produk.id.isIn(produkIds));
+    final baris = await query.get();
+    return {for (final r in baris) r.read(db.produk.id)!: r.read(db.kategori.nama)!};
+  }
+
   Future<List<PembayaranRow>> pembayaranUntukTransaksiList(List<String> transaksiIds) {
     if (transaksiIds.isEmpty) return Future.value(const []);
     return (select(pembayaran)..where((t) => t.transaksiId.isIn(transaksiIds))).get();

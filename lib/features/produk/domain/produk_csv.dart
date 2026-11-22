@@ -4,7 +4,8 @@ library;
 
 import '../../../core/utils/csv_dasar.dart';
 
-const kolomTemplate = ['nama', 'kategori', 'harga_jual', 'hpp', 'sku', 'barcode', 'deskripsi'];
+const kolomEkspor = ['nama', 'kategori', 'harga_jual', 'hpp', 'sku', 'barcode', 'deskripsi'];
+const kolomTemplate = [...kolomEkspor, 'stok_awal'];
 
 /// Nama kolom lain yang dikenali (kunci = nama kolom di berkas, huruf kecil, tanpa spasi tepi).
 const _alias = <String, String>{
@@ -23,23 +24,27 @@ const _alias = <String, String>{
   'barcode': 'barcode',
   'deskripsi': 'deskripsi',
   'keterangan': 'deskripsi',
+  'stok_awal': 'stok_awal',
+  'stok awal': 'stok_awal',
+  'stok': 'stok_awal',
 };
 
 /// Isi berkas template: judul kolom dan dua contoh baris yang jelas bukan data sungguhan.
 String templateCsv() => '${kolomTemplate.join(',')}\n'
-    'Kopi Susu,Minuman,18000,7000,KS-001,,Kopi susu gula aren\n'
-    'Roti Bakar Coklat,Makanan,15000,6000,RB-001,,\n';
+    'Kopi Susu,Minuman,18000,7000,KS-001,,Kopi susu gula aren,20\n'
+    'Roti Bakar Coklat,Makanan,15000,6000,RB-001,,,\n';
 
 class BarisProdukCsv {
   const BarisProdukCsv({
     required this.nomorBaris,
     required this.nama,
     this.kategori,
-    this.hargaJual = 0,
-    this.hpp = 0,
+    this.hargaJual,
+    this.hpp,
     this.sku,
     this.barcode,
     this.deskripsi,
+    this.stokAwal,
     this.masalah,
   });
 
@@ -47,11 +52,15 @@ class BarisProdukCsv {
   final int nomorBaris;
   final String nama;
   final String? kategori;
-  final int hargaJual;
-  final int hpp;
+  /// null = kolom dikosongkan (produk baru dianggap 0; produk lama tidak diubah).
+  final int? hargaJual;
+  final int? hpp;
   final String? sku;
   final String? barcode;
   final String? deskripsi;
+
+  /// Stok awal produk baru (kolom stok_awal), null = tidak diisi.
+  final int? stokAwal;
 
   /// Alasan baris ini tidak dikirim (null = siap dikirim).
   final String? masalah;
@@ -61,11 +70,12 @@ class BarisProdukCsv {
   Map<String, dynamic> keJson() => {
         'nama': nama,
         if (kategori != null) 'kategori': kategori,
-        'harga_jual': hargaJual,
-        'hpp': hpp,
+        if (hargaJual != null) 'harga_jual': hargaJual,
+        if (hpp != null) 'hpp': hpp,
         if (sku != null) 'sku': sku,
         if (barcode != null) 'barcode': barcode,
         if (deskripsi != null) 'deskripsi': deskripsi,
+        if (stokAwal != null && stokAwal! > 0) 'stok_awal': stokAwal,
       };
 }
 
@@ -111,6 +121,7 @@ HasilBacaCsv bacaCsvProduk(String teks) {
     final nama = ambil(r, 'nama');
     final harga = parseRupiahCsv(ambil(r, 'harga_jual'));
     final hpp = parseRupiahCsv(ambil(r, 'hpp'));
+    final stok = parseRupiahCsv(ambil(r, 'stok_awal'));
 
     String? masalah;
     if (nama == null) {
@@ -119,15 +130,18 @@ HasilBacaCsv bacaCsvProduk(String teks) {
       masalah = 'Harga jual "${ambil(r, 'harga_jual')}" tidak dapat dibaca';
     } else if (hpp == null) {
       masalah = 'HPP "${ambil(r, 'hpp')}" tidak dapat dibaca';
-    } else if (harga < 0 || hpp < 0) {
-      masalah = 'Harga tidak boleh negatif';
+    } else if (stok == null) {
+      masalah = 'Stok awal "${ambil(r, 'stok_awal')}" tidak dapat dibaca';
+    } else if (harga < 0 || hpp < 0 || stok < 0) {
+      masalah = 'Harga dan stok tidak boleh negatif';
     }
     hasil.add(BarisProdukCsv(
       nomorBaris: nomor,
       nama: nama ?? '',
       kategori: ambil(r, 'kategori'),
-      hargaJual: (harga ?? 0) < 0 ? 0 : (harga ?? 0),
-      hpp: (hpp ?? 0) < 0 ? 0 : (hpp ?? 0),
+      hargaJual: ambil(r, 'harga_jual') == null ? null : ((harga ?? 0) < 0 ? 0 : (harga ?? 0)),
+      hpp: ambil(r, 'hpp') == null ? null : ((hpp ?? 0) < 0 ? 0 : (hpp ?? 0)),
+      stokAwal: ambil(r, 'stok_awal') == null ? null : ((stok ?? 0) < 0 ? 0 : (stok ?? 0)),
       sku: ambil(r, 'sku'),
       barcode: ambil(r, 'barcode'),
       deskripsi: ambil(r, 'deskripsi'),
@@ -162,7 +176,7 @@ int? parseRupiahCsv(String? teks) {
 /// Isi berkas ekspor: judul kolom template lalu satu baris per produk. Sel diberi tanda petik bila
 /// perlu, dan sel berawalan = + - @ diberi apostrof agar tidak dibaca Excel sebagai rumus.
 String eksporProdukCsv(Iterable<BarisEkspor> produk) {
-  final sb = StringBuffer('﻿${kolomTemplate.join(',')}\n');
+  final sb = StringBuffer('﻿${kolomEkspor.join(',')}\n');
   for (final p in produk) {
     sb.writeln([
       p.nama,

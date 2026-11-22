@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../widgets/dialog_logout_usaha.dart';
+import '../../../../core/auth/kunci_layar.dart';
 import '../../../../core/network/backend_exception.dart';
 import '../../../../core/network/sync_repository.dart';
 import '../../../../core/providers/izin_provider.dart';
@@ -36,6 +37,35 @@ final _formatWaktu = DateFormat('HH.mm');
 /// + pull data master) - lihat core/network/sync_repository.dart.
 class LainnyaPage extends ConsumerWidget {
   const LainnyaPage({super.key});
+
+  Future<void> _pilihKunciLayar(BuildContext context, WidgetRef ref) async {
+    final sekarang = ref.read(kunciLayarMenitProvider).value ?? 0;
+    final pilihan = await showModalBottomSheet<int>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: Text(
+                'Kunci layar otomatis: HP kembali ke layar PIN bila tidak disentuh selama waktu ini.',
+                textAlign: TextAlign.center,
+              ),
+            ),
+            for (final m in pilihanKunciLayarMenit)
+              ListTile(
+                key: Key('kunciLayar.pilih.'),
+                title: Text(labelKunciLayar(m)),
+                trailing: m == sekarang ? const Icon(Icons.check) : null,
+                onTap: () => Navigator.pop(ctx, m),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (pilihan != null) await ref.read(kunciLayarMenitProvider.notifier).atur(pilihan);
+  }
 
   Future<void> _sinkronManual(BuildContext context, WidgetRef ref) async {
     showAppToast(
@@ -350,7 +380,7 @@ class LainnyaPage extends ConsumerWidget {
             ]),
             ...grup('Keuangan', [
                   bila(
-                    'laporan.lihat',
+                    'laporan.keuangan',
                     FiturTerkunci(
                       kode: 'tax_recap',
                       child: SettingsMenuRow(
@@ -362,7 +392,7 @@ class LainnyaPage extends ConsumerWidget {
                     ),
                   ),
                   bila(
-                    'laporan.lihat',
+                    'laporan.keuangan',
                     FiturTerkunci(
                       kode: 'profit_loss',
                       child: SettingsMenuRow(
@@ -374,7 +404,7 @@ class LainnyaPage extends ConsumerWidget {
                     ),
                   ),
                   bila(
-                    'laporan.lihat',
+                    'laporan.keuangan',
                     FiturTerkunci(
                       kode: 'consolidation',
                       child: SettingsMenuRow(
@@ -446,7 +476,7 @@ class LainnyaPage extends ConsumerWidget {
                     ),
                   ),
                   bila(
-                    'laporan.lihat',
+                    'pengeluaran.catat',
                     FiturTerkunci(
                       kode: 'expenses',
                       child: SettingsMenuRow(
@@ -487,8 +517,15 @@ class LainnyaPage extends ConsumerWidget {
                       final pengaturanPrinter = ref.watch(
                         pengaturanPrinterProvider,
                       );
+                      // Struk dan label dipilih terpisah; tampilkan yang sudah diatur (keduanya bila ada).
                       final namaPrinter = pengaturanPrinter.maybeWhen(
-                        data: (p) => p?.namaPrinter,
+                        data: (p) {
+                          final struk = p?.namaPrinter ?? p?.macAddress;
+                          final label = p?.labelNamaPrinter ?? p?.labelMacAddress;
+                          if (struk != null && label != null) return 'Struk: $struk · Label: $label';
+                          if (label != null) return 'Label: $label';
+                          return struk;
+                        },
                         orElse: () => null,
                       );
                       return SettingsMenuRow(
@@ -605,12 +642,33 @@ class LainnyaPage extends ConsumerWidget {
             ]),
             ...grup('Akun', [
                   bila(
+                    'pengaturan.kelola',
+                    SettingsMenuRow(
+                      label: 'Kunci layar otomatis',
+                      ikon: Icons.lock_clock_outlined,
+                      value: labelKunciLayar(ref.watch(kunciLayarMenitProvider).value ?? 0),
+                      onTap: () => _pilihKunciLayar(context, ref),
+                    ),
+                  ),
+                  bila(
                     'pengguna.kelola',
                     SettingsMenuRow(
                       label: 'Karyawan dan hak akses',
                       ikon: Icons.badge_outlined,
                       value: '$jumlahKaryawan orang',
                       onTap: () => context.push('/pengguna'),
+                    ),
+                  ),
+                  bila(
+                    'pengguna.kelola',
+                    FiturTerkunci(
+                      kode: 'kelola_karyawan',
+                      child: SettingsMenuRow(
+                        label: 'Peran dan hak akses',
+                        ikon: Icons.admin_panel_settings_outlined,
+                        value: 'Atur',
+                        onTap: () => context.push('/peran'),
+                      ),
                     ),
                   ),
                   bila(

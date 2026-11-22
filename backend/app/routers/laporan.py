@@ -111,7 +111,7 @@ async def laporan_laba_rugi(
     db: AsyncSession = Depends(get_db),
 ) -> LabaRugiOut:
     # Laba rugi memuat HPP dan biaya: hanya peran dengan izin lihat laporan (Owner/Manajer).
-    if not await has_izin(db, role_id, "laporan.lihat"):
+    if not await has_izin(db, role_id, "laporan.keuangan"):
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Tidak punya izin melihat laporan laba rugi")
     if sampai <= dari:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Rentang waktu tidak valid")
@@ -132,7 +132,7 @@ async def _validasi_laporan_keuangan(
     pengguna_id: uuid.UUID,
     role_id: uuid.UUID,
 ) -> None:
-    if not await has_izin(db, role_id, "laporan.lihat"):
+    if not await has_izin(db, role_id, "laporan.keuangan"):
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Tidak punya izin melihat laporan ini")
     if sampai <= dari:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Rentang waktu tidak valid")

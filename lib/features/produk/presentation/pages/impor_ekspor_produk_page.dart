@@ -33,6 +33,7 @@ class _ImporEksporProdukPageState extends ConsumerState<ImporEksporProdukPage> {
   String? _namaBerkas;
   Map<String, dynamic>? _hasilServer;
   bool _sibuk = false;
+  bool _perbarui = false;
   String? _error;
 
   void _toast(String pesan, {ToastVariant variant = ToastVariant.info}) {
@@ -81,6 +82,8 @@ class _ImporEksporProdukPageState extends ConsumerState<ImporEksporProdukPage> {
             accessToken: sesi.accessToken,
             baris: [for (final b in bacaan.siap) b.keJson()],
             simulasi: simulasi,
+            perbaruiYangAda: _perbarui,
+            outletId: ref.read(currentOutletIdProvider),
           );
       setState(() => _hasilServer = hasil);
       if (!simulasi && (hasil['diterima'] as num) > 0) {
@@ -137,7 +140,7 @@ class _ImporEksporProdukPageState extends ConsumerState<ImporEksporProdukPage> {
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   'Isi template di Excel atau Google Sheets (simpan sebagai CSV). Kolom: nama, kategori, '
-                  'harga_jual, hpp, sku, barcode, deskripsi. Maksimal $maksBarisImpor produk sekali impor.',
+                  'harga_jual, hpp, sku, barcode, deskripsi, stok_awal (opsional, hanya untuk produk baru). Maksimal $maksBarisImpor produk sekali impor.',
                   style: AppTypography.secondary,
                 ),
                 const SizedBox(height: AppSpacing.sm),
@@ -162,6 +165,28 @@ class _ImporEksporProdukPageState extends ConsumerState<ImporEksporProdukPage> {
                   icon: const Icon(Icons.upload_file_outlined, size: 18),
                   label: const Text('Pilih berkas CSV'),
                   onPressed: _sibuk ? null : _pilihBerkas,
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Perbarui produk yang sudah ada', style: AppTypography.bodyEmphasis),
+                          Text(
+                    'Baris dengan SKU atau barcode yang sama memperbarui produk lama. Kolom yang dikosongkan tidak mengubah isinya.',
+                            style: AppTypography.secondary,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Switch(
+                      key: const Key('impor.perbarui'),
+                      value: _perbarui,
+                      onChanged: _sibuk ? null : (v) => setState(() => _perbarui = v),
+                    ),
+                  ],
                 ),
                 if (_error != null) ...[
                   const SizedBox(height: AppSpacing.sm),
@@ -230,6 +255,11 @@ class _ImporEksporProdukPageState extends ConsumerState<ImporEksporProdukPage> {
     ];
   }
 
+  String _ketPerbarui(Map<String, dynamic> h) {
+    final n = (h['diperbarui'] as num?)?.toInt() ?? 0;
+    return n > 0 ? ' ( memperbarui produk lama)' : '';
+  }
+
   List<Widget> _hasil(Map<String, dynamic> h) {
     final simulasi = h['simulasi'] == true;
     final ditolak = [
@@ -241,8 +271,8 @@ class _ImporEksporProdukPageState extends ConsumerState<ImporEksporProdukPage> {
       const Divider(),
       Text(
         simulasi
-            ? 'Hasil pemeriksaan: ${h['diterima']} lolos, ${h['ditolak']} ditolak (belum disimpan)'
-            : 'Hasil impor: ${h['diterima']} disimpan, ${h['ditolak']} ditolak',
+            ? 'Hasil pemeriksaan: ${h['diterima']} lolos${_ketPerbarui(h)}, ${h['ditolak']} ditolak (belum disimpan)'
+            : 'Hasil impor: ${h['diterima']} disimpan${_ketPerbarui(h)}, ${h['ditolak']} ditolak',
         key: const Key('impor.hasil'),
         style: AppTypography.bodyEmphasis,
       ),

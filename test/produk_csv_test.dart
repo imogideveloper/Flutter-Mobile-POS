@@ -78,7 +78,15 @@ void main() {
 
     test('keJson hanya memuat isian yang ada', () {
       final b = bacaCsvProduk('nama,harga_jual\nKopi,9000\n').baris.single;
-      expect(b.keJson(), {'nama': 'Kopi', 'harga_jual': 9000, 'hpp': 0});
+      expect(b.keJson(), {'nama': 'Kopi', 'harga_jual': 9000});
+    });
+
+    test('kolom stok_awal dibaca; kosong atau 0 tidak dikirim', () {
+      final h = bacaCsvProduk('nama,stok\nA,12\nB,\nC,0\nD,abc\n');
+      expect(h.baris[0].keJson()['stok_awal'], 12);
+      expect(h.baris[1].keJson().containsKey('stok_awal'), isFalse);
+      expect(h.baris[2].keJson().containsKey('stok_awal'), isFalse);
+      expect(h.baris[3].masalah, contains('Stok awal'));
     });
   });
 

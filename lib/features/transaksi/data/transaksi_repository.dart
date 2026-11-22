@@ -268,6 +268,7 @@ class TransaksiRepository {
                   payloadPembayaranManual(
                     empatDigitAkhirKartu: baris.empatDigitAkhirKartu,
                     labelTujuan: baris.labelTujuan,
+                    jenisKartu: baris.jenisKartu,
                   ),
                 ),
                 dibayarPada: Value(now),

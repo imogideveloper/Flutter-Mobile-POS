@@ -80,3 +80,12 @@ Future<void> simpanTokoProfile(
   await storage.write(key: _kNamaPemilikKey, value: namaPemilik);
   ref.invalidate(tokoProfileProvider);
 }
+
+/// Hapus profil usaha lokal (logout usaha), supaya usaha berikutnya di HP ini tidak mewarisi namanya.
+Future<void> hapusTokoProfile(WidgetRef ref) async {
+  final storage = ref.read(secureStorageProvider);
+  await storage.delete(key: _kNamaTokoKey);
+  await storage.delete(key: _kJenisUsahaKey);
+  await storage.delete(key: _kNamaPemilikKey);
+  ref.invalidate(tokoProfileProvider);
+}

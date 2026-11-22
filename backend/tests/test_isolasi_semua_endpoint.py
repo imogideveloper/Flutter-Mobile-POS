@@ -31,6 +31,7 @@ from app.main import app
 from app.models.jadwal import PengajuanCuti
 from app.models.pengeluaran import Pengeluaran
 from app.models.settlement import Settlement
+from app.models.akun import Role
 from app.models.aset_tetap import AsetTetap
 from app.models.pelanggan import PertanyaanSurvei, Survei
 from app.models.order import Meja, TipeOrder
@@ -96,6 +97,11 @@ async def _siapkan_satu_toko(client: AsyncClient, db: AsyncSession, toko, label:
 
     produk = await buat_produk(db, toko.toko.id, nama=f"Produk {label}")
     ids["produk_id"] = produk.id
+
+    peran = Role(toko_id=toko.toko.id, nama=f"Peran {label}", is_system=False)
+    db.add(peran)
+    await db.commit()
+    ids["peran_id"] = peran.id
 
     kategori = Kategori(toko_id=toko.toko.id, nama=f"Kategori {label}")
     db.add(kategori)
@@ -393,6 +399,8 @@ def _body_untuk(method: str, path: str, ids: dict[str, uuid.UUID]) -> dict | Non
         return {"outlet_id": str(ids["outlet_id"]), "harga_jual": "1000"}
     if path == "/pengguna/{pengguna_id}":
         return {}  # PenggunaUpdateIn - semua field opsional
+    if path == "/roles/{peran_id}":
+        return {"nama": "Sweep"}
     if path == "/shift/{shift_id}/tutup":
         return {"kas_aktual": "0"}
     if path == "/shift/{shift_id}/kas":

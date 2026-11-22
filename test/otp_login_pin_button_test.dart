@@ -50,18 +50,20 @@ void main() {
       (tester) async {
     await bukaApp(tester, dipasangkan: true);
     expect(find.text('Siapa yang pegang kasir?'), findsOneWidget);
+    expect(find.text('Masuk sebagai Administrator'), findsNothing, reason: 'pengguna usaha tidak melihat jalur admin');
 
     await tester.tap(find.byKey(const Key('loginPage.lupaPin')));
     await tester.pumpAndSettle();
-    expect(find.byKey(const Key('otpLogin.masukDenganPin')), findsOneWidget);
-    expect(find.byKey(const Key('otpLogin.petunjukKaryawan')), findsNothing);
-
-    await tester.ensureVisible(find.byKey(const Key('otpLogin.masukDenganPin')));
-    await tester.tap(find.byKey(const Key('otpLogin.masukDenganPin')));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Siapa yang pegang kasir?'), findsOneWidget, reason: 'kembali ke pilih pengguna + PIN');
+    expect(find.text('Atur PIN baru'), findsOneWidget);
+    expect(find.byKey(const Key('otpLogin.pin')), findsOneWidget, reason: 'kolom PIN baru langsung tampil');
     expect(find.byKey(const Key('otpLogin.masukDenganPin')), findsNothing);
+    expect(find.byKey(const Key('otpLogin.petunjukKaryawan')), findsNothing);
+    expect(find.text('Belum punya toko? Daftar gratis'), findsNothing);
+    expect(find.textContaining('atau email'), findsNothing);
+
+    await tester.tap(find.byKey(const Key('otpLogin.kembali')));
+    await tester.pumpAndSettle();
+    expect(find.text('Siapa yang pegang kasir?'), findsOneWidget, reason: 'panah kembali ke pilih pengguna');
 
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(milliseconds: 1));

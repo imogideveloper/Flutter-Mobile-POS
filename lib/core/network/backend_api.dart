@@ -176,6 +176,8 @@ abstract class BackendApi {
     required String accessToken,
     required List<Map<String, dynamic>> baris,
     required bool simulasi,
+    bool perbaruiYangAda = false,
+    String? outletId,
   });
 
   /// Upload logo toko (tahap 4 bagian B.2) - [namaFile] dipakai server utk
@@ -363,7 +365,11 @@ class AuthResult {
     required this.penggunaId,
     required this.penggunaNama,
     required this.perangkatId,
+    this.jenisUsaha,
   });
+
+  /// Kode jenis usaha dari server (null bila server lama belum mengirimnya).
+  final String? jenisUsaha;
 
   final String accessToken;
   final String refreshToken;

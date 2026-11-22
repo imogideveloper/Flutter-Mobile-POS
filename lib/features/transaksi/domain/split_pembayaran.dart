@@ -8,6 +8,7 @@ class SplitPembayaran {
     this.nomorReferensi,
     this.empatDigitAkhirKartu,
     this.labelTujuan,
+    this.jenisKartu,
   });
 
   final String metodeBayarId;
@@ -17,4 +18,7 @@ class SplitPembayaran {
 
   /// Label tujuan terpilih (IMOGI no. 18), mis. GoPay; ikut payload_gateway dan laporan.
   final String? labelTujuan;
+
+  /// 'debit' atau 'kredit' (hanya metode bertipe kartu); ikut payload_gateway dan laporan.
+  final String? jenisKartu;
 }

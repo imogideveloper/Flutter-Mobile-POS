@@ -203,6 +203,7 @@ class DioBackendApi implements BackendApi {
         penggunaId: pengguna['id'] as String,
         penggunaNama: pengguna['nama'] as String,
         perangkatId: body['perangkat_id'] as String,
+        jenisUsaha: toko['jenis_usaha'] as String?,
       );
     } on DioException catch (e) {
       _lempar(e);
@@ -488,11 +489,18 @@ class DioBackendApi implements BackendApi {
     required String accessToken,
     required List<Map<String, dynamic>> baris,
     required bool simulasi,
+    bool perbaruiYangAda = false,
+    String? outletId,
   }) async {
     try {
       final resp = await _dio.post(
         '/produk/impor',
-        data: {'baris': baris, 'simulasi': simulasi},
+        data: {
+          'baris': baris,
+          'simulasi': simulasi,
+          'perbarui_yang_ada': perbaruiYangAda,
+          if (outletId != null) 'outlet_id': outletId,
+        },
         options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
       );
       return resp.data as Map<String, dynamic>;

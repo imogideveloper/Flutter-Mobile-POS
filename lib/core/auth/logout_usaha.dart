@@ -7,6 +7,7 @@ import '../network/sync_repository.dart';
 import '../providers/database_provider.dart';
 import '../providers/device_pairing_provider.dart';
 import '../providers/seed_provider.dart';
+import '../providers/toko_profile_provider.dart';
 import '../providers/session_provider.dart';
 
 enum HasilLogoutUsaha {
@@ -56,6 +57,7 @@ Future<HasilLogoutUsaha> keluarDariUsaha(WidgetRef ref) async {
 
   await store.hapus();
   await hapusTandaPaired(ref);
+  await hapusTokoProfile(ref);
   await db.hapusSemuaDataLokal();
 
   ref.read(currentPenggunaIdProvider.notifier).logout();

@@ -38,7 +38,7 @@ FITUR_MAP: list[PemetaanFitur] = [
     PemetaanFitur("diskon", 1, ("POST", "/promo"), "Sudah digate sejak sesi sebelumnya; GET /promo ditambah gate di tahap ini."),
     PemetaanFitur("pajak_per_produk", 1, None, "Tidak ada endpoint CRUD produk_pajak, dan tidak dipakai di checkout sama sekali (audit tahap 1)."),
     PemetaanFitur("tipe_order", 1, ("POST", "/tipe-order"), "GET juga digate; checkout_service JUGA menolak body.tipe_order_id kalau fitur ini belum terbuka (lihat B.3). Tahap 3a: markup_persen tipe_order dipakai mesin hitung harga (lihat docs/aturan_harga.md) - tapi dibakukan ke harga_satuan oleh HP, bukan dihitung ulang server."),
-    PemetaanFitur("kelola_karyawan", 1, None, "Tahap 3a: CRUD pengguna dasar DILEPAS dari gate ini (toko Gratis tetap boleh tambah kasir, dibatasi paket.maks_pengguna - lihat _pastikan_kuota_pengguna di routers/pengguna.py). kelola_karyawan kini cuma utk role custom/izin, belum ada endpointnya."),
+    PemetaanFitur("kelola_karyawan", 1, ("POST", "/roles"), "CRUD pengguna dasar tidak digate (toko Gratis tetap boleh tambah kasir, dibatasi paket.maks_pengguna). Fitur ini menggating pembuatan/ubah/hapus peran custom (routers/peran.py)."),
     PemetaanFitur("poin_loyalitas", 1, None, "Tahap 3a A.1: checkout_service HANYA memanggil tambah_poin_dari_transaksi kalau has_fitur - inline (has_fitur), bukan endpoint terpisah utk digate require_fitur di sini."),
     PemetaanFitur("diskon_member", 1, None, "Tahap 3a: dipakai di harga/kalkulator.py (level_member.diskon_persen pelanggan) - gating-nya inline lewat fitur_aktif yang dikirim ke mesin hitung (has_fitur), bukan endpoint terpisah."),
     PemetaanFitur("survei", 1, ("POST", "/survei"), "IMOGI no. 59: seluruh router /survei digate (daftar, buat, jawab, hasil)."),

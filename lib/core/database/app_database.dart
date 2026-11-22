@@ -192,7 +192,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 22;
+  int get schemaVersion => 23;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -270,6 +270,14 @@ class AppDatabase extends _$AppDatabase {
           // v12 -> v13 - batas margin produk (persen, per outlet).
           if (from < 13) {
             await m.addColumn(pengaturanOutlet, pengaturanOutlet.batasMargin);
+          }
+          // v22 -> v23 - printer label kemasan (lokal per HP).
+          if (from < 23) {
+            await m.addColumn(pengaturanPrinter, pengaturanPrinter.labelMacAddress);
+            await m.addColumn(pengaturanPrinter, pengaturanPrinter.labelNamaPrinter);
+            await m.addColumn(pengaturanPrinter, pengaturanPrinter.labelLebarMm);
+            await m.addColumn(pengaturanPrinter, pengaturanPrinter.labelTinggiMm);
+            await m.addColumn(pengaturanPrinter, pengaturanPrinter.labelOtomatis);
           }
           // v21 -> v22 - jual per kemasan (IMOGI no. 43): katalog kemasan + snapshot kemasan di item transaksi.
           if (from < 22) {

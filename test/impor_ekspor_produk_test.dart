@@ -43,15 +43,19 @@ class _Api implements BackendApi {
 
   final bool offline;
   final List<({List<Map<String, dynamic>> baris, bool simulasi})> panggilan = [];
+  final List<({bool perbarui, String? outletId})> opsi = [];
 
   @override
   Future<Map<String, dynamic>> imporProduk({
     required String accessToken,
     required List<Map<String, dynamic>> baris,
     required bool simulasi,
+    bool perbaruiYangAda = false,
+    String? outletId,
   }) async {
     if (offline) throw const BackendException(message: 'x');
     panggilan.add((baris: baris, simulasi: simulasi));
+    opsi.add((perbarui: perbaruiYangAda, outletId: outletId));
     return {
       'simulasi': simulasi,
       'diterima': baris.length - 1,
@@ -161,6 +165,25 @@ void main() {
     expect(api.panggilan.last.simulasi, isFalse);
     expect(find.text('Hasil impor: 2 disimpan, 1 ditolak'), findsOneWidget);
     expect(find.text('Kategori baru: Minuman'), findsOneWidget);
+    await tutup(tester);
+  });
+
+  testWidgets('kolom stok_awal dan harga kosong ikut terkirim, mode perbarui dan outlet diteruskan', (tester) async {
+    isiCsv = 'nama,sku,harga_jual,stok_awal\nKopi,KS-1,,12\nTeh,TH-1,5000,\n';
+    await buka(tester);
+    await tester.tap(find.byKey(const Key('impor.pilih')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('impor.perbarui')));
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('impor.simpan')));
+    await tester.pumpAndSettle();
+
+    final b = api.panggilan.single.baris;
+    expect(b[0].containsKey('harga_jual'), isFalse, reason: 'kolom kosong tidak dikirim agar produk lama tidak berubah');
+    expect(b[0]['stok_awal'], 12);
+    expect(b[1]['harga_jual'], 5000);
+    expect(b[1].containsKey('stok_awal'), isFalse);
+    expect(api.opsi.single.perbarui, isTrue);
     await tutup(tester);
   });
 

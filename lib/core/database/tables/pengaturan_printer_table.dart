@@ -16,6 +16,13 @@ class PengaturanPrinter extends Table {
   IntColumn get lebarKertasMm => integer().withDefault(const Constant(58))();
   BoolColumn get cetakOtomatis => boolean().withDefault(const Constant(true))();
 
+  // Printer label kemasan (terpisah dari printer struk): stiker per porsi, bahasa TSPL. Kosong = tidak dipakai.
+  TextColumn get labelMacAddress => text().nullable()();
+  TextColumn get labelNamaPrinter => text().nullable()();
+  IntColumn get labelLebarMm => integer().withDefault(const Constant(40))();
+  IntColumn get labelTinggiMm => integer().withDefault(const Constant(30))();
+  BoolColumn get labelOtomatis => boolean().withDefault(const Constant(true))();
+
   @override
   Set<Column> get primaryKey => {id};
 }

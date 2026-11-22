@@ -27,11 +27,23 @@ _IZIN = [
     ("laporan.lihat", "laporan", "Melihat laporan"),
     ("pengguna.kelola", "pengaturan", "Mengelola karyawan dan role"),
     ("pengaturan.kelola", "pengaturan", "Mengubah pengaturan toko/outlet"),
+    # Tambahan dari panduan IMOGI (migrasi 0035)
+    ("bon.jual", "penjualan", "Jual bon / uang muka (DP)"),
+    ("bon.lihat", "penjualan", "Melihat daftar bon"),
+    ("pesanan.status", "penjualan", "Mengubah status pesanan dan antrian"),
+    ("persetujuan.pin", "penjualan", "Menyetujui tindakan dengan PIN"),
+    ("produk.lihat_margin", "produk", "Melihat harga beli dan margin"),
+    ("stok.opname_posting", "stok", "Memposting hasil stok opname"),
+    ("pengeluaran.catat", "laporan", "Mencatat pengeluaran"),
+    ("laporan.keuangan", "laporan", "Melihat laba rugi, pajak, dan margin"),
 ]
 
-_KASIR_IZIN = {"transaksi.buat", "shift.buka_tutup", "kas.keluar_masuk", "pelanggan.kelola"}
-_BARISTA_IZIN = {"transaksi.buat"}
-_GUDANG_IZIN = {"stok.kelola", "pembelian.kelola"}
+_KASIR_IZIN = {
+    "transaksi.buat", "shift.buka_tutup", "kas.keluar_masuk", "pelanggan.kelola",
+    "bon.jual", "bon.lihat", "pesanan.status",
+}
+_BARISTA_IZIN = {"transaksi.buat", "pesanan.status"}
+_GUDANG_IZIN = {"stok.kelola", "pembelian.kelola", "stok.opname_posting"}
 _MANAJER_KECUALI = {"pengguna.kelola", "pengaturan.kelola"}
 
 

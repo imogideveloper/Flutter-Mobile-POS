@@ -22,6 +22,11 @@ class PengaturanPrinterDao extends DatabaseAccessor<AppDatabase> with _$Pengatur
     String? namaPrinter,
     required int lebarKertasMm,
     required bool cetakOtomatis,
+    String? labelMacAddress,
+    String? labelNamaPrinter,
+    int labelLebarMm = 40,
+    int labelTinggiMm = 30,
+    bool labelOtomatis = true,
   }) {
     return into(pengaturanPrinter).insertOnConflictUpdate(
       PengaturanPrinterCompanion.insert(
@@ -30,6 +35,11 @@ class PengaturanPrinterDao extends DatabaseAccessor<AppDatabase> with _$Pengatur
         namaPrinter: Value(namaPrinter),
         lebarKertasMm: Value(lebarKertasMm),
         cetakOtomatis: Value(cetakOtomatis),
+        labelMacAddress: Value(labelMacAddress),
+        labelNamaPrinter: Value(labelNamaPrinter),
+        labelLebarMm: Value(labelLebarMm),
+        labelTinggiMm: Value(labelTinggiMm),
+        labelOtomatis: Value(labelOtomatis),
       ),
     );
   }

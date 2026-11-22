@@ -25,17 +25,25 @@ import 'otp_login_page.dart';
 class LoginPage extends ConsumerWidget {
   const LoginPage({super.key});
 
-  Future<void> _pilihPengguna(BuildContext context, WidgetRef ref, Pengguna pengguna) async {
+  Future<void> _pilihPengguna(
+    BuildContext context,
+    WidgetRef ref,
+    Pengguna pengguna,
+  ) async {
     final pin = await showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
       backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (sheetContext) => _PinLoginSheet(pengguna: pengguna),
     );
     if (pin == null || pin.isEmpty) return;
 
-    final hasil = await ref.read(penggunaRepositoryProvider).verifikasiPin(pengguna.id, pin);
+    final hasil = await ref
+        .read(penggunaRepositoryProvider)
+        .verifikasiPin(pengguna.id, pin);
     if (!context.mounted) return;
 
     final pesan = switch (hasil) {
@@ -43,7 +51,8 @@ class LoginPage extends ConsumerWidget {
       HasilVerifikasiPin.pinSalah => 'PIN salah',
       HasilVerifikasiPin.terkunci =>
         'Terlalu banyak PIN salah - akun dikunci sementara, coba lagi beberapa menit lagi',
-      HasilVerifikasiPin.nonaktif => 'Akun ini sudah tidak aktif - hubungi owner',
+      HasilVerifikasiPin.nonaktif =>
+        'Akun ini sudah tidak aktif - hubungi owner',
       HasilVerifikasiPin.tidakDitemukan => 'Akun tidak ditemukan',
     };
     if (pesan != null) {
@@ -65,29 +74,41 @@ class LoginPage extends ConsumerWidget {
     context.go('/kasir');
   }
 
-  Future<void> _cobaUpgradeTokenOnline(WidgetRef ref, Pengguna pengguna, String pin) async {
+  Future<void> _cobaUpgradeTokenOnline(
+    WidgetRef ref,
+    Pengguna pengguna,
+    String pin,
+  ) async {
     try {
       final sesi = await ref.read(authSessionStoreProvider).muat();
-      final serverPenggunaId = await ref.read(penggunaRepositoryProvider).serverIdUntuk(pengguna.id);
+      final serverPenggunaId = await ref
+          .read(penggunaRepositoryProvider)
+          .serverIdUntuk(pengguna.id);
       if (sesi == null || serverPenggunaId == null) return;
 
       // PIN sudah benar (sudah lolos verifikasi OFFLINE di atas), dikirim
       // lagi ke server murni utk mendapat token - server tetap
       // memverifikasi ulang sendiri, tidak pernah mempercayai klaim HP
       // (lihat routers/auth.py::pin_login).
-      final hasil = await ref.read(backendApiProvider).pinLoginOnline(
+      final hasil = await ref
+          .read(backendApiProvider)
+          .pinLoginOnline(
             perangkatId: sesi.perangkatId,
             penggunaId: serverPenggunaId,
             pin: pin,
           );
-      await ref.read(authSessionStoreProvider).simpan(SesiBackend(
-            accessToken: hasil.accessToken,
-            refreshToken: hasil.refreshToken,
-            tokoId: sesi.tokoId,
-            outletId: sesi.outletId,
-            penggunaId: hasil.penggunaId,
-            perangkatId: sesi.perangkatId,
-          ));
+      await ref
+          .read(authSessionStoreProvider)
+          .simpan(
+            SesiBackend(
+              accessToken: hasil.accessToken,
+              refreshToken: hasil.refreshToken,
+              tokoId: sesi.tokoId,
+              outletId: sesi.outletId,
+              penggunaId: hasil.penggunaId,
+              perangkatId: sesi.perangkatId,
+            ),
+          );
     } catch (_) {
       // Diam-diam - lihat docstring di atas pemanggil.
     }
@@ -101,12 +122,15 @@ class LoginPage extends ConsumerWidget {
   /// tinggal pop - providers (devicePairedProvider dkk) sudah reaktif,
   /// LoginPage di bawahnya otomatis ter-refresh dgn PIN baru begitu balik.
   void _bukaLupaPin(BuildContext context) {
-    Navigator.of(context).push(MaterialPageRoute<void>(
-      builder: (_) => OtpLoginPage(
-        onSelesai: () => Navigator.of(context).pop(),
-        onMasukDenganPin: () => Navigator.of(context).pop(),
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => OtpLoginPage(
+          aturPinBaru: true,
+          onSelesai: () => Navigator.of(context).pop(),
+          onMasukDenganPin: () => Navigator.of(context).pop(),
+        ),
       ),
-    ));
+    );
   }
 
   @override
@@ -121,25 +145,44 @@ class LoginPage extends ConsumerWidget {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.xl, AppSpacing.xl, AppSpacing.lg),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.xl,
+              AppSpacing.xl,
+              AppSpacing.xl,
+              AppSpacing.lg,
+            ),
             child: Row(
               children: [
                 Container(
                   width: 48,
                   height: 48,
-                  decoration: const BoxDecoration(color: AppColors.primaryTint, shape: BoxShape.circle),
-                  child: const Icon(Icons.storefront_outlined, color: AppColors.primary),
+                  decoration: const BoxDecoration(
+                    color: AppColors.primaryTint,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.storefront_outlined,
+                    color: AppColors.primary,
+                  ),
                 ),
                 const SizedBox(width: AppSpacing.md),
-                Expanded(child: Text('Pilih akun untuk mulai bertugas', style: AppTypography.bodyEmphasis)),
+                Expanded(
+                  child: Text(
+                    'Pilih akun untuk mulai bertugas',
+                    style: AppTypography.bodyEmphasis,
+                  ),
+                ),
               ],
             ),
           ),
           Expanded(
             child: seed.when(
-              data: (_) => _DaftarPengguna(onPilih: (p) => _pilihPengguna(context, ref, p)),
+              data: (_) => _DaftarPengguna(
+                onPilih: (p) => _pilihPengguna(context, ref, p),
+              ),
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stackTrace) => Center(child: Text('Gagal menyiapkan data: $error')),
+              error: (error, stackTrace) =>
+                  Center(child: Text('Gagal menyiapkan data: $error')),
             ),
           ),
           SafeArea(
@@ -154,12 +197,6 @@ class LoginPage extends ConsumerWidget {
                     onPressed: () => _bukaLupaPin(context),
                     icon: const Icon(Icons.lock_reset_outlined, size: 18),
                     label: const Text('Lupa PIN kasir?'),
-                  ),
-                  TextButton.icon(
-                    key: const Key('loginPage.masukAdmin'),
-                    onPressed: () => context.push('/admin/login'),
-                    icon: const Icon(Icons.admin_panel_settings_outlined, size: 18),
-                    label: const Text('Masuk sebagai Administrator'),
                   ),
                 ],
               ),
@@ -188,16 +225,26 @@ class _DaftarPengguna extends ConsumerWidget {
               message: 'Belum ada pengguna - hubungi owner',
             )
           : ListView.separated(
-              padding: const EdgeInsets.fromLTRB(AppSpacing.xl, 0, AppSpacing.xl, AppSpacing.xl),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.xl,
+                0,
+                AppSpacing.xl,
+                AppSpacing.xl,
+              ),
               itemCount: items.length,
-              separatorBuilder: (context, index) => const SizedBox(height: AppSpacing.sm),
+              separatorBuilder: (context, index) =>
+                  const SizedBox(height: AppSpacing.sm),
               itemBuilder: (context, index) {
                 final pengguna = items[index];
-                return _PenggunaCard(pengguna: pengguna, onTap: () => onPilih(pengguna));
+                return _PenggunaCard(
+                  pengguna: pengguna,
+                  onTap: () => onPilih(pengguna),
+                );
               },
             ),
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stackTrace) => Center(child: Text('Gagal memuat pengguna: $error')),
+      error: (error, stackTrace) =>
+          Center(child: Text('Gagal memuat pengguna: $error')),
     );
   }
 }
@@ -231,7 +278,10 @@ class _PenggunaCard extends StatelessWidget {
               ],
             ),
           ),
-          const Icon(Icons.chevron_right_rounded, color: AppColors.textTertiary),
+          const Icon(
+            Icons.chevron_right_rounded,
+            color: AppColors.textTertiary,
+          ),
         ],
       ),
     );
@@ -307,14 +357,20 @@ class _PinLoginSheetState extends State<_PinLoginSheet> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('Masuk sebagai', style: AppTypography.secondary),
-                        Text(widget.pengguna.nama, style: AppTypography.headerTitle),
+                        Text(
+                          widget.pengguna.nama,
+                          style: AppTypography.headerTitle,
+                        ),
                       ],
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: AppSpacing.xxl),
-              Text('PIN kasir', style: AppTypography.bodyEmphasis.copyWith(fontSize: 13)),
+              Text(
+                'PIN kasir',
+                style: AppTypography.bodyEmphasis.copyWith(fontSize: 13),
+              ),
               const SizedBox(height: AppSpacing.xs),
               TextFormField(
                 key: const Key('loginForm.pin'),
@@ -324,10 +380,15 @@ class _PinLoginSheetState extends State<_PinLoginSheet> {
                 maxLength: 6,
                 keyboardType: TextInputType.number,
                 textAlign: TextAlign.center,
-                style: AppTypography.headerTitle.copyWith(fontSize: 26, letterSpacing: 10),
+                style: AppTypography.headerTitle.copyWith(
+                  fontSize: 26,
+                  letterSpacing: 10,
+                ),
                 decoration: const InputDecoration(counterText: ''),
                 validator: (value) {
-                  if (value == null || value.length != 6 || int.tryParse(value) == null) {
+                  if (value == null ||
+                      value.length != 6 ||
+                      int.tryParse(value) == null) {
                     return 'PIN harus 6 digit angka';
                   }
                   return null;

@@ -9,6 +9,7 @@ from app.core.deps import get_pengguna_id, get_role_id, get_toko_id, require_out
 from app.models.outlet import Outlet
 from app.models.stok import StokOpname
 from app.schemas.stok_opname import StokOpnameIn, StokOpnameOut
+from app.services.izin_service import has_izin
 from app.services.stok_opname_service import buat_opname, opname_ke_out, selesaikan_opname
 
 router = APIRouter(prefix="/stok-opname", tags=["stok-opname"])
@@ -75,6 +76,8 @@ async def tandai_opname_selesai(
     role_id: uuid.UUID = Depends(get_role_id),
     db: AsyncSession = Depends(get_db),
 ) -> StokOpnameOut:
+    if not await has_izin(db, role_id, "stok.opname_posting"):
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Role ini tidak punya izin stok.opname_posting")
     opname = await _ambil_opname_milik_toko(db, opname_id, toko_id)
     await require_outlet_access(db, pengguna_id=pengguna_id, role_id=role_id, outlet_id=opname.outlet_id)
     return await selesaikan_opname(db, opname=opname, pengguna_id=pengguna_id)

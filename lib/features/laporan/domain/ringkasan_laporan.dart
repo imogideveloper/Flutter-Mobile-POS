@@ -12,6 +12,8 @@ class RingkasanLaporan {
     this.marginProduk = const [],
     this.penjualanHarian = const [],
     this.penjualanPeriodeSebelumnya,
+    this.trenProduk = const [],
+    this.trenKategori = const [],
   });
 
   final int penjualanBersih;
@@ -29,6 +31,10 @@ class RingkasanLaporan {
 
   /// Total penjualan pada periode sebelumnya yang sama panjang (null bila tidak ada transaksi di sana); pembanding tren.
   final int? penjualanPeriodeSebelumnya;
+
+  /// Tren omzet per produk dan per kategori dibanding periode sebelumnya (lima teratas).
+  final List<TrenItemLaporan> trenProduk;
+  final List<TrenItemLaporan> trenKategori;
 
   int get rataRata => jumlahTransaksi == 0 ? 0 : (penjualanBersih / jumlahTransaksi).round();
 }
@@ -125,4 +131,37 @@ List<MarginProdukLaporan> hitungMarginProduk(Iterable<BarisItemMargin> baris) {
     return c != 0 ? c : a.namaProduk.compareTo(b.namaProduk);
   });
   return hasil;
+}
+
+/// Omzet satu produk atau kategori pada periode laporan dibanding periode sebelumnya yang sama panjang.
+class TrenItemLaporan {
+  const TrenItemLaporan({required this.nama, required this.omzet, required this.omzetSebelumnya});
+
+  final String nama;
+  final int omzet;
+  final int omzetSebelumnya;
+
+  /// Tidak ada penjualan di periode sebelumnya, jadi persentase tidak bermakna.
+  bool get baru => omzetSebelumnya <= 0 && omzet > 0;
+
+  /// Perubahan omzet (%) terhadap periode sebelumnya; null bila periode sebelumnya kosong.
+  double? get perubahanPersen => omzetSebelumnya <= 0 ? null : (omzet - omzetSebelumnya) / omzetSebelumnya * 100;
+}
+
+/// Menggabungkan omzet periode ini dan sebelumnya per nama. Yang tampil: omzet terbesar lebih dulu (lalu
+/// omzet sebelumnya, lalu nama), dibatasi [batas]. Yang hanya terjual di periode sebelumnya ikut tampil
+/// (omzet 0) supaya penurunan tajam tidak tersembunyi. FUNGSI MURNI.
+List<TrenItemLaporan> hitungTren(Map<String, int> sekarang, Map<String, int> sebelumnya, {int batas = 5}) {
+  final nama = {...sekarang.keys, ...sebelumnya.keys};
+  final hasil = [
+    for (final n in nama)
+      if ((sekarang[n] ?? 0) > 0 || (sebelumnya[n] ?? 0) > 0)
+        TrenItemLaporan(nama: n, omzet: sekarang[n] ?? 0, omzetSebelumnya: sebelumnya[n] ?? 0),
+  ];
+  hasil.sort((a, b) {
+    var c = b.omzet.compareTo(a.omzet);
+    if (c == 0) c = b.omzetSebelumnya.compareTo(a.omzetSebelumnya);
+    return c != 0 ? c : a.nama.compareTo(b.nama);
+  });
+  return hasil.take(batas).toList();
 }

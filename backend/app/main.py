@@ -25,6 +25,7 @@ from app.routers import (
     pelanggan_impor,
     pembelian,
     pengeluaran,
+    peran,
     pengguna,
     penjualan_setup,
     pesanan_tersimpan,
@@ -82,6 +83,7 @@ app.include_router(produk_lanjutan.router)
 app.include_router(pelanggan.router)
 app.include_router(pelanggan_impor.router)
 app.include_router(pengguna.router)
+app.include_router(peran.router)
 app.include_router(penjualan_setup.router)
 app.include_router(shift.router)
 # WAJIB sebelum transaksi.router - route transaksi.py punya
