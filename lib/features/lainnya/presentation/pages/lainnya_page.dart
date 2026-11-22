@@ -55,7 +55,7 @@ class LainnyaPage extends ConsumerWidget {
             ),
             for (final m in pilihanKunciLayarMenit)
               ListTile(
-                key: Key('kunciLayar.pilih.'),
+                key: Key('kunciLayar.pilih.$m'),
                 title: Text(labelKunciLayar(m)),
                 trailing: m == sekarang ? const Icon(Icons.check) : null,
                 onTap: () => Navigator.pop(ctx, m),
