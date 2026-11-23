@@ -23,6 +23,9 @@ class _PenyimpananLambat extends FlutterSecureStorage {
 }
 
 class _ApiOtpBerhasil implements BackendApi {
+  /// Nama metode yang dipanggil tetapi tidak disediakan di sini (mis. syncPull), untuk memastikan sinkron jalan.
+  final List<String> dipanggil = [];
+
   @override
   Future<OtpRequestResult> otpRequest({required String noHp}) async => const OtpRequestResult(expiresIn: 300);
 
@@ -52,7 +55,10 @@ class _ApiOtpBerhasil implements BackendApi {
       );
 
   @override
-  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
+  dynamic noSuchMethod(Invocation invocation) {
+    dipanggil.add(invocation.memberName.toString());
+    throw UnimplementedError();
+  }
 }
 
 /// Ditemukan di HP 2026-11-23: setelah masuk dengan OTP, aplikasi memang terbuka sampai kasir, tetapi setiap
@@ -62,6 +68,7 @@ void main() {
   testWidgets('selesai masuk dengan OTP menyimpan tanda paired, supaya restart tidak kembali ke layar OTP',
       (tester) async {
     FlutterSecureStorage.setMockInitialValues({});
+    final api = _ApiOtpBerhasil();
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
@@ -71,7 +78,7 @@ void main() {
     await tester.pumpWidget(ProviderScope(
       overrides: [
         appDatabaseProvider.overrideWith((ref) => db),
-        backendApiProvider.overrideWithValue(_ApiOtpBerhasil()),
+        backendApiProvider.overrideWithValue(api),
         secureStorageProvider.overrideWithValue(const _PenyimpananLambat()),
       ],
       child: const AppsPosApp(),
@@ -99,6 +106,9 @@ void main() {
     expect(await penyimpanan.read(key: 'backend_access_token'), 'akses', reason: 'sesi tersimpan');
     expect(await penyimpanan.read(key: 'device_paired'), 'true',
         reason: 'tanpa tanda ini, restart aplikasi kembali ke layar OTP');
+    // Data usaha ditarik segera setelah masuk; tanpa ini kasir kosong sampai Sync manual (ditemukan di HP).
+    expect(api.dipanggil.any((n) => n.contains('syncPull')), isTrue,
+        reason: 'setelah masuk harus ada tarikan data dari server; dipanggil: ${api.dipanggil}');
 
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(milliseconds: 1));

@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../../../core/network/auth_session_store.dart';
+import '../../../../core/network/auto_sync.dart';
 import '../../../../core/network/backend_exception.dart';
 import '../../../../core/network/dio_backend_api.dart';
 import '../../../../core/providers/device_pairing_provider.dart';
@@ -352,6 +353,10 @@ class _OtpLoginPageState extends ConsumerState<OtpLoginPage> {
       await simpanTandaPaired(storage);
       ref.read(currentPenggunaIdProvider.notifier).login(hasil.penggunaId); // memicu pindah ke kasir
       container.invalidate(devicePairedProvider);
+      // Tarik data usaha (produk, stok, pelanggan, pengaturan) segera setelah masuk. Tanpa ini, setelah keluar dari
+      // usaha lalu masuk ulang, kasir kosong ("Belum ada produk") sampai Sync ditekan manual atau timer 5 menit
+      // berjalan (ditemukan di HP 2026-11-23). Lewat ``container`` karena halaman ini sudah terlepas.
+      unawaited(container.read(autoSyncProvider).picu(paksa: true));
       if (mounted) widget.onSelesai();
     } on BackendException catch (e) {
       if (mounted)
