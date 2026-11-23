@@ -19,6 +19,9 @@ class MutasiStokManualIn(BaseModel):
     jenis: JenisMutasiManual
     qty: Decimal = Field(description="Positif menambah saldo, negatif mengurangi")
     catatan: str | None = None
+    # Karyawan yang benar-benar mencatat di HP. Satu token perangkat dipakai bergilir, jadi tanpa ini semua mutasi
+    # tercatat atas nama pemilik token. Diabaikan (kembali ke pemilik token) bila bukan karyawan toko ini.
+    pengguna_id: uuid.UUID | None = None
 
 
 class MutasiStokManualOut(BaseModel):

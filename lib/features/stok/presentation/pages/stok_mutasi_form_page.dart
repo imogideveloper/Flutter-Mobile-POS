@@ -70,6 +70,7 @@ class _StokMutasiFormPageState extends ConsumerState<StokMutasiFormPage> {
             jenis: _jenis,
             qty: double.parse(_qtyController.text),
             refTipe: mutasiRefManual, // ditandai agar ikut dikirim ke server saat sinkron
+            dibuatOleh: ref.read(currentPenggunaIdProvider), // karyawan yang bertugas, bukan pemilik token perangkat
             catatan: _catatanController.text.trim().isEmpty
                 ? null
                 : _catatanController.text.trim(),

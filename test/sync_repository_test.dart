@@ -1802,7 +1802,8 @@ void main() {
   });
 
   group('mutasi stok manual dari HP (AT10)', () {
-    Future<void> catat(MutasiJenis jenis, double qty, {String? refTipe, String? catatan}) => db.stokDao.catatMutasi(
+    Future<void> catat(MutasiJenis jenis, double qty, {String? refTipe, String? catatan, String? dibuatOleh}) =>
+        db.stokDao.catatMutasi(
           tokoId: 'toko-default',
           outletId: 'outlet-default',
           produkId: 'p-mutasi',
@@ -1810,6 +1811,7 @@ void main() {
           qty: qty,
           refTipe: refTipe,
           catatan: catatan,
+          dibuatOleh: dibuatOleh,
         );
 
     setUp(() async {
@@ -1843,6 +1845,33 @@ void main() {
       api.pullResponse = pullKosong();
       await repo.jalankan();
       expect(api.mutasiStokDiterima, hasLength(1), reason: 'sudah terkirim, tidak dikirim lagi');
+    });
+
+    test('mutasi manual membawa karyawan yang mencatatnya (id server), bukan pemilik token perangkat (AT29)', () async {
+      await seedRoleDanOwner(db);
+      final now = DateTime.now().toUtc().millisecondsSinceEpoch;
+      await db.into(db.pengguna).insert(PenggunaCompanion.insert(
+            id: 'gudang-lokal',
+            tokoId: 'toko-default',
+            roleId: 'role-kasir',
+            nama: 'Uji Gudang',
+            serverPenggunaId: const Value('gudang-server-id'),
+            createdAt: now,
+            updatedAt: now,
+          ));
+      await catat(MutasiJenis.pembelian, 10, refTipe: mutasiRefManual, dibuatOleh: 'gudang-lokal');
+
+      await repo.jalankan();
+
+      expect(api.mutasiStokDiterima.single['pengguna_id'], 'gudang-server-id');
+    });
+
+    test('mutasi tanpa pencatat dikenal tidak membawa pengguna_id (server memakai pemilik token)', () async {
+      await catat(MutasiJenis.pembelian, 10, refTipe: mutasiRefManual);
+
+      await repo.jalankan();
+
+      expect(api.mutasiStokDiterima.single.containsKey('pengguna_id'), isFalse);
     });
 
     test('mutasi hasil transaksi dan stok awal produk tidak ikut dikirim (sudah punya jalur sendiri)', () async {

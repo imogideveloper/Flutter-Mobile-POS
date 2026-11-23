@@ -145,6 +145,8 @@ class SyncRepository {
   Future<void> _pushMutasiStokManual(SesiBackend sesi) async {
     final rows = await stokDao.mutasiManualBelumSync();
     for (final m in rows) {
+      // Karyawan yang mencatat (id server). Tanpa ini server mencatat semua mutasi atas nama pemilik token perangkat.
+      final pencatat = m.dibuatOleh == null ? null : (await penggunaDao.cariById(m.dibuatOleh!))?.serverPenggunaId;
       try {
         await api.kirimMutasiStok(accessToken: sesi.accessToken, body: {
           'id': m.id,
@@ -154,6 +156,7 @@ class SyncRepository {
           'jenis': mutasiJenisPostgresValue[m.jenis]!,
           'qty': m.qty.toString(),
           if (m.catatan != null) 'catatan': m.catatan,
+          'pengguna_id': ?pencatat,
         });
         await stokDao.tandaiMutasiManual(m.id, mutasiRefManualTerkirim);
       } on BackendException catch (e) {

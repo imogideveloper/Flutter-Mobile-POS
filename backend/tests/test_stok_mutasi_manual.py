@@ -104,3 +104,40 @@ async def test_outlet_toko_lain_ditolak(client: AsyncClient, db_session: AsyncSe
         },
     )
     assert resp.status_code == 404
+
+
+async def test_pencatat_mutasi_adalah_karyawan_yang_dikirim_bukan_pemilik_token(
+    client: AsyncClient, db_session: AsyncSession, toko_a
+) -> None:
+    """Satu token perangkat dipakai bergilir: pengguna_id dari HP menentukan siapa yang tercatat mengubah stok."""
+    from app.models.akun import AksesOutlet, Pengguna, Role
+
+    role = (await db_session.execute(select(Role).where(Role.nama == "Gudang", Role.is_system.is_(True)))).scalar_one()
+    gudang = Pengguna(toko_id=toko_a.toko.id, role_id=role.id, nama="Uji Gudang", no_hp="081200000077")
+    db_session.add(gudang)
+    await db_session.flush()
+    db_session.add(AksesOutlet(pengguna_id=gudang.id, outlet_id=toko_a.outlet.id))
+    await db_session.commit()
+
+    produk = await buat_produk(db_session, toko_a.toko.id)
+    mid = uuid.uuid4()
+    resp = await _kirim(client, toko_a, produk, id=mid, pengguna_id=str(gudang.id))
+    assert resp.status_code == 201, resp.text
+    assert (await db_session.get(MutasiStok, mid)).dibuat_oleh == gudang.id
+
+
+async def test_pencatat_dari_toko_lain_diabaikan_kembali_ke_pemilik_token(
+    client: AsyncClient, db_session: AsyncSession, toko_a, toko_b
+) -> None:
+    produk = await buat_produk(db_session, toko_a.toko.id)
+    mid = uuid.uuid4()
+    resp = await _kirim(client, toko_a, produk, id=mid, pengguna_id=str(toko_b.pengguna.id))
+    assert resp.status_code == 201, resp.text
+    assert (await db_session.get(MutasiStok, mid)).dibuat_oleh == toko_a.pengguna.id
+
+
+async def test_tanpa_pengguna_id_tetap_pemilik_token(client: AsyncClient, db_session: AsyncSession, toko_a) -> None:
+    produk = await buat_produk(db_session, toko_a.toko.id)
+    mid = uuid.uuid4()
+    assert (await _kirim(client, toko_a, produk, id=mid)).status_code == 201
+    assert (await db_session.get(MutasiStok, mid)).dibuat_oleh == toko_a.pengguna.id

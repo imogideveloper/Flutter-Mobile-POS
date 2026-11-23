@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_db
 from app.core.deps import get_pengguna_id, get_role_id, get_toko_id, require_outlet_access
+from app.models.akun import Pengguna
 from app.models.stok import MutasiStok
 from app.schemas.stok_mutasi import MutasiStokManualIn, MutasiStokManualOut
 from app.services.izin_service import has_izin
@@ -48,6 +49,12 @@ async def catat_mutasi_manual(
             diterapkan=False,
         )
 
+    pencatat = pengguna_id
+    if body.pengguna_id is not None and body.pengguna_id != pengguna_id:
+        karyawan = await db.get(Pengguna, body.pengguna_id)
+        if karyawan is not None and karyawan.toko_id == toko_id and karyawan.deleted_at is None:
+            pencatat = karyawan.id
+
     await catat_mutasi(
         db,
         toko_id=toko_id,
@@ -58,7 +65,7 @@ async def catat_mutasi_manual(
         qty=body.qty,
         ref_tipe="manual",
         catatan=body.catatan,
-        dibuat_oleh=pengguna_id,
+        dibuat_oleh=pencatat,
         mutasi_id=body.id,
     )
     await db.commit()
