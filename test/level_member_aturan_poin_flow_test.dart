@@ -104,6 +104,40 @@ void main() {
     await tester.pump(const Duration(milliseconds: 1));
   });
 
+  testWidgets('dialog tambah level: antar kolom berjarak (label tidak menempel) dan tidak overflow di layar pendek', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    // Layar pendek seperti HP dengan papan ketik terbuka: isi dialog harus bisa digulir, bukan overflow.
+    tester.view.physicalSize = const Size(900, 900);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(ProviderScope(overrides: [
+      _fiturTerbuka,
+      appDatabaseProvider.overrideWith((ref) => db),
+      authSessionStoreProvider.overrideWithValue(_FakeAuthSessionStoreTerisi()),
+      backendApiProvider.overrideWithValue(_FakeBackendApi()),
+      isOnlineProvider.overrideWith((ref) => Stream.value(true)),
+    ], child: const MaterialApp(home: LevelMemberAturanPoinPage())));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('levelMemberPoin.tambahLevel')));
+    await tester.pumpAndSettle();
+
+    final kolom = [
+      for (final kunci in const ['nama', 'minBelanja', 'diskon', 'pengali'])
+        tester.getRect(find.byKey(Key('levelMemberDialog.$kunci'))),
+    ];
+    for (var i = 0; i < kolom.length - 1; i++) {
+      expect(kolom[i + 1].top - kolom[i].bottom, greaterThanOrEqualTo(8),
+          reason: 'kolom  menempel pada kolom di atasnya (label mengambang bertabrakan)');
+    }
+    expect(tester.takeException(), isNull, reason: 'dialog tidak boleh overflow di layar pendek');
+
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(milliseconds: 1));
+  });
+
   testWidgets('validasi - nama level kosong menampilkan error', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);

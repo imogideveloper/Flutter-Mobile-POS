@@ -223,20 +223,27 @@ class _LevelMemberDialogState extends ConsumerState<_LevelMemberDialog> {
     final online = isOnlineSaat(ref);
     return AlertDialog(
       title: Text(_modeEdit ? 'Ubah Level Member' : 'Tambah Level Member'),
-      content: Form(
+      // Isi dialog bisa digulir supaya tidak terpotong saat papan ketik terbuka, dan antar kolom diberi jarak:
+      // label mengambang tiap kolom dulu bertabrakan dengan kolom di atasnya (ditemukan di HP 2026-11-23).
+      content: SingleChildScrollView(
+        child: Form(
         key: _formKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (!online) const OfflineNoticeBanner(),
-            if (_error != null) Text(_error!, style: const TextStyle(color: AppColors.dangerText)),
+            if (!online) ...[const OfflineNoticeBanner(), const SizedBox(height: AppSpacing.md)],
+            if (_error != null) ...[
+              Text(_error!, style: const TextStyle(color: AppColors.dangerText)),
+              const SizedBox(height: AppSpacing.md),
+            ],
             TextFormField(
               key: const Key('levelMemberDialog.nama'),
               controller: _namaController,
               decoration: const InputDecoration(labelText: 'Nama level'),
               validator: (value) => (value == null || value.trim().isEmpty) ? 'Nama wajib diisi' : null,
             ),
+            const SizedBox(height: AppSpacing.lg),
             TextFormField(
               key: const Key('levelMemberDialog.minBelanja'),
               controller: _minBelanjaController,
@@ -244,6 +251,7 @@ class _LevelMemberDialogState extends ConsumerState<_LevelMemberDialog> {
               keyboardType: TextInputType.number,
               validator: (value) => _validasiAngka(value),
             ),
+            const SizedBox(height: AppSpacing.lg),
             TextFormField(
               key: const Key('levelMemberDialog.diskon'),
               controller: _diskonController,
@@ -251,6 +259,7 @@ class _LevelMemberDialogState extends ConsumerState<_LevelMemberDialog> {
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               validator: (value) => _validasiAngka(value),
             ),
+            const SizedBox(height: AppSpacing.lg),
             TextFormField(
               key: const Key('levelMemberDialog.pengali'),
               controller: _pengaliController,
@@ -259,6 +268,7 @@ class _LevelMemberDialogState extends ConsumerState<_LevelMemberDialog> {
               validator: (value) => _validasiAngka(value),
             ),
           ],
+        ),
         ),
       ),
       actions: [
