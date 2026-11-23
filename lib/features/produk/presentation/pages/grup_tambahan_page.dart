@@ -191,6 +191,7 @@ Future<void> _dialogGrup(BuildContext context, WidgetRef ref, {GrupTambahan? gru
         mainAxisSize: MainAxisSize.min,
         children: [
           TextField(key: const Key('grup.nama'), controller: nama, decoration: const InputDecoration(labelText: 'Nama grup (mis. Ukuran)')),
+          const SizedBox(height: AppSpacing.lg),
           TextField(
             key: const Key('grup.min'),
             controller: min,
@@ -198,6 +199,7 @@ Future<void> _dialogGrup(BuildContext context, WidgetRef ref, {GrupTambahan? gru
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             decoration: const InputDecoration(labelText: 'Minimal pilih (0 = opsional)'),
           ),
+          const SizedBox(height: AppSpacing.lg),
           TextField(
             key: const Key('grup.maks'),
             controller: maks,
@@ -284,6 +286,7 @@ Future<void> _dialogOpsi(BuildContext context, WidgetRef ref, GrupTambahan g, {O
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(key: const Key('opsi.nama'), controller: nama, decoration: const InputDecoration(labelText: 'Nama opsi (mis. Large)')),
+            const SizedBox(height: AppSpacing.lg),
             TextField(
               key: const Key('opsi.harga'),
               controller: harga,

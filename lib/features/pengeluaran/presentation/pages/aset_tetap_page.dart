@@ -309,6 +309,7 @@ class _TambahAsetDialogState extends State<_TambahAsetDialog> {
               inputFormatters: [FilteringTextInputFormatter.digitsOnly, RupiahInputFormatter()],
               decoration: const InputDecoration(labelText: 'Harga perolehan', prefixText: 'Rp '),
             ),
+            const SizedBox(height: AppSpacing.lg),
             TextField(
               key: const Key('aset.residu'),
               controller: _residu,
@@ -316,6 +317,7 @@ class _TambahAsetDialogState extends State<_TambahAsetDialog> {
               inputFormatters: [FilteringTextInputFormatter.digitsOnly, RupiahInputFormatter()],
               decoration: const InputDecoration(labelText: 'Nilai residu', prefixText: 'Rp '),
             ),
+            const SizedBox(height: AppSpacing.lg),
             TextField(
               key: const Key('aset.umur'),
               controller: _umur,

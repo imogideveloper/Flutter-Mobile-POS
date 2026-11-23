@@ -148,6 +148,7 @@ class _KirimMassalPageState extends ConsumerState<KirimMassalPage> {
                   helperText: '{nama} diganti nama pelanggan, {toko} diganti nama usaha',
                 ),
               ),
+              const SizedBox(height: AppSpacing.lg),
               TextField(
                 key: const Key('kirimMassal.cari'),
                 controller: _cari,

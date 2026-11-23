@@ -341,6 +341,7 @@ class _TipeOrderDialogState extends ConsumerState<_TipeOrderDialog> {
               decoration: const InputDecoration(labelText: 'Nama'),
               validator: (value) => (value == null || value.trim().isEmpty) ? 'Nama wajib diisi' : null,
             ),
+            const SizedBox(height: AppSpacing.lg),
             DropdownButtonFormField<TipeOrderKanal>(
               key: const Key('tipeOrderDialog.kanal'),
               initialValue: _kanal,
@@ -548,11 +549,13 @@ class _MejaDialogState extends ConsumerState<_MejaDialog> {
               decoration: const InputDecoration(labelText: 'Nama meja'),
               validator: (value) => (value == null || value.trim().isEmpty) ? 'Nama wajib diisi' : null,
             ),
+            const SizedBox(height: AppSpacing.lg),
             TextFormField(
               key: const Key('mejaDialog.area'),
               controller: _areaController,
               decoration: const InputDecoration(labelText: 'Area (opsional)'),
             ),
+            const SizedBox(height: AppSpacing.lg),
             TextFormField(
               key: const Key('mejaDialog.kapasitas'),
               controller: _kapasitasController,

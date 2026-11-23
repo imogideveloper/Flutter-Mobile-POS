@@ -16,6 +16,7 @@ import '../../../fitur/presentation/providers/feature_gate_provider.dart';
 import '../../../promo/presentation/providers/pajak_providers.dart';
 import '../../../transaksi/presentation/providers/harga_keranjang_provider.dart';
 import '../providers/produk_providers.dart';
+import '../../../../core/theme/app_spacing.dart';
 
 /// Dipakai seksi Resep/Bundling/Pajak-per-produk (lihat masing2 `_muat()`)
 /// - [FiturTerkunci] di atasnya SUDAH meredupkan+mengunci tampilan child
@@ -748,6 +749,7 @@ class _HargaGrosirDialogState extends ConsumerState<_HargaGrosirDialog> {
                 return null;
               },
             ),
+            const SizedBox(height: AppSpacing.lg),
             TextFormField(
               key: const Key('hargaGrosirDialog.harga'),
               controller: _hargaController,
@@ -1003,6 +1005,7 @@ class _HargaOutletDialogState extends ConsumerState<_HargaOutletDialog> {
                     .toList(),
                 onChanged: (value) => setState(() => _outletTerpilih = value),
               ),
+            const SizedBox(height: AppSpacing.lg),
             TextFormField(
               key: const Key('hargaOutletDialog.harga'),
               controller: _hargaController,

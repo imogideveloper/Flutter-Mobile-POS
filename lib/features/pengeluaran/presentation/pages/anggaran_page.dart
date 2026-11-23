@@ -301,6 +301,7 @@ class _AturAnggaranDialogState extends State<_AturAnggaranDialog> {
             onChanged: (v) => setState(() => _kategori = v ?? _kategori),
             decoration: const InputDecoration(labelText: 'Kategori biaya'),
           ),
+          const SizedBox(height: AppSpacing.lg),
           TextField(
             key: const Key('anggaran.jumlah'),
             controller: _jumlah,

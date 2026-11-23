@@ -281,6 +281,7 @@ class _CatatDepositDialogState extends State<_CatatDepositDialog> {
               inputFormatters: [FilteringTextInputFormatter.digitsOnly, RupiahInputFormatter()],
               decoration: const InputDecoration(labelText: 'Jumlah', prefixText: 'Rp '),
             ),
+            const SizedBox(height: AppSpacing.lg),
             TextField(controller: _catatan, decoration: const InputDecoration(labelText: 'Catatan')),
             if (_salah != null)
               Padding(

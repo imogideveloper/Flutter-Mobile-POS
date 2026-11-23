@@ -297,6 +297,7 @@ class _CatatSettlementDialogState extends State<_CatatSettlementDialog> {
               inputFormatters: [FilteringTextInputFormatter.digitsOnly, RupiahInputFormatter()],
               decoration: const InputDecoration(labelText: 'Jumlah diterima (bersih)', prefixText: 'Rp '),
             ),
+            const SizedBox(height: AppSpacing.lg),
             TextField(
               key: const Key('settlement.biaya'),
               controller: _biaya,
@@ -304,6 +305,7 @@ class _CatatSettlementDialogState extends State<_CatatSettlementDialog> {
               inputFormatters: [FilteringTextInputFormatter.digitsOnly, RupiahInputFormatter()],
               decoration: const InputDecoration(labelText: 'Biaya / potongan penyedia', prefixText: 'Rp '),
             ),
+            const SizedBox(height: AppSpacing.lg),
             TextField(
               controller: _referensi,
               decoration: const InputDecoration(labelText: 'Referensi (opsional)'),

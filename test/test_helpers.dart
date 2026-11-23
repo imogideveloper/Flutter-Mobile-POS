@@ -6,7 +6,11 @@ import 'package:apps_pos/core/providers/session_provider.dart';
 import 'package:apps_pos/core/providers/toko_profile_provider.dart';
 import 'package:apps_pos/features/transaksi/data/local/tables/metode_bayar_table.dart';
 import 'package:drift/drift.dart';
+import 'package:flutter/material.dart' show InputDecorator;
+import 'package:flutter/rendering.dart' show RenderBox;
+import 'package:flutter/painting.dart' show Rect, Offset;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 /// Beberapa halaman (mis. RiwayatListPage F3.B) kadang coba baca sesi
 /// backend lewat authSessionStoreProvider (secure storage sungguhan) -
@@ -88,4 +92,32 @@ Future<void> seedMetodeBayarUjiCoba(AppDatabase db) async {
     createdAt: now,
     updatedAt: now,
   ));
+}
+
+/// Semua kolom isian yang sedang tampil harus berjarak: kolom bersebelahan secara vertikal minimal [minimum] piksel,
+/// dan secara horizontal juga. Tanpa jarak, label mengambang kolom bawah menabrak tepi kolom atas (ditemukan di HP).
+void pastikanKolomBerjarak(WidgetTester tester, {double minimum = 8}) {
+  final kotak = <Rect>[];
+  for (final e in find.byType(InputDecorator).evaluate()) {
+    final ro = e.renderObject;
+    if (ro is RenderBox && ro.hasSize && ro.attached) {
+      kotak.add(ro.localToGlobal(Offset.zero) & ro.size);
+    }
+  }
+  for (var i = 0; i < kotak.length; i++) {
+    for (var j = i + 1; j < kotak.length; j++) {
+      final a = kotak[i];
+      final b = kotak[j];
+      final tumpangX = (a.right < b.right ? a.right : b.right) - (a.left > b.left ? a.left : b.left);
+      final tumpangY = (a.bottom < b.bottom ? a.bottom : b.bottom) - (a.top > b.top ? a.top : b.top);
+      if (tumpangX > 1) {
+        final jarakY = (a.top > b.top ? a.top : b.top) - (a.bottom < b.bottom ? a.bottom : b.bottom);
+        expect(jarakY, greaterThanOrEqualTo(minimum), reason: 'kolom $a dan $b menempel secara vertikal (jarak $jarakY px)');
+      }
+      if (tumpangY > 1) {
+        final jarakX = (a.left > b.left ? a.left : b.left) - (a.right < b.right ? a.right : b.right);
+        expect(jarakX, greaterThanOrEqualTo(minimum), reason: 'kolom $a dan $b menempel secara horizontal (jarak $jarakX px)');
+      }
+    }
+  }
 }

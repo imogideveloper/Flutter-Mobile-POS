@@ -220,13 +220,18 @@ class _KategoriFormPageState extends ConsumerState<KategoriFormPage> {
                   decoration: const InputDecoration(labelText: 'Urutan tampil'),
                   keyboardType: TextInputType.number,
                 ),
-                SwitchListTile(
-                  key: const Key('kategoriForm.masukTiketDapur'),
-                  contentPadding: EdgeInsets.zero,
-                  title: const Text('Masuk tiket dapur'),
-                  subtitle: const Text('Matikan untuk kategori yang tidak perlu diteruskan ke dapur/bar'),
-                  value: _masukTiketDapur,
-                  onChanged: (v) => setState(() => _masukTiketDapur = v),
+                const SizedBox(height: AppSpacing.lg),
+                // Material transparan: tanpa ini efek sentuh ListTile tertutup latar putih kartu (peringatan framework).
+                Material(
+                  type: MaterialType.transparency,
+                  child: SwitchListTile(
+                    key: const Key('kategoriForm.masukTiketDapur'),
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Masuk tiket dapur'),
+                    subtitle: const Text('Matikan untuk kategori yang tidak perlu diteruskan ke dapur/bar'),
+                    value: _masukTiketDapur,
+                    onChanged: (v) => setState(() => _masukTiketDapur = v),
+                  ),
                 ),
                 if (_masukTiketDapur)
                   FiturTerkunci(

@@ -15,6 +15,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'test_helpers.dart' show pastikanKolomBerjarak;
+
 class _FakeAuthSessionStoreTerisi extends AuthSessionStore {
   _FakeAuthSessionStoreTerisi() : super(const FlutterSecureStorage());
 
@@ -104,6 +106,7 @@ void main() {
 
     await tester.tap(find.byKey(const Key('tipeOrderMeja.tambahTipeOrder')));
     await tester.pumpAndSettle();
+    pastikanKolomBerjarak(tester); // kolom dialog tidak boleh menempel
     await tester.enterText(find.byKey(const Key('tipeOrderDialog.nama')), 'Dine In');
     await tester.tap(find.byKey(const Key('tipeOrderDialog.simpan')));
     await tester.pumpAndSettle();
@@ -139,6 +142,7 @@ void main() {
 
     await tester.tap(find.byKey(const Key('tipeOrderMeja.tambahMeja')));
     await tester.pumpAndSettle();
+    pastikanKolomBerjarak(tester); // kolom dialog tidak boleh menempel
     await tester.tap(find.byKey(const Key('mejaDialog.simpan')));
     await tester.pumpAndSettle();
 

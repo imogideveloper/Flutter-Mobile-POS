@@ -286,17 +286,20 @@ class _DialogBatchState extends State<_DialogBatch> {
               items: [for (final e in widget.produk.entries) DropdownMenuItem(value: e.key, child: Text(e.value))],
               onChanged: (v) => setState(() => _produkId = v ?? _produkId),
             ),
+            const SizedBox(height: AppSpacing.lg),
             TextField(
               key: const Key('kedaluwarsa.form.nomor'),
               controller: _nomor,
               decoration: const InputDecoration(labelText: 'Nomor batch (opsional)'),
             ),
+            const SizedBox(height: AppSpacing.lg),
             TextField(
               key: const Key('kedaluwarsa.form.qty'),
               controller: _qty,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               decoration: const InputDecoration(labelText: 'Jumlah'),
             ),
+            const SizedBox(height: AppSpacing.lg),
             TextField(
               key: const Key('kedaluwarsa.form.ingatkan'),
               controller: _ingatkan,

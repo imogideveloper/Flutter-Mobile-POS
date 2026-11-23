@@ -245,6 +245,7 @@ class _DialogStasiunState extends State<_DialogStasiun> {
               labelText: 'Nama stasiun (mis. Bar, Dapur)',
             ),
           ),
+          const SizedBox(height: AppSpacing.lg),
           DropdownButtonFormField<int>(
             key: const Key('stasiun.form.lebar'),
             initialValue: _lebar,

@@ -208,12 +208,14 @@ class _DialogKemasanState extends State<_DialogKemasan> {
               maxLength: 50,
               decoration: const InputDecoration(labelText: 'Nama kemasan (mis. Dus, Pak)'),
             ),
+            const SizedBox(height: AppSpacing.lg),
             TextField(
               key: const Key('kemasan.form.isi'),
               controller: _isi,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               decoration: const InputDecoration(labelText: 'Isi (jumlah satuan dasar per kemasan)'),
             ),
+            const SizedBox(height: AppSpacing.lg),
             TextField(
               key: const Key('kemasan.form.harga'),
               controller: _harga,
