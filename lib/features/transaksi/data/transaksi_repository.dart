@@ -55,6 +55,19 @@ class TransaksiSudahDirefundException implements Exception {
   String toString() => 'Transaksi ini sudah direfund, tidak bisa di-void';
 }
 
+/// Label baris diskon di struk (satu baris gabungan, lihat HasilTransaksi.namaPromo). Satu sumber diskon memakai
+/// namanya sendiri; lebih dari satu (mis. diskon member + tukar poin) memakai "Diskon" supaya tidak salah menamai
+/// seluruh potongan. Dulu diskon member tanpa promo tampil "Promo" karena tidak punya label.
+String? _labelDiskonStruk({required String? promoNama, required bool adaDiskonMember, required bool adaDiskonPoin}) {
+  final sumber = [
+    ?promoNama,
+    if (adaDiskonMember) 'Diskon member',
+    if (adaDiskonPoin) 'Tukar poin',
+  ];
+  if (sumber.isEmpty) return null;
+  return sumber.length == 1 ? sumber.single : 'Diskon';
+}
+
 class TransaksiRepository {
   TransaksiRepository(this._transaksiDao, this._stokDao, this._produkDao);
 
@@ -387,9 +400,11 @@ class TransaksiRepository {
       // sekaligus (jarang, diskon_poin tetap ikut masuk totalDiskon di
       // bawah meski labelnya tidak kelihatan terpisah - keterbatasan yg
       // diakui, bukan ditutupi).
-      namaPromo: promo != null && hasil.diskonPromo > 0
-          ? promo.nama
-          : (diskonPoin > 0 ? 'Tukar poin' : null),
+      namaPromo: _labelDiskonStruk(
+        promoNama: promo != null && hasil.diskonPromo > 0 ? promo.nama : null,
+        adaDiskonMember: hasil.diskonMember > 0,
+        adaDiskonPoin: diskonPoin > 0,
+      ),
       totalDiskon: totalDiskonFinal,
       rincianPajak: [
         for (final r in rincianGabungan)

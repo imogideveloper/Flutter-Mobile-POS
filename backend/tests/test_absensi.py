@@ -60,12 +60,14 @@ async def test_masuk_keluar_dan_status_saya(client: AsyncClient, db_session: Asy
 
 async def test_rekap_menghitung_durasi_dan_hari_per_karyawan(client: AsyncClient, db_session: AsyncSession) -> None:
     toko = await buat_toko_siap_pakai(db_session, nama_paket="Pro")
-    sekarang = datetime.now(UTC)
+    # Waktu dipatok ke hari UTC yang sedang berjalan, bukan "sekarang - 3 jam": antara 00.00 dan 03.00 UTC baris
+    # semacam itu jatuh ke kemarin dan tes gagal hanya karena jam dijalankannya.
+    awal_hari = datetime.combine(datetime.now(UTC).date(), datetime.min.time(), tzinfo=UTC)
     db_session.add_all([
         Absensi(toko_id=toko.toko.id, outlet_id=toko.outlet.id, pengguna_id=toko.pengguna.id,
-                jam_masuk=sekarang - timedelta(hours=3), jam_keluar=sekarang - timedelta(hours=1)),
+                jam_masuk=awal_hari + timedelta(hours=1), jam_keluar=awal_hari + timedelta(hours=3)),
         Absensi(toko_id=toko.toko.id, outlet_id=toko.outlet.id, pengguna_id=toko.pengguna.id,
-                jam_masuk=sekarang - timedelta(minutes=30), jam_keluar=None),
+                jam_masuk=awal_hari + timedelta(hours=4), jam_keluar=None),
     ])
     await db_session.commit()
 

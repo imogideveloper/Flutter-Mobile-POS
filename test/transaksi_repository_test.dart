@@ -486,6 +486,69 @@ void main() {
     },
   );
 
+  group('label baris diskon di struk (HasilTransaksi.namaPromo)', () {
+    const items = [
+      ItemKeranjang(produkId: 'p-barang', namaProduk: 'Kopi Hitam', hargaSatuan: 15000, qty: 2, lacakStok: true),
+    ];
+
+    Future<String?> labelUntuk({num? memberPersen, k.PromoInput? promo, int poin = 0}) async {
+      final hasil = k.hitung(
+        k.TransaksiInput(
+          items: [
+            for (final item in items)
+              k.ItemInput(
+                produkId: item.produkId,
+                varianId: null,
+                namaProduk: item.namaProduk,
+                qty: item.qty,
+                hargaJual: item.hargaSatuan,
+              ),
+          ],
+          fiturAktif: const {'diskon_member'},
+          diskonMemberPersen: memberPersen,
+          promo: promo,
+        ),
+      );
+      final checkoutHasil = await repo.checkout(
+        tokoId: 't1',
+        outletId: 'o1',
+        shiftId: 'shift1',
+        penggunaId: 'u1',
+        metodeBayarId: 'metode-tunai-default',
+        items: items,
+        hasil: hasil,
+        totalBayar: hasil.total,
+        diskonPoin: poin,
+        promo: promo == null
+            ? null
+            : domain_promo.Promo(
+                id: promo.id,
+                tokoId: 't1',
+                nama: promo.nama,
+                tipe: PromoTipe.nominal,
+                nilai: 5000,
+                cakupan: PromoCakupan.transaksi,
+                minBelanja: 0,
+                aktif: true,
+              ),
+      );
+      return checkoutHasil.namaPromo;
+    }
+
+    test('hanya diskon member: berlabel "Diskon member", bukan "Promo" (ditemukan di HP 2026-11-23)', () async {
+      expect(await labelUntuk(memberPersen: 10), 'Diskon member');
+    });
+
+    test('diskon member dan tukar poin sekaligus: label umum "Diskon"', () async {
+      expect(await labelUntuk(memberPersen: 10, poin: 500), 'Diskon');
+    });
+
+    test('hanya tukar poin: "Tukar poin"; tanpa diskon apa pun: tidak ada label', () async {
+      expect(await labelUntuk(poin: 500), 'Tukar poin');
+      expect(await labelUntuk(), isNull);
+    });
+  });
+
   test(
     'temuan#1 - daftarPajakAktif dicocokkan ke pajakId per baris TransaksiPajak',
     () async {
