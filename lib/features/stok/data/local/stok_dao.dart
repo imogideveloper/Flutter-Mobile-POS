@@ -99,6 +99,22 @@ class StokDao extends DatabaseAccessor<AppDatabase> with _$StokDaoMixin {
         .toList());
   }
 
+  /// Mutasi manual dari formulir HP yang belum dikirim ke server (urut dari yang tertua). Termasuk
+  /// data lama berrefTipe kosong dengan jenis yang hanya dibuat formulir itu.
+  Future<List<MutasiStokRow>> mutasiManualBelumSync() {
+    return (select(mutasiStok)
+          ..where((t) =>
+              t.deletedAt.isNull() &
+              (t.refTipe.equals(mutasiRefManual) |
+                  (t.refTipe.isNull() & t.jenis.isInValues(mutasiJenisManualLama))))
+          ..orderBy([(t) => OrderingTerm.asc(t.createdAt)]))
+        .get();
+  }
+
+  Future<void> tandaiMutasiManual(String id, String refTipeBaru) {
+    return (update(mutasiStok)..where((t) => t.id.equals(id))).write(MutasiStokCompanion(refTipe: Value(refTipeBaru)));
+  }
+
   /// Mutasi terbaru di outlet - dipakai kartu "Mutasi terakhir" di halaman
   /// Stok, bukan sumber audit lengkap (itu tetap seluruh tabel mutasi_stok).
   Stream<List<MutasiDenganProduk>> watchMutasiTerakhir(String outletId, {int limit = 10}) {

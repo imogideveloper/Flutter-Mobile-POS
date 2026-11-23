@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../features/shift/presentation/providers/shift_providers.dart';
 import '../database/app_database.dart';
 import '../network/auth_session_store.dart';
 import '../network/dio_backend_api.dart';
@@ -67,5 +68,10 @@ Future<HasilLogoutUsaha> keluarDariUsaha(WidgetRef ref) async {
   ref.invalidate(devicePairedProvider);
   ref.invalidate(authBootstrapProvider);
   ref.invalidate(seedProvider);
+  // Data lokal sudah dihapus, tetapi shift yang tersimpan di memori masih menunjuk id lama. Tanpa ini,
+  // setelah masuk ulang layar masih menampilkan "Tutup shift sejak ..." dan checkout gagal
+  // (FOREIGN KEY, ditemukan di HP 2026-11-23) sampai aplikasi dimulai ulang.
+  ref.invalidate(shiftTerbukaProvider);
+  ref.invalidate(kasShiftProvider);
   return HasilLogoutUsaha.berhasil;
 }

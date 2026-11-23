@@ -428,6 +428,23 @@ class DioBackendApi implements BackendApi {
   }
 
   @override
+  Future<Map<String, dynamic>> kirimMutasiStok({
+    required String accessToken,
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      final resp = await _dio.post(
+        '/stok/mutasi',
+        data: body,
+        options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
+      );
+      return resp.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      _lempar(e);
+    }
+  }
+
+  @override
   Future<void> hapusPengeluaran({required String accessToken, required String pengeluaranId}) async {
     try {
       await _dio.delete(

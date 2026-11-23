@@ -75,6 +75,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const Key('bayarForm.split.a.jumlah')), '20000');
     await tester.pumpAndSettle();
+    // Indikator ikut berubah tepat saat jumlah diketik (bug SIT 2026-11-22: sebelumnya tertinggal satu isian).
+    expect((tester.widget(find.byKey(const Key('bayarForm.split.selisih'))) as Text).data, '-Rp30.000');
 
     await tester.tap(find.byKey(const Key('bayarForm.split.b.metode')));
     await tester.pumpAndSettle();
@@ -82,6 +84,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const Key('bayarForm.split.b.jumlah')), '30000');
     await tester.pumpAndSettle();
+    expect((tester.widget(find.byKey(const Key('bayarForm.split.selisih'))) as Text).data, 'Rp0');
 
     await tester.drag(
         find.byKey(const Key('bayarForm.scrollView')), const Offset(0, -400));

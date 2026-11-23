@@ -35,6 +35,7 @@ from app.routers import (
     shift,
     batch_stok,
     produk_kemasan,
+    stok_mutasi,
     stok_opname,
     survei,
     anggaran,
@@ -101,6 +102,7 @@ app.include_router(pengeluaran.router)
 app.include_router(absensi.router)
 app.include_router(jadwal.router)
 app.include_router(stok_opname.router)
+app.include_router(stok_mutasi.router)
 app.include_router(batch_stok.router)
 app.include_router(produk_kemasan.router)
 app.include_router(survei.router)

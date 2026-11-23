@@ -57,6 +57,28 @@ void main() {
     expect(dariSnapshot, asli);
   });
 
+  test('diskon item ikut snapshot: cetak ulang tetap memuat baris Diskon', () {
+    final denganDiskon = struk.StrukData(
+      namaOutlet: 'Toko Uji',
+      nomorStruk: 'STR-D',
+      tanggalEpochMs: 1700000000000,
+      items: const [
+        struk.ItemStruk(namaProduk: 'Uji Kopi Susu', qty: 2, hargaSatuan: 18000, subtotal: 36000, diskon: 3600),
+      ],
+      subtotal: 32400,
+      total: 32400,
+    );
+    final kembali = strukSnapshotDariJson(
+      jsonDecode(jsonEncode(strukSnapshotKeJson(denganDiskon, pengaturan))) as Map<String, dynamic>,
+    );
+    expect(kembali.data.items.single.diskon, 3600);
+    final teks = struk.renderTeksStruk(
+      struk.susunStrukTransaksi(data: kembali.data, pengaturan: kembali.pengaturan),
+      kembali.pengaturan.lebarKarakter,
+    );
+    expect(teks.any((t) => t.contains('Diskon') && t.contains('-Rp3.600')), isTrue);
+  });
+
   test(
     'golden: cetak ulang (salinan=true) dari snapshot IDENTIK dgn struk asli kecuali baris ** SALINAN **',
     () {

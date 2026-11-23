@@ -38,13 +38,15 @@ async def daftar_paket(db: AsyncSession) -> list[PaketOut]:
 
     hasil = []
     for paket in paket_rows:
-        kode_fitur = (
+        fitur_rows = (
             await db.execute(
-                select(Fitur.kode).join(PaketFitur, PaketFitur.fitur_id == Fitur.id).where(
+                select(Fitur.kode, Fitur.nama).join(PaketFitur, PaketFitur.fitur_id == Fitur.id).where(
                     PaketFitur.paket_id == paket.id
                 )
             )
-        ).scalars().all()
+        ).all()
+        kode_fitur = [kode for kode, _ in fitur_rows]
+        nama_fitur = {kode: nama for kode, nama in fitur_rows}
         hasil.append(
             PaketOut(
                 id=paket.id,
@@ -56,6 +58,7 @@ async def daftar_paket(db: AsyncSession) -> list[PaketOut]:
                 maks_pengguna=paket.maks_pengguna,
                 maks_produk=paket.maks_produk,
                 kode_fitur=sorted(kode_fitur),
+                nama_fitur=nama_fitur,
             )
         )
     return hasil

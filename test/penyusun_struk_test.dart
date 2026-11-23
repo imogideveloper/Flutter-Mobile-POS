@@ -99,6 +99,30 @@ void main() {
       _pastikanTidakOverflow(baris, 32);
     });
 
+    test('diskon item tampil sebagai baris "Diskon" di bawah item, supaya selisih ke Subtotal terjelaskan (AT6)', () {
+      final data = StrukData(
+        namaOutlet: 'Toko Kopi Asik',
+        nomorStruk: 'STR003',
+        tanggalEpochMs: _tanggal(10, 30),
+        items: const [
+          ItemStruk(namaProduk: 'Uji Kopi Susu', qty: 2, hargaSatuan: 18000, subtotal: 36000, diskon: 3600),
+          ItemStruk(namaProduk: 'Roti Bakar', qty: 1, hargaSatuan: 15000, subtotal: 15000),
+        ],
+        subtotal: 47400,
+        total: 47400,
+      );
+
+      final baris = susunStrukTransaksi(data: data, pengaturan: const PengaturanStrukData(lebarKertasMm: 58));
+
+      final teks = [for (final b in baris) b.teks];
+      final iKopi = teks.indexOf('Uji Kopi Susu');
+      expect(teks[iKopi + 1], BarisStruk.duaKolom('  2 x Rp18.000', 'Rp36.000', 32).teks);
+      expect(teks[iKopi + 2], BarisStruk.duaKolom('  Diskon', '-Rp3.600', 32).teks);
+      expect(teks[iKopi + 3], 'Roti Bakar', reason: 'item tanpa diskon tidak diberi baris Diskon');
+      expect(teks.where((t) => t.trim().startsWith('Diskon')), hasLength(1));
+      _pastikanTidakOverflow(baris, 32);
+    });
+
     test('pajak termasuk harga ditandai (incl)', () {
       final data = StrukData(
         namaOutlet: 'Toko Kopi Asik',

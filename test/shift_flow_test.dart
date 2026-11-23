@@ -48,6 +48,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Shift sedang berjalan'), findsOneWidget);
+    // Kas yang baru dicatat tampil di layar Shift (AT8): kasir bisa memeriksanya.
+    expect(find.byKey(const Key('shiftPage.daftarKas')), findsOneWidget);
+    expect(find.textContaining('Beli plastik'), findsOneWidget);
+    expect(find.text('-Rp20.000'), findsOneWidget);
 
     await tester.tap(find.text('Tutup Shift'));
     await tester.pumpAndSettle();

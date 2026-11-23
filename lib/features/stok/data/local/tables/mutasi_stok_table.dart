@@ -34,6 +34,22 @@ const mutasiJenisPostgresValue = <MutasiJenis, String>{
   MutasiJenis.produksi: 'produksi',
 };
 
+/// Penanda `refTipe` untuk mutasi yang dicatat tangan di HP (formulir Catat Mutasi Stok) dan
+/// statusnya terhadap server. Mutasi hasil transaksi memakai refTipe 'transaksi' dan dikirim
+/// lewat transaksinya sendiri, jadi TIDAK ikut jalur ini (kalau ikut, stok server berkurang dua kali).
+const mutasiRefManual = 'manual'; // belum dikirim ke server
+const mutasiRefManualTerkirim = 'manual_terkirim';
+const mutasiRefManualDitolak = 'manual_ditolak'; // server menolak permanen (produk/outlet tidak dikenal, dst)
+
+/// Jenis yang dulu (sebelum penanda di atas ada) dicatat dari formulir dengan refTipe kosong.
+/// Dipakai untuk ikut mengirim data lama yang belum pernah sampai ke server.
+const mutasiJenisManualLama = [
+  MutasiJenis.pembelian,
+  MutasiJenis.opname,
+  MutasiJenis.penyesuaian,
+  MutasiJenis.produksi,
+];
+
 /// Log semua perubahan stok - setiap insert di sini wajib diikuti update
 /// saldo di tabel Stok dalam satu transaksi database yang sama (lihat
 /// StokDao.catatMutasi).

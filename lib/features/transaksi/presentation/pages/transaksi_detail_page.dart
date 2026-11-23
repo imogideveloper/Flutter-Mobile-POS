@@ -187,6 +187,7 @@ class _TransaksiDetailPageState extends ConsumerState<TransaksiDetailPage> {
             qty: item.qty,
             hargaSatuan: item.hargaSatuanFinal,
             subtotal: item.subtotal,
+            diskon: item.diskonManual,
             modifiers: [for (final m in item.modifiers) m.nama],
           ),
       ],

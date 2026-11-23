@@ -247,6 +247,10 @@ class _OtpLoginPageState extends ConsumerState<OtpLoginPage> {
     }
 
     setState(() => _memproses = true);
+    // Diambil SEBELUM ada `await`: setelah `currentPenggunaIdProvider.login` gerbang pindah ke kasir dan
+    // halaman ini terlepas, sehingga `ref` tidak boleh dipakai lagi (Riverpod melempar StateError).
+    final container = ProviderScope.containerOf(context, listen: false);
+    final storage = ref.read(secureStorageProvider);
     try {
       final deviceUid = await ambilDeviceUid(ref);
       // Dikirim di dua kasus: mode daftar (PIN awal akun baru) ATAU mode
@@ -326,7 +330,6 @@ class _OtpLoginPageState extends ConsumerState<OtpLoginPage> {
       ref.read(currentTokoIdProvider.notifier).set(hasil.tokoId);
       ref.read(currentOutletIdProvider.notifier).set(hasil.outletId);
       ref.read(currentPerangkatIdProvider.notifier).set(hasil.perangkatId);
-      ref.read(currentPenggunaIdProvider.notifier).login(hasil.penggunaId);
 
       // Profil usaha SELALU ditulis dari jawaban server, baik daftar maupun masuk. Dulu hanya saat daftar,
       // sehingga masuk ke usaha lain tetap menampilkan nama usaha sebelumnya.
@@ -343,7 +346,12 @@ class _OtpLoginPageState extends ConsumerState<OtpLoginPage> {
             ? hasil.penggunaNama
             : _namaPemilikController.text.trim(),
       );
-      await tandaiDeviceSudahPaired(ref);
+      // Tanda paired ditulis SEBELUM berpindah halaman. Dulu langkah ini ada di akhir, sesudah `login` memindahkan
+      // layar ke kasir dan melepas halaman ini: `ref` sudah tidak boleh dipakai, penulisan gagal tanpa pesan
+      // (`mounted` false), dan setiap aplikasi dimulai ulang kembali ke layar OTP walau sesi tersimpan.
+      await simpanTandaPaired(storage);
+      ref.read(currentPenggunaIdProvider.notifier).login(hasil.penggunaId); // memicu pindah ke kasir
+      container.invalidate(devicePairedProvider);
       if (mounted) widget.onSelesai();
     } on BackendException catch (e) {
       if (mounted)

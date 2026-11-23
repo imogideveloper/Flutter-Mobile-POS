@@ -116,6 +116,7 @@ class _StrukPageState extends ConsumerState<StrukPage> {
             qty: item.qty,
             hargaSatuan: item.hargaSatuanFinal,
             subtotal: item.subtotal,
+            diskon: item.diskonManual,
             modifiers: [for (final m in item.modifiers) m.nama],
           ),
       ],
@@ -280,6 +281,9 @@ class _StrukPageState extends ConsumerState<StrukPage> {
     final hasil = widget.hasil;
     final tanggal = DateTime.fromMillisecondsSinceEpoch(hasil.tanggal, isUtc: true).toLocal();
     final kasbon = hasil.statusBayar != 'lunas';
+    // Footer yang sama dengan struk cetak (susunStrukTransaksi): isian pengaturan outlet, bila kosong 'Terima kasih!'.
+    final footerPengaturan = ref.watch(pengaturanOutletProvider(ref.watch(currentOutletIdProvider))).value?.footerStruk;
+    final footerStruk = (footerPengaturan != null && footerPengaturan.trim().isNotEmpty) ? footerPengaturan : 'Terima kasih!';
 
     return Scaffold(
       backgroundColor: AppColors.bg,
@@ -371,6 +375,8 @@ class _StrukPageState extends ConsumerState<StrukPage> {
                                 Text(_formatRupiah.format(item.subtotal)),
                               ],
                             ),
+                            // Sama dengan struk cetak: subtotal baris di atas SEBELUM diskon.
+                            if (item.diskonManual > 0) _baris('  Diskon', -item.diskonManual),
                           ],
                           const SizedBox(height: AppSpacing.sm),
                           _garisPutus(),
@@ -403,7 +409,7 @@ class _StrukPageState extends ConsumerState<StrukPage> {
                           const SizedBox(height: AppSpacing.sm),
                           _garisPutus(),
                           const SizedBox(height: AppSpacing.sm),
-                          const Text('Terima kasih, sampai jumpa lagi!', textAlign: TextAlign.center),
+                          Text(footerStruk, textAlign: TextAlign.center),
                         ],
                       ),
                     ),

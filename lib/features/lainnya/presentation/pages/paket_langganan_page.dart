@@ -28,6 +28,7 @@ class _Paket {
     required this.maksPengguna,
     required this.maksProduk,
     required this.kodeFitur,
+    this.namaFitur = const {},
   });
 
   final String id;
@@ -39,6 +40,9 @@ class _Paket {
   final int? maksProduk;
   final List<String> kodeFitur;
 
+  /// kode -> nama yang terbaca (dari server). Server lama tidak mengirimnya: tampilan jatuh ke kode.
+  final Map<String, String> namaFitur;
+
   factory _Paket.fromJson(Map<String, dynamic> j) => _Paket(
         id: j['id'] as String,
         nama: j['nama'] as String,
@@ -48,6 +52,7 @@ class _Paket {
         maksPengguna: j['maks_pengguna'] as int?,
         maksProduk: j['maks_produk'] as int?,
         kodeFitur: (j['kode_fitur'] as List).cast<String>(),
+        namaFitur: ((j['nama_fitur'] as Map?) ?? const {}).map((k, v) => MapEntry(k.toString(), v.toString())),
       );
 }
 
@@ -480,7 +485,7 @@ class _PaketLanggananPageState extends ConsumerState<PaketLanggananPage> {
                       borderRadius: BorderRadius.circular(999),
                       border: Border.all(color: AppColors.borderDefault),
                     ),
-                    child: Text(kode, style: AppTypography.secondary.copyWith(fontSize: 11)),
+                    child: Text(paket.namaFitur[kode] ?? kode, style: AppTypography.secondary.copyWith(fontSize: 11)),
                   ),
               ],
             ),

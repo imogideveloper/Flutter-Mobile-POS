@@ -138,6 +138,11 @@ class _FakeBackendApiPaket implements BackendApi {
           'maks_pengguna': 10,
           'maks_produk': null,
           'kode_fitur': ['laporan_dasar', 'diskon', 'kasbon'],
+          'nama_fitur': {
+            'laporan_dasar': 'Laporan Penjualan (sesuai periode langganan)',
+            'diskon': 'Kelola diskon',
+            'kasbon': 'Pembayaran hutang (bon)',
+          },
         },
       ];
 
@@ -346,6 +351,19 @@ void main() {
 
     expect(find.byKey(const Key('paketLangganan.peringatanTrial')), findsOneWidget);
     expect(find.textContaining('Free trial berakhir dalam 5 hari'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(milliseconds: 1));
+  });
+
+  testWidgets('fitur paket tampil dengan nama yang terbaca, bukan kode mentah (server lama: jatuh ke kode)', (tester) async {
+    await bukaHalamanDenganTrial(tester, {'trial_aktif': false});
+
+    expect(find.text('Kelola diskon'), findsOneWidget);
+    expect(find.text('Pembayaran hutang (bon)'), findsOneWidget);
+    expect(find.text('kasbon'), findsNothing, reason: 'kode mentah tidak lagi tampil bila server mengirim nama');
+    // Paket Gratis di fake belum punya nama_fitur (meniru server lama): tetap tampil lewat kodenya.
+    expect(find.text('laporan_dasar'), findsOneWidget);
 
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(milliseconds: 1));

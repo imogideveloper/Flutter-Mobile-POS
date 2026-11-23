@@ -21,6 +21,10 @@ final devicePairedProvider = FutureProvider<bool>((ref) async {
   return value == 'true';
 });
 
+/// Hanya MENULIS tanda paired ke penyimpanan aman, tanpa menyentuh provider. Aman dipanggil dari widget
+/// yang bisa terlepas (unmount) di tengah jalan; pembatalan cache `devicePairedProvider` dilakukan pemanggil.
+Future<void> simpanTandaPaired(FlutterSecureStorage storage) => storage.write(key: _kDevicePairedKey, value: 'true');
+
 Future<void> tandaiDeviceSudahPaired(WidgetRef ref) async {
   final storage = ref.read(secureStorageProvider);
   await storage.write(key: _kDevicePairedKey, value: 'true');

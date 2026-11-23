@@ -19,6 +19,8 @@ class PaketOut(BaseModel):
     maks_pengguna: int | None
     maks_produk: int | None
     kode_fitur: list[str]
+    # kode -> nama yang dibaca manusia (tabel fitur). Klien menampilkan nama ini, bukan kode mentah.
+    nama_fitur: dict[str, str] = {}
 
 
 class PemakaianOut(BaseModel):

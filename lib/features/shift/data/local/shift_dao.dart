@@ -31,6 +31,12 @@ class ShiftDao extends DatabaseAccessor<AppDatabase> with _$ShiftDaoMixin {
         .get();
   }
 
+  /// Kas masuk/keluar satu shift, terbaru di atas - dipantau layar Shift agar kasir bisa memeriksa yang sudah dicatat.
+  Stream<List<KasShiftRow>> watchKasUntukShift(String shiftId) => (select(kasShift)
+        ..where((t) => t.shiftId.equals(shiftId) & t.deletedAt.isNull())
+        ..orderBy([(t) => OrderingTerm.desc(t.createdAt)]))
+      .watch();
+
   Future<ShiftRow?> shiftTerbukaDiOutlet(String outletId) =>
       (select(shift)
             ..where((t) =>

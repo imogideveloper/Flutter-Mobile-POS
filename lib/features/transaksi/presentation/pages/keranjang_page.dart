@@ -400,7 +400,7 @@ class KeranjangPage extends ConsumerWidget {
   }
 
   Future<void> _pilihPoinDitukar(BuildContext context, WidgetRef ref, Pelanggan pelanggan) async {
-    final aturan = await ref.read(aturanPoinProvider.future);
+    final aturan = await muatAturanPoinSekarang(ref);
     if (!context.mounted) return;
     if (aturan == null || !aturan.aktif || aturan.nilaiTukarPoin <= 0) {
       showAppToast(

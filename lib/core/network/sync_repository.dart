@@ -22,6 +22,8 @@ import '../../features/promo/data/local/promo_dao.dart';
 import '../../features/promo/data/local/tables/pajak_table.dart';
 import '../../features/promo/data/local/tables/promo_table.dart';
 import '../../features/stok/data/local/stok_dao.dart';
+import '../../features/stok/data/local/tables/mutasi_stok_table.dart'
+    show mutasiJenisPostgresValue, mutasiRefManualDitolak, mutasiRefManualTerkirim;
 import '../../features/transaksi/data/local/metode_bayar_dao.dart';
 import '../../features/transaksi/data/local/tables/metode_bayar_table.dart';
 import '../../features/transaksi/data/local/transaksi_dao.dart';
@@ -125,6 +127,9 @@ class SyncRepository {
     }
 
     final (terkirim, ditolak) = await _push(sesi);
+    // Setelah transaksi (sama2 pergerakan stok) dan SEBELUM pull: pull menimpa saldo stok lokal
+    // dengan saldo server, jadi mutasi manual yang belum terkirim akan hilang bila pull jalan dulu.
+    await _pushMutasiStokManual(sesi);
     final diterima = await _pull(sesi, outletId: outletId);
     await _reconcileMetodeBayar(sesi);
     return HasilSync(
@@ -132,6 +137,37 @@ class SyncRepository {
       transaksiDitolak: ditolak,
       jumlahDiterimaPull: diterima,
     );
+  }
+
+  /// Kirim mutasi stok yang dicatat tangan di HP (AT10). Server idempotent menurut id, jadi aman
+  /// dikirim ulang. Gagal sementara (jaringan, 5xx, 401/403/429) = berhenti dan coba lagi di sync
+  /// berikutnya; ditolak permanen (404/409/422) = ditandai agar tidak dicoba terus.
+  Future<void> _pushMutasiStokManual(SesiBackend sesi) async {
+    final rows = await stokDao.mutasiManualBelumSync();
+    for (final m in rows) {
+      try {
+        await api.kirimMutasiStok(accessToken: sesi.accessToken, body: {
+          'id': m.id,
+          'outlet_id': m.outletId,
+          'produk_id': m.produkId,
+          if (m.varianId != null) 'varian_id': m.varianId,
+          'jenis': mutasiJenisPostgresValue[m.jenis]!,
+          'qty': m.qty.toString(),
+          if (m.catatan != null) 'catatan': m.catatan,
+        });
+        await stokDao.tandaiMutasiManual(m.id, mutasiRefManualTerkirim);
+      } on BackendException catch (e) {
+        final s = e.statusCode;
+        // 404 bawaan framework ("Not Found" = rute belum ada, mis. server belum diperbarui) bersifat
+        // sementara; 404 dengan pesan khusus (produk/outlet tidak dikenal) permanen.
+        final ruteBelumAda = s == 404 && e.message == 'Not Found';
+        if (!ruteBelumAda && (s == 404 || s == 409 || s == 422)) {
+          await stokDao.tandaiMutasiManual(m.id, mutasiRefManualDitolak);
+        } else {
+          return;
+        }
+      }
+    }
   }
 
   /// Bersihkan metode bayar "hantu" (lihat

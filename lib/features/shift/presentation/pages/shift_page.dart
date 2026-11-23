@@ -10,6 +10,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/empty_state.dart';
+import '../../data/local/tables/kas_shift_table.dart' show KasShiftJenis;
 import '../../domain/shift.dart';
 import '../providers/shift_providers.dart';
 
@@ -64,8 +65,7 @@ class _ShiftTerbuka extends ConsumerWidget {
 
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.xl),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: ListView(
         children: [
           AppCard(
             child: Column(
@@ -95,6 +95,7 @@ class _ShiftTerbuka extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.xl),
+          _DaftarKas(shiftId: shift.id),
           AppPrimaryButton(
             label: 'Catat Kas Masuk/Keluar',
             onPressed: () => context.push('/shift/kas', extra: shift.id),
@@ -106,6 +107,64 @@ class _ShiftTerbuka extends ConsumerWidget {
             onPressed: () => context.push('/shift/tutup', extra: shift.id),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Kas masuk/keluar yang sudah dicatat di shift ini. Tanpa daftar ini kasir tidak bisa memeriksa apa
+/// yang sudah dicatat (AT8), padahal angka ini ikut menentukan kas seharusnya saat tutup shift.
+class _DaftarKas extends ConsumerWidget {
+  const _DaftarKas({required this.shiftId});
+
+  final String shiftId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final kas = ref.watch(kasShiftProvider(shiftId)).value ?? const [];
+    if (kas.isEmpty) return const SizedBox.shrink();
+
+    final masuk = kas.where((k) => k.jenis == KasShiftJenis.masuk).fold<int>(0, (a, k) => a + k.jumlah);
+    final keluar = kas.where((k) => k.jenis == KasShiftJenis.keluar).fold<int>(0, (a, k) => a + k.jumlah);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.xl),
+      child: AppCard(
+        key: const Key('shiftPage.daftarKas'),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Kas masuk/keluar shift ini', style: AppTypography.cardTitle),
+            const SizedBox(height: AppSpacing.md),
+            for (final k in kas)
+              Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        '${DateFormat('HH:mm').format(DateTime.fromMillisecondsSinceEpoch(k.createdAt, isUtc: true).toLocal())} - ${k.keterangan}',
+                        style: AppTypography.secondary,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Text(
+                      '${k.jenis == KasShiftJenis.masuk ? '+' : '-'}${_formatRupiah.format(k.jumlah)}',
+                      style: AppTypography.bodyEmphasis.copyWith(
+                        color: k.jenis == KasShiftJenis.masuk ? AppColors.primary : AppColors.dangerText,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            const Divider(height: AppSpacing.xl),
+            _BarisInfo(label: 'Total kas masuk', value: _formatRupiah.format(masuk)),
+            const SizedBox(height: AppSpacing.xs),
+            _BarisInfo(label: 'Total kas keluar', value: _formatRupiah.format(keluar)),
+          ],
+        ),
       ),
     );
   }

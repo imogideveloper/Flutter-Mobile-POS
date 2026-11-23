@@ -164,6 +164,9 @@ void main() {
     await tester.tap(find.byKey(const Key('bayarForm.selesaikan')));
     await tester.pumpAndSettle();
     expect(find.text('Pembayaran berhasil'), findsOneWidget);
+    // Struk di layar menjelaskan selisih baris (50.000) ke Subtotal (45.000), sama dengan struk cetak (AT6).
+    expect(find.text('  Diskon'), findsOneWidget);
+    expect(find.text('-Rp5.000'), findsOneWidget);
 
     final transaksi = (await db.select(db.transaksi).get()).single;
     expect(transaksi.subtotal, 45000);

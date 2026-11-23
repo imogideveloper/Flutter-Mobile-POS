@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/database/app_database.dart' show KasShiftRow;
 import '../../../../core/providers/database_provider.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../data/local/shift_dao.dart';
@@ -12,6 +13,11 @@ final shiftDaoProvider = Provider<ShiftDao>((ref) {
 
 final shiftRepositoryProvider = Provider<ShiftRepository>((ref) {
   return ShiftRepository(ref.watch(shiftDaoProvider));
+});
+
+/// Kas masuk/keluar yang sudah dicatat pada satu shift (terbaru di atas).
+final kasShiftProvider = StreamProvider.family<List<KasShiftRow>, String>((ref, shiftId) {
+  return ref.watch(shiftDaoProvider).watchKasUntukShift(shiftId);
 });
 
 final shiftTerbukaProvider = FutureProvider.family<Shift?, String>((ref, outletId) {

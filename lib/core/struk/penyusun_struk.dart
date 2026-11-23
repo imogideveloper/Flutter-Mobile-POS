@@ -117,6 +117,7 @@ class ItemStruk {
     required this.qty,
     required this.hargaSatuan,
     required this.subtotal,
+    this.diskon = 0,
     this.modifiers = const [],
     this.catatan,
   });
@@ -125,6 +126,9 @@ class ItemStruk {
   final double qty;
   final int hargaSatuan;
   final int subtotal;
+  /// Diskon manual kasir pada baris ini (Rupiah). subtotal di atas SEBELUM diskon, jadi tanpa baris ini
+  /// selisih ke Subtotal struk tidak dijelaskan.
+  final int diskon;
   // Nama modifier saja cukup utk cetak - harga modifier sudah termasuk di
   // hargaSatuan/subtotal item (konsisten dgn cara checkout menyimpannya).
   final List<String> modifiers;
@@ -384,6 +388,9 @@ List<BarisStruk> susunStrukTransaksi({
     baris.add(
       BarisStruk.duaKolom('  $qtyStr x ${formatRupiahStruk(item.hargaSatuan)}', formatRupiahStruk(item.subtotal), lebar),
     );
+    if (item.diskon > 0) {
+      baris.addAll(_baris2KolomRupiah('  Diskon', -item.diskon, lebar));
+    }
     if (!ringkas) {
       for (final modifier in item.modifiers) {
         for (final baris_ in bungkusTeks('  + $modifier', lebar)) {

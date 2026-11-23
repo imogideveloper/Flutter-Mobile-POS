@@ -8,6 +8,8 @@ import 'package:apps_pos/features/shift/data/local/tables/kas_shift_table.dart' 
 import 'package:apps_pos/features/shift/data/local/tables/shift_table.dart' show ShiftStatus;
 import 'package:apps_pos/core/network/auth_session_store.dart';
 import 'package:apps_pos/core/network/backend_api.dart';
+import 'package:apps_pos/core/network/backend_exception.dart';
+import 'package:apps_pos/features/stok/data/local/tables/mutasi_stok_table.dart';
 import 'package:apps_pos/core/network/sync_repository.dart';
 import 'package:apps_pos/features/produk/data/local/tables/produk_table.dart';
 import 'package:apps_pos/features/transaksi/data/local/tables/metode_bayar_table.dart';
@@ -73,6 +75,22 @@ class _FakeBackendApi implements BackendApi {
   @override
   Future<void> hapusPengeluaran({required String accessToken, required String pengeluaranId}) =>
       throw UnimplementedError();
+
+  List<Map<String, dynamic>> mutasiStokDiterima = [];
+  /// Urutan panggilan ('mutasi'/'pull') untuk memastikan mutasi manual terkirim SEBELUM pull.
+  List<String> urutan = [];
+  /// Bila diisi, kirimMutasiStok melempar BackendException dengan kode HTTP ini.
+  int? mutasiStokGagalKode;
+  String mutasiStokGagalPesan = 'gagal';
+
+  @override
+  Future<Map<String, dynamic>> kirimMutasiStok({required String accessToken, required Map<String, dynamic> body}) async {
+    urutan.add('mutasi');
+    final kode = mutasiStokGagalKode;
+    if (kode != null) throw BackendException(message: mutasiStokGagalPesan, statusCode: kode);
+    mutasiStokDiterima.add(body);
+    return {'id': body['id'], 'diterapkan': true};
+  }
 
   List<Map<String, dynamic>> transaksiDiterima = [];
   List<Map<String, dynamic>> pembayaranDiterima = [];
@@ -197,6 +215,7 @@ class _FakeBackendApi implements BackendApi {
     String? outletId,
     int limit = 500,
   }) async {
+    urutan.add('pull');
     final hasil = pullResponse!;
     pullResponse = const SyncPullResult(
       waktuPull: '2026-01-01T00:00:00Z',
@@ -1780,5 +1799,107 @@ void main() {
     api.pullResponse = pullKosong();
     await repo.jalankan();
     expect(api.statusPesananDiterima, isEmpty);
+  });
+
+  group('mutasi stok manual dari HP (AT10)', () {
+    Future<void> catat(MutasiJenis jenis, double qty, {String? refTipe, String? catatan}) => db.stokDao.catatMutasi(
+          tokoId: 'toko-default',
+          outletId: 'outlet-default',
+          produkId: 'p-mutasi',
+          jenis: jenis,
+          qty: qty,
+          refTipe: refTipe,
+          catatan: catatan,
+        );
+
+    setUp(() async {
+      await db.produkDao.upsertProduk(ProdukCompanion.insert(
+        id: 'p-mutasi',
+        tokoId: 'toko-default',
+        nama: 'Roti',
+        tipe: ProdukTipe.barang,
+        createdAt: 0,
+        updatedAt: 0,
+      ));
+      api.pullResponse = pullKosong();
+    });
+
+    test('mutasi manual dikirim sebelum pull, ditandai terkirim, dan tidak dikirim ulang', () async {
+      await catat(MutasiJenis.pembelian, 10, refTipe: mutasiRefManual, catatan: 'Uji pembelian');
+
+      await repo.jalankan();
+
+      expect(api.mutasiStokDiterima, hasLength(1));
+      final kirim = api.mutasiStokDiterima.single;
+      expect(kirim['produk_id'], 'p-mutasi');
+      expect(kirim['outlet_id'], 'outlet-default');
+      expect(kirim['jenis'], 'pembelian');
+      expect(kirim['qty'], '10.0');
+      expect(kirim['catatan'], 'Uji pembelian');
+      expect(api.urutan.indexOf('mutasi'), lessThan(api.urutan.indexOf('pull')),
+          reason: 'pull menimpa saldo stok lokal, jadi mutasi harus terkirim dulu');
+      expect(await db.stokDao.mutasiManualBelumSync(), isEmpty);
+
+      api.pullResponse = pullKosong();
+      await repo.jalankan();
+      expect(api.mutasiStokDiterima, hasLength(1), reason: 'sudah terkirim, tidak dikirim lagi');
+    });
+
+    test('mutasi hasil transaksi dan stok awal produk tidak ikut dikirim (sudah punya jalur sendiri)', () async {
+      await catat(MutasiJenis.penjualan, -1, refTipe: 'transaksi');
+      await catat(MutasiJenis.stokAwal, 5); // stok awal dari formulir produk, refTipe kosong
+
+      await repo.jalankan();
+
+      expect(api.mutasiStokDiterima, isEmpty);
+    });
+
+    test('data lama berrefTipe kosong dengan jenis opname/pembelian ikut terkirim', () async {
+      await catat(MutasiJenis.opname, -1); // dicatat sebelum penanda manual ada
+      await catat(MutasiJenis.pembelian, 10);
+
+      await repo.jalankan();
+
+      expect(api.mutasiStokDiterima.map((m) => m['jenis']), ['opname', 'pembelian']);
+    });
+
+    test('gagal sementara (500) tetap belum terkirim dan dicoba lagi di sync berikutnya', () async {
+      await catat(MutasiJenis.pembelian, 10, refTipe: mutasiRefManual);
+      api.mutasiStokGagalKode = 500;
+
+      await repo.jalankan();
+      expect(await db.stokDao.mutasiManualBelumSync(), hasLength(1));
+
+      api.mutasiStokGagalKode = null;
+      api.pullResponse = pullKosong();
+      await repo.jalankan();
+      expect(api.mutasiStokDiterima, hasLength(1));
+      expect(await db.stokDao.mutasiManualBelumSync(), isEmpty);
+    });
+
+    test('ditolak permanen (404) ditandai ditolak agar tidak dicoba terus', () async {
+      await catat(MutasiJenis.pembelian, 10, refTipe: mutasiRefManual);
+      api.mutasiStokGagalKode = 404;
+      api.mutasiStokGagalPesan = 'Produk tidak ditemukan';
+
+      await repo.jalankan();
+
+      expect(await db.stokDao.mutasiManualBelumSync(), isEmpty);
+      final baris = await db.select(db.mutasiStok).get();
+      expect(baris.single.refTipe, mutasiRefManualDitolak);
+    });
+    test('404 bawaan "Not Found" (server belum punya rute) bukan penolakan: tetap dicoba lagi', () async {
+      await catat(MutasiJenis.pembelian, 10, refTipe: mutasiRefManual);
+      api.mutasiStokGagalKode = 404;
+      api.mutasiStokGagalPesan = 'Not Found';
+
+      await repo.jalankan();
+      expect(await db.stokDao.mutasiManualBelumSync(), hasLength(1));
+
+      api.mutasiStokGagalKode = null;
+      api.pullResponse = pullKosong();
+      await repo.jalankan();
+      expect(api.mutasiStokDiterima, hasLength(1));
+    });
   });
 }

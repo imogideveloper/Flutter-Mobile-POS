@@ -23,6 +23,18 @@ async def test_daftar_paket_mengembalikan_fitur_per_paket(
     assert urutan == sorted(urutan)
 
 
+async def test_daftar_paket_menyertakan_nama_fitur_yang_terbaca(
+    client: AsyncClient, db_session: AsyncSession, toko_a
+) -> None:
+    """Halaman Paket langganan dulu menampilkan kode mentah (mis. `cash_shift`); kini ada nama per kode."""
+    body = (await client.get("/paket", headers=toko_a.headers)).json()
+    pro = next(p for p in body if p["nama"] == "Pro")
+    assert pro["kode_fitur"], "paket Pro seharusnya punya fitur"
+    # Setiap kode punya nama, dan nama bukan kode itu sendiri.
+    assert set(pro["nama_fitur"]) == set(pro["kode_fitur"])
+    assert all(nama and nama != kode for kode, nama in pro["nama_fitur"].items())
+
+
 async def test_langganan_saya_menghitung_pemakaian(
     client: AsyncClient, db_session: AsyncSession, toko_a
 ) -> None:

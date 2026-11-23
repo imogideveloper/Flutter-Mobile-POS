@@ -101,6 +101,13 @@ abstract class BackendApi {
 
   Future<void> hapusPengeluaran({required String accessToken, required String pengeluaranId});
 
+  /// Mutasi stok yang dicatat tangan di HP (pembelian, opname, penyesuaian, dst). Idempotent
+  /// menurut `body['id']`: mengirim ulang id yang sama tidak menerapkan mutasi dua kali.
+  Future<Map<String, dynamic>> kirimMutasiStok({
+    required String accessToken,
+    required Map<String, dynamic> body,
+  });
+
   /// Laporan laba rugi (IMOGI no. 69). [dari] inklusif, [sampai] eksklusif, ISO-8601 dengan offset zona waktu.
   Future<Map<String, dynamic>> laporanLabaRugi({
     required String accessToken,

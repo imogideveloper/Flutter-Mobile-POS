@@ -20,6 +20,14 @@ final pelangganAktifProvider = StreamProvider<List<Pelanggan>>((ref) {
   return ref.watch(pelangganRepositoryProvider).watchPelangganAktif(tokoId);
 });
 
+/// Aturan poin toko saat ini, dibaca SEKALI langsung dari basis data. Dipakai aksi sesaat (mis. tombol
+/// Tukar poin): `await ref.read(aturanPoinProvider.future)` tidak pernah selesai di HP maupun di tes
+/// (ditemukan 2026-11-23: tombol Tukar poin diam saja), jadi aksi tidak boleh menunggu future provider itu.
+Future<AturanPoin?> muatAturanPoinSekarang(WidgetRef ref) async {
+  final row = await ref.read(pelangganDaoProvider).watchAturanPoin(ref.read(currentTokoIdProvider)).first;
+  return row?.toDomain();
+}
+
 final pelangganByIdProvider = FutureProvider.family<String?, String>((ref, id) async {
   final row = await ref.watch(pelangganDaoProvider).pelangganById(id);
   return row?.nama;

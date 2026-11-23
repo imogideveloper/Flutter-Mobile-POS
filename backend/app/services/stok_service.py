@@ -26,6 +26,7 @@ async def catat_mutasi(
     ref_id: uuid.UUID | None = None,
     catatan: str | None = None,
     dibuat_oleh: uuid.UUID | None = None,
+    mutasi_id: uuid.UUID | None = None,  # id dari klien (mutasi manual HP) supaya kirim ulang tidak menggandakan
 ) -> None:
     existing = (
         await db.execute(
@@ -54,6 +55,7 @@ async def catat_mutasi(
 
     db.add(
         MutasiStok(
+            **({"id": mutasi_id} if mutasi_id is not None else {}),
             toko_id=toko_id,
             outlet_id=outlet_id,
             produk_id=produk_id,

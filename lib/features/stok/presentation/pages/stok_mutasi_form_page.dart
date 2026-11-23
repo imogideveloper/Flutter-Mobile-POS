@@ -8,7 +8,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../produk/domain/produk.dart';
 import '../../../produk/presentation/providers/produk_providers.dart';
-import '../../data/local/tables/mutasi_stok_table.dart' show MutasiJenis;
+import '../../data/local/tables/mutasi_stok_table.dart' show MutasiJenis, mutasiRefManual;
 import '../providers/stok_providers.dart';
 
 const _labelJenisMutasi = {
@@ -23,6 +23,16 @@ const _labelJenisMutasi = {
   MutasiJenis.penyesuaian: 'Penyesuaian',
   MutasiJenis.produksi: 'Produksi',
 };
+
+const _jenisManual = [
+  MutasiJenis.stokAwal,
+  MutasiJenis.pembelian,
+  MutasiJenis.opname,
+  MutasiJenis.transferMasuk,
+  MutasiJenis.transferKeluar,
+  MutasiJenis.penyesuaian,
+  MutasiJenis.produksi,
+];
 
 class StokMutasiFormPage extends ConsumerStatefulWidget {
   const StokMutasiFormPage({super.key});
@@ -59,6 +69,7 @@ class _StokMutasiFormPageState extends ConsumerState<StokMutasiFormPage> {
             produkId: _produk!.id,
             jenis: _jenis,
             qty: double.parse(_qtyController.text),
+            refTipe: mutasiRefManual, // ditandai agar ikut dikirim ke server saat sinkron
             catatan: _catatanController.text.trim().isEmpty
                 ? null
                 : _catatanController.text.trim(),
@@ -102,7 +113,9 @@ class _StokMutasiFormPageState extends ConsumerState<StokMutasiFormPage> {
                 DropdownButtonFormField<MutasiJenis>(
                   initialValue: _jenis,
                   decoration: const InputDecoration(labelText: 'Jenis mutasi'),
-                  items: MutasiJenis.values
+                  // Penjualan/refund/void hanya lahir dari transaksi; dicatat tangan di sini akan
+                  // merusak stok (dan ditolak server).
+                  items: _jenisManual
                       .map((j) => DropdownMenuItem(value: j, child: Text(_labelJenisMutasi[j]!)))
                       .toList(),
                   onChanged: (value) => setState(() => _jenis = value ?? _jenis),

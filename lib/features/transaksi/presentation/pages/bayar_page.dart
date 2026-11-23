@@ -16,6 +16,7 @@ import '../../../pelanggan/presentation/providers/pelanggan_providers.dart';
 import '../../../promo/presentation/providers/pajak_providers.dart';
 import '../../../shift/presentation/providers/shift_providers.dart';
 import '../../data/local/tables/metode_bayar_table.dart';
+import '../../domain/saran_uang_diterima.dart';
 import '../../domain/split_pembayaran.dart';
 import '../../domain/referensi_pembayaran.dart';
 import '../../domain/label_tujuan.dart';
@@ -397,7 +398,7 @@ class _BayarPageState extends ConsumerState<BayarPage> {
                     const SizedBox(height: AppSpacing.sm),
                     Row(
                       children: [
-                        for (final nominal in {total, total + 25000, _bulatkanAtas(total)})
+                        for (final nominal in saranUangDiterima(total))
                           Expanded(
                             child: Padding(
                               padding: const EdgeInsets.only(right: AppSpacing.xs),
@@ -524,11 +525,6 @@ class _BayarPageState extends ConsumerState<BayarPage> {
     );
   }
 
-  int _bulatkanAtas(int total) {
-    const kelipatan = 50000;
-    final hasil = ((total ~/ kelipatan) + 1) * kelipatan;
-    return hasil;
-  }
 }
 
 class _SplitPembayaranForm extends StatelessWidget {
@@ -554,10 +550,6 @@ class _SplitPembayaranForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final a = parseRupiahInput(jumlahAController.text);
-    final b = parseRupiahInput(jumlahBController.text);
-    final sisa = (a ?? 0) + (b ?? 0) - total;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -579,20 +571,31 @@ class _SplitPembayaranForm extends StatelessWidget {
           onMetodeChanged: onMetodeBChanged,
         ),
         const SizedBox(height: AppSpacing.sm),
-        AppCard(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Selisih dari total', style: AppTypography.bodyEmphasis),
-              Text(
-                NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0).format(sisa),
-                style: AppTypography.headerTitle.copyWith(
-                  fontSize: 18,
-                  color: sisa == 0 ? AppColors.primaryDark : AppColors.dangerText,
-                ),
+        // Dibangun ulang tiap kali salah satu jumlah diketik; sebelumnya angka ini hanya ikut berubah bila halaman
+        // lain berubah (mis. ganti metode), sehingga tertinggal satu isian di belakang.
+        ListenableBuilder(
+          listenable: Listenable.merge([jumlahAController, jumlahBController]),
+          builder: (context, _) {
+            final a = parseRupiahInput(jumlahAController.text);
+            final b = parseRupiahInput(jumlahBController.text);
+            final sisa = (a ?? 0) + (b ?? 0) - total;
+            return AppCard(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Selisih dari total', style: AppTypography.bodyEmphasis),
+                  Text(
+                    NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0).format(sisa),
+                    key: const Key('bayarForm.split.selisih'),
+                    style: AppTypography.headerTitle.copyWith(
+                      fontSize: 18,
+                      color: sisa == 0 ? AppColors.primaryDark : AppColors.dangerText,
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         ),
       ],
     );
