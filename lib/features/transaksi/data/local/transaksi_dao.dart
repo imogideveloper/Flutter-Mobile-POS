@@ -83,6 +83,17 @@ class TransaksiDao extends DatabaseAccessor<AppDatabase> with _$TransaksiDaoMixi
   /// Pembayaran, dan kalau ikut terkirim server menolak seluruh
   /// `/sync/push` dengan 422 (metode_bayar_id bukan UUID) sehingga
   /// transaksi selesai lain ikut tertahan.
+  /// Jumlah transaksi yang belum tersinkron, MENGIKUTI basis data: berubah sendiri saat transaksi baru tercatat
+  /// (offline) dan saat sinkron menandainya terkirim. Sebelumnya hitungan diambil sekali, sehingga layar tetap
+  /// menulis `Semua transaksi tersinkron` padahal ada transaksi offline yang belum terkirim.
+  Stream<int> watchJumlahBelumSync() => (selectOnly(transaksi)
+        ..addColumns([transaksi.id])
+        ..where(transaksi.disinkronPada.isNull() &
+            transaksi.status.equalsValue(TransaksiStatus.tersimpan).not() &
+            transaksi.status.equalsValue(TransaksiStatus.draft).not()))
+      .watch()
+      .map((baris) => baris.length);
+
   Future<List<TransaksiRow>> transaksiBelumSync() => (select(transaksi)
         ..where(
           (t) =>

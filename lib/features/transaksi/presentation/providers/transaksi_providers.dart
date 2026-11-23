@@ -73,12 +73,10 @@ final namaPelangganUntukTransaksiProvider =
   return ref.watch(pelangganByIdProvider(row.pelangganId!).future);
 });
 
-/// Jumlah transaksi yang belum tersinkron ke server - selalu akurat
-/// (bukan placeholder) karena belum ada mekanisme sync sama sekali di
-/// tahap ini, jadi semua transaksi lokal memang masih menunggu.
-final transaksiBelumSyncCountProvider = FutureProvider<int>((ref) async {
-  final rows = await ref.watch(transaksiDaoProvider).transaksiBelumSync();
-  return rows.length;
+/// Jumlah transaksi yang belum tersinkron ke server. Aliran dari basis data lokal, jadi ikut berubah saat transaksi
+/// offline baru tercatat dan saat sinkron selesai (dulu FutureProvider satu-shot yang basi).
+final transaksiBelumSyncCountProvider = StreamProvider<int>((ref) {
+  return ref.watch(transaksiDaoProvider).watchJumlahBelumSync();
 });
 
 /// F3.E - pesanan tersimpan (open bill) di outlet ini, SELALU per-HP
