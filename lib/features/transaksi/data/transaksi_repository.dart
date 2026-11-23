@@ -478,6 +478,7 @@ class TransaksiRepository {
             pelangganId: row.pelangganId,
             metodeBayarId: bayar?.metodeBayarId,
             jumlahPembayaran: jumlahPembayaran,
+            penggunaId: row.penggunaId,
           ),
         );
       }

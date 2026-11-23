@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 
 import '../../../../core/network/auth_session_store.dart';
 import '../../../../core/network/dio_backend_api.dart';
+import '../../../../core/providers/izin_provider.dart';
+import '../../../../core/providers/session_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -198,6 +200,7 @@ class _RiwayatListPageState extends ConsumerState<RiwayatListPage> {
             total: double.parse(item['total'].toString()).round(),
             jumlahItem: 0, // TransaksiOut server tidak kirim rincian item - lihat catatan di atas.
             pelangganId: item['pelanggan_id'] as String?,
+            penggunaId: item['pengguna_id'] as String?,
           ),
       ];
       if (mounted) {
@@ -246,7 +249,14 @@ class _RiwayatListPageState extends ConsumerState<RiwayatListPage> {
         ],
       ),
       body: riwayatAsync.when(
-        data: (semuaLokal) {
+        data: (semuaLokalPenuh) {
+          // Peran tanpa izin laporan.lihat (mis. Kasir) hanya melihat transaksi yang ia catat sendiri: tanpa ini Riwayat
+          // membuka transaksi kasir lain dan total penerimaan toko. Izin belum termuat dianggap terbatas.
+          final lihatSemua = ref.watch(izinSayaProvider).value?.contains('laporan.lihat') ?? false;
+          final penggunaSaya = ref.watch(currentPenggunaIdProvider);
+          final semuaLokal = lihatSemua
+              ? semuaLokalPenuh
+              : [for (final r in semuaLokalPenuh) if (r.penggunaId == penggunaSaya) r];
           final (dari, sampai) = _bounds();
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) _cobaAmbilDariServer(semuaLokal, dari, sampai);
@@ -256,7 +266,10 @@ class _RiwayatListPageState extends ConsumerState<RiwayatListPage> {
             final t = DateTime.fromMillisecondsSinceEpoch(r.tanggal, isUtc: true).toLocal();
             return !t.isBefore(dari) && !t.isAfter(sampai);
           }).toList();
-          final remote = _remoteItems;
+          final remoteMentah = _remoteItems;
+          final remote = remoteMentah == null
+              ? null
+              : (lihatSemua ? remoteMentah : [for (final r in remoteMentah) if (r.penggunaId == penggunaSaya) r]);
           final sumber =
               remote == null ? lokalTerfilter : _gabungkanLokalDanRemote(lokalTerfilter, remote);
 

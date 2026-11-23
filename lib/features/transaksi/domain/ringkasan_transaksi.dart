@@ -13,6 +13,7 @@ class RingkasanTransaksi {
     this.pelangganId,
     this.metodeBayarId,
     this.jumlahPembayaran = 1,
+    this.penggunaId,
   });
 
   final String id;
@@ -24,4 +25,7 @@ class RingkasanTransaksi {
   final String? pelangganId;
   final String? metodeBayarId;
   final int jumlahPembayaran;
+
+  /// Kasir yang mencatat transaksi ini. Null = tidak diketahui (data server lama).
+  final String? penggunaId;
 }

@@ -236,6 +236,8 @@ class VoidIn(BaseModel):
 class TransaksiOut(BaseModel):
     id: uuid.UUID
     outlet_id: uuid.UUID
+    # Pencatat transaksi (kasir yang bertugas). Dipakai HP agar peran tanpa izin laporan hanya melihat miliknya sendiri.
+    pengguna_id: uuid.UUID | None = None
     pelanggan_id: uuid.UUID | None = None
     nomor_struk: str
     nomor_antrean: str | None = None

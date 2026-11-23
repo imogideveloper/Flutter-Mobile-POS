@@ -79,3 +79,15 @@ async def test_daftar_transaksi_pagination_has_more(
     body_offset = resp_offset.json()
     assert len(body_offset["items"]) == 1
     assert body_offset["has_more"] is False
+
+
+async def test_daftar_transaksi_menyertakan_pengguna_pencatat(
+    client: AsyncClient, db_session: AsyncSession, toko_a
+) -> None:
+    """HP membatasi Riwayat peran tanpa izin laporan ke transaksi miliknya sendiri; itu butuh `pengguna_id`."""
+    produk = await buat_produk(db_session, toko_a.toko.id, harga_jual=Decimal("15000"))
+    metode = await buat_metode_bayar(db_session, toko_a.toko.id)
+    await _checkout(client, toko_a, produk, metode, "OUT1-PENCATAT", datetime.now(UTC))
+
+    item = (await client.get("/transaksi", headers=toko_a.headers)).json()["items"][0]
+    assert item["pengguna_id"] == str(toko_a.pengguna.id)
