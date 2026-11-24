@@ -35,6 +35,7 @@ import '../widgets/diskon_item_sheet.dart';
 import '../providers/harga_keranjang_provider.dart';
 import '../providers/keranjang_provider.dart';
 import '../providers/transaksi_providers.dart';
+import '../../../../core/providers/baca_sekali.dart';
 
 final _formatRupiah = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
 
@@ -337,7 +338,7 @@ class KeranjangPage extends ConsumerWidget {
   }
 
   Future<void> _pilihPelanggan(BuildContext context, WidgetRef ref) async {
-    final pelangganAktif = await ref.read(pelangganAktifProvider.future);
+    final pelangganAktif = await bacaSekali(ref, pelangganAktifProvider);
     if (!context.mounted) return;
 
     final dipilih = await showModalBottomSheet<Pelanggan?>(
@@ -369,7 +370,7 @@ class KeranjangPage extends ConsumerWidget {
   }
 
   Future<void> _pilihPromo(BuildContext context, WidgetRef ref) async {
-    final promoAktif = await ref.read(promoAktifProvider.future);
+    final promoAktif = await bacaSekali(ref, promoAktifProvider);
     if (!context.mounted) return;
 
     final dipilih = await showModalBottomSheet<String?>(
@@ -385,7 +386,7 @@ class KeranjangPage extends ConsumerWidget {
   }
 
   Future<void> _pilihTipeOrder(BuildContext context, WidgetRef ref) async {
-    final tipeOrderAktif = await ref.read(tipeOrderAktifProvider.future);
+    final tipeOrderAktif = await bacaSekali(ref, tipeOrderAktifProvider);
     if (!context.mounted) return;
 
     final dipilih = await showModalBottomSheet<String?>(

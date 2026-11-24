@@ -17,6 +17,7 @@ import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../domain/grup_tambahan.dart';
 import '../providers/produk_providers.dart';
+import '../../../../core/providers/baca_sekali.dart';
 
 final _rupiah = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
 
@@ -353,7 +354,7 @@ Future<void> _dialogOpsi(BuildContext context, WidgetRef ref, GrupTambahan g, {O
 
 Future<void> _dialogProduk(BuildContext context, WidgetRef ref, GrupTambahan g) async {
   final dao = ref.read(produkDaoProvider);
-  final semuaProduk = await ref.read(produkSemuaProvider.future);
+  final semuaProduk = await bacaSekali(ref, produkSemuaProvider);
   final terpilih = await dao.produkIdUntukGrup(g.id);
   if (!context.mounted) return;
   final hasil = await showDialog<Set<String>>(

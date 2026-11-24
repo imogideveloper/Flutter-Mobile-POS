@@ -25,6 +25,7 @@ import '../providers/harga_keranjang_provider.dart';
 import '../providers/status_pesanan_providers.dart';
 import '../providers/keranjang_provider.dart';
 import '../providers/transaksi_providers.dart';
+import '../../../../core/providers/baca_sekali.dart';
 
 final _formatRupiah = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
 
@@ -54,7 +55,7 @@ class _BayarKasbonPageState extends ConsumerState<BayarKasbonPage> {
   }
 
   Future<void> _pilihPelanggan() async {
-    final pelangganAktif = await ref.read(pelangganAktifProvider.future);
+    final pelangganAktif = await bacaSekali(ref, pelangganAktifProvider);
     if (!mounted) return;
     final dipilih = await showModalBottomSheet<Pelanggan?>(
       context: context,

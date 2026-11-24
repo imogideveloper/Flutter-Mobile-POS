@@ -7,6 +7,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/avatar_initial.dart';
 import '../../domain/pelanggan.dart';
 import '../providers/pelanggan_providers.dart';
+import '../../../../core/providers/baca_sekali.dart';
 
 /// Bottom sheet pilih pelanggan - dipakai Keranjang (opsional, ada
 /// "Tanpa pelanggan") dan BayarKasbonPage (tahap 3b-1, [wajibPilih] = true
@@ -133,7 +134,7 @@ class _PelangganPickerSheetState extends ConsumerState<PelangganPickerSheet> {
     );
     if (!context.mounted) return;
 
-    final pelangganTerbaru = await ref.read(pelangganAktifProvider.future);
+    final pelangganTerbaru = await bacaSekali(ref, pelangganAktifProvider);
     final baru = pelangganTerbaru.where((p) => p.nama == namaController.text.trim()).lastOrNull;
     if (context.mounted) Navigator.of(context).pop(baru);
   }

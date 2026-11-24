@@ -19,6 +19,7 @@ import '../../../produk/presentation/providers/produk_providers.dart';
 import '../../data/local/tables/promo_table.dart' show PromoCakupan, PromoTipe;
 import '../../domain/promo.dart';
 import '../providers/promo_providers.dart';
+import '../../../../core/providers/baca_sekali.dart';
 
 const _labelTipePromo = {PromoTipe.persen: 'Persen (%)', PromoTipe.nominal: 'Nominal (Rp)'};
 const _labelCakupanPromo = {PromoCakupan.transaksi: 'Seluruh transaksi', PromoCakupan.produk: 'Produk tertentu'};
@@ -93,7 +94,7 @@ class _PromoFormPageState extends ConsumerState<PromoFormPage> {
   }
 
   Future<void> _pilihProduk() async {
-    final semuaProduk = await ref.read(produkAktifProvider.future);
+    final semuaProduk = await bacaSekali(ref, produkAktifProvider);
     if (!mounted) return;
     final hasil = await showModalBottomSheet<Set<String>>(
       context: context,

@@ -30,6 +30,7 @@ import '../widgets/pilih_kemasan_sheet.dart';
 import '../../../fitur/presentation/providers/feature_gate_provider.dart';
 import '../providers/keranjang_provider.dart';
 import '../providers/transaksi_providers.dart';
+import '../../../../core/providers/baca_sekali.dart';
 
 final _formatRupiah = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
 
@@ -95,7 +96,7 @@ class _KasirGridState extends ConsumerState<_KasirGrid> {
     final hasil = await pindaiBarcode(context);
     if (hasil == null || !mounted) return;
 
-    final produkAktif = await ref.read(produkAktifProvider.future);
+    final produkAktif = await bacaSekali(ref, produkAktifProvider);
     final match = produkAktif.firstWhereOrNull((p) => p.barcode == hasil || p.sku == hasil);
     if (match == null) {
       if (mounted) {
