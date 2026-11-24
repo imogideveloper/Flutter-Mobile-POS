@@ -90,7 +90,8 @@
  },
  "22": {
   "status": "sudah",
-  "catatan": "Cetak ESC/POS Bluetooth. Belum teruji (tidak ada printer). Pengaturan cetak otomatis setelah bayar belum ditemukan."
+  "catatan": "Cetak ESC/POS Bluetooth. Pengaturan cetak otomatis setelah bayar belum ditemukan. UJI HP (dilaporkan langsung oleh penguji pada 2026-11-24, dilihat sendiri oleh penguji; bukan QA Passed formal; bukti: docs/pemetaan_fitur_vs_uji_hp.md): cetak struk ke printer berhasil.",
+  "uji_hp": true
  },
  "23": {
   "status": "sudah",
