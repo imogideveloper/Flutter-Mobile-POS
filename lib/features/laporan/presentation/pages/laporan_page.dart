@@ -189,6 +189,15 @@ class _IsiLaporan extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (ringkasan.dariServer) ...[
+            Text(
+              key: const Key('laporan.dariServer'),
+              'Data periode ini diambil dari server karena HP ini belum menyimpan transaksi lama. '
+              'Transaksi yang belum tersinkron belum ikut, dan grafik per hari serta margin belum tersedia.',
+              style: AppTypography.secondary,
+            ),
+            const SizedBox(height: AppSpacing.md),
+          ],
           _kartuRingkasan(),
           const SizedBox(height: AppSpacing.md),
           if (ringkasan.penjualanHarian.length >= 2)

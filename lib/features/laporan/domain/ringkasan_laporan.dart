@@ -16,6 +16,7 @@ class RingkasanLaporan {
     this.penjualanPeriodeSebelumnya,
     this.trenProduk = const [],
     this.trenKategori = const [],
+    this.dariServer = false,
   });
 
   /// Penjualan tanpa pajak dan service, setelah diskon dan refund (sama dengan Laba rugi).
@@ -44,6 +45,9 @@ class RingkasanLaporan {
   /// Tren omzet per produk dan per kategori dibanding periode sebelumnya (lima teratas).
   final List<TrenItemLaporan> trenProduk;
   final List<TrenItemLaporan> trenKategori;
+
+  /// true = angka diambil dari server (HP ini tidak menyimpan transaksi lama); transaksi yang belum tersinkron belum ikut.
+  final bool dariServer;
 
   int get rataRata => jumlahTransaksi == 0 ? 0 : (penjualanBersih / jumlahTransaksi).round();
 }

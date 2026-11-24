@@ -439,7 +439,16 @@ class _TransaksiDetailPageState extends ConsumerState<TransaksiDetailPage> {
                     ),
                   ),
                 ],
-                if (!sudahVoid) ...[
+                if (detail.dariServer)
+                  Padding(
+                    padding: const EdgeInsets.only(top: AppSpacing.sm),
+                    child: Text(
+                      'Transaksi ini dicatat di HP lain atau sebelum Anda masuk ulang, jadi hanya bisa dilihat dan dicetak ulang dari sini.',
+                      key: const ValueKey('transaksiDetail.dariServer'),
+                      style: AppTypography.secondary,
+                    ),
+                  )
+                else if (!sudahVoid) ...[
                   const SizedBox(height: AppSpacing.sm),
                   Row(
                     children: [

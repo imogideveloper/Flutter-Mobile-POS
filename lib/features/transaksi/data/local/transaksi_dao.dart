@@ -281,6 +281,16 @@ class TransaksiDao extends DatabaseAccessor<AppDatabase> with _$TransaksiDaoMixi
     );
   }
 
+  /// Waktu (epoch ms) transaksi tertua di outlet ini, null bila belum ada satu pun. Dipakai Laporan untuk tahu
+  /// apakah data lama perlu diambil dari server.
+  Future<int?> tanggalTransaksiPalingAwal(String outletId) async {
+    final minTanggal = transaksi.tanggal.min();
+    final q = selectOnly(transaksi)
+      ..addColumns([minTanggal])
+      ..where(transaksi.outletId.equals(outletId) & transaksi.deletedAt.isNull());
+    return (await q.getSingle()).read(minTanggal);
+  }
+
   /// Transaksi yang dihitung sebagai penjualan di laporan: selesai dan refund sebagian (sisanya masih
   /// penjualan). Refund penuh dan void tidak ikut.
   Future<List<TransaksiRow>> transaksiPenjualanRentang(String outletId, int awalMs, int akhirMs) =>

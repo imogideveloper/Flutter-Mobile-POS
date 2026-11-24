@@ -74,6 +74,13 @@ class LaporanRepository {
     return (awal.millisecondsSinceEpoch, akhirHariIni.millisecondsSinceEpoch);
   }
 
+  /// Batas periode (epoch ms, awal inklusif, akhir eksklusif) yang dipakai ringkasan lokal; dipakai juga untuk
+  /// meminta rentang yang sama ke server.
+  (int awalMs, int akhirMs) rentang(PeriodeLaporan periode, {(DateTime, DateTime)? rentangCustom}) =>
+      _rentang(periode, rentangCustom);
+
+  Future<int?> tanggalAwalLokal(String outletId) => _transaksiDao.tanggalTransaksiPalingAwal(outletId);
+
   Future<RingkasanLaporan> ringkasan(
     String outletId,
     PeriodeLaporan periode, {

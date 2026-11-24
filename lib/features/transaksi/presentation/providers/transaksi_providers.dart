@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/database/app_database.dart';
+import '../../../../core/network/auth_session_store.dart';
+import '../../../../core/network/dio_backend_api.dart';
 import '../../../../core/providers/database_provider.dart';
 import '../../../../core/providers/session_provider.dart';
 import '../../../pelanggan/presentation/providers/pelanggan_providers.dart';
@@ -57,10 +59,21 @@ final riwayatTransaksiProvider = StreamProvider<List<RingkasanTransaksi>>((ref) 
 final detailTransaksiProvider =
     FutureProvider.family<DetailTransaksi, String>((ref, transaksiId) async {
   final namaPelanggan = await ref.watch(namaPelangganUntukTransaksiProvider(transaksiId).future);
-  return ref.watch(transaksiRepositoryProvider).detailTransaksi(
-        transaksiId,
-        namaPelanggan: namaPelanggan,
-      );
+  try {
+    return await ref.watch(transaksiRepositoryProvider).detailTransaksi(
+          transaksiId,
+          namaPelanggan: namaPelanggan,
+        );
+  } on StateError {
+    // Transaksi tidak ada di database HP ini (dibuat di HP lain atau sebelum masuk ulang): ambil dari server.
+    final sesi = await ref.read(authSessionStoreProvider).muat();
+    if (sesi == null) rethrow;
+    final resp = await ref.read(backendApiProvider).ambilDetailTransaksi(
+          accessToken: sesi.accessToken,
+          transaksiId: transaksiId,
+        );
+    return detailTransaksiDariServer(resp, namaPelanggan: namaPelanggan);
+  }
 });
 
 /// Dipisah dari [detailTransaksiProvider] supaya tidak perlu import modul
@@ -68,7 +81,9 @@ final detailTransaksiProvider =
 /// detailTransaksi) - lookup nama dilakukan di layer provider ini saja.
 final namaPelangganUntukTransaksiProvider =
     FutureProvider.family<String?, String>((ref, transaksiId) async {
-  final row = await ref.watch(transaksiDaoProvider).transaksiById(transaksiId);
+  // Transaksi yang tidak ada di HP ini (diambil dari server) tidak punya nama pelanggan lokal.
+  final row = await ref.watch(transaksiDaoProvider).transaksiById(transaksiId).then<TransaksiRow?>((r) => r, onError: (_) => null);
+  if (row == null) return null;
   if (row.pelangganId == null) return null;
   return ref.watch(pelangganByIdProvider(row.pelangganId!).future);
 });
