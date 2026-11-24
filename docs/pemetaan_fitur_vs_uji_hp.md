@@ -54,3 +54,6 @@ Ini bukan QA Passed. Cetak struk ke printer dilaporkan berhasil oleh pengguna se
 tidak ditandai. Tes `test_admin_dashboard.py` kini mewajibkan catatan bukti pada setiap fitur bertanda `uji_hp`.
 Tambahan (2026-11-24): atas laporan penguji yang melihat sendiri hasil cetak struk ke printer, fitur 22 (Cetak struk) kini juga
 ditandai LULUS (Passed) uji HP (total 16): dicetak penguji bersama lead pada 2026-11-23, dilaporkan penguji; bukan pengamatan saya.
+Tambahan (2026-11-24, laporan penguji): fitur 4 (pajak), 6 (biaya layanan), 18 (label jenis pembayaran), 34 (nomor antrian), 35 (tiket
+dapur), 36 (kelola produk), 37 (harga beli dan margin), 42 (varian) dilaporkan sudah dicoba langsung dan berhasil, sehingga
+ditandai lulus uji HP (total 24 dari 64). Fitur 49, 61, 67 juga dikonfirmasi penguji. Dasarnya laporan penguji, bukan pengamatan saya.
