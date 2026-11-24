@@ -25,7 +25,7 @@ from app.models.akun import AksesOutlet, Izin, Pengguna, Role, RoleIzin
 from app.models.audit import SyncLog
 from app.models.order import StasiunDapur, TipeOrder, TipeOrderPajak
 from app.models.outlet import PengaturanOutlet, Perangkat, Toko
-from app.models.pelanggan import Pelanggan
+from app.models.pelanggan import AturanPoin, LevelMember, Pelanggan
 from app.models.produk import (
     GrupModifier,
     HargaGrosir,
@@ -482,7 +482,16 @@ async def pull(
         ["id", "nama", "tipe", "butuh_gateway", "masuk_laci", "aktif", "rekening_bank", "rekening_nomor", "rekening_nama", "wajib_referensi", "label_tujuan", "updated_at", "deleted_at"],
     )
     pelanggan = await _ambil_toko_scoped(
-        "pelanggan", Pelanggan, ["id", "nama", "no_hp", "email", "tanggal_lahir", "poin", "total_belanja", "updated_at", "deleted_at"]
+        "pelanggan", Pelanggan, ["id", "nama", "no_hp", "email", "tanggal_lahir", "poin", "total_belanja", "level_member_id", "updated_at", "deleted_at"]
+    )
+    # Pengaturan loyalitas: level member (hard delete di server, jadi tanpa deleted_at) dan aturan poin (1 baris per toko).
+    level_member = await _ambil_toko_scoped(
+        "level_member", LevelMember,
+        ["id", "nama", "min_total_belanja", "diskon_persen", "pengali_poin", "urutan", "updated_at"],
+    )
+    aturan_poin = await _ambil_toko_scoped(
+        "aturan_poin", AturanPoin,
+        ["toko_id", "nominal_per_poin", "nilai_tukar_poin", "min_tukar_poin", "kedaluwarsa_hari", "aktif", "updated_at"],
     )
     # Tahap 5b (desain #2) - "daftar karyawan yang boleh masuk ke outlet
     # perangkat itu": Owner/Manajer (role is_system boleh semua outlet,
@@ -715,7 +724,7 @@ async def pull(
     jumlah_record = sum(
         len(x)
         for x in [
-            produk, kategori, satuan, pajak, promo, metode_bayar, pelanggan, pengguna, role, role_izin, stok,
+            produk, kategori, satuan, pajak, promo, metode_bayar, pelanggan, level_member, aturan_poin, pengguna, role, role_izin, stok,
             harga_outlet, harga_grosir, tipe_order, tipe_order_pajak, pengaturan_outlet, grup_modifier, modifier,
             produk_grup_modifier,
         ]
@@ -742,6 +751,8 @@ async def pull(
         promo=promo,
         metode_bayar=metode_bayar,
         pelanggan=pelanggan,
+        level_member=level_member,
+        aturan_poin=aturan_poin,
         pengguna=pengguna,
         role=role,
         role_izin=role_izin,

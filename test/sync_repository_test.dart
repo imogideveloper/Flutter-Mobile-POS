@@ -1375,6 +1375,75 @@ void main() {
     },
   );
 
+  test('pull: level member, aturan poin, dan level pelanggan tersimpan di HP', () async {
+    api.pullResponse = const SyncPullResult(
+      waktuPull: '2026-01-01T00:00:00Z',
+      produk: [],
+      kategori: [],
+      satuan: [],
+      pajak: [],
+      promo: [],
+      metodeBayar: [],
+      pelanggan: [
+        {
+          'id': 'pel-lv',
+          'nama': 'Budi',
+          'no_hp': null,
+          'email': null,
+          'tanggal_lahir': null,
+          'poin': 3,
+          'total_belanja': '0.00',
+          'level_member_id': 'lv-gold',
+          'updated_at': '2026-01-01T00:00:00Z',
+          'deleted_at': null,
+        },
+      ],
+      levelMember: [
+        {
+          'id': 'lv-gold',
+          'nama': 'Gold',
+          'min_total_belanja': '500000.00',
+          'diskon_persen': '10.00',
+          'pengali_poin': '2.00',
+          'urutan': 1,
+          'updated_at': '2026-01-01T00:00:00Z',
+        },
+      ],
+      aturanPoin: [
+        {
+          'toko_id': 'toko-1',
+          'nominal_per_poin': '1000.00',
+          'nilai_tukar_poin': '100.00',
+          'min_tukar_poin': 5,
+          'kedaluwarsa_hari': null,
+          'aktif': true,
+          'updated_at': '2026-01-01T00:00:00Z',
+        },
+      ],
+      stok: [],
+      hargaOutlet: [],
+      hargaGrosir: [],
+      tipeOrderPajak: [],
+      pengaturanOutlet: [],
+      hasMore: {},
+      paket: null,
+      kodeFitur: [],
+      batasFitur: {},
+    );
+
+    await repo.jalankan();
+
+    final level = await db.select(db.levelMember).get();
+    expect(level.single.nama, 'Gold');
+    expect(level.single.diskonPersen, 10.0);
+    expect(level.single.pengaliPoin, 2.0);
+    final aturan = await db.select(db.aturanPoin).get();
+    expect(aturan.single.nominalPerPoin, 1000);
+    expect(aturan.single.minTukarPoin, 5);
+    final pel = await db.select(db.pelanggan).get();
+    expect(pel.single.levelMemberId, 'lv-gold');
+  });
+
   test(
     'pull: promo khusus ulang tahun dan tanggal lahir pelanggan (yyyymmdd) tersimpan di HP',
     () async {

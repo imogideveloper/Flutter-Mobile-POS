@@ -446,6 +446,8 @@ class SyncPullResult {
     this.role = const [],
     this.roleIzin = const [],
     this.pelanggan = const [],
+    this.levelMember = const [],
+    this.aturanPoin = const [],
     this.grupModifier = const [],
     this.modifier = const [],
     this.produkGrupModifier = const [],
@@ -472,6 +474,9 @@ class SyncPullResult {
   // TANPA pull ini, nilai lokal jadi basi selamanya begitu ada transaksi
   // pertama yg melibatkan pelanggan ybs (lihat SyncRepository._terapkanPull).
   final List<Map<String, dynamic>> pelanggan;
+  // Pengaturan loyalitas dari server (tanpa deleted_at: level dihapus permanen di server).
+  final List<Map<String, dynamic>> levelMember;
+  final List<Map<String, dynamic>> aturanPoin;
   // Varian/tambahan produk (IMOGI no. 42). produkGrupModifier = relasi murni,
   // snapshot penuh tiap pull: device mengganti seluruh isinya.
   final List<Map<String, dynamic>> grupModifier;

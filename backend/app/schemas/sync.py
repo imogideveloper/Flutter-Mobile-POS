@@ -118,6 +118,9 @@ class SyncPullOut(BaseModel):
     promo: list[dict]
     metode_bayar: list[dict]
     pelanggan: list[dict]
+    # Default kosong agar klien lama tetap kompatibel.
+    level_member: list[dict] = []
+    aturan_poin: list[dict] = []
     pengguna: list[dict]
     role: list[dict]
     # Tahap 5b (desain #2) - karyawan=baris pengguna server; `pin_hash` di

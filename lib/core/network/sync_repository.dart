@@ -679,6 +679,8 @@ class SyncRepository {
       hasil.hargaGrosir,
       hasil.pengaturanOutlet,
       hasil.pelanggan,
+      hasil.levelMember,
+      hasil.aturanPoin,
       // tipe_order_pajak TIDAK disertakan - tabel relasi murni tanpa
       // kolom updated_at (selalu snapshot penuh, lihat _terapkanPull).
     ]) {
@@ -886,9 +888,43 @@ class SyncRepository {
       );
     }
 
+    // Level member dulu: pelanggan.level_member_id merujuk ke tabel ini.
+    for (final row in hasil.levelMember) {
+      final ts = epochMsDariBackend(row['updated_at'] as String);
+      await pelangganDao.upsertLevelMember(
+        LevelMemberCompanion.insert(
+          id: row['id'] as String,
+          tokoId: tokoId,
+          nama: row['nama'] as String,
+          minTotalBelanja: Value(uangDariBackend(row['min_total_belanja'].toString())),
+          diskonPersen: Value(realDariBackend(row['diskon_persen'].toString())),
+          pengaliPoin: Value(realDariBackend(row['pengali_poin'].toString())),
+          urutan: Value((row['urutan'] as num).toInt()),
+          createdAt: ts,
+          updatedAt: ts,
+        ),
+      );
+    }
+
+    for (final row in hasil.aturanPoin) {
+      final ts = epochMsDariBackend(row['updated_at'] as String);
+      await pelangganDao.upsertAturanPoin(
+        AturanPoinCompanion.insert(
+          tokoId: tokoId,
+          nominalPerPoin: Value(uangDariBackend(row['nominal_per_poin'].toString())),
+          nilaiTukarPoin: Value(uangDariBackend(row['nilai_tukar_poin'].toString())),
+          minTukarPoin: Value((row['min_tukar_poin'] as num).toInt()),
+          kedaluwarsaHari: Value((row['kedaluwarsa_hari'] as num?)?.toInt()),
+          aktif: Value(row['aktif'] as bool),
+          createdAt: ts,
+          updatedAt: ts,
+        ),
+      );
+    }
+
     for (final row in hasil.pelanggan) {
-      // Field yg TIDAK dikirim backend (tanggal_lahir/level_member_id/
-      // batas_kasbon/catatan - lihat sync_service.py kolom pelanggan)
+      // Field yg TIDAK dikirim backend (batas_kasbon/catatan - lihat
+      // sync_service.py kolom pelanggan)
       // SENGAJA tidak disentuh companion ini - insertOnConflictUpdate
       // cuma meng-update kolom yg benar2 diisi (Value.absent() lain
       // dibiarkan apa adanya), jadi field yg diisi lewat online-direct
@@ -903,6 +939,8 @@ class SyncRepository {
           tanggalLahir: Value(tanggalLahirDariIso(row['tanggal_lahir'] as String?)),
           poin: Value(row['poin'] as int),
           totalBelanja: Value(uangDariBackend(row['total_belanja'] as String)),
+          // Absen (klien lama / server lama) = jangan sentuh level lokal.
+          levelMemberId: row.containsKey('level_member_id') ? Value(row['level_member_id'] as String?) : const Value.absent(),
           createdAt: epochMsDariBackend(row['updated_at'] as String),
           updatedAt: epochMsDariBackend(row['updated_at'] as String),
           deletedAt: Value(

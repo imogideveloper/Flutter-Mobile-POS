@@ -349,6 +349,8 @@ class DioBackendApi implements BackendApi {
         role: listOf('role'),
         roleIzin: listOf('role_izin'),
         pelanggan: listOf('pelanggan'),
+        levelMember: listOf('level_member'),
+        aturanPoin: listOf('aturan_poin'),
         grupModifier: listOf('grup_modifier'),
         modifier: listOf('modifier'),
         produkGrupModifier: listOf('produk_grup_modifier'),
