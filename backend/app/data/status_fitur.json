@@ -1,7 +1,8 @@
 {
  "1": {
   "status": "sudah",
-  "catatan": "Kasir, keranjang, bayar, riwayat. Printer belum teruji."
+  "catatan": "Kasir, keranjang, bayar, riwayat. Printer belum teruji. UJI HP (SIT 22-24 Nov 2026, bukan QA Passed; bukti: docs/pemetaan_fitur_vs_uji_hp.md & docs/perlu_konfirmasi.md): jual tunai, QRIS manual, kartu debit; struk di layar.",
+  "uji_hp": true
  },
  "2": {
   "status": "sudah",
@@ -9,7 +10,8 @@
  },
  "3": {
   "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-15): diskon manual per item di keranjang (tombol Diskon: 5/10/15/20%, persen atau nominal sendiri, hapus diskon). Butuh izin transaksi.diskon atau PIN approver; penyetuju tersimpan di transaksi dan dikirim ke server (UUID saja). Total, struk, dan item ikut berubah. Belum: batas diskon kasir tanpa PIN, tombol cepat yang bisa diatur, diskon level transaksi (nominal), dan diskon manual belum ikut saat pesanan tersimpan dibuka kembali. Lulus tes otomatis, belum diuji di HP."
+  "catatan": "SEBAGIAN (2026-11-15): diskon manual per item di keranjang (tombol Diskon: 5/10/15/20%, persen atau nominal sendiri, hapus diskon). Butuh izin transaksi.diskon atau PIN approver; penyetuju tersimpan di transaksi dan dikirim ke server (UUID saja). Total, struk, dan item ikut berubah. Belum: batas diskon kasir tanpa PIN, tombol cepat yang bisa diatur, diskon level transaksi (nominal), dan diskon manual belum ikut saat pesanan tersimpan dibuka kembali. Lulus tes otomatis, belum diuji di HP. UJI HP (SIT 22-24 Nov 2026, bukan QA Passed; bukti: docs/pemetaan_fitur_vs_uji_hp.md & docs/perlu_konfirmasi.md): diskon item 10% (struk, laporan, server) dan promo 'Uji Hemat 10%'.",
+  "uji_hp": true
  },
  "4": {
   "status": "sedang",
@@ -25,7 +27,8 @@
  },
  "7": {
   "status": "sudah",
-  "catatan": "Simpan pesanan (open bill) ada. Belum terhubung ke meja."
+  "catatan": "Simpan pesanan (open bill) ada. Belum terhubung ke meja. UJI HP (SIT 22-24 Nov 2026, bukan QA Passed; bukti: docs/pemetaan_fitur_vs_uji_hp.md & docs/perlu_konfirmasi.md): simpan lalu buka kembali.",
+  "uji_hp": true
  },
  "8": {
   "status": "tidak_relevan",
@@ -57,11 +60,13 @@
  },
  "15": {
   "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-14): tombol bayar campur kini digerbang fitur split_payment di layar kasir (tes ikut diperbarui). Belum diuji di HP."
+  "catatan": "SEBAGIAN (2026-11-14): tombol bayar campur kini digerbang fitur split_payment di layar kasir (tes ikut diperbarui). Belum diuji di HP. UJI HP (SIT 22-24 Nov 2026, bukan QA Passed; bukti: docs/pemetaan_fitur_vs_uji_hp.md & docs/perlu_konfirmasi.md): tunai + kartu, dua baris pembayaran.",
+  "uji_hp": true
  },
  "16": {
   "status": "sedang",
-  "catatan": "Kasbon, jatuh tempo, dan pelunasan ada. SEBAGIAN (2026-11-14): limit bon kini juga dicek di HP sebelum bon disimpan (batas_kasbon dikurangi utang berjalan; ditolak dengan sisa kuota), selain di server (lihat batas_kasbon.dart, 4 tes). Belum diuji di HP."
+  "catatan": "Kasbon, jatuh tempo, dan pelunasan ada. SEBAGIAN (2026-11-14): limit bon kini juga dicek di HP sebelum bon disimpan (batas_kasbon dikurangi utang berjalan; ditolak dengan sisa kuota), selain di server (lihat batas_kasbon.dart, 4 tes). Belum diuji di HP. UJI HP (SIT 22-24 Nov 2026, bukan QA Passed; bukti: docs/pemetaan_fitur_vs_uji_hp.md & docs/perlu_konfirmasi.md): kasbon, cicilan, dan pelunasan; kasbon+poin berjalan.",
+  "uji_hp": true
  },
  "17": {
   "status": "sudah",
@@ -105,7 +110,8 @@
  },
  "27": {
   "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-15): tombol Terima Order (bayar nanti) di keranjang mencatat pesanan sebagai transaksi belum dibayar tanpa pelanggan (nomor antrean, status pesanan, tiket dapur ikut berjalan; bukan kasbon, paket Gratis boleh); layar Order belum dibayar (Lainnya) mencatat pelunasan penuh atau sebagian per metode bayar; server menerima lewat bayar_belakangan (migrasi 0024). Belum: pilihan jatuh tempo/kapan membayar, cetak nota order khusus, penukaran poin dan metode QRIS saat pelunasan. Lulus tes otomatis, belum diuji di HP."
+  "catatan": "SEBAGIAN (2026-11-15): tombol Terima Order (bayar nanti) di keranjang mencatat pesanan sebagai transaksi belum dibayar tanpa pelanggan (nomor antrean, status pesanan, tiket dapur ikut berjalan; bukan kasbon, paket Gratis boleh); layar Order belum dibayar (Lainnya) mencatat pelunasan penuh atau sebagian per metode bayar; server menerima lewat bayar_belakangan (migrasi 0024). Belum: pilihan jatuh tempo/kapan membayar, cetak nota order khusus, penukaran poin dan metode QRIS saat pelunasan. Lulus tes otomatis, belum diuji di HP. UJI HP (SIT 22-24 Nov 2026, bukan QA Passed; bukti: docs/pemetaan_fitur_vs_uji_hp.md & docs/perlu_konfirmasi.md): order diterima, pelunasan belakangan.",
+  "uji_hp": true
  },
  "28": {
   "status": "tidak_relevan",
@@ -149,7 +155,8 @@
  },
  "38": {
   "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-12): Lainnya > Impor & ekspor produk: template CSV, pratinjau, simulasi dan impor (maks 500 baris) lewat `POST /produk/impor`. Belum: .xlsx, memperbarui produk lama, varian, stok awal, gambar. Plugin `file_picker` baru, belum diuji di HP."
+  "catatan": "SEBAGIAN (2026-11-12): Lainnya > Impor & ekspor produk: template CSV, pratinjau, simulasi dan impor (maks 500 baris) lewat `POST /produk/impor`. Belum: .xlsx, memperbarui produk lama, varian, stok awal, gambar. Plugin `file_picker` baru, belum diuji di HP. UJI HP (SIT 22-24 Nov 2026, bukan QA Passed; bukti: docs/pemetaan_fitur_vs_uji_hp.md & docs/perlu_konfirmasi.md): impor CSV sungguhan.",
+  "uji_hp": true
  },
  "39": {
   "status": "sedang",
@@ -193,7 +200,8 @@
  },
  "49": {
   "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-14): kini ada riwayat mutasi lengkap per produk (ketuk baris stok): jenis, tanggal dan jam, jumlah, saldo setelah, catatan, total masuk/keluar, filter Masuk/Keluar, sampai 300 mutasi terbaru. Filter rentang tanggal sudah ada (2026-11-16). Belum: ekspor riwayat, riwayat per varian. Pengaturan saat stok habis sempat terblokir BUG-012 (diperbaiki di kode, menunggu uji HP). Lulus tes otomatis, belum diuji di HP."
+  "catatan": "SEBAGIAN (2026-11-14): kini ada riwayat mutasi lengkap per produk (ketuk baris stok): jenis, tanggal dan jam, jumlah, saldo setelah, catatan, total masuk/keluar, filter Masuk/Keluar, sampai 300 mutasi terbaru. Filter rentang tanggal sudah ada (2026-11-16). Belum: ekspor riwayat, riwayat per varian. Pengaturan saat stok habis sempat terblokir BUG-012 (diperbaiki di kode, menunggu uji HP). Lulus tes otomatis, belum diuji di HP. UJI HP (SIT 22-24 Nov 2026, bukan QA Passed; bukti: docs/pemetaan_fitur_vs_uji_hp.md & docs/perlu_konfirmasi.md): stok masuk dan opname; mutasi tersinkron ke server atas nama karyawan pencatat.",
+  "uji_hp": true
  },
  "50": {
   "status": "sedang",
@@ -213,11 +221,13 @@
  },
  "54": {
   "status": "sudah",
-  "catatan": "Poin dan aturan poin ada. Poin hangus per bulan belum diperiksa."
+  "catatan": "Poin dan aturan poin ada. Poin hangus per bulan belum diperiksa. UJI HP (SIT 22-24 Nov 2026, bukan QA Passed; bukti: docs/pemetaan_fitur_vs_uji_hp.md & docs/perlu_konfirmasi.md): poin didapat dan ditukar di keranjang; aturan poin 1.000/100/min 5.",
+  "uji_hp": true
  },
  "55": {
   "status": "sudah",
-  "catatan": "Level member dan diskon member ada."
+  "catatan": "Level member dan diskon member ada. UJI HP (SIT 22-24 Nov 2026, bukan QA Passed; bukti: docs/pemetaan_fitur_vs_uji_hp.md & docs/perlu_konfirmasi.md): level 'Uji Gold' (diskon 10%, pengali poin 2) berlaku di keranjang.",
+  "uji_hp": true
  },
  "56": {
   "status": "sedang",
@@ -241,7 +251,8 @@
  },
  "61": {
   "status": "sedang",
-  "catatan": "CRUD pengguna dan peran ada. Daftar hak akses Imogi (jualan, bon/DP, status pesanan, lihat margin, pengeluaran, dst.) dan peran bawaan Barista & Dapur belum dicocokkan."
+  "catatan": "CRUD pengguna dan peran ada. Daftar hak akses Imogi (jualan, bon/DP, status pesanan, lihat margin, pengeluaran, dst.) dan peran bawaan Barista & Dapur belum dicocokkan. UJI HP (SIT 22-24 Nov 2026, bukan QA Passed; bukti: docs/pemetaan_fitur_vs_uji_hp.md & docs/perlu_konfirmasi.md): karyawan ber-PIN dan peran Kasir, Barista & Dapur, Gudang; hak akses tiap peran ditegakkan di menu.",
+  "uji_hp": true
  },
  "62": {
   "status": "sedang",
@@ -253,7 +264,8 @@
  },
  "64": {
   "status": "sudah",
-  "catatan": "Laporan penjualan dengan batas hari per paket."
+  "catatan": "Laporan penjualan dengan batas hari per paket. UJI HP (SIT 22-24 Nov 2026, bukan QA Passed; bukti: docs/pemetaan_fitur_vs_uji_hp.md & docs/perlu_konfirmasi.md): penjualan bersih setelah diskon dan refund.",
+  "uji_hp": true
  },
  "65": {
   "status": "sedang",
@@ -265,15 +277,18 @@
  },
  "67": {
   "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-12): menu Lainnya > Pengeluaran (Owner/Manajer), 9 kategori F&B, rentang hari/7 hari/bulan, total dan rincian per kategori, catat dan hapus; server `/pengeluaran` (migrasi 0015, digerbang fitur `expenses`). Belum: offline (butuh internet), edit, foto nota, berulang. Lulus tes otomatis, belum diuji di HP."
+  "catatan": "SEBAGIAN (2026-11-12): menu Lainnya > Pengeluaran (Owner/Manajer), 9 kategori F&B, rentang hari/7 hari/bulan, total dan rincian per kategori, catat dan hapus; server `/pengeluaran` (migrasi 0015, digerbang fitur `expenses`). Belum: offline (butuh internet), edit, foto nota, berulang. Lulus tes otomatis, belum diuji di HP. UJI HP (SIT 22-24 Nov 2026, bukan QA Passed; bukti: docs/pemetaan_fitur_vs_uji_hp.md & docs/perlu_konfirmasi.md): belanja bahan dan listrik masuk Laba rugi.",
+  "uji_hp": true
  },
  "68": {
   "status": "sudah",
-  "catatan": "Buka/tutup shift dan kas ada. Modal awal disarankan (Rp 300.000 untuk F&B) belum diperiksa."
+  "catatan": "Buka/tutup shift dan kas ada. Modal awal disarankan (Rp 300.000 untuk F&B) belum diperiksa. UJI HP (SIT 22-24 Nov 2026, bukan QA Passed; bukti: docs/pemetaan_fitur_vs_uji_hp.md & docs/perlu_konfirmasi.md): buka, kas masuk/keluar, tutup shift; kas seharusnya terverifikasi di server.",
+  "uji_hp": true
  },
  "69": {
   "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-12): Lainnya > Laba rugi: penjualan kotor, diskon, HPP, laba kotor, biaya operasional, laba bersih; server `/laporan/laba-rugi`. Rumus adalah keputusan sementara (belanja bahan tidak dikurangkan lagi, refund belum dihitung); perlu validasi akuntan. Butuh internet, belum diuji di HP."
+  "catatan": "SEBAGIAN (2026-11-12): Lainnya > Laba rugi: penjualan kotor, diskon, HPP, laba kotor, biaya operasional, laba bersih; server `/laporan/laba-rugi`. Rumus adalah keputusan sementara (belanja bahan tidak dikurangkan lagi, refund belum dihitung); perlu validasi akuntan. Butuh internet, belum diuji di HP. UJI HP (SIT 22-24 Nov 2026, bukan QA Passed; bukti: docs/pemetaan_fitur_vs_uji_hp.md & docs/perlu_konfirmasi.md): termasuk refund, diskon, biaya operasional.",
+  "uji_hp": true
  },
  "70": {
   "status": "sedang",

@@ -42,8 +42,10 @@ def test_berkas_status_nyata_valid_dan_cocok_dengan_gap_imogi() -> None:
     hitung = Counter(v["status"] for v in data.values())
     # Angka ini harus sama dengan docs/gap_imogi.md; ubah KEDUANYA bersamaan.
     assert hitung == {"sudah": 15, "sedang": 45, "belum": 4, "tidak_relevan": 23}
-    # Tes otomatis bukan bukti uji HP: tidak ada fitur yang boleh bertanda lulus uji HP tanpa bukti.
-    assert not any(v.get("uji_hp") for v in data.values())
+    # Tes otomatis bukan bukti uji HP: fitur bertanda uji_hp wajib mencantumkan catatan bukti uji di perangkat.
+    for nomor, v in data.items():
+        if v.get("uji_hp"):
+            assert "UJI HP" in v.get("catatan", ""), f"Fitur {nomor} bertanda uji_hp tanpa catatan bukti"
 
 
 async def test_sinkron_status_fitur_memperbarui_dan_menolak_status_aneh(db_session: AsyncSession, tmp_path) -> None:

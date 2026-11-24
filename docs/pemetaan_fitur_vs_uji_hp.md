@@ -44,3 +44,11 @@ sempat dibuka saat "cek semua layar" tetapi belum diuji fungsionalnya.
 - Hanya mencatat yang saya amati sendiri di sesi ini. Uji HP pada sesi sebelumnya yang tidak tercatat di sini tidak dihitung.
 - Tidak ada fitur yang ditandai Done/QA Passed oleh dokumen ini.
 - Printer, mode offline, kasbon, lintas-HP, dan peran selain Owner belum pernah diuji.
+
+## Pembaruan 2026-11-24 (dashboard admin)
+Sejak laporan di atas, uji HP menambah bukti untuk kasbon+cicilan+pelunasan (16), poin dan tukar poin (54), level dan diskon
+member (55), karyawan ber-PIN dengan peran Kasir/Barista & Dapur/Gudang (61), selain mutasi stok yang kini tersinkron (49).
+Dashboard admin (`backend/app/data/status_fitur.json`, bendera `uji_hp`) kini menandai 15 dari 64 fitur sebagai teruji di HP
+(1, 3, 7, 15, 16, 27, 38, 49, 54, 55, 61, 64, 67, 68, 69), masing-masing dengan catatan "UJI HP" yang menyebut buktinya.
+Ini bukan QA Passed. Cetak struk ke printer dilaporkan berhasil oleh pengguna sendiri tetapi belum saya amati, jadi fitur 22
+tidak ditandai. Tes `test_admin_dashboard.py` kini mewajibkan catatan bukti pada setiap fitur bertanda `uji_hp`.
