@@ -53,4 +53,4 @@ Dashboard admin (`backend/app/data/status_fitur.json`, bendera `uji_hp`) kini me
 Ini bukan QA Passed. Cetak struk ke printer dilaporkan berhasil oleh pengguna sendiri tetapi belum saya amati, jadi fitur 22
 tidak ditandai. Tes `test_admin_dashboard.py` kini mewajibkan catatan bukti pada setiap fitur bertanda `uji_hp`.
 Tambahan (2026-11-24): atas laporan penguji yang melihat sendiri hasil cetak struk ke printer, fitur 22 (Cetak struk) kini juga
-ditandai teruji (total 16). Dasarnya laporan penguji, bukan pengamatan saya; tetap bukan QA Passed formal.
+ditandai LULUS (Passed) uji HP (total 16): dicetak penguji bersama lead pada 2026-11-23, dilaporkan penguji; bukan pengamatan saya.
