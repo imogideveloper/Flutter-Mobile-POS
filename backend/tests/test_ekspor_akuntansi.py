@@ -36,7 +36,7 @@ def test_ke_csv_memakai_header_tetap_dan_dua_desimal() -> None:
     isi = ke_csv([("2026-11-02", "biaya", "gas, lpg", Decimal("12.5"))])
     baris = list(csv.reader(io.StringIO(isi)))
     assert tuple(baris[0]) == KOLOM
-    assert baris[1] == ["2026-11-02", "biaya", "gas, lpg", "12.50"], "koma di rincian di-quote"
+    assert baris[1] == ["2026-11-02", "biaya", "gas, lpg", "12.50", "", ""], "koma di rincian di-quote; kategori tak dikenal tanpa akun"
 
 
 async def test_endpoint_ekspor_end_to_end(client: AsyncClient, db_session: AsyncSession) -> None:

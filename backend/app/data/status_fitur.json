@@ -325,7 +325,7 @@
  },
  "76": {
   "status": "belum",
-  "catatan": "Tidak ada penggajian dan kasbon karyawan."
+  "catatan": "DITIADAKAN atas keputusan lead (MoM 2026-11-25): fitur payroll tidak diperlukan. Status tetap 'belum' agar angka katalog tidak berubah; tidak akan dibangun. Gaji tetap bisa dicatat sebagai pengeluaran kategori Gaji (akun 6-1000)."
  },
  "77": {
   "status": "belum",
@@ -340,8 +340,8 @@
   "catatan": "SEBAGIAN (2026-11-17): Lainnya > Deposit pelanggan: buku mutasi saldo per pelanggan (top-up, pakai, koreksi), saldo tidak boleh minus, ringkasan total pendapatan diterima di muka. Butuh internet. Riwayat mutasi per pelanggan bisa dilihat. Belum: deposit sebagai metode bayar otomatis di kasir (pemakaian dicatat manual), jurnal/pengakuan pendapatan, membership berjangka, belum diuji di HP."
  },
  "80": {
-  "status": "belum",
-  "catatan": "Tidak ada chart of accounts dan jurnal umum."
+  "status": "sedang",
+  "catatan": "SEBAGIAN (2026-11-25, keputusan lead MoM 2026-11-25: pencatatan beban lewat layar Pengeluaran, siapkan CoA standarnya saja): bagan akun standar F&B (30 akun: aset, kewajiban, ekuitas, pendapatan, HPP, beban) di server, endpoint `/akuntansi/coa` (digerbang `journal`, izin laporan.lihat), layar Lainnya > Bagan akun (CoA) hanya baca, setiap kategori pengeluaran dipetakan ke akun beban/HPP (sewa 6-1100, listrik & air 6-1200, dst.), dan ekspor akuntansi CSV kini membawa kolom kode_akun/nama_akun usulan. Daftar akun usulan awal, perlu ditinjau akuntan. Belum: jurnal umum, akun yang bisa diubah per toko. Lulus tes otomatis, belum diuji di HP."
  },
  "81": {
   "status": "belum",

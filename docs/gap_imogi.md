@@ -18,9 +18,9 @@ Tanggal: 2026-11-08. Menggantikan `docs/gap_fnb.md` sebagai acuan utama. Daftar 
 | Relevan untuk Makanan & Minuman (inti atau opsional untuk minimal 1 dari 7 jenis usaha) | 64 |
 | Tidak relevan untuk Makanan & Minuman (disembunyikan) | 23 |
 | ✅ Lengkap | 15 (tidak berubah: belum ada fitur yang diuji di HP, jadi tidak ada yang dinaikkan) |
-| 🟡 Sebagian | 45 (awal audit 24; +21 sejak 2026-11-12/17) |
+| 🟡 Sebagian | 46 (awal audit 24; +21 sejak 2026-11-12/17; +1 bagan akun standar 2026-11-25) |
 
-| ❌ Belum ada | 4 (awal audit 25) |
+| ❌ Belum ada | 3 (awal audit 25; payroll no. 76 ditiadakan atas keputusan lead 2026-11-25 tetapi tetap dihitung belum) |
 
 | Fitur inti untuk Kafe & Kedai Kopi | 46 (✅ 11, 🟡 26, ❌ 9); awal audit ✅ 11, 🟡 18, ❌ 17 |
 
@@ -87,8 +87,8 @@ Diurutkan: inti untuk Kafe & Kedai Kopi lebih dulu. ❌ = belum ada, 🟡 = seba
 | 62 | Karyawan | Absensi karyawan | Professional | 3 inti, 4 opsional, Kafe: Inti | 🟡 | SEBAGIAN (2026-11-12): Lainnya > Absensi: absen masuk/keluar, rekap jam kerja, endpoint `/absensi` (waktu server, batas hari mengikuti zona perangkat). Belum: foto, lokasi, jadwal, terlambat, koreksi, offline. Belum diuji di HP. |
 | 63 | Karyawan | Jadwal shift mingguan & cuti | Professional | 3 inti, 4 opsional, Kafe: Inti | 🟡 | SEBAGIAN (2026-11-14): Lainnya > Jadwal & cuti: pengelola mengatur shift mingguan tiap karyawan (libur/pagi/siang), karyawan melihat jadwal dan mengajukan cuti/sakit/izin, pengelola menyetujui atau menolak (tidak bisa memutuskan milik sendiri); absen masuk menjadi Terlambat bila lewat jam mulai + 10 menit (migrasi 0018, /jadwal dan /cuti, fitur staff_schedule). Belum: tukar jadwal, jam shift kustom di layar, shift lintas tengah malam, pemberitahuan. Belum diuji di HP. |
 
-| 76 | Akuntansi | Penggajian (payroll) & kasbon karyawan | Enterprise | 3 inti, 4 opsional, Kafe: Inti | ❌ | Tidak ada penggajian dan kasbon karyawan. |
-| 80 | Akuntansi | Chart of Accounts & jurnal umum | Enterprise | 3 inti, 4 opsional, Kafe: Inti | ❌ | Tidak ada chart of accounts dan jurnal umum. |
+| 76 | Akuntansi | Penggajian (payroll) & kasbon karyawan | Enterprise | 3 inti, 4 opsional, Kafe: Inti | ❌ | DITIADAKAN: keputusan lead (MoM 2026-11-25) payroll tidak diperlukan. Gaji dicatat sebagai pengeluaran kategori Gaji. |
+| 80 | Akuntansi | Chart of Accounts & jurnal umum | Enterprise | 3 inti, 4 opsional, Kafe: Inti | 🟡 | SEBAGIAN (2026-11-25, keputusan lead MoM 2026-11-25): bagan akun standar F&B 30 akun (`/akuntansi/coa`, digerbang `journal`), layar Lainnya > Bagan akun (CoA) hanya baca, kategori pengeluaran dipetakan ke akun beban/HPP, ekspor CSV membawa kode_akun usulan. Belum: jurnal umum, akun per toko yang bisa diubah, belum diuji di HP. |
 | 81 | Akuntansi | Buku besar, neraca & arus kas | Enterprise | 3 inti, 4 opsional, Kafe: Inti | ❌ | Tidak ada buku besar, neraca, dan arus kas. |
 | 82 | Akuntansi | Anggaran & proyeksi arus kas | Enterprise | 3 inti, 3 opsional, Kafe: Inti | 🟡 | SEBAGIAN (2026-11-17): Lainnya > Anggaran & proyeksi (digerbang `budget`, izin `laporan.lihat`): anggaran biaya per kategori per bulan, realisasi dari pengeluaran, status (aman/waspada >=80%/lewat), proyeksi akhir bulan linear untuk biaya dan penjualan, selisih kasar. Server: `/anggaran` (migrasi 0032). Butuh internet. Ada salin anggaran dari bulan lalu. Belum: arus kas akuntansi, anggaran per outlet, belum diuji di HP. |
 | 85 | Akuntansi | Ekspor ke software akuntansi (Jurnal, Accurate, Zahir) | Enterprise | 3 inti, 4 opsional, Kafe: Inti | 🟡 | SEBAGIAN (2026-11-17): Lainnya > Ekspor ke software akuntansi (digerbang `accounting_export`, izin `laporan.lihat`): CSV netral ringkasan harian (penjualan bersih, pajak, HPP, penerimaan per metode, biaya per kategori), maks 93 hari, dibagikan lewat menu bagikan. Server: `GET /ekspor-akuntansi`. Belum: format spesifik Jurnal/Accurate/Zahir, pemetaan akun, jurnal debit-kredit, belum diuji di HP. |

@@ -1,7 +1,8 @@
 """Ekspor ringkasan harian untuk software akuntansi (IMOGI no. 85).
 
 Berkas CSV netral (bisa dibuka di spreadsheet atau diimpor ke Jurnal/Accurate/Zahir setelah pemetaan akun oleh
-akuntan): satu baris per tanggal x jenis x rincian. Aplikasi TIDAK menebak kode akun."""
+akuntan): satu baris per tanggal x jenis x rincian. Kolom kode_akun dan nama_akun berisi akun USULAN dari bagan akun
+standar (services/coa_standar.py, IMOGI no. 80); akuntan tetap bisa memetakan ulang."""
 
 import csv
 import io
@@ -18,6 +19,7 @@ from app.core.db import get_db
 from app.core.deps import get_role_id, get_toko_id
 from app.models.pengeluaran import Pengeluaran
 from app.models.transaksi import MetodeBayar, Pembayaran, Transaksi
+from app.services.coa_standar import akun_untuk_baris_ekspor
 from app.services.fitur_service import require_fitur
 from app.services.izin_service import has_izin
 from app.services.laporan_service import _item_untuk_transaksi, _transaksi_selesai
@@ -27,7 +29,7 @@ router = APIRouter(
 )
 
 _MAKS_HARI = 93
-KOLOM = ("tanggal", "jenis", "rincian", "jumlah")
+KOLOM = ("tanggal", "jenis", "rincian", "jumlah", "kode_akun", "nama_akun")
 
 
 class EksporOut(BaseModel):
@@ -67,7 +69,8 @@ def ke_csv(baris: list[tuple[str, str, str, Decimal]]) -> str:
     w = csv.writer(out, lineterminator="\n")
     w.writerow(KOLOM)
     for tgl, jenis, rincian, nilai in baris:
-        w.writerow((tgl, jenis, rincian, f"{nilai:.2f}"))
+        akun = akun_untuk_baris_ekspor(jenis, rincian)
+        w.writerow((tgl, jenis, rincian, f"{nilai:.2f}", akun.kode if akun else "", akun.nama if akun else ""))
     return out.getvalue()
 
 

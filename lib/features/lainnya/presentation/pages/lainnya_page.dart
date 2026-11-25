@@ -430,6 +430,18 @@ class LainnyaPage extends ConsumerWidget {
                   bila(
                     'laporan.lihat',
                     FiturTerkunci(
+                      kode: 'journal',
+                      child: SettingsMenuRow(
+                        label: 'Bagan akun (CoA)',
+                        ikon: Icons.account_tree_outlined,
+                        value: 'Akun standar',
+                        onTap: () => context.push('/bagan-akun'),
+                      ),
+                    ),
+                  ),
+                  bila(
+                    'laporan.lihat',
+                    FiturTerkunci(
                       kode: 'accounting_export',
                       child: SettingsMenuRow(
                         label: 'Ekspor ke software akuntansi',
