@@ -62,6 +62,7 @@ class LabaRugiAkunOut(BaseModel):
 
 class BarisArusOut(BaseModel):
     keterangan: str
+    kode_akun: str = ""
     jumlah: Decimal
 
 
@@ -149,7 +150,11 @@ async def _arus_kas(
     if tgl_awal is not None:
         q_biaya = q_biaya.where(Pengeluaran.tanggal >= tgl_awal)
     keluar = [
-        BarisArusOut(keterangan=AKUN_PER_KODE[AKUN_KATEGORI_PENGELUARAN.get(k, "6-9000")].nama, jumlah=Decimal(str(j)))
+        BarisArusOut(
+            keterangan=AKUN_PER_KODE[AKUN_KATEGORI_PENGELUARAN.get(k, "6-9000")].nama,
+            kode_akun=AKUN_KATEGORI_PENGELUARAN.get(k, "6-9000"),
+            jumlah=Decimal(str(j)),
+        )
         for k, j in (await db.execute(q_biaya.group_by(Pengeluaran.kategori))).all()
         if j
     ]

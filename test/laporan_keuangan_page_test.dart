@@ -44,7 +44,7 @@ class _Api implements BackendApi {
       'arus_kas': {
         'masuk': [{'keterangan': 'Penjualan - Tunai', 'jumlah': '40000.00'}],
         'total_masuk': '40000.00',
-        'keluar': [{'keterangan': 'Beban sewa', 'jumlah': '5000.00'}],
+        'keluar': [{'keterangan': 'Beban sewa', 'kode_akun': '6-1100', 'jumlah': '5000.00'}, {'keterangan': 'HPP bahan baku', 'kode_akun': '5-1000', 'jumlah': '7000.00'}],
         'total_keluar': '5000.00',
         'kenaikan_kas': '35000.00',
       },
@@ -80,11 +80,17 @@ void main() {
     ));
     await tester.pumpAndSettle();
 
-    expect(find.text('4-1000 Penjualan makanan & minuman'), findsOneWidget);
-    expect(find.text('6-1100 Beban sewa'), findsOneWidget);
+    expect(find.text('Laporan Laba Rugi'), findsOneWidget);
+    expect(find.text('Laporan Posisi Keuangan (Neraca)'), findsOneWidget);
+    expect(find.text('Laporan Arus Kas'), findsOneWidget);
+    expect(find.text('Usaha untung'), findsOneWidget, reason: 'ringkasan dalam kalimat biasa');
+    expect(find.text('Penjualan'), findsOneWidget, reason: 'nama akun bahasa sehari-hari, tanpa kode');
+    expect(find.textContaining('4-1000'), findsNothing);
+    expect(find.text('Sewa tempat'), findsNWidgets(2), reason: 'di laba rugi dan arus kas');
+    expect(find.text('Belanja bahan baku'), findsOneWidget, reason: 'di arus kas, bukan bahan yang terjual');
     expect(find.text('Laba bersih'), findsOneWidget);
-    expect(find.text('Penjualan - Tunai'), findsOneWidget);
-    expect(find.text('Modal & laba (aset - kewajiban)'), findsOneWidget);
+    expect(find.text('Total kewajiban + modal'), findsOneWidget);
+    expect(find.text('Modal pemilik & laba usaha'), findsOneWidget);
     final awal = api.query.single!['dari'] as String;
     expect(awal.endsWith('-01'), isTrue, reason: 'periode mulai tanggal 1 bulan berjalan');
 
