@@ -43,6 +43,7 @@ from app.routers import (
     deposit,
     akuntansi,
     ekspor_akuntansi,
+    laporan_keuangan,
     settlement,
     tutup_buku,
     sync,
@@ -112,6 +113,7 @@ app.include_router(aset_tetap.router)
 app.include_router(anggaran.router)
 app.include_router(ekspor_akuntansi.router)
 app.include_router(akuntansi.router)
+app.include_router(laporan_keuangan.router)
 app.include_router(tutup_buku.router)
 app.include_router(deposit.router)
 app.include_router(transfer_stok.router)

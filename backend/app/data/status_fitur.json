@@ -324,12 +324,12 @@
   "catatan": "Tidak relevan untuk Makanan & Minuman."
  },
  "76": {
-  "status": "belum",
-  "catatan": "DITIADAKAN atas keputusan lead (MoM 2026-11-25): fitur payroll tidak diperlukan. Status tetap 'belum' agar angka katalog tidak berubah; tidak akan dibangun. Gaji tetap bisa dicatat sebagai pengeluaran kategori Gaji (akun 6-1000)."
+  "status": "tidak_relevan",
+  "catatan": "DITIADAKAN atas keputusan lead (MoM 2026-11-25): payroll tidak diperlukan, dipindah ke tidak relevan atas konfirmasi lead. Gaji tetap bisa dicatat sebagai pengeluaran kategori Gaji (akun 6-1000)."
  },
  "77": {
-  "status": "belum",
-  "catatan": "Tidak ada BPJS dan PPh 21."
+  "status": "tidak_relevan",
+  "catatan": "DITIADAKAN atas keputusan lead (2026-11-25): BPJS dan PPh 21 bergantung pada payroll yang ditiadakan."
  },
  "78": {
   "status": "sedang",
@@ -344,8 +344,8 @@
   "catatan": "SEBAGIAN (2026-11-25, keputusan lead MoM 2026-11-25: pencatatan beban lewat layar Pengeluaran, siapkan CoA standarnya saja): bagan akun standar F&B (30 akun: aset, kewajiban, ekuitas, pendapatan, HPP, beban) di server, endpoint `/akuntansi/coa` (digerbang `journal`, izin laporan.lihat), layar Lainnya > Bagan akun (CoA) hanya baca, setiap kategori pengeluaran dipetakan ke akun beban/HPP (sewa 6-1100, listrik & air 6-1200, dst.), dan ekspor akuntansi CSV kini membawa kolom kode_akun/nama_akun usulan. Daftar akun usulan awal, perlu ditinjau akuntan. Belum: jurnal umum, akun yang bisa diubah per toko. Lulus tes otomatis, belum diuji di HP."
  },
  "81": {
-  "status": "belum",
-  "catatan": "Tidak ada buku besar, neraca, dan arus kas."
+  "status": "sedang",
+  "catatan": "SEBAGIAN (2026-11-25, arahan lead: laporan keuangan sederhana standar UMKM): Lainnya > Laporan keuangan (digerbang `ledger`, izin laporan.lihat, butuh internet), per bulan: laba rugi per akun CoA (termasuk penyusutan aset tetap), arus kas sederhana (penjualan per metode, deposit diterima, pengeluaran per akun, refund, pembelian aset, pembayaran pemasok), dan posisi keuangan ringkas per hari ini (kas = akumulasi arus kas tercatat, piutang kasbon, persediaan, aset tetap dan akumulasi penyusutan, utang pemasok, deposit pelanggan, modal & laba = aset - kewajiban). Server `GET /laporan-keuangan`. Tanpa jurnal umum. Belum: saldo awal kas, setoran modal/prive, utang pajak, ekspor PDF. Lulus tes otomatis, belum diuji di HP."
  },
  "82": {
   "status": "sedang",

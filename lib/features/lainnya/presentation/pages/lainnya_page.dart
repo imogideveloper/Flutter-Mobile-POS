@@ -430,6 +430,18 @@ class LainnyaPage extends ConsumerWidget {
                   bila(
                     'laporan.lihat',
                     FiturTerkunci(
+                      kode: 'ledger',
+                      child: SettingsMenuRow(
+                        label: 'Laporan keuangan',
+                        ikon: Icons.account_balance_outlined,
+                        value: 'Neraca & arus kas',
+                        onTap: () => context.push('/laporan-keuangan'),
+                      ),
+                    ),
+                  ),
+                  bila(
+                    'laporan.lihat',
+                    FiturTerkunci(
                       kode: 'journal',
                       child: SettingsMenuRow(
                         label: 'Bagan akun (CoA)',
