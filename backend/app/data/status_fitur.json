@@ -9,13 +9,13 @@
   "catatan": "Scan kamera (mobile_scanner)."
  },
  "3": {
-  "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-15): diskon manual per item di keranjang (tombol Diskon: 5/10/15/20%, persen atau nominal sendiri, hapus diskon). Butuh izin transaksi.diskon atau PIN approver; penyetuju tersimpan di transaksi dan dikirim ke server (UUID saja). Total, struk, dan item ikut berubah. Belum: batas diskon kasir tanpa PIN, tombol cepat yang bisa diatur, diskon level transaksi (nominal), dan diskon manual belum ikut saat pesanan tersimpan dibuka kembali. Lulus tes otomatis, belum diuji di HP. UJI HP (SIT 22-24 Nov 2026, bukan QA Passed; bukti: docs/pemetaan_fitur_vs_uji_hp.md & docs/perlu_konfirmasi.md): diskon item 10% (struk, laporan, server) dan promo 'Uji Hemat 10%'.",
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26; kriteria pengguna: fitur cukup, langsung bisa dipakai UMKM, standar POS, dan lulus uji HP). Penyempurnaan dipindah ke docs/backlog_release_2.md. Catatan lama: SEBAGIAN (2026-11-15): diskon manual per item di keranjang (tombol Diskon: 5/10/15/20%, persen atau nominal sendiri, hapus diskon). Butuh izin transaksi.diskon atau PIN approver; penyetuju tersimpan di transaksi dan dikirim ke server (UUID saja). Total, struk, dan item ikut berubah. Belum: batas diskon kasir tanpa PIN, tombol cepat yang bisa diatur, diskon level transaksi (nominal), dan diskon manual belum ikut saat pesanan tersimpan dibuka kembali. Lulus tes otomatis, belum diuji di HP. UJI HP (SIT 22-24 Nov 2026, bukan QA Passed; bukti: docs/pemetaan_fitur_vs_uji_hp.md & docs/perlu_konfirmasi.md): diskon item 10% (struk, laporan, server) dan promo 'Uji Hemat 10%'.",
   "uji_hp": true
  },
  "4": {
-  "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-15): daftar Pajak dan Service kini punya saklar Usaha kena pajak (mematikan/menyalakan semua pajak sekaligus, service charge tidak ikut) dan menampilkan pajak nonaktif; form tambah punya pilihan cepat PB1 10%, PPN 11%, dan Service 5% (nilai bisa diubah). Cara hitung termasuk/ditambahkan dan pajak per produk sudah ada sebelumnya. Belum: nilai bawaan per jenis usaha (menunggu Batch B). Lulus tes otomatis, kemudian diuji di HP. UJI HP LULUS (Passed): pajak dan service dicoba langsung dan berhasil, dilaporkan penguji pada 2026-11-24 (saya tidak mengamatinya langsung; persetujuan tertulis lead belum ada di berkas ini).",
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26; kriteria pengguna: fitur cukup, langsung bisa dipakai UMKM, standar POS, dan lulus uji HP). Penyempurnaan dipindah ke docs/backlog_release_2.md. Catatan lama: SEBAGIAN (2026-11-15): daftar Pajak dan Service kini punya saklar Usaha kena pajak (mematikan/menyalakan semua pajak sekaligus, service charge tidak ikut) dan menampilkan pajak nonaktif; form tambah punya pilihan cepat PB1 10%, PPN 11%, dan Service 5% (nilai bisa diubah). Cara hitung termasuk/ditambahkan dan pajak per produk sudah ada sebelumnya. Belum: nilai bawaan per jenis usaha (menunggu Batch B). Lulus tes otomatis, kemudian diuji di HP. UJI HP LULUS (Passed): pajak dan service dicoba langsung dan berhasil, dilaporkan penguji pada 2026-11-24 (saya tidak mengamatinya langsung; persetujuan tertulis lead belum ada di berkas ini).",
   "uji_hp": true
  },
  "5": {
@@ -23,8 +23,8 @@
   "catatan": "Tipe pesanan dan meja (pengaturan) ada."
  },
  "6": {
-  "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-15): toko Kafe dan Restoran yang baru mendaftar otomatis mendapat Service Charge 5% yang hanya ditautkan ke tipe Makan di tempat (jenis usaha lain mendapat tipe pesanan tanpa service). Tipe pesanan kini dibuat di server dan ikut sync pull; HP menggantikan bawaan lokalnya dengan data server pada pull pertama. Aturan service per tipe pesanan di kalkulator sudah ada sebelumnya. Belum: usaha yang sudah terdaftar tidak otomatis dapat bawaan, pengaturan bawaan lain per jenis usaha (Batch B). Lulus tes otomatis, kemudian diuji di HP. UJI HP LULUS (Passed): biaya layanan dicoba langsung dan berhasil, dilaporkan penguji pada 2026-11-24 (saya tidak mengamatinya langsung; persetujuan tertulis lead belum ada di berkas ini).",
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26; kriteria pengguna: fitur cukup, langsung bisa dipakai UMKM, standar POS, dan lulus uji HP). Penyempurnaan dipindah ke docs/backlog_release_2.md. Catatan lama: SEBAGIAN (2026-11-15): toko Kafe dan Restoran yang baru mendaftar otomatis mendapat Service Charge 5% yang hanya ditautkan ke tipe Makan di tempat (jenis usaha lain mendapat tipe pesanan tanpa service). Tipe pesanan kini dibuat di server dan ikut sync pull; HP menggantikan bawaan lokalnya dengan data server pada pull pertama. Aturan service per tipe pesanan di kalkulator sudah ada sebelumnya. Belum: usaha yang sudah terdaftar tidak otomatis dapat bawaan, pengaturan bawaan lain per jenis usaha (Batch B). Lulus tes otomatis, kemudian diuji di HP. UJI HP LULUS (Passed): biaya layanan dicoba langsung dan berhasil, dilaporkan penguji pada 2026-11-24 (saya tidak mengamatinya langsung; persetujuan tertulis lead belum ada di berkas ini).",
   "uji_hp": true
  },
  "7": {
@@ -61,13 +61,13 @@
   "catatan": "Metode transfer ada. SEBAGIAN (2026-11-14): Pengaturan metode bayar kini punya rekening tujuan (bank, nomor, atas nama) untuk metode transfer/e-wallet; ikut sync ke HP (migrasi 0019, schema lokal 15) dan tampil di layar bayar saat metode dipilih. Belum diuji di HP."
  },
  "15": {
-  "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-14): tombol bayar campur kini digerbang fitur split_payment di layar kasir (tes ikut diperbarui). Belum diuji di HP. UJI HP (SIT 22-24 Nov 2026, bukan QA Passed; bukti: docs/pemetaan_fitur_vs_uji_hp.md & docs/perlu_konfirmasi.md): tunai + kartu, dua baris pembayaran.",
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26; kriteria pengguna: fitur cukup, langsung bisa dipakai UMKM, standar POS, dan lulus uji HP). Penyempurnaan dipindah ke docs/backlog_release_2.md. Catatan lama: SEBAGIAN (2026-11-14): tombol bayar campur kini digerbang fitur split_payment di layar kasir (tes ikut diperbarui). Belum diuji di HP. UJI HP (SIT 22-24 Nov 2026, bukan QA Passed; bukti: docs/pemetaan_fitur_vs_uji_hp.md & docs/perlu_konfirmasi.md): tunai + kartu, dua baris pembayaran.",
   "uji_hp": true
  },
  "16": {
-  "status": "sedang",
-  "catatan": "Kasbon, jatuh tempo, dan pelunasan ada. SEBAGIAN (2026-11-14): limit bon kini juga dicek di HP sebelum bon disimpan (batas_kasbon dikurangi utang berjalan; ditolak dengan sisa kuota), selain di server (lihat batas_kasbon.dart, 4 tes). Belum diuji di HP. UJI HP (SIT 22-24 Nov 2026, bukan QA Passed; bukti: docs/pemetaan_fitur_vs_uji_hp.md & docs/perlu_konfirmasi.md): kasbon, cicilan, dan pelunasan; kasbon+poin berjalan.",
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26; kriteria pengguna: fitur cukup, langsung bisa dipakai UMKM, standar POS, dan lulus uji HP). Penyempurnaan dipindah ke docs/backlog_release_2.md. Catatan lama: Kasbon, jatuh tempo, dan pelunasan ada. SEBAGIAN (2026-11-14): limit bon kini juga dicek di HP sebelum bon disimpan (batas_kasbon dikurangi utang berjalan; ditolak dengan sisa kuota), selain di server (lihat batas_kasbon.dart, 4 tes). Belum diuji di HP. UJI HP (SIT 22-24 Nov 2026, bukan QA Passed; bukti: docs/pemetaan_fitur_vs_uji_hp.md & docs/perlu_konfirmasi.md): kasbon, cicilan, dan pelunasan; kasbon+poin berjalan.",
   "uji_hp": true
  },
  "17": {
@@ -75,8 +75,8 @@
   "catatan": "DP untuk kasbon ada (DP minimal persen belum diperiksa)."
  },
  "18": {
-  "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-15): metode bayar non-tunai punya daftar label tujuan (mis. GoPay, OVO, ShopeePay, BCA) yang diatur di Pengaturan metode bayar (digerbang fitur label_pembayaran, migrasi 0025); kasir wajib memilih satu label saat menerima kartu/transfer/e-wallet, tersimpan di pembayaran, dan laporan (HP dan server) memisahkan baris per label untuk rekonsiliasi. Ubah nama/urutan metode bayar sudah ada sebelumnya. Belum: label pada QRIS statis dan bayar campur, serta rekonsiliasi terhadap mutasi/settlement (IMOGI no. 74). Lulus tes otomatis, kemudian diuji di HP. UJI HP LULUS (Passed): label jenis pembayaran muncul di transaksi dicoba langsung dan berhasil, dilaporkan penguji pada 2026-11-24 (saya tidak mengamatinya langsung; persetujuan tertulis lead belum ada di berkas ini).",
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26; kriteria pengguna: fitur cukup, langsung bisa dipakai UMKM, standar POS, dan lulus uji HP). Penyempurnaan dipindah ke docs/backlog_release_2.md. Catatan lama: SEBAGIAN (2026-11-15): metode bayar non-tunai punya daftar label tujuan (mis. GoPay, OVO, ShopeePay, BCA) yang diatur di Pengaturan metode bayar (digerbang fitur label_pembayaran, migrasi 0025); kasir wajib memilih satu label saat menerima kartu/transfer/e-wallet, tersimpan di pembayaran, dan laporan (HP dan server) memisahkan baris per label untuk rekonsiliasi. Ubah nama/urutan metode bayar sudah ada sebelumnya. Belum: label pada QRIS statis dan bayar campur, serta rekonsiliasi terhadap mutasi/settlement (IMOGI no. 74). Lulus tes otomatis, kemudian diuji di HP. UJI HP LULUS (Passed): label jenis pembayaran muncul di transaksi dicoba langsung dan berhasil, dilaporkan penguji pada 2026-11-24 (saya tidak mengamatinya langsung; persetujuan tertulis lead belum ada di berkas ini).",
   "uji_hp": true
  },
  "19": {
@@ -113,8 +113,8 @@
   "catatan": "SELESAI sebagian (2026-11-08): status awal Baru dibuat saat checkout, halaman Status Pesanan (menu Lainnya) memajukan tahap Baru, Diproses, Siap, Selesai (katering: Dipesan, Dimasak, Siap kirim, Dikirim, Selesai), tersimpan offline dan dikirim lewat sync (migrasi 0011). KEMAJUAN 2026-11-10: pesanan bertipe antar otomatis memuat tahap Diantar. Belum ada estimasi selesai, pesan WhatsApp saat siap, dan uji di HP."
  },
  "27": {
-  "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-15): tombol Terima Order (bayar nanti) di keranjang mencatat pesanan sebagai transaksi belum dibayar tanpa pelanggan (nomor antrean, status pesanan, tiket dapur ikut berjalan; bukan kasbon, paket Gratis boleh); layar Order belum dibayar (Lainnya) mencatat pelunasan penuh atau sebagian per metode bayar; server menerima lewat bayar_belakangan (migrasi 0024). Belum: pilihan jatuh tempo/kapan membayar, cetak nota order khusus, penukaran poin dan metode QRIS saat pelunasan. Lulus tes otomatis, belum diuji di HP. UJI HP (SIT 22-24 Nov 2026, bukan QA Passed; bukti: docs/pemetaan_fitur_vs_uji_hp.md & docs/perlu_konfirmasi.md): order diterima, pelunasan belakangan.",
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26; kriteria pengguna: fitur cukup, langsung bisa dipakai UMKM, standar POS, dan lulus uji HP). Penyempurnaan dipindah ke docs/backlog_release_2.md. Catatan lama: SEBAGIAN (2026-11-15): tombol Terima Order (bayar nanti) di keranjang mencatat pesanan sebagai transaksi belum dibayar tanpa pelanggan (nomor antrean, status pesanan, tiket dapur ikut berjalan; bukan kasbon, paket Gratis boleh); layar Order belum dibayar (Lainnya) mencatat pelunasan penuh atau sebagian per metode bayar; server menerima lewat bayar_belakangan (migrasi 0024). Belum: pilihan jatuh tempo/kapan membayar, cetak nota order khusus, penukaran poin dan metode QRIS saat pelunasan. Lulus tes otomatis, belum diuji di HP. UJI HP (SIT 22-24 Nov 2026, bukan QA Passed; bukti: docs/pemetaan_fitur_vs_uji_hp.md & docs/perlu_konfirmasi.md): order diterima, pelunasan belakangan.",
   "uji_hp": true
  },
  "28": {
@@ -142,28 +142,28 @@
   "catatan": "Tidak relevan untuk Makanan & Minuman."
  },
  "34": {
-  "status": "sedang",
-  "catatan": "SELESAI sebagian (2026-11-08): HP membuat nomor A-001 sendiri saat offline (per hari, outlet, perangkat), tersimpan di transaksi, tampil di struk dan halaman sukses, dikirim lewat sync. KEMAJUAN 2026-11-10: awalan dan angka awal bisa diatur per outlet di Pengaturan struk (migrasi 0012). Belum ada panggilan suara, layar antrian, dan nama di layar antrian. Belum diuji di HP. UJI HP LULUS (Passed): nomor antrian dicoba langsung dan berhasil, dilaporkan penguji pada 2026-11-24 (saya tidak mengamatinya langsung; persetujuan tertulis lead belum ada di berkas ini).",
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26; kriteria pengguna: fitur cukup, langsung bisa dipakai UMKM, standar POS, dan lulus uji HP). Penyempurnaan dipindah ke docs/backlog_release_2.md. Catatan lama: SELESAI sebagian (2026-11-08): HP membuat nomor A-001 sendiri saat offline (per hari, outlet, perangkat), tersimpan di transaksi, tampil di struk dan halaman sukses, dikirim lewat sync. KEMAJUAN 2026-11-10: awalan dan angka awal bisa diatur per outlet di Pengaturan struk (migrasi 0012). Belum ada panggilan suara, layar antrian, dan nama di layar antrian. Belum diuji di HP. UJI HP LULUS (Passed): nomor antrian dicoba langsung dan berhasil, dilaporkan penguji pada 2026-11-24 (saya tidak mengamatinya langsung; persetujuan tertulis lead belum ada di berkas ini).",
   "uji_hp": true
  },
  "35": {
-  "status": "sedang",
-  "catatan": "SELESAI sebagian (2026-11-08): tiket dapur tanpa harga (nomor antrian, waktu, menu dan jumlah) dicetak otomatis setelah pembayaran dan bisa dicetak ulang dari halaman sukses; lulus tes susunan tiket. KEMAJUAN 2026-11-10: kategori bisa dikeluarkan dari tiket (saklar \"Masuk tiket dapur\" di form kategori, migrasi 0013) dan tiket bisa dicetak ulang dari detail riwayat. KEMAJUAN 2026-11-16: stasiun dapur (Bar, Dapur) bisa dibuat di menu Lainnya, kategori ditautkan ke satu stasiun, dan satu pesanan mencetak satu tiket per stasiun. Belum: printer terpisah per stasiun, auto-print terpisah, uji di printer (belum ada perangkat). UJI HP LULUS (Passed): cetak tiket pesanan dapur dicoba langsung dan berhasil, dilaporkan penguji pada 2026-11-24 (saya tidak mengamatinya langsung; persetujuan tertulis lead belum ada di berkas ini).",
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26; kriteria pengguna: fitur cukup, langsung bisa dipakai UMKM, standar POS, dan lulus uji HP). Penyempurnaan dipindah ke docs/backlog_release_2.md. Catatan lama: SELESAI sebagian (2026-11-08): tiket dapur tanpa harga (nomor antrian, waktu, menu dan jumlah) dicetak otomatis setelah pembayaran dan bisa dicetak ulang dari halaman sukses; lulus tes susunan tiket. KEMAJUAN 2026-11-10: kategori bisa dikeluarkan dari tiket (saklar \"Masuk tiket dapur\" di form kategori, migrasi 0013) dan tiket bisa dicetak ulang dari detail riwayat. KEMAJUAN 2026-11-16: stasiun dapur (Bar, Dapur) bisa dibuat di menu Lainnya, kategori ditautkan ke satu stasiun, dan satu pesanan mencetak satu tiket per stasiun. Belum: printer terpisah per stasiun, auto-print terpisah, uji di printer (belum ada perangkat). UJI HP LULUS (Passed): cetak tiket pesanan dapur dicoba langsung dan berhasil, dilaporkan penguji pada 2026-11-24 (saya tidak mengamatinya langsung; persetujuan tertulis lead belum ada di berkas ini).",
   "uji_hp": true
  },
  "36": {
-  "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-14): CRUD produk, kategori, dan harga ada; kini kasir punya tab kategori (Semua + kategori yang berisi produk, urut menurut pengaturan kategori) yang digabung dengan pencarian. Belum: urutan tab khusus kasir terpisah dari urutan kategori. Lulus tes otomatis, kemudian diuji di HP. UJI HP LULUS (Passed): kelola produk dicoba langsung dan berhasil, dilaporkan penguji pada 2026-11-24 (saya tidak mengamatinya langsung; persetujuan tertulis lead belum ada di berkas ini).",
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26; kriteria pengguna: fitur cukup, langsung bisa dipakai UMKM, standar POS, dan lulus uji HP). Penyempurnaan dipindah ke docs/backlog_release_2.md. Catatan lama: SEBAGIAN (2026-11-14): CRUD produk, kategori, dan harga ada; kini kasir punya tab kategori (Semua + kategori yang berisi produk, urut menurut pengaturan kategori) yang digabung dengan pencarian. Belum: urutan tab khusus kasir terpisah dari urutan kategori. Lulus tes otomatis, kemudian diuji di HP. UJI HP LULUS (Passed): kelola produk dicoba langsung dan berhasil, dilaporkan penguji pada 2026-11-24 (saya tidak mengamatinya langsung; persetujuan tertulis lead belum ada di berkas ini).",
   "uji_hp": true
  },
  "37": {
-  "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-13): penanda margin rendah di form dan daftar produk (lencana, filter \"Margin rendah\", peringatan di form) dengan batas per outlet di Pengaturan struk (bawaan 50% untuk F&B, migrasi 0016); HPP kosong ditandai tersendiri. Hak akses lihat harga beli mengikuti izin produk.kelola (belum ada izin khusus). Lulus tes otomatis, kemudian diuji di HP. UJI HP LULUS (Passed): harga beli dan margin produk dicoba langsung dan berhasil, dilaporkan penguji pada 2026-11-24 (saya tidak mengamatinya langsung; persetujuan tertulis lead belum ada di berkas ini).",
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26; kriteria pengguna: fitur cukup, langsung bisa dipakai UMKM, standar POS, dan lulus uji HP). Penyempurnaan dipindah ke docs/backlog_release_2.md. Catatan lama: SEBAGIAN (2026-11-13): penanda margin rendah di form dan daftar produk (lencana, filter \"Margin rendah\", peringatan di form) dengan batas per outlet di Pengaturan struk (bawaan 50% untuk F&B, migrasi 0016); HPP kosong ditandai tersendiri. Hak akses lihat harga beli mengikuti izin produk.kelola (belum ada izin khusus). Lulus tes otomatis, kemudian diuji di HP. UJI HP LULUS (Passed): harga beli dan margin produk dicoba langsung dan berhasil, dilaporkan penguji pada 2026-11-24 (saya tidak mengamatinya langsung; persetujuan tertulis lead belum ada di berkas ini).",
   "uji_hp": true
  },
  "38": {
-  "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-12): Lainnya > Impor & ekspor produk: template CSV, pratinjau, simulasi dan impor (maks 500 baris) lewat `POST /produk/impor`. Belum: .xlsx, memperbarui produk lama, varian, stok awal, gambar. Plugin `file_picker` baru, belum diuji di HP. UJI HP (SIT 22-24 Nov 2026, bukan QA Passed; bukti: docs/pemetaan_fitur_vs_uji_hp.md & docs/perlu_konfirmasi.md): impor CSV sungguhan.",
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26; kriteria pengguna: fitur cukup, langsung bisa dipakai UMKM, standar POS, dan lulus uji HP). Penyempurnaan dipindah ke docs/backlog_release_2.md. Catatan lama: SEBAGIAN (2026-11-12): Lainnya > Impor & ekspor produk: template CSV, pratinjau, simulasi dan impor (maks 500 baris) lewat `POST /produk/impor`. Belum: .xlsx, memperbarui produk lama, varian, stok awal, gambar. Plugin `file_picker` baru, belum diuji di HP. UJI HP (SIT 22-24 Nov 2026, bukan QA Passed; bukti: docs/pemetaan_fitur_vs_uji_hp.md & docs/perlu_konfirmasi.md): impor CSV sungguhan.",
   "uji_hp": true
  },
  "39": {
@@ -179,8 +179,8 @@
   "catatan": "Harga grosir ada."
  },
  "42": {
-  "status": "sedang",
-  "catatan": "SELESAI sebagian (2026-11-08): halaman Varian & tambahan (menu Lainnya) untuk membuat grup (ukuran, level gula, topping) beserta opsi berharga dan aturan wajib/maksimal pilih, memasangnya ke banyak produk; katalog turun ke HP lewat sync. Kasir membuka pemilih saat produk punya tambahan (juga lewat scan), harga ikut dihitung, baris keranjang terpisah per pilihan, tersimpan di pesanan tersimpan dan riwayat, tampil di struk dan tiket dapur, terkirim saat sync. Lulus 22 tes Flutter dan tes backend. Belum diuji di HP. Belum ada: urutan opsi yang bisa digeser, tambahan khusus per produk (hanya grup bersama), izin kelola terpisah di sisi aplikasi. UJI HP LULUS (Passed): varian dan tambahan dicoba langsung dan berhasil, dilaporkan penguji pada 2026-11-24 (saya tidak mengamatinya langsung; persetujuan tertulis lead belum ada di berkas ini).",
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26; kriteria pengguna: fitur cukup, langsung bisa dipakai UMKM, standar POS, dan lulus uji HP). Penyempurnaan dipindah ke docs/backlog_release_2.md. Catatan lama: SELESAI sebagian (2026-11-08): halaman Varian & tambahan (menu Lainnya) untuk membuat grup (ukuran, level gula, topping) beserta opsi berharga dan aturan wajib/maksimal pilih, memasangnya ke banyak produk; katalog turun ke HP lewat sync. Kasir membuka pemilih saat produk punya tambahan (juga lewat scan), harga ikut dihitung, baris keranjang terpisah per pilihan, tersimpan di pesanan tersimpan dan riwayat, tampil di struk dan tiket dapur, terkirim saat sync. Lulus 22 tes Flutter dan tes backend. Belum diuji di HP. Belum ada: urutan opsi yang bisa digeser, tambahan khusus per produk (hanya grup bersama), izin kelola terpisah di sisi aplikasi. UJI HP LULUS (Passed): varian dan tambahan dicoba langsung dan berhasil, dilaporkan penguji pada 2026-11-24 (saya tidak mengamatinya langsung; persetujuan tertulis lead belum ada di berkas ini).",
   "uji_hp": true
  },
  "43": {
@@ -208,8 +208,8 @@
   "catatan": "Tidak relevan untuk Makanan & Minuman."
  },
  "49": {
-  "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-14): kini ada riwayat mutasi lengkap per produk (ketuk baris stok): jenis, tanggal dan jam, jumlah, saldo setelah, catatan, total masuk/keluar, filter Masuk/Keluar, sampai 300 mutasi terbaru. Filter rentang tanggal sudah ada (2026-11-16). Belum: ekspor riwayat, riwayat per varian. Pengaturan saat stok habis sempat terblokir BUG-012 (diperbaiki di kode, menunggu uji HP). Lulus tes otomatis, belum diuji di HP. UJI HP (SIT 22-24 Nov 2026, bukan QA Passed; bukti: docs/pemetaan_fitur_vs_uji_hp.md & docs/perlu_konfirmasi.md): stok masuk dan opname; mutasi tersinkron ke server atas nama karyawan pencatat. Penguji juga melaporkan sudah mencobanya langsung dan berhasil (2026-11-24).",
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26; kriteria pengguna: fitur cukup, langsung bisa dipakai UMKM, standar POS, dan lulus uji HP). Penyempurnaan dipindah ke docs/backlog_release_2.md. Catatan lama: SEBAGIAN (2026-11-14): kini ada riwayat mutasi lengkap per produk (ketuk baris stok): jenis, tanggal dan jam, jumlah, saldo setelah, catatan, total masuk/keluar, filter Masuk/Keluar, sampai 300 mutasi terbaru. Filter rentang tanggal sudah ada (2026-11-16). Belum: ekspor riwayat, riwayat per varian. Pengaturan saat stok habis sempat terblokir BUG-012 (diperbaiki di kode, menunggu uji HP). Lulus tes otomatis, belum diuji di HP. UJI HP (SIT 22-24 Nov 2026, bukan QA Passed; bukti: docs/pemetaan_fitur_vs_uji_hp.md & docs/perlu_konfirmasi.md): stok masuk dan opname; mutasi tersinkron ke server atas nama karyawan pencatat. Penguji juga melaporkan sudah mencobanya langsung dan berhasil (2026-11-24).",
   "uji_hp": true
  },
  "50": {
@@ -259,8 +259,8 @@
   "catatan": "Tidak relevan untuk Makanan & Minuman."
  },
  "61": {
-  "status": "sedang",
-  "catatan": "CRUD pengguna dan peran ada. Daftar hak akses Imogi (jualan, bon/DP, status pesanan, lihat margin, pengeluaran, dst.) dan peran bawaan Barista & Dapur belum dicocokkan. UJI HP (SIT 22-24 Nov 2026, bukan QA Passed; bukti: docs/pemetaan_fitur_vs_uji_hp.md & docs/perlu_konfirmasi.md): karyawan ber-PIN dan peran Kasir, Barista & Dapur, Gudang; hak akses tiap peran ditegakkan di menu. Penguji juga melaporkan sudah mencobanya langsung dan berhasil (2026-11-24).",
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26; kriteria pengguna: fitur cukup, langsung bisa dipakai UMKM, standar POS, dan lulus uji HP). Penyempurnaan dipindah ke docs/backlog_release_2.md. Catatan lama: CRUD pengguna dan peran ada. Daftar hak akses Imogi (jualan, bon/DP, status pesanan, lihat margin, pengeluaran, dst.) dan peran bawaan Barista & Dapur belum dicocokkan. UJI HP (SIT 22-24 Nov 2026, bukan QA Passed; bukti: docs/pemetaan_fitur_vs_uji_hp.md & docs/perlu_konfirmasi.md): karyawan ber-PIN dan peran Kasir, Barista & Dapur, Gudang; hak akses tiap peran ditegakkan di menu. Penguji juga melaporkan sudah mencobanya langsung dan berhasil (2026-11-24).",
   "uji_hp": true
  },
  "62": {
@@ -285,8 +285,8 @@
   "catatan": "Tidak relevan untuk Makanan & Minuman."
  },
  "67": {
-  "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-12): menu Lainnya > Pengeluaran (Owner/Manajer), 9 kategori F&B, rentang hari/7 hari/bulan, total dan rincian per kategori, catat dan hapus; server `/pengeluaran` (migrasi 0015, digerbang fitur `expenses`). Belum: offline (butuh internet), edit, foto nota, berulang. Lulus tes otomatis, belum diuji di HP. UJI HP (SIT 22-24 Nov 2026, bukan QA Passed; bukti: docs/pemetaan_fitur_vs_uji_hp.md & docs/perlu_konfirmasi.md): belanja bahan dan listrik masuk Laba rugi. Penguji juga melaporkan sudah mencobanya langsung dan berhasil (2026-11-24).",
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26; kriteria pengguna: fitur cukup, langsung bisa dipakai UMKM, standar POS, dan lulus uji HP). Penyempurnaan dipindah ke docs/backlog_release_2.md. Catatan lama: SEBAGIAN (2026-11-12): menu Lainnya > Pengeluaran (Owner/Manajer), 9 kategori F&B, rentang hari/7 hari/bulan, total dan rincian per kategori, catat dan hapus; server `/pengeluaran` (migrasi 0015, digerbang fitur `expenses`). Belum: offline (butuh internet), edit, foto nota, berulang. Lulus tes otomatis, belum diuji di HP. UJI HP (SIT 22-24 Nov 2026, bukan QA Passed; bukti: docs/pemetaan_fitur_vs_uji_hp.md & docs/perlu_konfirmasi.md): belanja bahan dan listrik masuk Laba rugi. Penguji juga melaporkan sudah mencobanya langsung dan berhasil (2026-11-24).",
   "uji_hp": true
  },
  "68": {
@@ -295,8 +295,8 @@
   "uji_hp": true
  },
  "69": {
-  "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-12): Lainnya > Laba rugi: penjualan kotor, diskon, HPP, laba kotor, biaya operasional, laba bersih; server `/laporan/laba-rugi`. Rumus adalah keputusan sementara (belanja bahan tidak dikurangkan lagi, refund belum dihitung); perlu validasi akuntan. Butuh internet, belum diuji di HP. UJI HP (SIT 22-24 Nov 2026, bukan QA Passed; bukti: docs/pemetaan_fitur_vs_uji_hp.md & docs/perlu_konfirmasi.md): termasuk refund, diskon, biaya operasional.",
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26; kriteria pengguna: fitur cukup, langsung bisa dipakai UMKM, standar POS, dan lulus uji HP). Penyempurnaan dipindah ke docs/backlog_release_2.md. Catatan lama: SEBAGIAN (2026-11-12): Lainnya > Laba rugi: penjualan kotor, diskon, HPP, laba kotor, biaya operasional, laba bersih; server `/laporan/laba-rugi`. Rumus adalah keputusan sementara (belanja bahan tidak dikurangkan lagi, refund belum dihitung); perlu validasi akuntan. Butuh internet, belum diuji di HP. UJI HP (SIT 22-24 Nov 2026, bukan QA Passed; bukti: docs/pemetaan_fitur_vs_uji_hp.md & docs/perlu_konfirmasi.md): termasuk refund, diskon, biaya operasional.",
   "uji_hp": true
  },
  "70": {
