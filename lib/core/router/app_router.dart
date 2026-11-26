@@ -22,6 +22,7 @@ import '../../features/pengeluaran/presentation/pages/pengeluaran_page.dart';
 import '../../features/pengeluaran/presentation/pages/settlement_page.dart';
 import '../../features/pengeluaran/presentation/pages/tutup_buku_page.dart';
 import '../../features/pengeluaran/presentation/pages/bagan_akun_page.dart';
+import '../../features/stok/presentation/pages/pembelian_page.dart';
 import '../../features/pengeluaran/presentation/pages/laporan_keuangan_page.dart';
 import '../../features/pengeluaran/presentation/pages/ekspor_akuntansi_page.dart';
 import '../../features/pengeluaran/presentation/pages/anggaran_page.dart';
@@ -449,6 +450,10 @@ GoRouter _buildRouter() => GoRouter(
     GoRoute(
       path: '/laporan-keuangan',
       builder: (context, state) => const IzinGuard(kodeIzin: 'laporan.lihat', child: LaporanKeuanganPage()),
+    ),
+    GoRoute(
+      path: '/pembelian',
+      builder: (context, state) => const IzinGuard(kodeIzin: 'pembelian.kelola', child: PembelianPage()),
     ),
     GoRoute(
       path: '/anggaran',

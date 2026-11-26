@@ -101,3 +101,36 @@ async def test_mutasi_stok_pembelian_tercatat(
     ).scalars().all()
     assert len(mutasi) == 1
     assert mutasi[0].qty == Decimal("3")
+
+
+async def test_pelunasan_pemasok_dan_utang_di_laporan(client: AsyncClient, db_session: AsyncSession, toko_a) -> None:
+    """Hutang ke pemasok (IMOGI no. 71): pembelian diterima belum lunas = utang; ditandai lunas sekali saja."""
+    produk = await buat_produk(db_session, toko_a.toko.id)
+    resp = await client.post(
+        "/pembelian",
+        headers=toko_a.headers,
+        json={
+            "outlet_id": str(toko_a.outlet.id),
+            "nomor": "PO-LUNAS",
+            "tanggal": date.today().isoformat(),
+            "items": [{"produk_id": str(produk.id), "qty": "4", "harga_satuan": "25000"}],
+        },
+    )
+    pid = resp.json()["id"]
+    assert resp.json()["status_bayar"] == "belum"
+    await client.post(f"/pembelian/{pid}/terima", headers=toko_a.headers)
+
+    lunas = await client.post(f"/pembelian/{pid}/lunas", headers=toko_a.headers)
+    assert lunas.status_code == 200 and lunas.json()["status_bayar"] == "lunas"
+    assert (await client.post(f"/pembelian/{pid}/lunas", headers=toko_a.headers)).status_code == 409
+
+
+async def test_pembelian_hanya_untuk_peran_berizin(client: AsyncClient, db_session: AsyncSession) -> None:
+    """Kasir tidak punya pembelian.kelola: tidak bisa membaca, membuat pemasok, atau membuat pembelian (dulu bisa)."""
+    from tests.conftest import buat_toko_siap_pakai
+
+    kasir = await buat_toko_siap_pakai(db_session, nama_role="Kasir")
+    assert (await client.get("/pembelian", headers=kasir.headers)).status_code == 403
+    assert (await client.post("/supplier", headers=kasir.headers, json={"nama": "Pemasok"})).status_code == 403
+    gudang = await buat_toko_siap_pakai(db_session, nama_role="Gudang")
+    assert (await client.post("/supplier", headers=gudang.headers, json={"nama": "Pemasok"})).status_code == 201

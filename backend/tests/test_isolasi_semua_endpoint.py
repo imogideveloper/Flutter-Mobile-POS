@@ -421,7 +421,7 @@ def _body_untuk(method: str, path: str, ids: dict[str, uuid.UUID]) -> dict | Non
         return {"nama": "Meja Sweep"}
     if path == "/outlets/{outlet_id}/stasiun-dapur":
         return {"nama": "Stasiun Sweep"}
-    if path in ("/antrean/nomor", "/pembelian/{pembelian_id}/terima", "/stok-opname/{opname_id}/selesai",
+    if path in ("/antrean/nomor", "/pembelian/{pembelian_id}/terima", "/pembelian/{pembelian_id}/lunas", "/stok-opname/{opname_id}/selesai",
                 "/transfer-stok/{transfer_id}/kirim", "/transfer-stok/{transfer_id}/terima",
                 "/langganan/checkout-upgrade/{permintaan_id}/simulasi"):
         return None  # tidak perlu body JSON (query-only atau tanpa body)

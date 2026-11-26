@@ -522,6 +522,16 @@ class LainnyaPage extends ConsumerWidget {
                           ? 'Aman'
                           : '$jumlahMenipis menipis',
                       onTap: () => context.push('/stok'),
+                    ),
+                  ),
+                  // Pembelian ke pemasok dan utangnya (IMOGI no. 71); izin pembelian.kelola (Owner, Manajer, Gudang).
+                  bila(
+                    'pembelian.kelola',
+                    SettingsMenuRow(
+                      label: 'Pembelian & pemasok',
+                      ikon: Icons.local_shipping_outlined,
+                      value: 'Utang pemasok',
+                      onTap: () => context.push('/pembelian'),
                       showDivider: false,
                     ),
                   ),

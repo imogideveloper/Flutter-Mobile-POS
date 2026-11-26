@@ -319,7 +319,7 @@
  },
  "71": {
   "status": "sedang",
-  "catatan": "Piutang pelanggan (kasbon) ada. Hutang usaha ke supplier belum dicocokkan (backend punya modul pembelian)."
+  "catatan": "SEBAGIAN (2026-11-26): piutang pelanggan (kasbon) lulus uji HP 2026-11-26. Hutang usaha ke pemasok kini punya layar: Lainnya > Pembelian & pemasok (izin pembelian.kelola) untuk catat pembelian, tambah pemasok, terima barang (stok bertambah, HPP ikut harga beli), tandai lunas, dan total utang ke pemasok; server menambah POST /pembelian/{id}/lunas dan pemeriksaan izin di semua endpoint pembelian/pemasok. Utang pemasok masuk neraca Laporan keuangan. Belum: pembayaran sebagian, jatuh tempo, uji layar pembelian di HP. Piutang pelanggan (kasbon) ada. Hutang usaha ke supplier belum dicocokkan (backend punya modul pembelian)."
  },
  "72": {
   "status": "sudah",
