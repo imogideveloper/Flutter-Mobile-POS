@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/network/auto_sync.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/providers/session_provider.dart';
 import '../../../../core/providers/toko_profile_provider.dart';
@@ -125,6 +126,8 @@ class _PelunasanPageState extends ConsumerState<PelunasanPage> {
             jumlah: jumlah,
             payloadGateway: _metodeTunai ? null : _payloadKonfirmasiManual,
           );
+      // Pelunasan langsung dikirim ke server (dulu menunggu sync berkala sampai 5 menit; temuan uji kasbon).
+      picuSyncSetelahTransaksi(ref);
       if (!mounted) return;
       final labelMetode = _metodeTunai ? 'Tunai' : 'QRIS statis (cek manual)';
       final sisaSetelah = dipilih.sisaTagihan - jumlah < 0 ? 0 : dipilih.sisaTagihan - jumlah;

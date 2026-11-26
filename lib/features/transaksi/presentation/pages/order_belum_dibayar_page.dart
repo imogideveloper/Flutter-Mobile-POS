@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/network/auto_sync.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/providers/session_provider.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -167,6 +168,8 @@ class _SheetBayarState extends ConsumerState<_SheetBayar> {
             shiftId: shift.id,
             jumlah: jumlah,
           );
+      // Pelunasan langsung dikirim ke server (dulu menunggu sync berkala sampai 5 menit; temuan uji kasbon).
+      picuSyncSetelahTransaksi(ref);
       if (mounted) {
         Navigator.of(context).pop();
         showAppToast(
