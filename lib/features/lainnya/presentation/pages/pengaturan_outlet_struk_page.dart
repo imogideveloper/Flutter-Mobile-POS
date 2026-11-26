@@ -490,8 +490,10 @@ class _PengaturanOutletStrukPageState extends ConsumerState<PengaturanOutletStru
                       decoration: const InputDecoration(
                         labelText: 'Batas margin produk (%)',
                         helperText: 'Produk dengan margin di bawah angka ini ditandai. Bawaan 50 untuk makanan dan minuman.',
+                        helperMaxLines: 2,
                       ),
                     ),
+                    const SizedBox(height: AppSpacing.lg),
                     FiturTerkunci(
                       kode: 'status_pesanan',
                       child: TextField(

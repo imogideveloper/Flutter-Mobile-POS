@@ -92,7 +92,12 @@ class _SettlementPageState extends ConsumerState<SettlementPage> {
       final json = await ref.read(backendApiProvider).getJson(
         accessToken: await _token(),
         path: '/settlement/rekonsiliasi',
-        query: {'dari': tanggalIso(sekarang.subtract(Duration(days: _hari - 1))), 'sampai': tanggalIso(sekarang)},
+        query: {
+          'dari': tanggalIso(sekarang.subtract(Duration(days: _hari - 1))),
+          'sampai': tanggalIso(sekarang),
+          // Tanggal dikelompokkan menurut jam HP, bukan UTC.
+          'tz_menit': sekarang.timeZoneOffset.inMinutes,
+        },
       );
       _baris = [
         for (final b in (json as Map)['baris'] as List) BarisRekonsiliasi.dariJson(Map<String, dynamic>.from(b as Map)),

@@ -41,7 +41,7 @@ def test_berkas_status_nyata_valid_dan_cocok_dengan_gap_imogi() -> None:
     assert sorted(data) == list(range(1, 88))
     hitung = Counter(v["status"] for v in data.values())
     # Angka ini harus sama dengan docs/gap_imogi.md; ubah KEDUANYA bersamaan.
-    assert hitung == {"sudah": 32, "sedang": 30, "tidak_relevan": 25}, "tidak ada lagi fitur berstatus belum"
+    assert hitung == {"sudah": 57, "sedang": 5, "tidak_relevan": 25}, "tidak ada lagi fitur berstatus belum"
     # Tes otomatis bukan bukti uji HP: fitur bertanda uji_hp wajib mencantumkan catatan bukti uji di perangkat.
     for nomor, v in data.items():
         if v.get("uji_hp"):

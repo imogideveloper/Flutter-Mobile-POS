@@ -3,7 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 /// Tren penjualan (IMOGI no. 65): total per tanggal lokal, hari kosong bernilai 0.
 void main() {
-  int ms(int tgl, int jam) => DateTime.utc(2026, 11, tgl, jam).millisecondsSinceEpoch;
+  // Jam lokal HP: batas hari laporan mengikuti jam HP, bukan UTC (temuan HP 2026-11-26).
+  int ms(int tgl, int jam) => DateTime(2026, 11, tgl, jam).millisecondsSinceEpoch;
 
   test('menjumlah per tanggal dan mengisi hari tanpa transaksi dengan 0', () {
     final hasil = susunPenjualanHarian(

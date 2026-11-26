@@ -41,8 +41,9 @@
   "catatan": "Tidak relevan untuk Makanan & Minuman."
  },
  "10": {
-  "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-16): layar bayar QRIS menampilkan gambar QRIS statis milik usaha (sebelumnya QR tiruan yang tidak bisa dibayar). Pemilik mengunggah gambar (PNG/JPG maks. 1 MB) di Pengaturan metode bayar pada metode QRIS (digerbang fitur qris, migrasi 0027, ikut sync dan di-cache untuk offline), bisa diganti atau dihapus; tanpa gambar layar memberi petunjuk. Kasir tetap wajib mengecek dana masuk manual. QRIS dinamis Xendit tetap terblokir (kunci kosong). Lulus tes otomatis, belum diuji di HP."
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26, kriteria pengguna). UJI HP 2026-11-26 (Owner, toko Pagi Sore): bayar QRIS statis cek manual, tercatat di server sebagai qris_statis_manual. Penyempurnaan di docs/backlog_release_2.md. Catatan lama: SEBAGIAN (2026-11-16): layar bayar QRIS menampilkan gambar QRIS statis milik usaha (sebelumnya QR tiruan yang tidak bisa dibayar). Pemilik mengunggah gambar (PNG/JPG maks. 1 MB) di Pengaturan metode bayar pada metode QRIS (digerbang fitur qris, migrasi 0027, ikut sync dan di-cache untuk offline), bisa diganti atau dihapus; tanpa gambar layar memberi petunjuk. Kasir tetap wajib mengecek dana masuk manual. QRIS dinamis Xendit tetap terblokir (kunci kosong). Lulus tes otomatis, belum diuji di HP.",
+  "uji_hp": true
  },
  "11": {
   "status": "tidak_relevan",
@@ -53,12 +54,14 @@
   "catatan": "Tidak relevan untuk Makanan & Minuman."
  },
  "13": {
-  "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-15): metode kartu/transfer/e-wallet punya pengaturan Wajib no. referensi; layar bayar menolak bila no. referensi kosong dan, khusus kartu, 4 digit akhir tidak tepat 4 angka. Belum: jenis kartu (debit/kredit) dan daftar mesin EDC. Lulus tes otomatis, belum diuji di HP."
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26, kriteria pengguna). UJI HP 2026-11-26 (Owner, toko Pagi Sore): bayar kartu kredit, jenis kartu tercatat di server. Penyempurnaan di docs/backlog_release_2.md. Catatan lama: SEBAGIAN (2026-11-15): metode kartu/transfer/e-wallet punya pengaturan Wajib no. referensi; layar bayar menolak bila no. referensi kosong dan, khusus kartu, 4 digit akhir tidak tepat 4 angka. Belum: jenis kartu (debit/kredit) dan daftar mesin EDC. Lulus tes otomatis, belum diuji di HP.",
+  "uji_hp": true
  },
  "14": {
-  "status": "sedang",
-  "catatan": "Metode transfer ada. SEBAGIAN (2026-11-14): Pengaturan metode bayar kini punya rekening tujuan (bank, nomor, atas nama) untuk metode transfer/e-wallet; ikut sync ke HP (migrasi 0019, schema lokal 15) dan tampil di layar bayar saat metode dipilih. Belum diuji di HP."
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26, kriteria pengguna). UJI HP 2026-11-26 (Owner, toko Pagi Sore): bayar transfer, tercatat di server. Penyempurnaan di docs/backlog_release_2.md. Catatan lama: Metode transfer ada. SEBAGIAN (2026-11-14): Pengaturan metode bayar kini punya rekening tujuan (bank, nomor, atas nama) untuk metode transfer/e-wallet; ikut sync ke HP (migrasi 0019, schema lokal 15) dan tampil di layar bayar saat metode dipilih. Belum diuji di HP.",
+  "uji_hp": true
  },
  "15": {
   "status": "sudah",
@@ -105,12 +108,14 @@
   "catatan": "SEBAGIAN (2026-11-15): Pengaturan struk punya pilihan Gaya logo: logo unggahan, atau logo otomatis dari inisial nama usaha (lingkaran, cincin, inisial), dengan pratinjau; struk cetak memakai gaya terpilih; tanpa logo = saklar Tampilkan logo dimatikan. Gaya otomatis digerbang fitur logo_struk di server (migrasi 0026) dan ikut sync. BUG-012 (simpan pengaturan paket Gratis) sudah diperbaiki sebelumnya. Belum: logo otomatis tidak tampil di pratinjau struk teks dan belum ada pilihan warna atau font. Lulus tes otomatis (termasuk render gambar), belum diuji di printer dan HP."
  },
  "25": {
-  "status": "sedang",
-  "catatan": "Catatan pesanan tercetak. Footer struk toko sudah ada dan kini dibatasi maks. 300 karakter di Pengaturan struk. Belum diuji di HP."
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26, kriteria pengguna). UJI HP 2026-11-26 (Owner, toko Pagi Sore): footer struk tampil di struk transaksi. Penyempurnaan di docs/backlog_release_2.md. Catatan lama: Catatan pesanan tercetak. Footer struk toko sudah ada dan kini dibatasi maks. 300 karakter di Pengaturan struk. Belum diuji di HP.",
+  "uji_hp": true
  },
  "26": {
-  "status": "sedang",
-  "catatan": "SELESAI sebagian (2026-11-08): status awal Baru dibuat saat checkout, halaman Status Pesanan (menu Lainnya) memajukan tahap Baru, Diproses, Siap, Selesai (katering: Dipesan, Dimasak, Siap kirim, Dikirim, Selesai), tersimpan offline dan dikirim lewat sync (migrasi 0011). KEMAJUAN 2026-11-10: pesanan bertipe antar otomatis memuat tahap Diantar. Belum ada estimasi selesai, pesan WhatsApp saat siap, dan uji di HP."
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26, kriteria pengguna). UJI HP 2026-11-26 (Owner, toko Pagi Sore): status Baru, Diproses, Siap, Selesai di layar Status pesanan. Penyempurnaan di docs/backlog_release_2.md. Catatan lama: SELESAI sebagian (2026-11-08): status awal Baru dibuat saat checkout, halaman Status Pesanan (menu Lainnya) memajukan tahap Baru, Diproses, Siap, Selesai (katering: Dipesan, Dimasak, Siap kirim, Dikirim, Selesai), tersimpan offline dan dikirim lewat sync (migrasi 0011). KEMAJUAN 2026-11-10: pesanan bertipe antar otomatis memuat tahap Diantar. Belum ada estimasi selesai, pesan WhatsApp saat siap, dan uji di HP.",
+  "uji_hp": true
  },
  "27": {
   "status": "sudah",
@@ -167,8 +172,9 @@
   "uji_hp": true
  },
  "39": {
-  "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-12): ekspor seluruh produk HP ke CSV lewat menu bagikan (Lainnya > Impor & ekspor produk). Belum diuji di HP."
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26, kriteria pengguna). UJI HP 2026-11-26 (Owner, toko Pagi Sore): ekspor seluruh produk ke CSV lewat menu bagikan. Penyempurnaan di docs/backlog_release_2.md. Catatan lama: SEBAGIAN (2026-11-12): ekspor seluruh produk HP ke CSV lewat menu bagikan (Lainnya > Impor & ekspor produk). Belum diuji di HP.",
+  "uji_hp": true
  },
  "40": {
   "status": "sudah",
@@ -213,8 +219,9 @@
   "uji_hp": true
  },
  "50": {
-  "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-16): catat batch (produk, nomor batch, jumlah, tanggal kedaluwarsa, ingatkan N hari) lewat ikon di halaman Stok, digerbang paket dan izin stok.kelola; daftar menandai Sudah lewat dan Segera, ikut sync ke HP. Pencatatan butuh koneksi. Belum: pemberitahuan terjadwal, pengurangan batch saat penjualan (FIFO), batch dari pembelian. Lulus tes otomatis, belum diuji di HP."
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26, kriteria pengguna). UJI HP 2026-11-26 (Owner, toko Pagi Sore): catat batch dengan tanggal kedaluwarsa, muncul di Segera (10 hari lagi). Penyempurnaan di docs/backlog_release_2.md. Catatan lama: SEBAGIAN (2026-11-16): catat batch (produk, nomor batch, jumlah, tanggal kedaluwarsa, ingatkan N hari) lewat ikon di halaman Stok, digerbang paket dan izin stok.kelola; daftar menandai Sudah lewat dan Segera, ikut sync ke HP. Pencatatan butuh koneksi. Belum: pemberitahuan terjadwal, pengurangan batch saat penjualan (FIFO), batch dari pembelian. Lulus tes otomatis, belum diuji di HP.",
+  "uji_hp": true
  },
  "51": {
   "status": "sudah",
@@ -225,8 +232,9 @@
   "catatan": "CRUD pelanggan dan piutang."
  },
  "53": {
-  "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-13): Lainnya > Impor pelanggan: template CSV, pratinjau, simulasi dan impor lewat `POST /pelanggan/impor`; nomor HP dinormalkan. Belum: memperbarui pelanggan lama, poin/level. Belum diuji di HP."
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26, kriteria pengguna). UJI HP 2026-11-26 (Owner, toko Pagi Sore): impor 2 pelanggan dari CSV termasuk tanggal lahir, tersimpan di server. Penyempurnaan di docs/backlog_release_2.md. Catatan lama: SEBAGIAN (2026-11-13): Lainnya > Impor pelanggan: template CSV, pratinjau, simulasi dan impor lewat `POST /pelanggan/impor`; nomor HP dinormalkan. Belum: memperbarui pelanggan lama, poin/level. Belum diuji di HP.",
+  "uji_hp": true
  },
  "54": {
   "status": "sudah",
@@ -239,8 +247,9 @@
   "uji_hp": true
  },
  "56": {
-  "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-13): promo bisa ditandai Khusus ulang tahun (gerbang paket birthday_promo, migrasi 0017); tanggal lahir pelanggan bisa diisi di form, ikut impor CSV, dan kini ikut sync ke HP; di keranjang promo itu hanya bisa dipilih bila pelanggan berulang tahun hari ini dan dicabut bila pelanggan diganti; daftar pelanggan menandai yang berulang tahun hari ini. Penerapan otomatis sudah ada (2026-11-17): memilih pelanggan yang berulang tahun hari ini di keranjang otomatis memasang promo ulang tahun bila kasir belum memilih promo. Belum: pemberitahuan ke pelanggan, validasi server saat checkout. Belum diuji di HP."
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26, kriteria pengguna). UJI HP 2026-11-26 (Owner, toko Pagi Sore): promo khusus ulang tahun hanya muncul untuk pelanggan yang berulang tahun hari ini, potongan masuk total. Penyempurnaan di docs/backlog_release_2.md. Catatan lama: SEBAGIAN (2026-11-13): promo bisa ditandai Khusus ulang tahun (gerbang paket birthday_promo, migrasi 0017); tanggal lahir pelanggan bisa diisi di form, ikut impor CSV, dan kini ikut sync ke HP; di keranjang promo itu hanya bisa dipilih bila pelanggan berulang tahun hari ini dan dicabut bila pelanggan diganti; daftar pelanggan menandai yang berulang tahun hari ini. Penerapan otomatis sudah ada (2026-11-17): memilih pelanggan yang berulang tahun hari ini di keranjang otomatis memasang promo ulang tahun bila kasir belum memilih promo. Belum: pemberitahuan ke pelanggan, validasi server saat checkout. Belum diuji di HP.",
+  "uji_hp": true
  },
  "57": {
   "status": "sedang",
@@ -251,8 +260,9 @@
   "catatan": "Tidak relevan untuk Makanan & Minuman."
  },
  "59": {
-  "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-17): Lainnya > Survei pelanggan: buat survei (rating 1-5, pilihan, teks), isi jawaban pelanggan, lihat hasil. Butuh internet. Belum: tampil di struk/layar pelanggan/WhatsApp, tautan ke transaksi, dan belum diuji di HP."
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26, kriteria pengguna). UJI HP 2026-11-26 (Owner, toko Pagi Sore): buat survei rating, isi jawaban, hasil rata-rata 4,0. Penyempurnaan di docs/backlog_release_2.md. Catatan lama: SEBAGIAN (2026-11-17): Lainnya > Survei pelanggan: buat survei (rating 1-5, pilihan, teks), isi jawaban pelanggan, lihat hasil. Butuh internet. Belum: tampil di struk/layar pelanggan/WhatsApp, tautan ke transaksi, dan belum diuji di HP.",
+  "uji_hp": true
  },
  "60": {
   "status": "tidak_relevan",
@@ -264,12 +274,14 @@
   "uji_hp": true
  },
  "62": {
-  "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-12): Lainnya > Absensi: absen masuk/keluar, rekap jam kerja, endpoint `/absensi` (waktu server, batas hari mengikuti zona perangkat). Belum: foto, lokasi, jadwal, terlambat, koreksi, offline. Belum diuji di HP."
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26, kriteria pengguna). UJI HP 2026-11-26 (Owner, toko Pagi Sore): absen masuk dan keluar, rekap jam kerja. Penyempurnaan di docs/backlog_release_2.md. Catatan lama: SEBAGIAN (2026-11-12): Lainnya > Absensi: absen masuk/keluar, rekap jam kerja, endpoint `/absensi` (waktu server, batas hari mengikuti zona perangkat). Belum: foto, lokasi, jadwal, terlambat, koreksi, offline. Belum diuji di HP.",
+  "uji_hp": true
  },
  "63": {
-  "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-14): Lainnya > Jadwal & cuti: pengelola mengatur shift mingguan tiap karyawan (libur/pagi/siang), karyawan melihat jadwal dan mengajukan cuti/sakit/izin, pengelola menyetujui atau menolak (tidak bisa memutuskan milik sendiri); absen masuk menjadi Terlambat bila lewat jam mulai + 10 menit (migrasi 0018, /jadwal dan /cuti, fitur staff_schedule). Belum: tukar jadwal, jam shift kustom di layar, shift lintas tengah malam, pemberitahuan. Belum diuji di HP."
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26, kriteria pengguna). UJI HP 2026-11-26 (Owner, toko Pagi Sore): atur shift Kamis pagi, muncul 'Hari ini shift pagi'. Penyempurnaan di docs/backlog_release_2.md. Catatan lama: SEBAGIAN (2026-11-14): Lainnya > Jadwal & cuti: pengelola mengatur shift mingguan tiap karyawan (libur/pagi/siang), karyawan melihat jadwal dan mengajukan cuti/sakit/izin, pengelola menyetujui atau menolak (tidak bisa memutuskan milik sendiri); absen masuk menjadi Terlambat bila lewat jam mulai + 10 menit (migrasi 0018, /jadwal dan /cuti, fitur staff_schedule). Belum: tukar jadwal, jam shift kustom di layar, shift lintas tengah malam, pemberitahuan. Belum diuji di HP.",
+  "uji_hp": true
  },
  "64": {
   "status": "sudah",
@@ -277,8 +289,9 @@
   "uji_hp": true
  },
  "65": {
-  "status": "sedang",
-  "catatan": "Tanpa grafik tren."
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26, kriteria pengguna). UJI HP 2026-11-26 (Owner, toko Pagi Sore): tren per kategori dan per produk di Laporan. Penyempurnaan di docs/backlog_release_2.md. Catatan lama: Tanpa grafik tren.",
+  "uji_hp": true
  },
  "66": {
   "status": "tidak_relevan",
@@ -300,24 +313,28 @@
   "uji_hp": true
  },
  "70": {
-  "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-12): tab PPh Final di Lainnya > Rekap pajak: estimasi tarif 0,5% x peredaran bruto per bulan; server `/laporan/pph-final`. Ambang bebas pajak dan status wajib pajak belum dihitung, hanya estimasi. Belum diuji di HP."
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26, kriteria pengguna). UJI HP 2026-11-26 (Owner, toko Pagi Sore): estimasi PPh Final 0,5% per bulan. Penyempurnaan di docs/backlog_release_2.md. Catatan lama: SEBAGIAN (2026-11-12): tab PPh Final di Lainnya > Rekap pajak: estimasi tarif 0,5% x peredaran bruto per bulan; server `/laporan/pph-final`. Ambang bebas pajak dan status wajib pajak belum dihitung, hanya estimasi. Belum diuji di HP.",
+  "uji_hp": true
  },
  "71": {
   "status": "sedang",
   "catatan": "Piutang pelanggan (kasbon) ada. Hutang usaha ke supplier belum dicocokkan (backend punya modul pembelian)."
  },
  "72": {
-  "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-14): kartu HPP & margin per produk di tab Laporan (qty, HPP, laba, margin %, penanda di bawah batas margin outlet, HPP kosong ditandai), dihitung offline dari data lokal, terkunci paket Professional. DIPERBAIKI: HPP sebelumnya tidak pernah disimpan saat checkout (selalu 0); kini disimpan sebagai snapshot HPP produk saat transaksi. Transaksi lama tetap HPP 0. Belum: ekspor dan laporan per kategori. Belum diuji di HP."
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26, kriteria pengguna). UJI HP 2026-11-26 (Owner, toko Pagi Sore): HPP & margin per produk di Laporan. Penyempurnaan di docs/backlog_release_2.md. Catatan lama: SEBAGIAN (2026-11-14): kartu HPP & margin per produk di tab Laporan (qty, HPP, laba, margin %, penanda di bawah batas margin outlet, HPP kosong ditandai), dihitung offline dari data lokal, terkunci paket Professional. DIPERBAIKI: HPP sebelumnya tidak pernah disimpan saat checkout (selalu 0); kini disimpan sebagai snapshot HPP produk saat transaksi. Transaksi lama tetap HPP 0. Belum: ekspor dan laporan per kategori. Belum diuji di HP.",
+  "uji_hp": true
  },
  "73": {
-  "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-12): tab PPN/PB1 di Lainnya > Rekap pajak: pajak dan service dipungut per nama dan tarif; server `/laporan/rekap-pajak`. Belum: ekspor, PPN masukan/keluaran, pelaporan SPT. Belum diuji di HP."
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26, kriteria pengguna). UJI HP 2026-11-26 (Owner, toko Pagi Sore): rekap PB1 dan service per tarif. Penyempurnaan di docs/backlog_release_2.md. Catatan lama: SEBAGIAN (2026-11-12): tab PPN/PB1 di Lainnya > Rekap pajak: pajak dan service dipungut per nama dan tarif; server `/laporan/rekap-pajak`. Belum: ekspor, PPN masukan/keluaran, pelaporan SPT. Belum diuji di HP.",
+  "uji_hp": true
  },
  "74": {
-  "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-17): Lainnya > Settlement QRIS & e-wallet: catat dana yang masuk rekening (per tanggal penjualan dan metode, dengan biaya/MDR) dan bandingkan dengan penjualan non-tunai di POS (cocok, selisih, belum dicatat). Butuh internet. Belum: impor otomatis dari penyedia/gateway, rentang 7/30/90 hari, jurnal akuntansi, belum diuji di HP."
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26, kriteria pengguna). UJI HP 2026-11-26 (Owner, toko Pagi Sore): catat dana masuk QRIS, status Cocok (tanggal kini mengikuti jam HP). Penyempurnaan di docs/backlog_release_2.md. Catatan lama: SEBAGIAN (2026-11-17): Lainnya > Settlement QRIS & e-wallet: catat dana yang masuk rekening (per tanggal penjualan dan metode, dengan biaya/MDR) dan bandingkan dengan penjualan non-tunai di POS (cocok, selisih, belum dicatat). Butuh internet. Belum: impor otomatis dari penyedia/gateway, rentang 7/30/90 hari, jurnal akuntansi, belum diuji di HP.",
+  "uji_hp": true
  },
  "75": {
   "status": "tidak_relevan",
@@ -332,36 +349,44 @@
   "catatan": "DITIADAKAN atas keputusan lead (2026-11-25): BPJS dan PPh 21 bergantung pada payroll yang ditiadakan."
  },
  "78": {
-  "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-17): Lainnya > Tutup buku (hanya Owner): kunci pembukuan sampai tanggal tertentu; pengeluaran, settlement, dan anggaran bertanggal terkunci ditolak (409), bisa dibuka kembali (tercatat di audit). Butuh internet. Belum: jurnal penutup/saldo awal tahun baru, penguncian transaksi penjualan, belum diuji di HP (aset tetap kini ikut terkunci)."
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26, kriteria pengguna). UJI HP 2026-11-26 (Owner, toko Pagi Sore): tutup buku lalu buka kembali. Penyempurnaan di docs/backlog_release_2.md. Catatan lama: SEBAGIAN (2026-11-17): Lainnya > Tutup buku (hanya Owner): kunci pembukuan sampai tanggal tertentu; pengeluaran, settlement, dan anggaran bertanggal terkunci ditolak (409), bisa dibuka kembali (tercatat di audit). Butuh internet. Belum: jurnal penutup/saldo awal tahun baru, penguncian transaksi penjualan, belum diuji di HP (aset tetap kini ikut terkunci).",
+  "uji_hp": true
  },
  "79": {
-  "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-17): Lainnya > Deposit pelanggan: buku mutasi saldo per pelanggan (top-up, pakai, koreksi), saldo tidak boleh minus, ringkasan total pendapatan diterima di muka. Butuh internet. Riwayat mutasi per pelanggan bisa dilihat. Belum: deposit sebagai metode bayar otomatis di kasir (pemakaian dicatat manual), jurnal/pengakuan pendapatan, membership berjangka, belum diuji di HP."
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26, kriteria pengguna). UJI HP 2026-11-26 (Owner, toko Pagi Sore): top-up deposit Rp50.000, saldo tampil. Penyempurnaan di docs/backlog_release_2.md. Catatan lama: SEBAGIAN (2026-11-17): Lainnya > Deposit pelanggan: buku mutasi saldo per pelanggan (top-up, pakai, koreksi), saldo tidak boleh minus, ringkasan total pendapatan diterima di muka. Butuh internet. Riwayat mutasi per pelanggan bisa dilihat. Belum: deposit sebagai metode bayar otomatis di kasir (pemakaian dicatat manual), jurnal/pengakuan pendapatan, membership berjangka, belum diuji di HP.",
+  "uji_hp": true
  },
  "80": {
-  "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-25, keputusan lead MoM 2026-11-25: pencatatan beban lewat layar Pengeluaran, siapkan CoA standarnya saja): bagan akun standar F&B (30 akun: aset, kewajiban, ekuitas, pendapatan, HPP, beban) di server, endpoint `/akuntansi/coa` (digerbang `journal`, izin laporan.lihat), layar Lainnya > Bagan akun (CoA) hanya baca, setiap kategori pengeluaran dipetakan ke akun beban/HPP (sewa 6-1100, listrik & air 6-1200, dst.), dan ekspor akuntansi CSV kini membawa kolom kode_akun/nama_akun usulan. Daftar akun usulan awal, perlu ditinjau akuntan. Belum: jurnal umum, akun yang bisa diubah per toko. Lulus tes otomatis, belum diuji di HP."
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26, kriteria pengguna). UJI HP 2026-11-26 (Owner, toko Pagi Sore): bagan akun dan pemetaan kategori pengeluaran tampil. Penyempurnaan di docs/backlog_release_2.md. Catatan lama: SEBAGIAN (2026-11-25, keputusan lead MoM 2026-11-25: pencatatan beban lewat layar Pengeluaran, siapkan CoA standarnya saja): bagan akun standar F&B (30 akun: aset, kewajiban, ekuitas, pendapatan, HPP, beban) di server, endpoint `/akuntansi/coa` (digerbang `journal`, izin laporan.lihat), layar Lainnya > Bagan akun (CoA) hanya baca, setiap kategori pengeluaran dipetakan ke akun beban/HPP (sewa 6-1100, listrik & air 6-1200, dst.), dan ekspor akuntansi CSV kini membawa kolom kode_akun/nama_akun usulan. Daftar akun usulan awal, perlu ditinjau akuntan. Belum: jurnal umum, akun yang bisa diubah per toko. Lulus tes otomatis, belum diuji di HP.",
+  "uji_hp": true
  },
  "81": {
-  "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-25, arahan lead: laporan keuangan sederhana standar UMKM): Lainnya > Laporan keuangan (digerbang `ledger`, izin laporan.lihat, butuh internet), per bulan: laba rugi per akun CoA (termasuk penyusutan aset tetap), arus kas sederhana (penjualan per metode, deposit diterima, pengeluaran per akun, refund, pembelian aset, pembayaran pemasok), dan posisi keuangan ringkas per hari ini (kas = akumulasi arus kas tercatat, piutang kasbon, persediaan, aset tetap dan akumulasi penyusutan, utang pemasok, deposit pelanggan, modal & laba = aset - kewajiban). Server `GET /laporan-keuangan`. Tanpa jurnal umum. Belum: saldo awal kas, setoran modal/prive, utang pajak, ekspor PDF. Lulus tes otomatis, belum diuji di HP."
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26, kriteria pengguna). UJI HP 2026-11-26 (Owner, toko Pagi Sore): laporan keuangan per bulan, neraca seimbang. Penyempurnaan di docs/backlog_release_2.md. Catatan lama: SEBAGIAN (2026-11-25, arahan lead: laporan keuangan sederhana standar UMKM): Lainnya > Laporan keuangan (digerbang `ledger`, izin laporan.lihat, butuh internet), per bulan: laba rugi per akun CoA (termasuk penyusutan aset tetap), arus kas sederhana (penjualan per metode, deposit diterima, pengeluaran per akun, refund, pembelian aset, pembayaran pemasok), dan posisi keuangan ringkas per hari ini (kas = akumulasi arus kas tercatat, piutang kasbon, persediaan, aset tetap dan akumulasi penyusutan, utang pemasok, deposit pelanggan, modal & laba = aset - kewajiban). Server `GET /laporan-keuangan`. Tanpa jurnal umum. Belum: saldo awal kas, setoran modal/prive, utang pajak, ekspor PDF. Lulus tes otomatis, belum diuji di HP.",
+  "uji_hp": true
  },
  "82": {
-  "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-17): Lainnya > Anggaran & proyeksi: anggaran biaya per kategori per bulan, realisasi dari pengeluaran, status aman/hampir habis/melebihi, proyeksi akhir bulan linear untuk biaya dan penjualan serta selisih kasar. Butuh internet. Ada tombol salin anggaran dari bulan lalu. Belum: proyeksi arus kas akuntansi sungguhan (piutang/utang, jadwal bayar), anggaran per outlet, belum diuji di HP."
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26, kriteria pengguna). UJI HP 2026-11-26 (Owner, toko Pagi Sore): atur anggaran kategori, status Aman dan proyeksi. Penyempurnaan di docs/backlog_release_2.md. Catatan lama: SEBAGIAN (2026-11-17): Lainnya > Anggaran & proyeksi: anggaran biaya per kategori per bulan, realisasi dari pengeluaran, status aman/hampir habis/melebihi, proyeksi akhir bulan linear untuk biaya dan penjualan serta selisih kasar. Butuh internet. Ada tombol salin anggaran dari bulan lalu. Belum: proyeksi arus kas akuntansi sungguhan (piutang/utang, jadwal bayar), anggaran per outlet, belum diuji di HP.",
+  "uji_hp": true
  },
  "83": {
-  "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-17): Lainnya > Aset tetap & penyusutan: daftar aset (harga perolehan, nilai residu, umur bulan), penyusutan garis lurus per bulan dihitung server, akumulasi dan nilai buku per hari ini. Butuh internet. Angka aset bisa diubah (penyusutan dihitung ulang) dan ikut terkunci tutup buku. Belum: jurnal penyusutan, metode saldo menurun, pelepasan/penjualan aset, belum diuji di HP."
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26, kriteria pengguna). UJI HP 2026-11-26 (Owner, toko Pagi Sore): tambah aset, penyusutan Rp100.000 per bulan. Penyempurnaan di docs/backlog_release_2.md. Catatan lama: SEBAGIAN (2026-11-17): Lainnya > Aset tetap & penyusutan: daftar aset (harga perolehan, nilai residu, umur bulan), penyusutan garis lurus per bulan dihitung server, akumulasi dan nilai buku per hari ini. Butuh internet. Angka aset bisa diubah (penyusutan dihitung ulang) dan ikut terkunci tutup buku. Belum: jurnal penyusutan, metode saldo menurun, pelepasan/penjualan aset, belum diuji di HP.",
+  "uji_hp": true
  },
  "84": {
-  "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-17): Lainnya > Laba rugi konsolidasi (Owner/Manajer, digerbang fitur consolidation): laba rugi tiap outlet aktif dan total toko dalam satu layar, rentang hari/7 hari/bulan; server GET /laporan/laba-rugi-konsolidasi memakai rumus laba rugi no. 69 yang sama (keputusan sementara, perlu validasi akuntan). Total memuat biaya tanpa outlet. Belum: neraca, arus kas, ekspor, eliminasi transaksi antar outlet, mata uang. Butuh internet, lulus tes otomatis, belum diuji di HP."
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26, kriteria pengguna). UJI HP 2026-11-26 (Owner, toko Pagi Sore): laba rugi konsolidasi per outlet dan total. Penyempurnaan di docs/backlog_release_2.md. Catatan lama: SEBAGIAN (2026-11-17): Lainnya > Laba rugi konsolidasi (Owner/Manajer, digerbang fitur consolidation): laba rugi tiap outlet aktif dan total toko dalam satu layar, rentang hari/7 hari/bulan; server GET /laporan/laba-rugi-konsolidasi memakai rumus laba rugi no. 69 yang sama (keputusan sementara, perlu validasi akuntan). Total memuat biaya tanpa outlet. Belum: neraca, arus kas, ekspor, eliminasi transaksi antar outlet, mata uang. Butuh internet, lulus tes otomatis, belum diuji di HP.",
+  "uji_hp": true
  },
  "85": {
-  "status": "sedang",
-  "catatan": "SEBAGIAN (2026-11-17): Lainnya > Ekspor ke software akuntansi: CSV netral ringkasan harian (penjualan bersih, pajak dipungut, HPP, penerimaan per metode bayar, biaya per kategori) dibagikan lewat menu bagikan. Butuh internet. Belum: format khusus Jurnal/Accurate/Zahir, pemetaan kode akun, jurnal berpasangan debit-kredit, belum diuji di HP."
+  "status": "sudah",
+  "catatan": "SELESAI untuk Release 1 (2026-11-26, kriteria pengguna). UJI HP 2026-11-26 (Owner, toko Pagi Sore): ekspor CSV akuntansi dibuat dan siap dibagikan. Penyempurnaan di docs/backlog_release_2.md. Catatan lama: SEBAGIAN (2026-11-17): Lainnya > Ekspor ke software akuntansi: CSV netral ringkasan harian (penjualan bersih, pajak dipungut, HPP, penerimaan per metode bayar, biaya per kategori) dibagikan lewat menu bagikan. Butuh internet. Belum: format khusus Jurnal/Accurate/Zahir, pemetaan kode akun, jurnal berpasangan debit-kredit, belum diuji di HP.",
+  "uji_hp": true
  },
  "86": {
   "status": "tidak_relevan",

@@ -11,6 +11,18 @@ import 'package:flutter_test/flutter_test.dart';
 final _tipe = RegExp(r'TextFormField|TextField|DropdownButtonFormField(<[^>(]*>)?|AppTextField|DropdownMenu(<[^>(]*>)?');
 final _awalKolom = RegExp(r'^\s*(' + _tipe.pattern + r')\s*\(');
 
+/// Kolom isian yang dibungkus FiturTerkunci (`FiturTerkunci(` lalu `child: TextField(` dalam beberapa baris) juga
+/// dihitung kolom: dulu terlewat sehingga "Batas margin" dan "Estimasi selesai pesanan" menempel (HP 2026-11-26).
+final _anakKolom = RegExp(r'^\s*child:\s*(' + _tipe.pattern + r')\s*\(');
+
+bool _kolomTerbungkus(List<String> baris, int i) {
+  if (!RegExp(r'^\s*FiturTerkunci\s*\(').hasMatch(baris[i])) return false;
+  for (var k = i + 1; k < baris.length && k <= i + 3; k++) {
+    if (_anakKolom.hasMatch(baris[k])) return true;
+  }
+  return false;
+}
+
 int _seimbang(String s) => '('.allMatches(s).length - ')'.allMatches(s).length;
 
 int _indent(String s) => s.length - s.trimLeft().length;
@@ -41,7 +53,7 @@ List<String> _cariKolomMenempel(String nama, List<String> baris) {
     while (m < baris.length && baris[m].trim().isEmpty) {
       m++;
     }
-    if (m < baris.length && _awalKolom.hasMatch(baris[m])) hasil.add('$nama:${m + 1}');
+    if (m < baris.length && (_awalKolom.hasMatch(baris[m]) || _kolomTerbungkus(baris, m))) hasil.add('$nama:${m + 1}');
   }
   return hasil;
 }
@@ -73,6 +85,17 @@ void main() {
         '  TextField(controller: b),',
       ]),
       isEmpty,
+    );
+    expect(
+      _cariKolomMenempel('x.dart', [
+        '  TextField(controller: a),',
+        '  FiturTerkunci(',
+        "    kode: 'x',",
+        '    child: TextField(controller: b),',
+        '  ),',
+      ]),
+      ['x.dart:2'],
+      reason: 'kolom yang dibungkus FiturTerkunci juga terperiksa',
     );
   });
 

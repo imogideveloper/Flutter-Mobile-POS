@@ -37,6 +37,9 @@ RingkasanLaporan ringkasanDariServer({
         metodeBayarId: (m as Map<String, dynamic>)['metode_bayar_id'] as String,
         total: uangDariBackend(m['total'].toString()),
         persen: double.parse(m['persen'].toString()),
+        // Nama dari server sudah memuat jenis kartu dan label tujuan (mis. "Kartu · Debit"); tanpa ini tiap baris
+        // kartu tampil sama-sama "Kartu".
+        labelOverride: m['nama'] as String?,
       ),
   ];
 

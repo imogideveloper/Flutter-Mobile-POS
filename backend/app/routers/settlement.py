@@ -4,7 +4,7 @@ Pemilik mencatat dana yang masuk rekening dari penyedia pembayaran (per tanggal 
 membandingkannya dengan penjualan non-tunai yang tercatat di POS. Selisih = tercatat - diterima - biaya."""
 
 import uuid
-from datetime import UTC, date, datetime, time, timedelta
+from datetime import UTC, date, datetime, time, timedelta, timezone
 from decimal import Decimal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -171,14 +171,17 @@ async def hapus_settlement(
 async def rekonsiliasi(
     dari: date = Query(...),
     sampai: date = Query(...),
+    # Offset zona waktu HP (menit). Tanpa ini pembayaran 00.00-07.00 WIB tercatat di tanggal UTC sehari sebelumnya.
+    tz_menit: int = Query(0, ge=-840, le=840),
     toko_id: uuid.UUID = Depends(get_toko_id),
     role_id: uuid.UUID = Depends(get_role_id),
     db: AsyncSession = Depends(get_db),
 ) -> RekonsiliasiOut:
     await _wajib_izin(db, role_id)
     _periksa_rentang(dari, sampai)
-    awal = datetime.combine(dari, time.min, tzinfo=UTC)
-    akhir = datetime.combine(sampai + timedelta(days=1), time.min, tzinfo=UTC)
+    zona = timezone(timedelta(minutes=tz_menit))
+    awal = datetime.combine(dari, time.min, tzinfo=zona)
+    akhir = datetime.combine(sampai + timedelta(days=1), time.min, tzinfo=zona)
     waktu = func.coalesce(Pembayaran.dibayar_pada, Pembayaran.created_at)
 
     pembayaran = (
@@ -201,7 +204,7 @@ async def rekonsiliasi(
     tercatat: dict[tuple[date, uuid.UUID], Decimal] = {}
     for jumlah, ts, metode_id, metode_nama in pembayaran:
         nama[metode_id] = metode_nama
-        kunci = (ts.date(), metode_id)
+        kunci = ((ts if ts.tzinfo else ts.replace(tzinfo=UTC)).astimezone(zona).date(), metode_id)
         tercatat[kunci] = tercatat.get(kunci, Decimal("0")) + Decimal(jumlah)
 
     diterima: dict[tuple[date, uuid.UUID], tuple[Decimal, Decimal]] = {}

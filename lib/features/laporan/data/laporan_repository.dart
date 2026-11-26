@@ -53,15 +53,16 @@ class LaporanRepository {
   // (package:flutter/material.dart) supaya layer data ini tidak perlu
   // tergantung framework UI.
   (int awalMs, int akhirMs) _rentang(PeriodeLaporan periode, (DateTime, DateTime)? custom) {
-    final sekarang = DateTime.now().toUtc();
-    final akhirHariIni = DateTime.utc(sekarang.year, sekarang.month, sekarang.day)
+    // Hari menurut jam HP (bukan UTC): transaksi 00.00-07.00 WIB harus masuk "Hari ini", bukan kemarin.
+    final sekarang = DateTime.now();
+    final akhirHariIni = DateTime(sekarang.year, sekarang.month, sekarang.day)
         .add(const Duration(days: 1));
     if (periode == PeriodeLaporan.custom) {
       final r = custom;
       if (r == null) return (akhirHariIni.subtract(const Duration(days: 1)).millisecondsSinceEpoch, akhirHariIni.millisecondsSinceEpoch);
       final (mulai, selesai) = r;
-      final awal = DateTime.utc(mulai.year, mulai.month, mulai.day);
-      final akhir = DateTime.utc(selesai.year, selesai.month, selesai.day).add(const Duration(days: 1));
+      final awal = DateTime(mulai.year, mulai.month, mulai.day);
+      final akhir = DateTime(selesai.year, selesai.month, selesai.day + 1);
       return (awal.millisecondsSinceEpoch, akhir.millisecondsSinceEpoch);
     }
     final jumlahHari = switch (periode) {
@@ -224,10 +225,10 @@ List<PenjualanHarian> susunPenjualanHarian(Iterable<(int, int)> transaksi, int a
     _susunPenjualanHarian(transaksi, awalMs, akhirMs);
 
 List<PenjualanHarian> _susunPenjualanHarian(Iterable<(int, int)> transaksi, int awalMs, int akhirMs) {
-  // Hari UTC, sama dengan batas periode laporan (rentang dihitung per hari UTC), supaya 7 hari = 7 batang.
+  // Hari menurut jam HP, sama dengan batas periode laporan, supaya 7 hari = 7 batang.
   DateTime hari(int ms) {
-    final d = DateTime.fromMillisecondsSinceEpoch(ms, isUtc: true);
-    return DateTime.utc(d.year, d.month, d.day);
+    final d = DateTime.fromMillisecondsSinceEpoch(ms);
+    return DateTime(d.year, d.month, d.day);
   }
 
   final total = <DateTime, int>{};
@@ -238,7 +239,7 @@ List<PenjualanHarian> _susunPenjualanHarian(Iterable<(int, int)> transaksi, int 
   final awal = hari(awalMs);
   final akhir = hari(akhirMs - 1);
   final hasil = <PenjualanHarian>[];
-  for (var h = awal; !h.isAfter(akhir) && hasil.length < 92; h = DateTime.utc(h.year, h.month, h.day + 1)) {
+  for (var h = awal; !h.isAfter(akhir) && hasil.length < 92; h = DateTime(h.year, h.month, h.day + 1)) {
     hasil.add(PenjualanHarian(tanggal: h, total: total[h] ?? 0));
   }
   return hasil;

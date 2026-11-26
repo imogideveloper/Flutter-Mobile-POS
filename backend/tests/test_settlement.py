@@ -125,3 +125,27 @@ async def test_toko_lain_dan_paket_gratis(client: AsyncClient, db_session: Async
 
     gratis = await buat_toko_siap_pakai(db_session, nama_paket="Gratis")
     assert (await client.get("/settlement", headers=gratis.headers, params=_rentang())).status_code == 403
+
+
+async def test_rekonsiliasi_mengelompokkan_tanggal_menurut_zona_waktu_hp(client: AsyncClient, db_session: AsyncSession) -> None:
+    """Pembayaran 06.52 WIB (23.52 UTC hari sebelumnya) harus masuk tanggal lokal, bukan tanggal UTC (temuan HP 2026-11-26)."""
+    from datetime import UTC, datetime
+
+    from app.models.transaksi import Pembayaran, Transaksi
+
+    toko = await buat_toko_siap_pakai(db_session, nama_paket="Bisnis")
+    metode = await buat_metode_bayar(db_session, toko.toko.id, tipe="qris")
+    ts = datetime(2026, 11, 25, 23, 52, tzinfo=UTC)
+    t = Transaksi(toko_id=toko.toko.id, outlet_id=toko.outlet.id, pengguna_id=toko.pengguna.id, nomor_struk="TZ-1", tanggal=ts, status="selesai",
+                  subtotal=10000, total=10000, total_bayar=10000)
+    db_session.add(t)
+    await db_session.flush()
+    db_session.add(Pembayaran(transaksi_id=t.id, metode_bayar_id=metode.id, jumlah=10000, status="berhasil", dibayar_pada=ts))
+    await db_session.commit()
+
+    p = {"dari": "2026-11-25", "sampai": "2026-11-26", "tz_menit": 420}
+    baris = (await client.get("/settlement/rekonsiliasi", headers=toko.headers, params=p)).json()["baris"]
+    assert [b["tanggal"] for b in baris] == ["2026-11-26"]
+    p["tz_menit"] = 0
+    baris = (await client.get("/settlement/rekonsiliasi", headers=toko.headers, params=p)).json()["baris"]
+    assert [b["tanggal"] for b in baris] == ["2026-11-25"], "tanpa zona waktu tetap perilaku lama (UTC)"
