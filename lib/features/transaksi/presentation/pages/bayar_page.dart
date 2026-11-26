@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/providers/izin_provider.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/providers/session_provider.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -335,6 +336,8 @@ class _BayarPageState extends ConsumerState<BayarPage> {
                   // atas (bukan metode pembayaran dalam arti gateway, tapi
                   // kesepakatan "bayar belakangan") - dibuka ke halaman
                   // sendiri (BayarKasbonPage), sama pola dgn QRIS.
+                  // Kasbon hanya untuk peran dengan izin bon.jual (Barista dkk. tidak).
+                  if (ref.watch(izinSayaProvider).value?.contains('bon.jual') ?? false) ...[
                   const SizedBox(height: AppSpacing.sm),
                   FiturTerkunci(
                     kode: 'kasbon',
@@ -349,6 +352,7 @@ class _BayarPageState extends ConsumerState<BayarPage> {
                       ),
                     ),
                   ),
+                  ],
                   const SizedBox(height: AppSpacing.xl),
                   if (_modeSplit)
                     _SplitPembayaranForm(

@@ -1,4 +1,5 @@
 import 'package:apps_pos/core/auth/izin_service.dart';
+import 'package:apps_pos/core/auth/pin_hash.dart';
 import 'package:apps_pos/core/database/app_database.dart';
 import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
@@ -114,6 +115,21 @@ void main() {
     // PIN yang dicari tidak match siapapun (hash input != 'sama-sama-...'),
     // jadi tidak ada kandidat sama sekali - termasuk owner yang justru
     // punya izinnya.
+    expect(approver, isNull);
+  });
+
+  test('penyetuju wajib punya izin persetujuan.pin: kasir dengan PIN benar dan izin aksi tetap ditolak', () async {
+    final kasirId = await buatKasir();
+    await (db.update(db.pengguna)..where((t) => t.id.equals(kasirId))).write(
+      PenggunaCompanion(pinHash: Value(hashPin('246810'))),
+    );
+
+    // Kasir punya izin transaksi.buat, tetapi bukan persetujuan.pin: tidak boleh menyetujui (dulu lolos).
+    final approver = await izinService.cariPenggunaUntukApproval(
+      tokoId: 'toko-default',
+      pin: '246810',
+      kodeIzin: 'transaksi.buat',
+    );
     expect(approver, isNull);
   });
 }

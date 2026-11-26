@@ -89,8 +89,8 @@ class BaganAkunPage extends ConsumerWidget {
             children: [
               Text(
                 'Bagan akun standar untuk usaha makanan dan minuman. Beban seperti sewa dan listrik dicatat lewat '
-                'Pengeluaran dan otomatis masuk ke akun di bawah. Daftar ini usulan awal dan belum bisa diubah; '
-                'jurnal umum dan buku besar belum tersedia.',
+                'Pengeluaran dan otomatis masuk ke akun di bawah. Daftar akun tetap (sama untuk semua usaha) dan '
+                'dipakai di Laporan keuangan serta ekspor akuntansi.',
                 style: AppTypography.secondary,
               ),
               const SizedBox(height: AppSpacing.lg),

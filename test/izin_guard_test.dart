@@ -28,8 +28,10 @@ void main() {
 
   test('tab Produk/Laporan tersembunyi untuk kasir, tampil untuk owner', () {
     expect(tabTersembunyi({'transaksi.buat', 'shift.buka_tutup'}), {tabProduk, tabLaporan});
-    expect(tabTersembunyi({'produk.kelola'}), {tabLaporan});
-    expect(tabTersembunyi({'produk.kelola', 'laporan.lihat'}), isEmpty);
-    expect(tabTersembunyi(const {}), {tabProduk, tabLaporan});
+    expect(tabTersembunyi({'produk.kelola', 'transaksi.buat'}), {tabLaporan});
+    expect(tabTersembunyi({'produk.kelola', 'laporan.lihat', 'transaksi.buat'}), isEmpty);
+    // Gudang: tanpa izin jualan, tab Kasir dan Riwayat ikut tersembunyi (AT29).
+    expect(tabTersembunyi({'pembelian.kelola', 'stok.kelola', 'stok.opname_posting'}), {tabKasir, tabRiwayat, tabProduk, tabLaporan});
+    expect(tabTersembunyi(const {}), {tabKasir, tabRiwayat, tabProduk, tabLaporan});
   });
 }

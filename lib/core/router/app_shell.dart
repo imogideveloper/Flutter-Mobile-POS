@@ -7,6 +7,8 @@ import '../widgets/app_bottom_nav_bar.dart';
 import '../utils/platform_perangkat.dart';
 
 /// Indeks tab bawah (urutan sama dengan branch di app_router.dart).
+const tabKasir = 0;
+const tabRiwayat = 1;
 const tabProduk = 2;
 const tabLaporan = 3;
 
@@ -14,6 +16,8 @@ const tabLaporan = 3;
 Set<int> tabTersembunyi(Set<String> izin) => {
   if (!izin.contains('produk.kelola')) tabProduk,
   if (!izin.contains('laporan.lihat')) tabLaporan,
+  // Peran tanpa izin jualan (mis. Gudang) tidak melihat tab Kasir dan Riwayat (temuan AT29).
+  if (!izin.contains('transaksi.buat')) ...{tabKasir, tabRiwayat},
 };
 
 /// Shell bottom-nav 5 tab (Kasir/Riwayat/Produk/Laporan/Lainnya). Dipakai
@@ -28,6 +32,12 @@ class AppShell extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final izin = ref.watch(izinSayaProvider).value ?? const <String>{};
     final tersembunyi = tabTersembunyi(izin);
+    // Tab yang sedang terbuka disembunyikan untuk peran ini (mis. Gudang mendarat di Kasir): pindah ke tab terlihat
+    // pertama. Hanya setelah izin termuat, supaya tidak berkedip saat aplikasi dibuka.
+    if (ref.watch(izinSayaProvider).hasValue && tersembunyi.contains(navigationShell.currentIndex)) {
+      final tujuan = [for (var i = 0; i < 5; i++) i].firstWhere((i) => !tersembunyi.contains(i), orElse: () => 4);
+      WidgetsBinding.instance.addPostFrameCallback((_) => navigationShell.goBranch(tujuan));
+    }
     void pindahTab(int index) =>
         navigationShell.goBranch(index, initialLocation: index == navigationShell.currentIndex);
 

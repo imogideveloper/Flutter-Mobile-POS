@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/providers/izin_provider.dart';
 import '../../../../core/providers/session_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -64,14 +65,20 @@ class KasirPage extends ConsumerWidget {
       ),
       body: shiftAktif.when(
         data: (shift) => shift == null
-            ? EmptyState(
-                icon: Icons.point_of_sale_outlined,
-                message: 'Buka shift dulu sebelum mulai transaksi',
-                action: FilledButton(
-                  onPressed: () => context.push('/shift/buka'),
-                  child: const Text('Buka Shift'),
-                ),
-              )
+            ? ((ref.watch(izinSayaProvider).value?.contains('shift.buka_tutup') ?? false)
+                ? EmptyState(
+                    icon: Icons.point_of_sale_outlined,
+                    message: 'Buka shift dulu sebelum mulai transaksi',
+                    action: FilledButton(
+                      onPressed: () => context.push('/shift/buka'),
+                      child: const Text('Buka Shift'),
+                    ),
+                  )
+                // Peran tanpa izin buka shift (mis. Barista) dulu melihat tombol yang ditolak saat diketuk (AT29).
+                : const EmptyState(
+                    icon: Icons.point_of_sale_outlined,
+                    message: 'Shift belum dibuka. Minta kasir atau pengelola membuka shift dulu.',
+                  ))
             : const _KasirGrid(),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => Center(child: Text('Gagal memuat shift: $error')),

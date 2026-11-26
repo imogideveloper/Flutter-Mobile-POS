@@ -289,7 +289,7 @@ class LainnyaPage extends ConsumerWidget {
                               .value
                               ?.has('status_pesanan') ??
                           false;
-                      if (!punya) return const SizedBox.shrink();
+                      if (!punya || !izinSaya.contains('pesanan.status')) return const SizedBox.shrink();
                       return SettingsMenuRow(
                         label: 'Status pesanan',
                         ikon: Icons.soup_kitchen_outlined,

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/providers/izin_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -45,6 +46,7 @@ class _PelangganListPageState extends ConsumerState<PelangganListPage> {
       appBar: AppBar(
         title: const Text('Pelanggan'),
         actions: [
+          if (ref.watch(izinSayaProvider).value?.contains('bon.lihat') ?? false)
           IconButton(
             tooltip: 'Piutang',
             icon: const Icon(Icons.receipt_long_outlined),

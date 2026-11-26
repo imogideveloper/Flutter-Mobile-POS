@@ -84,7 +84,11 @@ class IzinService {
         .get();
 
     for (final pengguna in kandidat) {
-      if (verifyPin(pin, pengguna.pinHash) && await hasIzin(pengguna.id, kodeIzin)) {
+      // Penyetuju wajib punya izin aksinya DAN izin persetujuan.pin (Owner/Manajer). Dulu persetujuan.pin tidak
+      // dipakai sama sekali, jadi peran mana pun yang kebetulan punya izin aksi bisa menyetujui.
+      if (verifyPin(pin, pengguna.pinHash) &&
+          await hasIzin(pengguna.id, kodeIzin) &&
+          await hasIzin(pengguna.id, 'persetujuan.pin')) {
         return pengguna;
       }
     }

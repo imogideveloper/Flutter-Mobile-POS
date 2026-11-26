@@ -12,7 +12,7 @@ import '../../../produk/presentation/providers/impor_produk_providers.dart' show
 import 'settlement_page.dart' show tanggalIso;
 
 /// Ekspor ringkasan harian ke CSV untuk software akuntansi (IMOGI no. 85). Butuh internet; berkas dibuat server
-/// lalu dibagikan lewat menu bagikan. Pemetaan akun dilakukan akuntan di software tujuan.
+/// lalu dibagikan lewat menu bagikan. Tiap baris membawa kode akun usulan dari bagan akun standar.
 class EksporAkuntansiPage extends ConsumerStatefulWidget {
   const EksporAkuntansiPage({super.key});
 
@@ -86,7 +86,7 @@ class _EksporAkuntansiPageState extends ConsumerState<EksporAkuntansiPage> {
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   'Satu baris per tanggal: penjualan bersih, pajak dipungut, HPP, penerimaan per metode '
-                  'bayar, dan biaya per kategori. Kode akun dipetakan akuntan di Jurnal, Accurate, atau Zahir.',
+                  'bayar, dan biaya per kategori, lengkap dengan kode akun dari bagan akun standar.',
                   style: AppTypography.secondary,
                 ),
               ],

@@ -124,7 +124,7 @@ GoRouter _buildRouter() => GoRouter(
                     ),
                     GoRoute(
                       path: 'kasbon',
-                      builder: (context, state) => const BayarKasbonPage(),
+                      builder: (context, state) => const IzinGuard(kodeIzin: 'bon.jual', child: BayarKasbonPage()),
                     ),
                   ],
                 ),
@@ -264,7 +264,7 @@ GoRouter _buildRouter() => GoRouter(
     ),
     GoRoute(
       path: '/status-pesanan',
-      builder: (context, state) => const StatusPesananPage(),
+      builder: (context, state) => const IzinGuard(kodeIzin: 'pesanan.status', child: StatusPesananPage()),
     ),
     GoRoute(
       path: '/stok',
@@ -492,14 +492,14 @@ GoRouter _buildRouter() => GoRouter(
     GoRoute(
       path: '/piutang',
       builder: (context, state) => IzinGuard(
-        kodeIzin: 'pelanggan.kelola',
+        kodeIzin: 'bon.lihat',
         child: const PiutangListPage(),
       ),
       routes: [
         GoRoute(
           path: 'pelunasan',
           builder: (context, state) => IzinGuard(
-            kodeIzin: 'pelanggan.kelola',
+            kodeIzin: 'bon.lihat',
             child: PelunasanPage(pelangganId: state.extra as String),
           ),
         ),
