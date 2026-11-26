@@ -285,6 +285,13 @@ async def test_tambah_outlet_dalam_kuota_diterima(client: AsyncClient, db_sessio
     assert resp.status_code == 201
 
 
+async def test_tambah_outlet_hanya_untuk_pengelola(client: AsyncClient, db_session: AsyncSession) -> None:
+    """Kasir tidak boleh menambah outlet walau paket dan kuota cukup (dulu tidak ada pemeriksaan izin)."""
+    kasir = await buat_toko_siap_pakai(db_session, nama_paket="Bisnis", jumlah_outlet=2, nama_role="Kasir")
+    resp = await client.post("/outlets", headers=kasir.headers, json={"kode": "OUT2", "nama": "Outlet Kedua"})
+    assert resp.status_code == 403
+
+
 async def test_sync_pull_mengirim_batas_fitur(client: AsyncClient, db_session: AsyncSession) -> None:
     toko = await buat_toko_siap_pakai(db_session, nama_paket="Gratis")
     perangkat = await buat_perangkat(db_session, toko.toko.id, toko.outlet.id)

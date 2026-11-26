@@ -57,8 +57,14 @@ async def daftar_outlet_saya(
 
 @router.post("", response_model=OutletOut, status_code=status.HTTP_201_CREATED)
 async def tambah_outlet(
-    body: OutletIn, toko_id: uuid.UUID = Depends(get_toko_id), db: AsyncSession = Depends(get_db)
+    body: OutletIn,
+    toko_id: uuid.UUID = Depends(get_toko_id),
+    role_id: uuid.UUID = Depends(get_role_id),
+    db: AsyncSession = Depends(get_db),
 ) -> Outlet:
+    # Menambah outlet = mengubah susunan usaha; hanya peran pengelola (Owner/Manajer), bukan Kasir dkk.
+    if not await has_izin(db, role_id, "pengaturan.kelola"):
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Role ini tidak punya izin pengaturan.kelola")
     jumlah_sekarang = await db.scalar(
         select(func.count()).select_from(Outlet).where(Outlet.toko_id == toko_id, Outlet.deleted_at.is_(None))
     )

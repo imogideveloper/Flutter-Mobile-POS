@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/network/auth_session_store.dart';
+import '../../../../core/network/backend_exception.dart';
 import '../../../../core/network/dio_backend_api.dart';
 import '../../../../core/network/sync_repository.dart';
+import '../../../../core/providers/izin_provider.dart';
 import '../../../../core/providers/session_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -47,6 +49,84 @@ Future<void> gantiOutletAktif(WidgetRef ref, String outletId) async {
   ref.read(currentOutletIdProvider.notifier).set(outletId);
   // Best-effort: kalau offline, data outlet baru terunduh pada sync berikutnya.
   unawaited(ref.read(syncRepositoryProvider).jalankan(outletId: outletId).then((_) {}, onError: (_) {}));
+}
+
+/// Kode outlet baru yang belum dipakai: OUT1, OUT2, ... (pemilik tidak perlu memikirkan kode).
+String kodeOutletBaru(Iterable<String> kodeAda) {
+  final ada = kodeAda.map((k) => k.toUpperCase()).toSet();
+  var n = ada.length + 1;
+  while (ada.contains('OUT$n')) {
+    n++;
+  }
+  return 'OUT$n';
+}
+
+/// Tambah outlet baru (IMOGI no. 87). Hanya untuk peran dengan izin pengaturan.kelola; server tetap memeriksa izin,
+/// fitur multi_outlet, dan kuota outlet langganan.
+Future<void> tambahOutlet(BuildContext context, WidgetRef ref, List<OutletPilihan> ada) async {
+  final nama = TextEditingController();
+  final alamat = TextEditingController();
+  final simpan = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: const Text('Tambah outlet'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            key: const Key('tambahOutlet.nama'),
+            controller: nama,
+            decoration: const InputDecoration(labelText: 'Nama outlet', hintText: 'Contoh: Cabang Kemang'),
+            textCapitalization: TextCapitalization.words,
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          TextField(
+            key: const Key('tambahOutlet.alamat'),
+            controller: alamat,
+            decoration: const InputDecoration(labelText: 'Alamat (opsional)'),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Batal')),
+        FilledButton(
+          key: const Key('tambahOutlet.simpan'),
+          onPressed: () => Navigator.pop(ctx, true),
+          child: const Text('Simpan'),
+        ),
+      ],
+    ),
+  );
+  if (simpan != true || !context.mounted) return;
+  if (nama.text.trim().isEmpty) {
+    showAppToast(context, message: 'Nama outlet wajib diisi', variant: ToastVariant.warning);
+    return;
+  }
+  try {
+    final sesi = await ref.read(authSessionStoreProvider).muat();
+    if (sesi == null) throw const BackendException(message: 'Perangkat belum terhubung ke server');
+    await ref.read(backendApiProvider).postJson(
+      accessToken: sesi.accessToken,
+      path: '/outlets',
+      body: {
+        'kode': kodeOutletBaru(ada.map((o) => o.kode)),
+        'nama': nama.text.trim(),
+        if (alamat.text.trim().isNotEmpty) 'alamat': alamat.text.trim(),
+      },
+    );
+    ref.invalidate(outletSayaProvider);
+    if (context.mounted) {
+      showAppToast(context, message: 'Outlet ${nama.text.trim()} ditambahkan', variant: ToastVariant.success);
+    }
+  } on BackendException catch (e) {
+    if (context.mounted) {
+      showAppToast(
+        context,
+        message: e.tidakAdaKoneksi ? 'Butuh internet untuk menambah outlet.' : e.message,
+        variant: ToastVariant.danger,
+      );
+    }
+  }
 }
 
 class GantiOutletPage extends ConsumerWidget {
@@ -94,6 +174,14 @@ class GantiOutletPage extends ConsumerWidget {
     final outlet = ref.watch(outletSayaProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('Ganti outlet')),
+      floatingActionButton: (ref.watch(izinSayaProvider).value?.contains('pengaturan.kelola') ?? false) && outlet.hasValue
+          ? FloatingActionButton.extended(
+              key: const Key('gantiOutlet.tambah'),
+              onPressed: () => unawaited(tambahOutlet(context, ref, outlet.value!)),
+              icon: const Icon(Icons.add_business_outlined),
+              label: const Text('Tambah outlet'),
+            )
+          : null,
       body: outlet.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Gagal memuat outlet (perlu internet): $e')),

@@ -1,5 +1,8 @@
 import 'package:apps_pos/core/database/app_database.dart';
 import 'package:apps_pos/core/network/auth_session_store.dart';
+import 'package:apps_pos/core/network/backend_api.dart';
+import 'package:apps_pos/core/network/dio_backend_api.dart';
+import 'package:apps_pos/core/providers/izin_provider.dart';
 import 'package:apps_pos/core/providers/session_provider.dart';
 import 'package:apps_pos/features/outlet/presentation/pages/ganti_outlet_page.dart';
 import 'package:drift/native.dart';
@@ -28,6 +31,7 @@ final _daftar = [
 ];
 
 void main() {
+  mainTambah();
   testWidgets('menandai outlet aktif; memilih outlet lain meminta konfirmasi lalu menyimpan dan mengganti provider',
       (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
@@ -98,6 +102,79 @@ void main() {
     expect(find.byKey(const Key('gantiOutlet.ya')), findsNothing);
     expect(store.outletDisimpan, isEmpty);
 
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(milliseconds: 1));
+  });
+}
+
+class _StoreSesi extends AuthSessionStore {
+  _StoreSesi() : super(const FlutterSecureStorage());
+
+  @override
+  Future<SesiBackend?> muat() async => const SesiBackend(
+        accessToken: 't',
+        refreshToken: 'r',
+        tokoId: tokoIdPlaceholder,
+        outletId: outletIdPlaceholder,
+        penggunaId: 'u',
+        perangkatId: 'p',
+      );
+}
+
+class _ApiOutlet implements BackendApi {
+  final kiriman = <Map<String, dynamic>>[];
+
+  @override
+  Future<dynamic> postJson({required String accessToken, required String path, Map<String, dynamic>? body}) async {
+    expect(path, '/outlets');
+    kiriman.add(body!);
+    return {...body, 'id': 'o-baru'};
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+void mainTambah() {
+  test('kode outlet baru tidak bentrok', () {
+    expect(kodeOutletBaru(['OUT1']), 'OUT2');
+    expect(kodeOutletBaru(['OUT1', 'OUT2', 'OUT3']), 'OUT4');
+    expect(kodeOutletBaru(['out1', 'OUT3']), 'OUT4', reason: 'OUT3 sudah dipakai, lompati');
+  });
+
+  Future<_ApiOutlet> pasang(WidgetTester tester, Set<String> izin) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final api = _ApiOutlet();
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        ...overridesSudahLogin(db).where((o) => o.toString().contains('AuthSessionStore') == false),
+        authSessionStoreProvider.overrideWithValue(_StoreSesi()),
+        backendApiProvider.overrideWithValue(api),
+        izinSayaProvider.overrideWith((ref) async => izin),
+        outletSayaProvider.overrideWith((ref) async => [_daftar.first]),
+      ],
+      child: const MaterialApp(home: GantiOutletPage()),
+    ));
+    await tester.pumpAndSettle();
+    return api;
+  }
+
+  testWidgets('pengelola bisa menambah outlet dari layar Ganti outlet', (tester) async {
+    final api = await pasang(tester, {'pengaturan.kelola'});
+    await tester.tap(find.byKey(const Key('gantiOutlet.tambah')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('tambahOutlet.nama')), 'Cabang Kemang');
+    await tester.tap(find.byKey(const Key('tambahOutlet.simpan')));
+    await tester.pumpAndSettle();
+    expect(api.kiriman.single, {'kode': 'OUT2', 'nama': 'Cabang Kemang'});
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(milliseconds: 1));
+  });
+
+  testWidgets('peran tanpa izin pengaturan tidak melihat tombol Tambah outlet', (tester) async {
+    await pasang(tester, {'transaksi.buat'});
+    expect(find.byKey(const Key('gantiOutlet.tambah')), findsNothing);
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(milliseconds: 1));
   });

@@ -327,18 +327,23 @@ class _KasirGridState extends ConsumerState<_KasirGrid> {
                 return const EmptyState(icon: Icons.inventory_2_outlined, message: 'Belum ada produk');
               }
 
-              return GridView.builder(
+              return LayoutBuilder(
+                builder: (context, batas) => GridView.builder(
                 padding: const EdgeInsets.fromLTRB(
                   AppSpacing.xl,
                   AppSpacing.xs,
                   AppSpacing.xl,
                   AppSpacing.md,
                 ),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: kolomGridKasir(batas.maxWidth),
                   mainAxisSpacing: AppSpacing.sm,
                   crossAxisSpacing: AppSpacing.sm,
-                  childAspectRatio: 0.7,
+                  // Foto 1:1 (permintaan lead 2026-11-26): tinggi kartu = lebar kartu + ruang teks dan tombol jumlah.
+                  mainAxisExtent: tinggiKartuProdukKasir(
+                    lebarGrid: batas.maxWidth,
+                    skalaTeks: MediaQuery.textScalerOf(context).scale(1),
+                  ),
                 ),
                 itemCount: tampil.length,
                 itemBuilder: (context, index) {
@@ -362,6 +367,7 @@ class _KasirGridState extends ConsumerState<_KasirGrid> {
                     onIsiJumlah: () => _isiJumlah(produk: produk, stok: stok, izinkanStokMinus: izinkanStokMinus),
                   );
                 },
+              ),
               );
             },
             loading: () => const Center(child: CircularProgressIndicator()),
@@ -393,12 +399,16 @@ class _KasirGridState extends ConsumerState<_KasirGrid> {
                       // tinggi Row penuh (default MainAxisSize.max) dan
                       // kedua baris teks terdorong ke ATAS alih-alih berada
                       // di tengah tombol.
-                      Column(
+                      // Flexible + ellipsis: di HP sempit atau huruf besar, jumlah dan total mengalah, tidak meluap.
+                      Flexible(
+                        child: Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             '${totalQty.toStringAsFixed(0)} item',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.78),
                               fontSize: 12,
@@ -409,6 +419,8 @@ class _KasirGridState extends ConsumerState<_KasirGrid> {
                           const SizedBox(height: 2),
                           Text(
                             _formatRupiah.format(subtotal),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w700,
@@ -416,7 +428,9 @@ class _KasirGridState extends ConsumerState<_KasirGrid> {
                             ),
                           ),
                         ],
+                        ),
                       ),
+                      const SizedBox(width: 12),
                       const Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -503,7 +517,7 @@ class _ProdukGridTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   AspectRatio(
-                    aspectRatio: 1.3,
+                    aspectRatio: 1, // foto persegi 1:1 (permintaan lead 2026-11-26)
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(10),
                       child: _FotoProduk(produk: produk),
@@ -526,11 +540,15 @@ class _ProdukGridTile extends StatelessWidget {
                   // Pola umum POS: produk yang sudah dipilih menampilkan - jumlah + langsung di kartu.
                   if (qtyDiKeranjang != null)
                     Center(
-                      child: QtyStepper(
-                        qty: qtyDiKeranjang!,
-                        onIncrement: onTap,
-                        onDecrement: onKurang,
-                        onQtyTap: onIsiJumlah,
+                      // Diperkecil otomatis bila kartu sempit (HP 360 dp: tombol jumlah dulu meluap 6,9 px).
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: QtyStepper(
+                          qty: qtyDiKeranjang!,
+                          onIncrement: onTap,
+                          onDecrement: onKurang,
+                          onQtyTap: onIsiJumlah,
+                        ),
                       ),
                     ),
                 ],
@@ -636,4 +654,23 @@ class _BarisKategori extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Jumlah kolom grid Kasir: 2 di HP, bertambah di layar lebar (tablet, desktop) supaya foto persegi tidak raksasa.
+/// Kartu paling lebar sekitar 200 dp.
+int kolomGridKasir(double lebarGrid) {
+  final ruang = lebarGrid - 2 * AppSpacing.xl + AppSpacing.sm;
+  return (ruang / (200 + AppSpacing.sm)).ceil().clamp(2, 8);
+}
+
+/// Tinggi kartu produk di grid Kasir: foto persegi selebar kartu ditambah nama (maks 2 baris), harga, label stok,
+/// dan tombol jumlah. Dihitung dari lebar layar supaya foto benar-benar 1:1 di HP kecil maupun tablet.
+double tinggiKartuProdukKasir({required double lebarGrid, double skalaTeks = 1}) {
+  final kolom = kolomGridKasir(lebarGrid);
+  final lebarKartu = (lebarGrid - 2 * AppSpacing.xl - (kolom - 1) * AppSpacing.sm) / kolom;
+  final lebarFoto = lebarKartu - 2 * AppSpacing.sm;
+  // Teks: nama 2 baris, harga, stok. Tombol jumlah muncul setelah produk dipilih.
+  const teks = 36.0 + 22 + 16;
+  const tombolJumlah = 40.0;
+  return 2 * AppSpacing.sm + lebarFoto + AppSpacing.xs + teks * skalaTeks + tombolJumlah + AppSpacing.xs;
 }
