@@ -149,3 +149,33 @@ async def test_laporan_toko_b_tidak_melihat_data_toko_a(
         },
     )
     assert resp.json()["jumlah_transaksi"] == 0
+
+
+async def test_laba_kotor_ringkasan_dikurangi_diskon_transaksi(client: AsyncClient, db_session: AsyncSession, toko_a) -> None:
+    """Laba kotor tab Laporan = penjualan bersih - HPP, sama dengan Laba rugi (temuan HP 2026-11-26: Rp338.000 vs Rp308.400)."""
+    produk = await buat_produk(db_session, toko_a.toko.id, harga_jual=Decimal("18000"))
+    metode = await buat_metode_bayar(db_session, toko_a.toko.id)
+    sekarang = datetime.now(UTC)
+    from app.models.promo import Promo
+
+    promo = Promo(toko_id=toko_a.toko.id, nama="Uji 10", tipe="persen", nilai=Decimal("10"), aktif=True)
+    db_session.add(promo)
+    await db_session.commit()
+    resp = await client.post(
+        "/transaksi",
+        headers=toko_a.headers,
+        json={
+            "outlet_id": str(toko_a.outlet.id),
+            "nomor_struk": "OUT1-LK1",
+            "tanggal": sekarang.isoformat(),
+            "items": [{"produk_id": str(produk.id), "nama_produk": produk.nama, "qty": "2", "harga_satuan": "18000", "hpp_satuan": "7000"}],
+            "promo_id": str(promo.id),
+            "metode_bayar_id": str(metode.id),
+            "total_bayar": "32400",
+        },
+    )
+    assert resp.status_code == 201, resp.text
+    params = {"dari": (sekarang - timedelta(days=1)).isoformat(), "sampai": (sekarang + timedelta(days=1)).isoformat()}
+    ringkas = (await client.get("/laporan/penjualan", headers=toko_a.headers, params=params)).json()
+    assert Decimal(ringkas["penjualan_bersih"]) == Decimal("32400")
+    assert Decimal(ringkas["laba_kotor"]) == Decimal("32400") - Decimal("14000"), "penjualan bersih dikurangi HPP, seperti Laba rugi"

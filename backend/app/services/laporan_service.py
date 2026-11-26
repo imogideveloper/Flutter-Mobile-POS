@@ -281,13 +281,8 @@ async def ringkasan_penjualan(
     penjualan_bersih = sum((p.penjualan_bersih for p in penjualan_list), nol)
     pajak_service = sum((p.pajak_service for p in penjualan_list), nol)
     total_penerimaan = sum((p.total_penerimaan for p in penjualan_list), nol)
-    laba_kotor = sum(
-        (
-            (i.item.harga_satuan * i.qty - i.item.hpp_satuan * i.qty_hpp)
-            for i in items
-        ),
-        nol,
-    )
+    # Laba kotor = penjualan bersih (setelah diskon dan refund) dikurangi HPP, sama dengan Laba rugi (HP 2026-11-26).
+    laba_kotor = penjualan_bersih - sum((i.item.hpp_satuan * i.qty_hpp for i in items), nol)
     jumlah_transaksi = len(penjualan_list)
     rata_rata = (penjualan_bersih / jumlah_transaksi) if jumlah_transaksi else nol
 

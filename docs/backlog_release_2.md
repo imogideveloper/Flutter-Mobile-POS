@@ -47,4 +47,4 @@ penyempurnaan dari 17 fitur yang dinaikkan menjadi "sudah" pada tanggal itu. Sum
 | 83 | Aset tetap | Metode saldo menurun; pelepasan atau penjualan aset |
 | 84 | Konsolidasi | Neraca dan arus kas per outlet |
 | 85 | Ekspor akuntansi | Format khusus Jurnal/Accurate/Zahir |
-| 69, 65, Laporan | Laporan | Samakan laba kotor di tab Laporan (Rp338.000) dengan Laba rugi dan Laporan keuangan (Rp308.400): tab Laporan belum mengurangkan diskon transaksi |
+| 69, 65, Laporan | Laporan | (Selesai 2026-11-26: laba kotor tab Laporan kini sama dengan Laba rugi, AT40) |

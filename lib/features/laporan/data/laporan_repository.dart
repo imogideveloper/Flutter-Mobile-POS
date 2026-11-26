@@ -99,8 +99,9 @@ class LaporanRepository {
     final pembayaranList = await _transaksiDao.pembayaranUntukTransaksiList(transaksiIds);
 
     final penjualanBersih = angkaTotal.penjualanBersih;
-    // Laba kotor per item: harga x qty yang masih terjual dikurangi HPP x qty yang HPP-nya masih ditanggung.
-    final labaKotor = items.fold<int>(0, (a, item) => a + item.labaKotor);
+    // Laba kotor = penjualan bersih (setelah diskon item, diskon transaksi, dan refund) dikurangi HPP, sama dengan
+    // Laba rugi dan Laporan keuangan. Dulu dihitung per item sebelum diskon transaksi sehingga lebih besar (HP 2026-11-26).
+    final labaKotor = penjualanBersih - items.fold<int>(0, (a, item) => a + item.hpp);
 
     final jamTotal = <int, int>{};
     for (final t in transaksiList) {

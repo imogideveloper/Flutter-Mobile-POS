@@ -82,6 +82,32 @@ void main() {
     await db.transaksiDao.terapkanStatusRefund(transaksiId: transaksiId, statusServer: status, now: 2);
   }
 
+  test('diskon transaksi (member) ikut mengurangi laba kotor, sama dengan Laba rugi (HP 2026-11-26)', () async {
+    final items = [
+      const ItemKeranjang(produkId: 'p1', namaProduk: 'Kopi', hargaSatuan: 18000, qty: 2, lacakStok: false),
+    ];
+    await repo.checkout(
+      tokoId: 't1',
+      outletId: 'o1',
+      shiftId: 's1',
+      penggunaId: 'u1',
+      metodeBayarId: 'metode-tunai-default',
+      items: items,
+      hasil: k.hitung(k.TransaksiInput(
+        items: [
+          for (final i in items)
+            k.ItemInput(produkId: i.produkId, varianId: null, namaProduk: i.namaProduk, qty: i.qty, hargaJual: i.hargaSatuan),
+        ],
+        fiturAktif: const {'diskon_member'},
+        diskonMemberPersen: 10,
+      )),
+      totalBayar: 32400,
+    );
+    final r = await laporan.ringkasan('o1', PeriodeLaporan.hariIni);
+    expect(r.penjualanBersih, 32400, reason: '36.000 dikurangi diskon member 3.600');
+    expect(r.labaKotor, 32400 - 14000, reason: 'penjualan bersih dikurangi HPP 7.000 x 2');
+  });
+
   test('tanpa refund: laba kotor, tren, dan produk terlaris seperti biasa', () async {
     await jual([2]);
     final r = await laporan.ringkasan('o1', PeriodeLaporan.hariIni);
